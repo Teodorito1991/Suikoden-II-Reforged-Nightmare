@@ -40,7 +40,9 @@ not imported into the publication repository. Source provenance is recorded in
 publication/source-provenance.json.
 
 **A rebuild is a new binary.** SDK and Git informational metadata can change its
-hash. Review packages copy the exact accepted/native-tested DLLs unchanged. Never
+hash. Original accepted/native-tested DLLs remain preserved unchanged. Public review
+copies remove only a personal CodeView PDB path, with new hashes and no inherited
+exact-hash acceptance; see publication/binary-privacy-audit.json. Never
 replace one with a rebuild and retain its acceptance label. Public CI runs managed
 tests and hygiene; it neither downloads game files nor certifies gameplay. Native
 fixtures require locally owned inputs and must not run on a loaded player save.

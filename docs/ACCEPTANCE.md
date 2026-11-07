@@ -34,6 +34,12 @@ session occurred. Preserved implementation is not automatic re-acceptance.
 
 ## Publication boundary
 
+Both original DLLs contained a personal PDB build path. Public review copies remove
+only that debug-path metadata and have new hashes. Managed metadata and all other
+bytes are unchanged; no gameplay code was rebuilt or edited. Static proof does not
+grant exact-hash runtime acceptance. Neither derivative was installed, launched or
+played this milestone. A startup smoke check remains pending before publication.
+
 Included PNGs are historical user-supplied debug captures, with protection ON and
 no independently attached candidate hash. They illustrate original-engine gameplay,
 not balance or acceptance. Packaging checks, managed tests and native fixtures
