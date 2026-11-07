@@ -11,7 +11,7 @@
     "AllBytesOutsideDebugPathUnchanged": true,
     "Rebuilt": false,
     "OriginalGameplayAcceptanceAppliesToPublicHash": false,
-    "PublicHashRuntimeTested": false,
+    "PublicHashRuntimeTested": true,
     "DebugRecords": [
       {
         "DebugRecordType": "CodeView RSDS",
@@ -20,7 +20,8 @@
         "PublishedPdbPath": "ReforgedNightmare.pdb",
         "OriginalPathOmittedForPrivacy": true
       }
-    ]
+    ],
+    "RuntimeVerificationScope": "Isolated startup and rendered original launcher only, not a Castle Hunt quest"
   },
   {
     "Candidate": "B",

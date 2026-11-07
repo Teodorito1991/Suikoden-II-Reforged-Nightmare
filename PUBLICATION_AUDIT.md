@@ -44,10 +44,14 @@ legal opinion. No third-party runtime/game DLL is shipped in the plugin-only ZIP
 Both original candidate DLLs retain their original SHA256 privately. A personal
 PDB path was found in each. Public copies replace only that CodeView string, with
 new hashes, identical managed metadata and every other byte unchanged. No rebuild
-occurred; neither derivative has runtime acceptance. A startup check is pending.
+occurred. A subsequently passed its own isolated startup smoke with fresh public
+config and the visually observed original launcher; no battle/quest was loaded.
+B remains runtime-untested. The original37 protected files stayed byte-identical;
+game-specific Unity registry preferences changed by startup were restored exactly.
 Managed suites and ten additional
 public-default parser/safety checks were run separately on both source snapshots.
-Neither DLL was rebuilt, installed or launched during this preparation. Exact-
+No distributed DLL was rebuilt or installed over the development installation.
+Only A was launched later in an independent private copy for startup validation. Exact-
 build gameplay evidence remains scoped as documented in docs/ACCEPTANCE.md.
 
 The proposed public defaults are not an already accepted fresh-install campaign.
@@ -55,13 +59,9 @@ The whole campaign and optional native-only features remain experimental.
 
 ## Remote/publication status
 
-The GitHub connector recognises the connected account, but its exposed tools do
-not create repositories or draft releases/upload release assets. Local Git
-Credential Manager listed no authenticated GitHub account. No token was extracted
-from another application and no private development data was uploaded.
-
-The clean local repository, branches, proposed tags, source archives, clean
-installation ZIPs, notes and checksums are prepared for review. Hosted private
-repository creation/push and a hosted draft pre-release remain pending an
-authenticated creation/upload path. Follow PUBLISHING.md. Public visibility and
-release publication require separate explicit approval and have not occurred.
+GitHub CLI authentication was completed by the owner for private staging.
+The repository is https://github.com/Teodorito1991/Suikoden-II-Reforged-Nightmare,
+verified PRIVATE with administrator access. Only this clean history is approved
+for upload. Final remote refs/content and draft asset verification are recorded in
+the private-staging handoff report. No public visibility change or release
+publication is authorised. Public launch remains a separate owner decision.

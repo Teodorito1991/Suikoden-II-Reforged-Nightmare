@@ -37,8 +37,14 @@ session occurred. Preserved implementation is not automatic re-acceptance.
 Both original DLLs contained a personal PDB build path. Public review copies remove
 only that debug-path metadata and have new hashes. Managed metadata and all other
 bytes are unchanged; no gameplay code was rebuilt or edited. Static proof does not
-grant exact-hash runtime acceptance. Neither derivative was installed, launched or
-played this milestone. A startup smoke check remains pending before publication.
+grant runtime acceptance by inheritance. A separate isolated test NOW loaded the
+exact public A hash8F3F... with fresh public settings and rendered the original
+launcher. BepInEx reported no unexpected plugin/interop errors; one known baseline
+Class::Init fallback warning remained. A private-only guard redirected the verified
+SteamService file root to an independent full runtime copy and rejected campaign
+loads. The test copy exited normally; original37 files stayed byte-identical and
+Unity game-specific registry preferences were restored exactly. No battle or quest
+was played; B remains runtime-untested. See publication/startup-smoke-A.json.
 
 Included PNGs are historical user-supplied debug captures, with protection ON and
 no independently attached candidate hash. They illustrate original-engine gameplay,

@@ -6,7 +6,9 @@ These are private development milestones, not previous public releases.
 
 Packaging-only proposal, unchanged internal 1.12.2-guild-ui.1. A personal CodeView
 PDB path is removed in a separately hashed public copy; no rebuild or inherited
-runtime acceptance. Original accepted DLL preserved. Normal foundation,
+runtime acceptance by inheritance. Candidate A subsequently passed a separate
+isolated startup smoke, not a new hunt session. Original accepted DLL preserved.
+Normal foundation,
 Sun Guild/item fallback on in fresh defaults; unplayed contracts/major bosses,
 debug and probes off. Full campaign remains experimental.
 

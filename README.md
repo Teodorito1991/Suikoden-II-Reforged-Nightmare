@@ -12,7 +12,9 @@ Main development source is **v1.13 Native War Foundation**. The recommended firs
 beta is based on the **v1.12.2 Castle Hunt Guild DLL**, which has stronger exact-
 binary gameplay evidence. Public review copies remove a personal PDB build path
 from debug metadata only. They have new hashes and no exact-hash gameplay
-acceptance. Originals remain preserved. No public release is approved or published.
+acceptance. Candidate A now passed an isolated startup smoke test with the original
+launcher observed; no hunt was played on its public hash. Originals remain preserved.
+No public release is approved or published.
 [Compare both candidates](docs/RELEASE-CANDIDATES.md).
 
 ## What changes
