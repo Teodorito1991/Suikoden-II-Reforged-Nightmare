@@ -1,6 +1,6 @@
 # Publication audit
 
-Prepared2026-11-07. This is a reviewed inventory/hygiene boundary, not blanket legal
+Prepared 2026-11-07. This is a reviewed inventory/hygiene boundary, not blanket legal
 clearance of a game's EULA or proof that an arbitrary future commit is safe.
 
 ## Included deliberately
@@ -36,7 +36,7 @@ Their presence does not grant rights to redistribute the underlying original dat
 
 `tools/audit-publication.py` checks tracked plus untracked nonignored files for
 forbidden paths/types, common secrets, personal paths/emails, invalid JSON and
-generated-listing markers. Human/source review also inspected resource types and
+generated-listing markers. Source review also inspected resource types and
 large strings. A later history/ZIP inventory checks all proposed refs and the
 installation archives. These checks are not an exhaustive secret scanner or a
 legal opinion. No third-party runtime/game DLL is shipped in the plugin-only ZIP.

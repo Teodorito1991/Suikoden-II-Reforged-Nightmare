@@ -6,7 +6,7 @@ Separate development review package: **v1.13.0-dev.1**, internal
 
 ## 1. Supported game
 
-Steam app **1932640**, Windows x64, installed build **20278991**, Unity2022.3.28f1.
+Steam app **1932640**, Windows x64, installed build **20278991**, Unity 2022.3.28f1.
 English presentation was tested. Changes apply to Suikoden II only. Other game
 builds, storefronts, consoles, Linux/Steam Deck and locales are not verified.
 The plugin checks both original files and refuses unsupported builds:
@@ -39,16 +39,16 @@ originals or move saves while the game is running.
 
 ## 3. Install BepInEx
 
-Verified loader: **BepInEx6.0.0-be.697+5362580, Unity.IL2CPP-win-x64**.
+Verified loader: **BepInEx 6.0.0-be.697+5362580, Unity.IL2CPP-win-x64**.
 Use the official [BepInEx builds page](https://builds.bepinex.dev/projects/bepinex_be),
-find build697 and choose **Unity.IL2CPP-win-x64**, not Mono/x86/BepInEx5.
+find build 697 and choose **Unity.IL2CPP-win-x64**, not Mono/x86/BepInEx 5.
 Newer loader versions are not automatically verified.
 
 Follow the official [IL2CPP installation guide](https://docs.bepinex.dev/master/articles/user_guide/installation/unity_il2cpp.html).
 Extract the loader into GAME beside the executable. Run once, allow interop
 creation to finish, then close normally. Initial generation may need Internet
 access. Keep the loader's bundled runtime/core files together. Tested core:
-HarmonyX2.10.2 and Il2CppInterop1.4.6-ci.426.
+HarmonyX 2.10.2 and Il2CppInterop 1.4.6-ci.426.
 
 BepInEx is installed separately, not bundled. Suikoden Fix, PKCore and S2 Character
 Mod are reference projects, **not additional requirements**. Begin with Reforged
@@ -102,12 +102,12 @@ marker alone is not evidence that a battle or quest passed.
 
 Public review-copy plugin hashes (personal PDB path removed, no rebuild):
 
-- Recommended1.12.2: `8F3F085C3D9338C43FD74F80110D86CEFAD5F77A08A738EBA06D0B341C9DBD34`
-- Development1.13: `386CF34C6B549A185C5DACC6A5F64C38150FED935D36D1B9E9551E6CEDDBDE17`
+- Recommended 1.12.2: `8F3F085C3D9338C43FD74F80110D86CEFAD5F77A08A738EBA06D0B341C9DBD34`
+- Development 1.13: `386CF34C6B549A185C5DACC6A5F64C38150FED935D36D1B9E9551E6CEDDBDE17`
 
-Preserved original accepted1.12.2:
+Preserved original accepted 1.12.2:
 `0B520FDD9182B6C024FE96376D0F284BE249DF93AF2E748DC331D21324910F46`;
-original native-tested1.13:
+original native-tested 1.13:
 `1A59986703E8346E1B2F6D7968C451C0609A4FB990C8F88EB3D63DBCEBB2CD59`.
 Those originals contain personal debug paths and are not public ZIP payloads.
 Only CodeView path bytes differ; managed metadata and every other byte are

@@ -2,7 +2,7 @@
 
 Players install the binary ZIP; no developer tooling is required for that.
 
-The C# plugin targets **net6.0**, using BepInEx6 IL2CPP and Harmony. Retained managed
+The C# plugin targets **net6.0**, using BepInEx 6 IL2CPP and Harmony. Retained managed
 tests target **net9.0**. The verified SDK was **9.0.320**; install .NET9 SDK from
 Microsoft. global.json permits later9 feature bands, not exact binary reproduction.
 

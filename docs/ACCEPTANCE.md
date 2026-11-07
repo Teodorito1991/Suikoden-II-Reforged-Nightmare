@@ -3,14 +3,14 @@
 ## 1.12.2-guild-ui.1 — complete Sun quest
 
 SHA256 `0B520FDD9182B6C024FE96376D0F284BE249DF93AF2E748DC331D21324910F46`.
-Protected user-controlled Normal session,2026-11-07:
+Protected user-controlled Normal session, 2026-11-07:
 
 - Native tavern attendant, readable Guild selection and restored controls.
 - Accept Sun, travel without F6/reload, automatic eligible Cave encounter.
 - Two genuine rendered Sun/Sorcerer victories and normal field return.
-- Native Stone of Power transfers1→2 and2→3; one restored rune charge each win.
-- First3,478 award hit the999,999 cap: actual delta0.
-- After legitimate spending, second purse975,999→979,477: actual credit3,478.
+- Native Stone of Power transfers 1→2 and2→3; one restored rune charge each win.
+- First3,478 award hit the 999,999 cap: actual delta0.
+- After legitimate spending, second purse 975,999→979,477: actual credit 3,478.
 - Return/report without extra payout, reacceptance and repeat entry.
 
 The user played; agent screenshot inspection is not claimed. A strong six-member
@@ -22,9 +22,9 @@ story war or the full campaign.
 ## 1.13.0-native-war-foundation.1 — native components only
 
 SHA256 `1A59986703E8346E1B2F6D7968C451C0609A4FB990C8F88EB3D63DBCEBB2CD59`.
-Zero-warning/error compilation,703753 retained managed checks plus18 lease checks.
+Zero-warning/error compilation,703753 retained managed checks plus 18 lease checks.
 Two exact-hash full native passes exited normally without plugin errors; repeat
-cross-process history fixture true.28 new checks/run exercised original War1
+cross-process history fixture true.28 new checks per run exercised original War1
 finish/character-status primitives on disposable flag copies, ownership rejection
 and exception-safe singleton/RNG restoration.
 

@@ -8,8 +8,8 @@ and are not licensed as original MIT mod code.
 
 ![Historical native reward screen](historical-hunt-debug-reward.png)
 
-The screen displays3,478Potch. That alone does not prove net currency credit;
-the later exactv1.12.2 acceptance ledger records the actual purse delta.
+The screen displays 3,478Potch. That alone does not prove net currency credit;
+the later exact v1.12.2 acceptance ledger records the actual purse delta.
 
 Pending genuine captures, deliberately not replaced by mockups:
 
