@@ -111,9 +111,11 @@ original native-tested 1.13:
 `1A59986703E8346E1B2F6D7968C451C0609A4FB990C8F88EB3D63DBCEBB2CD59`.
 Those originals contain personal debug paths and are not public ZIP payloads.
 Only CodeView path bytes differ; managed metadata and every other byte are
-unchanged. Neither new public hash has runtime/gameplay acceptance. Startup smoke
-verification remains a release-readiness item; historical original-DLL quest proof
-must not be transferred to the public review hash.
+unchanged. Candidate A passed an isolated BepInEx startup test with fresh public
+settings and the rendered original launcher. No battle/quest/save was loaded.
+Candidate B remains runtime-untested. Historical original-DLL quest proof must
+not be transferred to either public review hash. See publication/startup-smoke-A.json
+in the source repository, or STARTUP_SMOKE.json in the beta ZIP.
 
 Fresh public defaults enable core/earlier boss/story-war modules and Sun's castle
 quest/native item fallback. Unplayed contracts, major boss policies, debug protection,

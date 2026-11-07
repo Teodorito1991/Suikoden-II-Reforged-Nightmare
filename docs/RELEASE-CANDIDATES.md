@@ -27,10 +27,12 @@ rebuilding or changing managed metadata/gameplay bytes. Their hashes are:
 - A-derived: `8F3F085C3D9338C43FD74F80110D86CEFAD5F77A08A738EBA06D0B341C9DBD34`
 - B-derived: `386CF34C6B549A185C5DACC6A5F64C38150FED935D36D1B9E9551E6CEDDBDE17`
 
-Neither derivative inherits exact-hash runtime acceptance. The safer first-beta
-recommendation is **A-derived, pending startup verification**, based on stronger
-historical behaviour evidence and a strictly bounded metadata change, not a claim
-that its new hash was played. See publication/binary-privacy-audit.json.
+Neither derivative inherits original-hash runtime acceptance. Candidate A has now
+passed its OWN isolated startup smoke: BepInEx loaded the exact public DLL/fresh
+settings, the original launcher rendered, and the copy exited normally. Candidate B
+remains runtime-untested. Recommend **A-derived for owner beta review**, based on
+that startup proof and stronger historical quest evidence, not a claim that the
+public hash completed a hunt. See publication/startup-smoke-A.json and the binary audit.
 Tags identify packaging versions; internal versions remain unchanged. Candidate A
 must not be labelled v1.13.
 

@@ -16,8 +16,8 @@ tag **v1.13.0-dev.1** must not be presented as gameplay-accepted.
 - Confirm MIT approval, retained third-party notices and original-game exclusions.
 - Verify ZIP/DLL hashes and the documented debug-path-only privacy change. Never
   substitute a rebuild or transfer exact-hash proof without disclosure.
-- Complete a safe startup smoke check for each proposed public DLL hash before
-  recommending publication. Static equality is not runtime acceptance.
+- Candidate A completed its isolated startup smoke; keep that separate from full
+  quest proof. Any replacement DLL hash needs its own checks; B remains untested.
 - Keep acceptance exact-build scoped; do not advertise playable war skirmishes/XP.
 - Check installation, update/config preservation and rollback instructions.
 - Keep missing genuine screenshot slots honest; no generated mockup as evidence.
@@ -41,3 +41,10 @@ keep proprietary/private content excluded even before public publication.
 
 No public visibility change or release publication is authorised by these
 preparation instructions. Ask for that final approval with concrete reviewed files.
+
+## Current private staging
+
+The owner authenticated GitHub CLI. The private repository was created and its
+PRIVATE visibility/admin access verified. Candidate A's exact public DLL passed
+the isolated startup smoke. Draft release, upload receipts and final remote
+verification are listed in the handoff report; no public launch is approved.

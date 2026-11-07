@@ -8,8 +8,9 @@
       "wholeCampaignAccepted": false,
       "originalSha256": "0B520FDD9182B6C024FE96376D0F284BE249DF93AF2E748DC331D21324910F46",
       "publicCopySha256": "8F3F085C3D9338C43FD74F80110D86CEFAD5F77A08A738EBA06D0B341C9DBD34",
-      "publicHashRuntimeAccepted": false,
-      "publicHashGameplayAccepted": false
+      "publicHashRuntimeAccepted": true,
+      "publicHashGameplayAccepted": false,
+      "publicHashRuntimeScope": "Isolated startup only"
     },
     {
       "id": "B",
@@ -26,5 +27,5 @@
   ],
   "dllsRebuiltDuringPreparation": false,
   "publicReleaseApproved": false,
-  "publicReleaseReadiness": "Blocked pending sanitized-copy startup verification, authenticated private upload and owner publication approval"
+  "publicReleaseReadiness": "Private staging; owner review/public launch approval pending. A startup smoke passed; full-campaign acceptance remains experimental."
 }
