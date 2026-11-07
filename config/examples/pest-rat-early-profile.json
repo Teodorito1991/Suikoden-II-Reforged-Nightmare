@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "profiles": [
+    {
+      "profileId": "pest-rat-early-test",
+      "enabled": true,
+      "priority": 100,
+      "tableId": "boss_rat",
+      "encounterId": "boss_rat_00",
+      "enemyId": "boss_rat_00",
+      "hpMultiplier": 1.4,
+      "damageMultiplier": 1.25
+    }
+  ]
+}

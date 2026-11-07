@@ -1,0 +1,118 @@
+{
+  "SchemaVersion": 1,
+  "Scenarios": [
+    {
+      "WarNumber": 3,
+      "Enabled": true,
+      "Objective": "CommanderDefeat",
+      "MaximumTurn": 24,
+      "EnemyAi": true
+    },
+    {
+      "WarNumber": 6,
+      "Enabled": true,
+      "Objective": "EligibleElimination",
+      "MaximumTurn": 18,
+      "EnemyAi": true
+    },
+    {
+      "WarNumber": 13,
+      "Enabled": true,
+      "Objective": "HoldArmy",
+      "MaximumTurn": 12,
+      "EnemyAi": true
+    }
+  ],
+  "AiProfiles": [
+    {
+      "NameId": 143,
+      "Branch": "Any",
+      "Style": "Tactical",
+      "AttackBonus": 3,
+      "ObjectiveWeight": 2,
+      "ProtectionWeight": 1,
+      "RiskPenalty": 3,
+      "AbilityBonus": 3
+    },
+    {
+      "NameId": 145,
+      "Branch": "Any",
+      "Style": "Aggressive",
+      "AttackBonus": 5,
+      "ObjectiveWeight": 2,
+      "ProtectionWeight": 0,
+      "RiskPenalty": 2,
+      "AbilityBonus": 2
+    },
+    {
+      "NameId": 144,
+      "Branch": "Any",
+      "Style": "Tactical",
+      "AttackBonus": 3,
+      "ObjectiveWeight": 2,
+      "ProtectionWeight": 2,
+      "RiskPenalty": 4,
+      "AbilityBonus": 4
+    },
+    {
+      "NameId": 88,
+      "Branch": "Any",
+      "Style": "Defensive",
+      "AttackBonus": 1,
+      "ObjectiveWeight": 0,
+      "ProtectionWeight": 4,
+      "RiskPenalty": 5,
+      "AbilityBonus": 2
+    },
+    {
+      "NameId": 81,
+      "Branch": "Any",
+      "Style": "Defensive",
+      "AttackBonus": 4,
+      "ObjectiveWeight": 0,
+      "ProtectionWeight": 3,
+      "RiskPenalty": 3,
+      "AbilityBonus": 3
+    },
+    {
+      "NameId": 146,
+      "Branch": "Any",
+      "Style": "Aggressive",
+      "AttackBonus": 5,
+      "ObjectiveWeight": 3,
+      "ProtectionWeight": 0,
+      "RiskPenalty": 2,
+      "AbilityBonus": 2
+    },
+    {
+      "NameId": 3369,
+      "Branch": "Infantry",
+      "Style": "Screen",
+      "AttackBonus": 3,
+      "ObjectiveWeight": 1,
+      "ProtectionWeight": 3,
+      "RiskPenalty": 3,
+      "AbilityBonus": 1
+    },
+    {
+      "NameId": 3369,
+      "Branch": "Archer",
+      "Style": "Ranged",
+      "AttackBonus": 3,
+      "ObjectiveWeight": 0,
+      "ProtectionWeight": 0,
+      "RiskPenalty": 4,
+      "AbilityBonus": 6
+    },
+    {
+      "NameId": 3369,
+      "Branch": "Magicians",
+      "Style": "Ranged",
+      "AttackBonus": 1,
+      "ObjectiveWeight": 0,
+      "ProtectionWeight": 0,
+      "RiskPenalty": 5,
+      "AbilityBonus": 7
+    }
+  ]
+}

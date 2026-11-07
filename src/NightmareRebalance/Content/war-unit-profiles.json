@@ -1,0 +1,328 @@
+{
+  "SchemaVersion": 1,
+  "Profiles": [
+    {
+      "NameId": 3,
+      "Name": "Flik",
+      "Branch": "Any",
+      "Attack": 8,
+      "Defense": 7,
+      "AssistAttack": 2,
+      "AssistDefense": 1,
+      "Abilities": [
+        "SP_MOUNT",
+        "SP_CRITICAL"
+      ],
+      "Uses": [
+        0,
+        0
+      ]
+    },
+    {
+      "NameId": 4,
+      "Name": "Viktor",
+      "Branch": "Any",
+      "Attack": 10,
+      "Defense": 7,
+      "AssistAttack": 2,
+      "AssistDefense": 0,
+      "Abilities": [
+        "SP_CONFUSED_FIGHT",
+        "SP_HP_PLUS"
+      ],
+      "Uses": [
+        0,
+        0
+      ]
+    },
+    {
+      "NameId": 11,
+      "Name": "Humphrey",
+      "Branch": "Any",
+      "Attack": 7,
+      "Defense": 11,
+      "AssistAttack": 0,
+      "AssistDefense": 2,
+      "Abilities": [
+        "SP_HP_PLUS"
+      ],
+      "Uses": [
+        0
+      ]
+    },
+    {
+      "NameId": 12,
+      "Name": "Georg",
+      "Branch": "Any",
+      "Attack": 12,
+      "Defense": 7,
+      "AssistAttack": 3,
+      "AssistDefense": 0,
+      "Abilities": [
+        "SP_CRITICAL"
+      ],
+      "Uses": [
+        0
+      ]
+    },
+    {
+      "NameId": 13,
+      "Name": "Valeria",
+      "Branch": "Any",
+      "Attack": 10,
+      "Defense": 7,
+      "AssistAttack": 2,
+      "AssistDefense": 0,
+      "Abilities": [
+        "SP_MOUNT"
+      ],
+      "Uses": [
+        0
+      ]
+    },
+    {
+      "NameId": 23,
+      "Name": "Tuta",
+      "Branch": "Any",
+      "Attack": 3,
+      "Defense": 5,
+      "AssistAttack": 0,
+      "AssistDefense": 2,
+      "Abilities": [
+        "SP_MEDICAL1"
+      ],
+      "Uses": [
+        2
+      ]
+    },
+    {
+      "NameId": 29,
+      "Name": "Gengen",
+      "Branch": "Any",
+      "Attack": 7,
+      "Defense": 6,
+      "AssistAttack": 1,
+      "AssistDefense": 1,
+      "Abilities": [
+        "SP_FOREST_WALK"
+      ],
+      "Uses": [
+        0
+      ]
+    },
+    {
+      "NameId": 47,
+      "Name": "Oulan",
+      "Branch": "Any",
+      "Attack": 8,
+      "Defense": 8,
+      "AssistAttack": 1,
+      "AssistDefense": 2,
+      "Abilities": [
+        "SP_BODY_GUARD"
+      ],
+      "Uses": [
+        0
+      ]
+    },
+    {
+      "NameId": 54,
+      "Name": "Luc",
+      "Branch": "Any",
+      "Attack": 9,
+      "Defense": 5,
+      "AssistAttack": 3,
+      "AssistDefense": 0,
+      "Abilities": [
+        "SP_MAGIC_WIND1"
+      ],
+      "Uses": [
+        2
+      ]
+    },
+    {
+      "NameId": 62,
+      "Name": "Mazus",
+      "Branch": "Any",
+      "Attack": 10,
+      "Defense": 4,
+      "AssistAttack": 3,
+      "AssistDefense": 0,
+      "Abilities": [
+        "SP_MAGIC_FIRE1"
+      ],
+      "Uses": [
+        2
+      ]
+    },
+    {
+      "NameId": 55,
+      "Name": "Chaco",
+      "Branch": "Any",
+      "Attack": 6,
+      "Defense": 5,
+      "AssistAttack": 1,
+      "AssistDefense": 0,
+      "Abilities": [
+        "SP_FLYING"
+      ],
+      "Uses": [
+        0
+      ]
+    },
+    {
+      "NameId": 74,
+      "Name": "Kasumi",
+      "Branch": "Any",
+      "Attack": 5,
+      "Defense": 6,
+      "AssistAttack": 1,
+      "AssistDefense": 1,
+      "Abilities": [
+        "SP_SCOUT",
+        "SP_FOREST_WALK"
+      ],
+      "Uses": [
+        2,
+        0
+      ]
+    },
+    {
+      "NameId": 86,
+      "Name": "Apple",
+      "Branch": "Any",
+      "Attack": 3,
+      "Defense": 7,
+      "AssistAttack": 1,
+      "AssistDefense": 3,
+      "Abilities": [
+        "SP_SEE_THROUGH"
+      ],
+      "Uses": [
+        0
+      ]
+    },
+    {
+      "NameId": 90,
+      "Name": "Shu",
+      "Branch": "Any",
+      "Attack": 4,
+      "Defense": 7,
+      "AssistAttack": 3,
+      "AssistDefense": 1,
+      "Abilities": [
+        "SP_CRITICAL"
+      ],
+      "Uses": [
+        0
+      ]
+    },
+    {
+      "NameId": 97,
+      "Name": "Emilia",
+      "Branch": "Any",
+      "Attack": 3,
+      "Defense": 6,
+      "AssistAttack": 0,
+      "AssistDefense": 2,
+      "Abilities": [
+        "SP_INVESTIGATION"
+      ],
+      "Uses": [
+        0
+      ]
+    },
+    {
+      "NameId": 3348,
+      "Name": "Freed Y",
+      "Branch": "Any",
+      "Attack": 7,
+      "Defense": 8,
+      "AssistAttack": 1,
+      "AssistDefense": 2,
+      "Abilities": [
+        "SP_MEDICAL1"
+      ],
+      "Uses": [
+        1
+      ]
+    },
+    {
+      "NameId": 88,
+      "Name": "Kiba",
+      "Branch": "Any",
+      "Attack": 8,
+      "Defense": 12,
+      "AssistAttack": 1,
+      "AssistDefense": 3,
+      "Abilities": [
+        "SP_HP_PLUS",
+        "SP_MOUNT"
+      ],
+      "Uses": [
+        0,
+        0
+      ]
+    },
+    {
+      "NameId": 146,
+      "Name": "Rowd",
+      "Branch": "Any",
+      "Attack": 10,
+      "Defense": 6,
+      "AssistAttack": 2,
+      "AssistDefense": 0,
+      "Abilities": [
+        "SP_MOUNT"
+      ],
+      "Uses": [
+        0
+      ]
+    },
+    {
+      "NameId": 3369,
+      "Name": "Highland Army Infantry",
+      "Branch": "Infantry",
+      "Attack": 9,
+      "Defense": 6,
+      "AssistAttack": 0,
+      "AssistDefense": 0,
+      "Abilities": [
+        "SP_CONFUSED_FIGHT"
+      ],
+      "Uses": [
+        0
+      ]
+    },
+    {
+      "NameId": 3369,
+      "Name": "Highland Army Archer",
+      "Branch": "Archer",
+      "Attack": 8,
+      "Defense": 5,
+      "AssistAttack": 0,
+      "AssistDefense": 0,
+      "Abilities": [
+        "SP_AIMING"
+      ],
+      "Uses": [
+        2
+      ]
+    },
+    {
+      "NameId": 3369,
+      "Name": "Highland Army Magicians",
+      "Branch": "Magicians",
+      "Attack": 10,
+      "Defense": 4,
+      "AssistAttack": 0,
+      "AssistDefense": 0,
+      "Abilities": [
+        "SP_MAGIC_FIRE1"
+      ],
+      "Uses": [
+        2
+      ]
+    }
+  ]
+}

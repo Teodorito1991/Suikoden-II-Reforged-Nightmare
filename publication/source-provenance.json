@@ -1,0 +1,498 @@
+{
+  "SourceVersion": "1.12.2-guild-ui.1",
+  "PrivateDevelopmentCommit": "8101444c47160b34026b2030b35f7eede25557bc",
+  "SnapshotOnlyNoPrivateHistory": true,
+  "OriginalPluginSourceFilesByteEqual": true,
+  "SourceFiles": [
+    {
+      "Path": "src/NightmareRebalance/BossProfiles.cs",
+      "Sha256": "C5A53860E59B86404EA2F0ABFC64446400A1B6FEDAF990C312D73AB9DC1687C2"
+    },
+    {
+      "Path": "src/NightmareRebalance/BossRuntime.cs",
+      "Sha256": "AC981451CE361E1A6628170A30843B66DAC1DC29B694E5E59B060921A01A9B92"
+    },
+    {
+      "Path": "src/NightmareRebalance/BossTacticsProbe.cs",
+      "Sha256": "7E4A5565A6EA2A047DF522A0BB60600D240829BFF0A17940BDE2ABA39FDBB5A2"
+    },
+    {
+      "Path": "src/NightmareRebalance/BossTacticsRules.cs",
+      "Sha256": "5C1CD8AFD269A0719170202A5B4D33ECA9BBCEBD35018067B2FB5912331B279C"
+    },
+    {
+      "Path": "src/NightmareRebalance/BossTacticsRuntime.cs",
+      "Sha256": "08CB2889F25DE9DBB62DE91FA86F3347E7E067C236FA2DDB6684A54E6D7758B7"
+    },
+    {
+      "Path": "src/NightmareRebalance/CastleGuildNativeProbe.cs",
+      "Sha256": "A7245197C5290A9CE7E11B6DF2C275E419B89C890D9CF8D5CE83841621D1A538"
+    },
+    {
+      "Path": "src/NightmareRebalance/CastleGuildRuntime.cs",
+      "Sha256": "86C83C9ACFE5515FEE61730FFAFEF1A32FFD7A2760FDD36E5096571E3937217A"
+    },
+    {
+      "Path": "src/NightmareRebalance/Combat.cs",
+      "Sha256": "BB2E85A99B94725CC14A39EDB95CE26B7B7AC0C6F116CD7B76D88D807E1D0427"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatEvolutionProbe.cs",
+      "Sha256": "A05F143F8BB8F81714B9AA2B544A1BD4E67D01D825918C53FF45A93FEFCAAEF2"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatEvolutionRules.cs",
+      "Sha256": "B0E057782377C4FB98A54E03674D7888BD9AB962D53383A69745CB6CFED88BB4"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatEvolutionRuntime.cs",
+      "Sha256": "B00B9456B262A6B9DFE45CF21238D7B57DB7F8917CE3E5EAF107ED56BD90B3F8"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatFairnessRules.cs",
+      "Sha256": "5F34B04CBAF46354978D75A49038F1B0B1494D5E0E0F31D67B257A6B81D63706"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatMasteryProbe.cs",
+      "Sha256": "0BD98A4BA014091386258DADC0A3B06E94064DBE39E841C8B5B2886E663269AF"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatMasteryRules.cs",
+      "Sha256": "7D2C8014C19A677A05B4BFFF7B15E4A1048C4E01BF76758815D1D53ADB0C9F02"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatMasteryRuntime.cs",
+      "Sha256": "D7CF18585277322C623DE524EEDED003B548BCD613F367B10ED8C1CC388B3CBC"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatRealityProbe.cs",
+      "Sha256": "ED68E614ED1CF90170C2194870A3F1747686D57ACA77904C725EB37E518AE97A"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatRealityRules.cs",
+      "Sha256": "532D1CE0952C854C065D2DF52788682220649A96B557235F8B9DEFAC9B45EBCA"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatRealityRuntime.cs",
+      "Sha256": "1DE2857C515C24B39AC49ACA9AF32302E7792F387B562D09504CF56B626A4640"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatReforgedDiagnostics.cs",
+      "Sha256": "8FFF7F953D015AFD4009C0098CD1C773C09E2637BB793F32BB1E4C519B6B5E73"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatReforgedProbe.cs",
+      "Sha256": "5671D9767D8E7BA325FFF22CA4AA7F73E5FD292A2706AC52C0D37FD6DFA5835D"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatReforgedRules.cs",
+      "Sha256": "9DA3AA7F2E548E83C8B0A28956CFEE9FF2FCC27B323585A8C7D118BAC25F4D13"
+    },
+    {
+      "Path": "src/NightmareRebalance/CombatReforgedRuntime.cs",
+      "Sha256": "9473F76FB9F83629A76513CA5F8ED9CFC93A3183A0AF83C7379756B7AFF7C2E3"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/baseline.json",
+      "Sha256": "1329755C1FAA8DB0E227DD33471A1A9FF1075E525523C4ADC08DF6501C15EDC7"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/boss-resource-audit.json",
+      "Sha256": "6CD7347AAA14D5D830377B680DE8254169DD9F0C95A383694CF7DF63845439F8"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/boss-tactics-audit.json",
+      "Sha256": "F4E7E2C81E35545BEEED734EFB105ED41817F91D869F21E7AEE44CDE9E397ED2"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/boss-tactics.json",
+      "Sha256": "187115BB418F1D24EA9B7300EADFE241148318C8AD6C622E012D4C954DCF3AF2"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/castle-guild-audit.json",
+      "Sha256": "5111392D5A8966C74EA7B87349F793EC49A92AE07FD0EAA7BE876EB0A02D0F07"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/castle-guild.json",
+      "Sha256": "FD467A6B4D9AF55652AB7132069063C63F9AECCDF5323FB6D66429F6FFC6B4A7"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/characters.json",
+      "Sha256": "E63BBA246C6E958BE418490027E607DCA1917BFF11BA1BC48EC190AF30E50E56"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/combat-audit.json",
+      "Sha256": "C2310DC25697F8B68EC0E1BD430A56B51E43C3BD199481BA2EE1BDA0AEF2588C"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/combat-evolution.json",
+      "Sha256": "D530D5A8EEFF33DBB4B78B5B4BF7A7B61345904384E29937A08FB904DFC21932"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/combat-mastery.json",
+      "Sha256": "1E9612A791C04C08CEAA6A95632DF2EE42F814A20A912F4CF1FE5099FFB6A744"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/combat-reality.json",
+      "Sha256": "42F53F580C91FCB61F82174FC9931DD1ADA98C2225E8C9BD94D09B5279530D40"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/combat-reforged.json",
+      "Sha256": "A2D881B8A8DF0C216D044A220786E33F030032A3DE0D52292E4BE6DF48E7E210"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/enemy-profiles.json",
+      "Sha256": "3B8E3F210981FE5F89382914E5DD854C2065428C7B313DAF1232011E669E495B"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/evolution-audit.json",
+      "Sha256": "6E4F0F7B275847321F0F4FB6C9C57B8F14D82376D99EEC21EB19AD5B3B276890"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/first-expansion.json",
+      "Sha256": "8A28AC1DEFB3936407222B92689EC83DD2E3FD30DF3CF7153B3D4F9BE5426969"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/guild-item-audit.json",
+      "Sha256": "70F99553E366ADEDE50FFC4D3B285277F02A73E8D88857BF411EDFBF7EE87B71"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/hunt-audit.json",
+      "Sha256": "5A7C747AC7FE47232C4059C5ABE79B3FC607FE81921B0FB9C7124B29027063AA"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/hunt-catalogue-audit.json",
+      "Sha256": "445EC5C4E864BE1BD9A21A4366DE8B523F5EA27AC5402D1E64E761876E274EF9"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/hunt-catalogue.json",
+      "Sha256": "4D56004380FA74A9FEBFBEBB391022BAA54241F5CCAF0DD89F02E225562B711A"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/hunt-guild.json",
+      "Sha256": "3956B43A2EF2C6760DB3E30E5B7AD85DD18CA7CC91300F59AB5C14EBE27B8FB5"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/magic.json",
+      "Sha256": "8127B24A8D0EE7CF1D660DECFF5303BB87B3FCED8B5D183394DFC1511E256244"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/mastery-audit.json",
+      "Sha256": "3212E8E362CB2CC8BB18F792F61EC6ABF74E014B4BDED9CDF202465A1F883C43"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/native-war-audit.json",
+      "Sha256": "055477C1BB1012E465F1F19DC42F1C4F83C9342267200FB445ECB63605DDCF9B"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/native-war-rules.json",
+      "Sha256": "189E3D06B1C09121F2472807051BF497367E7C64462D1618F5A147FCDA1493CE"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/native-war-witness.json",
+      "Sha256": "FE5350631C7110FFC7DA144B8176E4A42632AB3C4CE0E943F5BD30016990B9F3"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/reality-audit.json",
+      "Sha256": "ADA12BC05C35DB937990B981725E8A212A7C144DC66E4A6DB2005294D886AD62"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/tactics-audit.json",
+      "Sha256": "EBE2FD1529427BB1764459BB5A2568E5338A8ED26444528083D01D4CD6A532CB"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/total-war-rules.json",
+      "Sha256": "A1F4962A524806F9E9C4A5778AE2FA3A692955FB54899BE3511EDFCD0A912C5C"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/war-specializations.json",
+      "Sha256": "5DD3E37DC8AD707F6B1968A08C009674F81B20080F55B54F86F0983A16C20924"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/war-tactics.json",
+      "Sha256": "4CF0248188A244ED62B16B279658A808EE104E77F09CB2C7021EA7E35A09EBA8"
+    },
+    {
+      "Path": "src/NightmareRebalance/Content/war-unit-profiles.json",
+      "Sha256": "900710627F01F8B7604A8436CF249D4B860E973107AF24BD334C3D105FA3D471"
+    },
+    {
+      "Path": "src/NightmareRebalance/ContentProfiles.cs",
+      "Sha256": "999B01B574E73E2CC76887A36A63076D9935D1AF079F705137610253039BC90D"
+    },
+    {
+      "Path": "src/NightmareRebalance/ContentRuntime.cs",
+      "Sha256": "B9BC0A24AD71D481371883B38EC0CCEC75CEA70B8241896C2CACE847AB9DD82C"
+    },
+    {
+      "Path": "src/NightmareRebalance/CoverageDiagnostics.cs",
+      "Sha256": "D2305B7552ADD7877AEC12D12C79A575516ED3DC9ECFDCE4A3D3AA63B84C88FA"
+    },
+    {
+      "Path": "src/NightmareRebalance/CoverageRuntime.cs",
+      "Sha256": "FF1904603C538FB8EFFC680350E2863B86E8FEFB5A1A8F4E30B6518E781474B5"
+    },
+    {
+      "Path": "src/NightmareRebalance/DeveloperOverlay.cs",
+      "Sha256": "3B4F0ED8FC20D7C1FA8C44702DC15BDF0D2C0FAF200DE06FC05CF9EDCC486F0B"
+    },
+    {
+      "Path": "src/NightmareRebalance/DifficultyPatches.cs",
+      "Sha256": "C069DDC48F69D079456FA56D151A30726B6D88E6F283DB08C10F0029F3B91288"
+    },
+    {
+      "Path": "src/NightmareRebalance/DifficultyProvenance.cs",
+      "Sha256": "5EFFBABA19A0BAD1C64D21DFE449B499B62C639C992A9F3AD7665EAD74537FB9"
+    },
+    {
+      "Path": "src/NightmareRebalance/EncounterCoverage.cs",
+      "Sha256": "E6CD677ED898E84BC056D98489ECCEAF7439BDC954BF0790CFD740B60932F17F"
+    },
+    {
+      "Path": "src/NightmareRebalance/ExpansionNativeProbe.cs",
+      "Sha256": "0A34A44CEF1B3E50EF92215513D858E83C69675B3B1FF2F011FDFB2082D252BC"
+    },
+    {
+      "Path": "src/NightmareRebalance/ExpansionRules.cs",
+      "Sha256": "BB38108720F2ACC2E7FE2C842947B12DE914242BEBCC616FB9EE7E34CB2DD9C2"
+    },
+    {
+      "Path": "src/NightmareRebalance/GuildItemRuntime.cs",
+      "Sha256": "9E354732F358F7041D436AF5926E0EBBC4F5B2E24E4956206602A1AF018FD2A8"
+    },
+    {
+      "Path": "src/NightmareRebalance/GuildNativeProbe.cs",
+      "Sha256": "04E1C107147F82A0907E91FB4A393D863FAD484AFEECE3E62FDA25D3254CE58E"
+    },
+    {
+      "Path": "src/NightmareRebalance/GuildQuestRules.cs",
+      "Sha256": "3446F4E3B452CADF9B3B246C0C069FFEAFECD99955C3433105144B86C148637A"
+    },
+    {
+      "Path": "src/NightmareRebalance/GuildScreenRules.cs",
+      "Sha256": "DB9B38EE6438A6C91A7DFA51C6B9826F62FBF14EFC3C41725B02419FBA66D107"
+    },
+    {
+      "Path": "src/NightmareRebalance/GuildVisualResources.cs",
+      "Sha256": "D95F27F431841A2003463C2EA85DBFEC7A590BE4F24A84681945965AA450D3CD"
+    },
+    {
+      "Path": "src/NightmareRebalance/HotkeyEdge.cs",
+      "Sha256": "5B83CC0AF0541DDE0512A042BC612669682692DA0EB10CDF38B8A79D359FFE0B"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntAccess.cs",
+      "Sha256": "924978B80039C9F43E5529E063A4CABC805158F06797715368F415D75FF3A13A"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntCatalogueProbe.cs",
+      "Sha256": "56CDE49D51D0937E502B688B363A691028A1F4A7E1F62F987457A4451F1C76D7"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntCatalogueRules.cs",
+      "Sha256": "7501A2E1BC46BF726CC8DCBA4EC1D9396AACCA15127679E12B26BA412DD4ED2B"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntDebug.cs",
+      "Sha256": "FE157B83ABD008E5F0C1472B772DA886B5C43AE47C09F3840CAABC900C8E587F"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntDebugProbe.cs",
+      "Sha256": "0C9A865DDE8B6EC4C08112F50E8755B867F04E32A2088FC5B9399649EE61609C"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntFieldContext.cs",
+      "Sha256": "7130C0347639530CA161AD445EAECF491B42ACCF6B9DE57637AF27B0A10863E2"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntFieldSourceProbe.cs",
+      "Sha256": "937A1D0F97AC443752A5BAB403944D9CFF88194D299B342C37DDE4BE88468A6B"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntGuildOverlay.cs",
+      "Sha256": "62A3AB75C2619B8703C7E9DABDD3C127823AA05B19EACFB6A45B166228A54198"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntGuildRules.cs",
+      "Sha256": "F15438C401035B1759FFE6EECC2DAA5BA67D58DF510C7A8D5EEBE5D151B2C963"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntGuildRuntime.cs",
+      "Sha256": "4300CD378F2FC9ECAA601F8D899C733F1FCC22C0CC59210878A755A73AA20769"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntLaunchProof.cs",
+      "Sha256": "D816B8DC133B1F3A513AFB6950D7136C8F1B34196F28907C6A7BC357E7192E61"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntLifecycleProbe.cs",
+      "Sha256": "9309EFB3D7B97C32F95FDFD1737BC6DE7C6CAEC883E44CF90BDB84BEA93E0513"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntResourceProbe.cs",
+      "Sha256": "E226C4CF41EB67D1DEC9B99C5480FB00A1ADC8B30619EDAEBF5B04B79376685E"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntRewardAvailabilityProbe.cs",
+      "Sha256": "8ED884EC7FE3AFEFFBD11BE0CD0D39794602D99110D042E402FFE249A134ABB8"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntRewardObservation.cs",
+      "Sha256": "EE78F582B684A4AAF983BED92AC2C34B84EED7C544512D4874D46F6FD255CC1C"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntRewardProbe.cs",
+      "Sha256": "E536E305B491FC3520978BB6E45574F110D35AD5670DC869335E3139DFA29ADB"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntRuntime.cs",
+      "Sha256": "3899E9751E95EB064CEE7E2DFD1C0318CCEA1DF341F372ED04B84EB2D970C96A"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntSessionRules.cs",
+      "Sha256": "2AED7BCAFF7B09B002237D69D2A396B56934872AAF62C3B6B95CFE8B142BA9C7"
+    },
+    {
+      "Path": "src/NightmareRebalance/HuntSessionRuntime.cs",
+      "Sha256": "F7CF35828A0B0B23C734C555BA4C989ADE33ECF727A5A1B75C8DFFCD0FA4BD30"
+    },
+    {
+      "Path": "src/NightmareRebalance/MaintenanceNativeProbe.cs",
+      "Sha256": "B55F193E90580AC76C04CF1B83361B38CDBF0248E963A736F1C18532F96865A7"
+    },
+    {
+      "Path": "src/NightmareRebalance/MaintenanceRules.cs",
+      "Sha256": "B2165A62E773ED4027474C98336CA91B4C7A550B3B702F98AF15A0E0DCEF17E8"
+    },
+    {
+      "Path": "src/NightmareRebalance/MaintenanceRuntime.cs",
+      "Sha256": "9AF2FC47BD298573BAEBF7B17A6EA5EADAEAFB122DC5004A712E1C5BA0B4EEC5"
+    },
+    {
+      "Path": "src/NightmareRebalance/NativeInputAudit.cs",
+      "Sha256": "B1AF0DDB01AB24A8EDBD780BD0EF7CFBDD279C8BB3223DE70300C55D95F12139"
+    },
+    {
+      "Path": "src/NightmareRebalance/NativeInputDiagnostics.cs",
+      "Sha256": "C982248BC7C517BB763316674EFBF96BF1EA192C1628E1D22F03EBBD053A1B2B"
+    },
+    {
+      "Path": "src/NightmareRebalance/NativeTacticsBoard.cs",
+      "Sha256": "D3A1B0BFB098837B7A9E3BBF924BE93C081531DF230508DDA2C01B70A3285F4A"
+    },
+    {
+      "Path": "src/NightmareRebalance/NativeWarEvidence.cs",
+      "Sha256": "CA5A1C000344335AC095375CD241B3237B37F59F2EAEEC59D79E79CCE0D1CFAA"
+    },
+    {
+      "Path": "src/NightmareRebalance/NativeWarRemix.cs",
+      "Sha256": "56D3B14D90EB88204DDF463CE0AAAD255889DCF08341728B1ABE02DFEC80787F"
+    },
+    {
+      "Path": "src/NightmareRebalance/NativeWarRules.cs",
+      "Sha256": "EDCBC89439B23E37C4793D07AE10F495A7D6DADBEBCBF3C5821FB4D9B620DBA7"
+    },
+    {
+      "Path": "src/NightmareRebalance/NativeWarSafetyProbe.cs",
+      "Sha256": "4F30F542C87342A8E89E0F685D35FA29B8227B8CE74CA20D0160961E84008E05"
+    },
+    {
+      "Path": "src/NightmareRebalance/NativeWarWitness.cs",
+      "Sha256": "541D96411871573F36C86CE69D06E902FCE1D814616619799066F61992572CF9"
+    },
+    {
+      "Path": "src/NightmareRebalance/NightmareRebalance.csproj",
+      "Sha256": "C5D7E4A972BB4B80A46B2DDFF481933BE660E1806F1476BA7FD51691F715B5BE"
+    },
+    {
+      "Path": "src/NightmareRebalance/OverhaulProfiles.cs",
+      "Sha256": "013E3AA62CB1814651BD821208F0892FE1F5C0012799033B712BD195A0E8C17B"
+    },
+    {
+      "Path": "src/NightmareRebalance/OverhaulRuntime.cs",
+      "Sha256": "1D49C574BE02BA4634A7DDFCBE9AC929F806EDA03C47AD508D6F89559FDD1724"
+    },
+    {
+      "Path": "src/NightmareRebalance/Plugin.cs",
+      "Sha256": "33767EBE5D85A11240481B9C784E9A7043A3E611FFF9B1AAB8E26FE3B0D5536E"
+    },
+    {
+      "Path": "src/NightmareRebalance/ProductionAssetAudit.cs",
+      "Sha256": "DF4AC5CCDA2BFAB1B7D3B01AE80FA7AEABD2170958C75803E0105B4CE45F2C7F"
+    },
+    {
+      "Path": "src/NightmareRebalance/Rules.cs",
+      "Sha256": "96A30F6B8A176FB67B057849A539D1864D539006A40334697C4324683920FAC6"
+    },
+    {
+      "Path": "src/NightmareRebalance/Settings.cs",
+      "Sha256": "E5C047145B693895EB84B24757A4D353DB5196C80B7376C960CA6148E333C81E"
+    },
+    {
+      "Path": "src/NightmareRebalance/TargetingRules.cs",
+      "Sha256": "E5C87705D24F8821FCB808C671C499DFBA29DF3CF2390B6F9590E1CAF1541574"
+    },
+    {
+      "Path": "src/NightmareRebalance/TargetingRuntime.cs",
+      "Sha256": "9D2D15F6CD1AD9CC4ACFEFBCEA5DFF858D442978E6287857E4B688EB1D3F55EE"
+    },
+    {
+      "Path": "src/NightmareRebalance/TotalWarAi.cs",
+      "Sha256": "D12BE2DF377768225BE49710F65EEA66BDDB72CEDBB47FC7E9AB0E1EDF431050"
+    },
+    {
+      "Path": "src/NightmareRebalance/TotalWarProbe.cs",
+      "Sha256": "4CB3332078F8ED999C3BF7D5F0AD497C881645DE8E1F43D84689C3BDC9365F82"
+    },
+    {
+      "Path": "src/NightmareRebalance/TotalWarRules.cs",
+      "Sha256": "3D3B07D2B8D0E02B51642700CE477202928AE5FC1A21CF46786D64EBA3B4091D"
+    },
+    {
+      "Path": "src/NightmareRebalance/TotalWarRuntime.cs",
+      "Sha256": "BA21D47A37F929C953B5C09EE31428ED6019D2B7AA639DD356CF183AF6DEF2D4"
+    },
+    {
+      "Path": "src/NightmareRebalance/War2Probe.cs",
+      "Sha256": "6BCBBFD8245C70452471E694B69D7F1C3C828D509E7D3B92D31D2D02D8896A56"
+    },
+    {
+      "Path": "src/NightmareRebalance/War2Runtime.cs",
+      "Sha256": "2FA8690DFE2F3769AB46E299B99A4B5AB881111FE36CA4DFFBBBC83957BA48AB"
+    },
+    {
+      "Path": "src/NightmareRebalance/WarInspector.cs",
+      "Sha256": "F30DBD96395BB37316669AAE8E045601D7171E0AE7973B338D0C4FCC5077F88A"
+    },
+    {
+      "Path": "src/NightmareRebalance/WarPolicy.cs",
+      "Sha256": "C0B714C5E6BDDFC5EC8CE189CCF84A9FB257AEAC688B8E86785FFA62025B44E9"
+    },
+    {
+      "Path": "src/NightmareRebalance/WarResearch.cs",
+      "Sha256": "C1C43939FD2C024F8BD92A63462A7C467DAB23A5534C18636D32914AF2A80840"
+    },
+    {
+      "Path": "src/NightmareRebalance/WarSession.cs",
+      "Sha256": "42817A2FA8380277922730DB69D0E4C2DBEB9EF4FD3D71123455A5E8B19B914F"
+    },
+    {
+      "Path": "src/NightmareRebalance/WarTacticsProbe.cs",
+      "Sha256": "A0F201185312CF244FAA77E59BFDB3A05C78B7F2B1F12B6464545CD7A0F18E86"
+    },
+    {
+      "Path": "src/NightmareRebalance/WarTacticsRules.cs",
+      "Sha256": "5E2A875A14285E5E970F43423930CB4B799D88C3A16B9AB6E6E5500A273DBE1B"
+    },
+    {
+      "Path": "src/NightmareRebalance/WarTacticsRuntime.cs",
+      "Sha256": "40797DB74F9A531EBD8BE7CE909166802E82D2D49B998FF397FFDF2C3D57BF7B"
+    }
+  ],
+  "PublicationChanges": [
+    "Documentation/notices/issues/CI",
+    "Public config profile only; embedded defaults unchanged",
+    "Public build helper",
+    "Publication hygiene and defaults tests; retained gameplay tests unchanged"
+  ]
+}

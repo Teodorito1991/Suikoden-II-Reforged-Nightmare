@@ -1,0 +1,22 @@
+{
+  "SchemaVersion": 1,
+  "EnableSelector": true,
+  "EnableVictoryItems": false,
+  "Rewards": [
+    {
+      "HuntId": "sun-kings-retinue",
+      "Enabled": true,
+      "RewardId": "power-stone"
+    },
+    {
+      "HuntId": "dreamers-circuit",
+      "Enabled": true,
+      "RewardId": "magic-protection-stone"
+    },
+    {
+      "HuntId": "thornwake-patrol",
+      "Enabled": true,
+      "RewardId": "flowing-orb"
+    }
+  ]
+}

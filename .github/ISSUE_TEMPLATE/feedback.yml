@@ -1,0 +1,15 @@
+name: Balance or contract feedback
+description: Describe a counterplay, difficulty or reward issue.
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Version/hash, difficulty, encounter, party levels and equipment
+    validations:
+      required: true
+  - type: textarea
+    id: feedback
+    attributes:
+      label: What happened, what you tried, and what felt unfair or unrewarding
+    validations:
+      required: true

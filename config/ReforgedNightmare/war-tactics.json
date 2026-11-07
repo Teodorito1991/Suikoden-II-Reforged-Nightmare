@@ -1,0 +1,36 @@
+{
+  "SchemaVersion": 1,
+  "Enabled": true,
+  "EnabledWars": [
+    1,
+    2,
+    3,
+    6,
+    10,
+    13,
+    15
+  ],
+  "ThreatWeight": 2,
+  "SupportWeight": 3,
+  "FocusWeight": 2,
+  "CommanderWeight": 3,
+  "AbilityWeight": 3,
+  "StallPenalty": 2,
+  "Objectives": [
+    {
+      "WarNumber": 3,
+      "Enabled": true,
+      "RequiredRouts": 2
+    },
+    {
+      "WarNumber": 6,
+      "Enabled": true,
+      "RequiredRouts": 4
+    },
+    {
+      "WarNumber": 13,
+      "Enabled": true,
+      "RequiredRouts": 4
+    }
+  ]
+}

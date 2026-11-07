@@ -1,0 +1,2805 @@
+{
+  "SchemaVersion": 1,
+  "Profiles": [
+    {
+      "Id": "va01_00_00",
+      "Name": "Highland Soldier",
+      "Role": "Bruiser",
+      "ExpectedHp": 15,
+      "ExpectedLevel": 2,
+      "NameId": 205,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "va01_00_01",
+      "Name": "va01_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 15,
+      "ExpectedLevel": 2,
+      "NameId": 206,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "va01_00_02",
+      "Name": "Commander",
+      "Role": "Bruiser",
+      "ExpectedHp": 50,
+      "ExpectedLevel": 4,
+      "NameId": 207,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "va09_00_00",
+      "Name": "va09_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 15,
+      "ExpectedLevel": 2,
+      "NameId": 216,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "va09_00_01",
+      "Name": "va09_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 15,
+      "ExpectedLevel": 2,
+      "NameId": 217,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "va09_00_02",
+      "Name": "va09_00_02",
+      "Role": "Bruiser",
+      "ExpectedHp": 50,
+      "ExpectedLevel": 4,
+      "NameId": 218,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "va11_00_00",
+      "Name": "Minotaurus",
+      "Role": "Bruiser",
+      "ExpectedHp": 300,
+      "ExpectedLevel": 55,
+      "NameId": 221,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "va11_00_01",
+      "Name": "Magus",
+      "Role": "Bruiser",
+      "ExpectedHp": 330,
+      "ExpectedLevel": 54,
+      "NameId": 222,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "va11_00_02",
+      "Name": "Chimera",
+      "Role": "Bulwark",
+      "ExpectedHp": 765,
+      "ExpectedLevel": 55,
+      "NameId": 223,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vb07_00_00",
+      "Name": "Wild Boar",
+      "Role": "Bulwark",
+      "ExpectedHp": 300,
+      "ExpectedLevel": 10,
+      "NameId": 249,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vb07_00_01",
+      "Name": "Giant Snail",
+      "Role": "Bruiser",
+      "ExpectedHp": 80,
+      "ExpectedLevel": 8,
+      "NameId": 250,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vb07_00_02",
+      "Name": "Spider",
+      "Role": "Bulwark",
+      "ExpectedHp": 100,
+      "ExpectedLevel": 7,
+      "NameId": 251,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vb07_00_03",
+      "Name": "Woodpecker",
+      "Role": "Raider",
+      "ExpectedHp": 45,
+      "ExpectedLevel": 5,
+      "NameId": 252,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vb08_00_00",
+      "Name": "Wolf",
+      "Role": "Raider",
+      "ExpectedHp": 60,
+      "ExpectedLevel": 5,
+      "NameId": 255,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vb08_00_01",
+      "Name": "Bandit A",
+      "Role": "Bruiser",
+      "ExpectedHp": 35,
+      "ExpectedLevel": 4,
+      "NameId": 256,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vb08_00_02",
+      "Name": "Bandit B",
+      "Role": "Bruiser",
+      "ExpectedHp": 35,
+      "ExpectedLevel": 4,
+      "NameId": 257,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vb08_00_03",
+      "Name": "Bandit C",
+      "Role": "Bruiser",
+      "ExpectedHp": 35,
+      "ExpectedLevel": 4,
+      "NameId": 258,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vb08_00_04",
+      "Name": "Killer Bee",
+      "Role": "Raider",
+      "ExpectedHp": 22,
+      "ExpectedLevel": 3,
+      "NameId": 259,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vb08_00_05",
+      "Name": "Furball",
+      "Role": "Raider",
+      "ExpectedHp": 40,
+      "ExpectedLevel": 4,
+      "NameId": 260,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vb08_00_06",
+      "Name": "Blade Bunny",
+      "Role": "Raider",
+      "ExpectedHp": 40,
+      "ExpectedLevel": 3,
+      "NameId": 261,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vb17_00_00",
+      "Name": "vb17_00_00",
+      "Role": "Raider",
+      "ExpectedHp": 60,
+      "ExpectedLevel": 5,
+      "NameId": 276,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vb17_00_01",
+      "Name": "vb17_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 35,
+      "ExpectedLevel": 4,
+      "NameId": 277,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vb17_00_02",
+      "Name": "vb17_00_02",
+      "Role": "Bruiser",
+      "ExpectedHp": 35,
+      "ExpectedLevel": 4,
+      "NameId": 278,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vb17_00_03",
+      "Name": "vb17_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 35,
+      "ExpectedLevel": 4,
+      "NameId": 279,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vb17_00_04",
+      "Name": "vb17_00_04",
+      "Role": "Raider",
+      "ExpectedHp": 22,
+      "ExpectedLevel": 3,
+      "NameId": 280,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vb17_00_05",
+      "Name": "vb17_00_05",
+      "Role": "Raider",
+      "ExpectedHp": 40,
+      "ExpectedLevel": 4,
+      "NameId": 281,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vb17_00_06",
+      "Name": "vb17_00_06",
+      "Role": "Raider",
+      "ExpectedHp": 40,
+      "ExpectedLevel": 3,
+      "NameId": 282,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vb21_00_00",
+      "Name": "Salamander",
+      "Role": "Bulwark",
+      "ExpectedHp": 300,
+      "ExpectedLevel": 20,
+      "NameId": 288,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vb21_00_01",
+      "Name": "Flying Squirrel",
+      "Role": "Raider",
+      "ExpectedHp": 60,
+      "ExpectedLevel": 15,
+      "NameId": 289,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vb21_00_02",
+      "Name": "Zombie Slug",
+      "Role": "Bruiser",
+      "ExpectedHp": 200,
+      "ExpectedLevel": 17,
+      "NameId": 290,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vb21_00_03",
+      "Name": "Shadow",
+      "Role": "Raider",
+      "ExpectedHp": 120,
+      "ExpectedLevel": 17,
+      "NameId": 291,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vc02_00_00",
+      "Name": "vc02_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 70,
+      "ExpectedLevel": 19,
+      "NameId": 294,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vc02_00_01",
+      "Name": "vc02_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 80,
+      "ExpectedLevel": 19,
+      "NameId": 295,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vc02_00_02",
+      "Name": "vc02_00_02",
+      "Role": "Bruiser",
+      "ExpectedHp": 100,
+      "ExpectedLevel": 19,
+      "NameId": 296,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vc02_00_03",
+      "Name": "vc02_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 120,
+      "ExpectedLevel": 22,
+      "NameId": 297,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vc07_00_00",
+      "Name": "Armadillon",
+      "Role": "Bruiser",
+      "ExpectedHp": 120,
+      "ExpectedLevel": 18,
+      "NameId": 307,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vc07_00_01",
+      "Name": "Armadilloid",
+      "Role": "Bruiser",
+      "ExpectedHp": 70,
+      "ExpectedLevel": 25,
+      "NameId": 308,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vc07_00_02",
+      "Name": "Killer Bunny",
+      "Role": "Bruiser",
+      "ExpectedHp": 170,
+      "ExpectedLevel": 19,
+      "NameId": 309,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vc12_00_00",
+      "Name": "Mr. Venus",
+      "Role": "Bulwark",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 16,
+      "NameId": 318,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vc12_00_01",
+      "Name": "Nightmare",
+      "Role": "FragilePressure",
+      "ExpectedHp": 90,
+      "ExpectedLevel": 13,
+      "NameId": 319,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "vc12_00_02",
+      "Name": "Mega Watt",
+      "Role": "Raider",
+      "ExpectedHp": 150,
+      "ExpectedLevel": 14,
+      "NameId": 320,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vc12_00_03",
+      "Name": "Creeper",
+      "Role": "Bruiser",
+      "ExpectedHp": 120,
+      "ExpectedLevel": 12,
+      "NameId": 321,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vc12_00_04",
+      "Name": "vc12_00_04",
+      "Role": "Bulwark",
+      "ExpectedHp": 200,
+      "ExpectedLevel": 15,
+      "NameId": 322,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vc13_00_00",
+      "Name": "vc13_00_00",
+      "Role": "Bulwark",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 16,
+      "NameId": 324,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vc13_00_01",
+      "Name": "vc13_00_01",
+      "Role": "FragilePressure",
+      "ExpectedHp": 90,
+      "ExpectedLevel": 13,
+      "NameId": 325,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "vc13_00_02",
+      "Name": "vc13_00_02",
+      "Role": "Raider",
+      "ExpectedHp": 150,
+      "ExpectedLevel": 14,
+      "NameId": 326,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vc13_00_03",
+      "Name": "vc13_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 120,
+      "ExpectedLevel": 12,
+      "NameId": 327,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vc13_00_04",
+      "Name": "vc13_00_04",
+      "Role": "Bulwark",
+      "ExpectedHp": 200,
+      "ExpectedLevel": 15,
+      "NameId": 328,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vc16_00_00",
+      "Name": "vc16_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 160,
+      "ExpectedLevel": 36,
+      "NameId": 332,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vc16_00_01",
+      "Name": "vc16_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 180,
+      "ExpectedLevel": 36,
+      "NameId": 333,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vc16_00_02",
+      "Name": "vc16_00_02",
+      "Role": "Bruiser",
+      "ExpectedHp": 180,
+      "ExpectedLevel": 36,
+      "NameId": 334,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vc24_00_00",
+      "Name": "vc24_00_00",
+      "Role": "Raider",
+      "ExpectedHp": 170,
+      "ExpectedLevel": 41,
+      "NameId": 343,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vc24_00_01",
+      "Name": "vc24_00_01",
+      "Role": "Raider",
+      "ExpectedHp": 180,
+      "ExpectedLevel": 41,
+      "NameId": 344,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vc24_00_02",
+      "Name": "vc24_00_02",
+      "Role": "Raider",
+      "ExpectedHp": 187,
+      "ExpectedLevel": 41,
+      "NameId": 345,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vc24_00_03",
+      "Name": "vc24_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 220,
+      "ExpectedLevel": 43,
+      "NameId": 346,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd06_00_00",
+      "Name": "Griffin",
+      "Role": "Bruiser",
+      "ExpectedHp": 135,
+      "ExpectedLevel": 21,
+      "NameId": 362,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd06_00_01",
+      "Name": "Minos",
+      "Role": "Bruiser",
+      "ExpectedHp": 170,
+      "ExpectedLevel": 23,
+      "NameId": 363,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd06_00_02",
+      "Name": "Sun King",
+      "Role": "Bulwark",
+      "ExpectedHp": 350,
+      "ExpectedLevel": 24,
+      "NameId": 364,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vd06_00_03",
+      "Name": "Sorcerer",
+      "Role": "FragilePressure",
+      "ExpectedHp": 110,
+      "ExpectedLevel": 22,
+      "NameId": 365,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "vd10_00_00",
+      "Name": "vd10_00_00",
+      "Role": "FragilePressure",
+      "ExpectedHp": 170,
+      "ExpectedLevel": 26,
+      "NameId": 370,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "vd10_00_01",
+      "Name": "Zombie",
+      "Role": "Bruiser",
+      "ExpectedHp": 140,
+      "ExpectedLevel": 24,
+      "NameId": 371,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd10_00_02",
+      "Name": "vd10_00_02",
+      "Role": "Bruiser",
+      "ExpectedHp": 160,
+      "ExpectedLevel": 24,
+      "NameId": 372,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd10_00_03",
+      "Name": "Shadow Man",
+      "Role": "Bruiser",
+      "ExpectedHp": 220,
+      "ExpectedLevel": 25,
+      "NameId": 373,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd11_00_00",
+      "Name": "vd11_00_00",
+      "Role": "FragilePressure",
+      "ExpectedHp": 170,
+      "ExpectedLevel": 26,
+      "NameId": 375,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "vd11_00_01",
+      "Name": "vd11_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 140,
+      "ExpectedLevel": 24,
+      "NameId": 376,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd11_00_02",
+      "Name": "vd11_00_02",
+      "Role": "Bruiser",
+      "ExpectedHp": 160,
+      "ExpectedLevel": 24,
+      "NameId": 377,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd11_00_03",
+      "Name": "vd11_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 220,
+      "ExpectedLevel": 25,
+      "NameId": 378,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd12_00_00",
+      "Name": "vd12_00_00",
+      "Role": "FragilePressure",
+      "ExpectedHp": 170,
+      "ExpectedLevel": 26,
+      "NameId": 380,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "vd12_00_01",
+      "Name": "vd12_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 140,
+      "ExpectedLevel": 24,
+      "NameId": 381,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd12_00_02",
+      "Name": "vd12_00_02",
+      "Role": "Bruiser",
+      "ExpectedHp": 160,
+      "ExpectedLevel": 24,
+      "NameId": 382,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd12_00_03",
+      "Name": "vd12_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 220,
+      "ExpectedLevel": 25,
+      "NameId": 383,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd13_00_00",
+      "Name": "vd13_00_00",
+      "Role": "FragilePressure",
+      "ExpectedHp": 170,
+      "ExpectedLevel": 26,
+      "NameId": 385,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "vd13_00_01",
+      "Name": "vd13_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 140,
+      "ExpectedLevel": 24,
+      "NameId": 386,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd13_00_02",
+      "Name": "vd13_00_02",
+      "Role": "Bruiser",
+      "ExpectedHp": 160,
+      "ExpectedLevel": 24,
+      "NameId": 387,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vd13_00_03",
+      "Name": "vd13_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 220,
+      "ExpectedLevel": 25,
+      "NameId": 388,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "ve03_00_00",
+      "Name": "Holly Boy",
+      "Role": "Bruiser",
+      "ExpectedHp": 45,
+      "ExpectedLevel": 15,
+      "NameId": 400,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "ve03_00_01",
+      "Name": "Monwer",
+      "Role": "Bruiser",
+      "ExpectedHp": 90,
+      "ExpectedLevel": 32,
+      "NameId": 401,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "ve03_00_02",
+      "Name": "Melonzoo",
+      "Role": "Raider",
+      "ExpectedHp": 167,
+      "ExpectedLevel": 31,
+      "NameId": 402,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "ve03_00_03",
+      "Name": "Holly Elf",
+      "Role": "Raider",
+      "ExpectedHp": 170,
+      "ExpectedLevel": 32,
+      "NameId": 403,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "ve04_00_00",
+      "Name": "ve04_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 45,
+      "ExpectedLevel": 15,
+      "NameId": 405,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "ve04_00_01",
+      "Name": "Papa Holly",
+      "Role": "Bulwark",
+      "ExpectedHp": 650,
+      "ExpectedLevel": 32,
+      "NameId": 406,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "ve04_00_02",
+      "Name": "ve04_00_02",
+      "Role": "Raider",
+      "ExpectedHp": 320,
+      "ExpectedLevel": 33,
+      "NameId": 407,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "ve04_00_03",
+      "Name": "DoReMi Elf",
+      "Role": "FragilePressure",
+      "ExpectedHp": 210,
+      "ExpectedLevel": 33,
+      "NameId": 408,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve04_00_04",
+      "Name": "ve04_00_04",
+      "Role": "FragilePressure",
+      "ExpectedHp": 210,
+      "ExpectedLevel": 33,
+      "NameId": 409,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve04_00_05",
+      "Name": "ve04_00_05",
+      "Role": "FragilePressure",
+      "ExpectedHp": 210,
+      "ExpectedLevel": 33,
+      "NameId": 410,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve04_00_06",
+      "Name": "ve04_00_06",
+      "Role": "FragilePressure",
+      "ExpectedHp": 210,
+      "ExpectedLevel": 33,
+      "NameId": 411,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve04_00_07",
+      "Name": "ve04_00_07",
+      "Role": "FragilePressure",
+      "ExpectedHp": 210,
+      "ExpectedLevel": 33,
+      "NameId": 412,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve04_00_08",
+      "Name": "ve04_00_08",
+      "Role": "FragilePressure",
+      "ExpectedHp": 210,
+      "ExpectedLevel": 33,
+      "NameId": 413,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve08_00_00",
+      "Name": "ve08_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 83,
+      "ExpectedLevel": 30,
+      "NameId": 418,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "ve08_00_01",
+      "Name": "Holly Master",
+      "Role": "Raider",
+      "ExpectedHp": 260,
+      "ExpectedLevel": 47,
+      "NameId": 419,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "ve08_00_02",
+      "Name": "Grand Holly",
+      "Role": "Bulwark",
+      "ExpectedHp": 1020,
+      "ExpectedLevel": 49,
+      "NameId": 420,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "ve08_00_03",
+      "Name": "ve08_00_03",
+      "Role": "FragilePressure",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 46,
+      "NameId": 421,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve08_00_04",
+      "Name": "ve08_00_04",
+      "Role": "FragilePressure",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 46,
+      "NameId": 422,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve08_00_05",
+      "Name": "ve08_00_05",
+      "Role": "FragilePressure",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 46,
+      "NameId": 423,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve08_00_06",
+      "Name": "ve08_00_06",
+      "Role": "FragilePressure",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 46,
+      "NameId": 424,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve08_00_07",
+      "Name": "ve08_00_07",
+      "Role": "FragilePressure",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 46,
+      "NameId": 425,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve08_00_08",
+      "Name": "ve08_00_08",
+      "Role": "FragilePressure",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 46,
+      "NameId": 426,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve08_00_09",
+      "Name": "Target Girl",
+      "Role": "Raider",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 48,
+      "NameId": 427,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "ve14_00_00",
+      "Name": "ve14_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 45,
+      "ExpectedLevel": 15,
+      "NameId": 435,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "ve14_00_01",
+      "Name": "ve14_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 90,
+      "ExpectedLevel": 32,
+      "NameId": 436,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "ve14_00_02",
+      "Name": "ve14_00_02",
+      "Role": "Raider",
+      "ExpectedHp": 167,
+      "ExpectedLevel": 31,
+      "NameId": 437,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "ve14_00_03",
+      "Name": "ve14_00_03",
+      "Role": "Raider",
+      "ExpectedHp": 170,
+      "ExpectedLevel": 32,
+      "NameId": 438,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "ve15_00_00",
+      "Name": "ve15_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 83,
+      "ExpectedLevel": 30,
+      "NameId": 440,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "ve15_00_01",
+      "Name": "ve15_00_01",
+      "Role": "Raider",
+      "ExpectedHp": 260,
+      "ExpectedLevel": 47,
+      "NameId": 441,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "ve15_00_02",
+      "Name": "ve15_00_02",
+      "Role": "Bulwark",
+      "ExpectedHp": 1020,
+      "ExpectedLevel": 49,
+      "NameId": 442,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "ve15_00_03",
+      "Name": "ve15_00_03",
+      "Role": "FragilePressure",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 46,
+      "NameId": 443,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve15_00_04",
+      "Name": "ve15_00_04",
+      "Role": "FragilePressure",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 46,
+      "NameId": 444,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve15_00_05",
+      "Name": "ve15_00_05",
+      "Role": "FragilePressure",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 46,
+      "NameId": 445,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve15_00_06",
+      "Name": "ve15_00_06",
+      "Role": "FragilePressure",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 46,
+      "NameId": 446,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve15_00_07",
+      "Name": "ve15_00_07",
+      "Role": "FragilePressure",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 46,
+      "NameId": 447,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve15_00_08",
+      "Name": "ve15_00_08",
+      "Role": "FragilePressure",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 46,
+      "NameId": 448,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.9
+    },
+    {
+      "Id": "ve15_00_09",
+      "Name": "ve15_00_09",
+      "Role": "Raider",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 48,
+      "NameId": 449,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vf06_00_00",
+      "Name": "RanRan",
+      "Role": "Bruiser",
+      "ExpectedHp": 140,
+      "ExpectedLevel": 36,
+      "NameId": 465,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vf06_00_01",
+      "Name": "TenTen",
+      "Role": "Raider",
+      "ExpectedHp": 130,
+      "ExpectedLevel": 36,
+      "NameId": 466,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vf06_00_02",
+      "Name": "RinRin",
+      "Role": "Bruiser",
+      "ExpectedHp": 150,
+      "ExpectedLevel": 36,
+      "NameId": 467,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vf06_00_03",
+      "Name": "Tiger",
+      "Role": "Bruiser",
+      "ExpectedHp": 180,
+      "ExpectedLevel": 37,
+      "NameId": 468,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vf06_00_04",
+      "Name": "Samurai",
+      "Role": "Raider",
+      "ExpectedHp": 250,
+      "ExpectedLevel": 38,
+      "NameId": 469,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vf07_00_00",
+      "Name": "vf07_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 140,
+      "ExpectedLevel": 36,
+      "NameId": 472,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vf07_00_01",
+      "Name": "vf07_00_01",
+      "Role": "Raider",
+      "ExpectedHp": 130,
+      "ExpectedLevel": 36,
+      "NameId": 473,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vf07_00_02",
+      "Name": "vf07_00_02",
+      "Role": "Bruiser",
+      "ExpectedHp": 150,
+      "ExpectedLevel": 36,
+      "NameId": 474,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vf07_00_03",
+      "Name": "vf07_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 180,
+      "ExpectedLevel": 37,
+      "NameId": 475,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vf07_00_04",
+      "Name": "vf07_00_04",
+      "Role": "Raider",
+      "ExpectedHp": 250,
+      "ExpectedLevel": 38,
+      "NameId": 476,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vg02_00_00",
+      "Name": "vg02_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 210,
+      "ExpectedLevel": 43,
+      "NameId": 479,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg02_00_01",
+      "Name": "vg02_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 230,
+      "ExpectedLevel": 43,
+      "NameId": 480,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg02_00_02",
+      "Name": "Zombie Unicorn",
+      "Role": "Bulwark",
+      "ExpectedHp": 570,
+      "ExpectedLevel": 46,
+      "NameId": 481,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vg02_00_03",
+      "Name": "Neclordia",
+      "Role": "Raider",
+      "ExpectedHp": 320,
+      "ExpectedLevel": 45,
+      "NameId": 482,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vg02_00_04",
+      "Name": "Skeleton",
+      "Role": "Bruiser",
+      "ExpectedHp": 200,
+      "ExpectedLevel": 44,
+      "NameId": 483,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg02_00_05",
+      "Name": "vg02_00_05",
+      "Role": "Bruiser",
+      "ExpectedHp": 208,
+      "ExpectedLevel": 44,
+      "NameId": 484,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg04_00_00",
+      "Name": "Air Lizard",
+      "Role": "Bruiser",
+      "ExpectedHp": 350,
+      "ExpectedLevel": 42,
+      "NameId": 487,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg04_00_01",
+      "Name": "Killer Dog",
+      "Role": "Raider",
+      "ExpectedHp": 180,
+      "ExpectedLevel": 41,
+      "NameId": 488,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vg11_00_00",
+      "Name": "vg11_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 210,
+      "ExpectedLevel": 43,
+      "NameId": 496,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg11_00_01",
+      "Name": "vg11_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 230,
+      "ExpectedLevel": 43,
+      "NameId": 497,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg11_00_02",
+      "Name": "vg11_00_02",
+      "Role": "Bulwark",
+      "ExpectedHp": 570,
+      "ExpectedLevel": 46,
+      "NameId": 498,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vg11_00_03",
+      "Name": "vg11_00_03",
+      "Role": "Raider",
+      "ExpectedHp": 320,
+      "ExpectedLevel": 45,
+      "NameId": 499,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vg11_00_04",
+      "Name": "vg11_00_04",
+      "Role": "Bruiser",
+      "ExpectedHp": 200,
+      "ExpectedLevel": 44,
+      "NameId": 500,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg11_00_05",
+      "Name": "vg11_00_05",
+      "Role": "Bruiser",
+      "ExpectedHp": 208,
+      "ExpectedLevel": 44,
+      "NameId": 501,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg11_00_06",
+      "Name": "vg11_00_06",
+      "Role": "Bruiser",
+      "ExpectedHp": 130,
+      "ExpectedLevel": 42,
+      "NameId": 502,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg11_00_07",
+      "Name": "vg11_00_07",
+      "Role": "Bruiser",
+      "ExpectedHp": 140,
+      "ExpectedLevel": 42,
+      "NameId": 503,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg15_00_00",
+      "Name": "vg15_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 210,
+      "ExpectedLevel": 43,
+      "NameId": 508,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg15_00_01",
+      "Name": "vg15_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 230,
+      "ExpectedLevel": 43,
+      "NameId": 509,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg15_00_02",
+      "Name": "vg15_00_02",
+      "Role": "Bulwark",
+      "ExpectedHp": 570,
+      "ExpectedLevel": 46,
+      "NameId": 510,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vg15_00_03",
+      "Name": "vg15_00_03",
+      "Role": "Raider",
+      "ExpectedHp": 320,
+      "ExpectedLevel": 45,
+      "NameId": 511,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vg15_00_04",
+      "Name": "vg15_00_04",
+      "Role": "Bruiser",
+      "ExpectedHp": 200,
+      "ExpectedLevel": 44,
+      "NameId": 512,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg15_00_05",
+      "Name": "vg15_00_05",
+      "Role": "Bruiser",
+      "ExpectedHp": 208,
+      "ExpectedLevel": 44,
+      "NameId": 513,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg16_00_00",
+      "Name": "vg16_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 350,
+      "ExpectedLevel": 42,
+      "NameId": 515,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vg16_00_01",
+      "Name": "vg16_00_01",
+      "Role": "Raider",
+      "ExpectedHp": 180,
+      "ExpectedLevel": 41,
+      "NameId": 516,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vh04_00_00",
+      "Name": "Siren",
+      "Role": "Raider",
+      "ExpectedHp": 110,
+      "ExpectedLevel": 27,
+      "NameId": 523,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vh04_00_01",
+      "Name": "vh04_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 130,
+      "ExpectedLevel": 29,
+      "NameId": 524,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vh04_00_02",
+      "Name": "Devil Eye",
+      "Role": "Bruiser",
+      "ExpectedHp": 150,
+      "ExpectedLevel": 28,
+      "NameId": 525,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vh04_00_03",
+      "Name": "Land Shark",
+      "Role": "Raider",
+      "ExpectedHp": 110,
+      "ExpectedLevel": 28,
+      "NameId": 526,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vh10_00_00",
+      "Name": "Eagle Man",
+      "Role": "Raider",
+      "ExpectedHp": 180,
+      "ExpectedLevel": 32,
+      "NameId": 534,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vh10_00_01",
+      "Name": "Mirage",
+      "Role": "Bruiser",
+      "ExpectedHp": 220,
+      "ExpectedLevel": 31,
+      "NameId": 535,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vi03_00_00",
+      "Name": "Matilda Knight",
+      "Role": "Bruiser",
+      "ExpectedHp": 410,
+      "ExpectedLevel": 53,
+      "NameId": 546,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vi06_00_00",
+      "Name": "Cockatrice",
+      "Role": "Raider",
+      "ExpectedHp": 440,
+      "ExpectedLevel": 52,
+      "NameId": 555,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi06_00_01",
+      "Name": "Hippogriff",
+      "Role": "Raider",
+      "ExpectedHp": 360,
+      "ExpectedLevel": 53,
+      "NameId": 556,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi06_00_02",
+      "Name": "vi06_00_02",
+      "Role": "Raider",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 51,
+      "NameId": 557,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi06_00_03",
+      "Name": "vi06_00_03",
+      "Role": "Raider",
+      "ExpectedHp": 280,
+      "ExpectedLevel": 51,
+      "NameId": 558,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi06_00_04",
+      "Name": "vi06_00_04",
+      "Role": "Raider",
+      "ExpectedHp": 290,
+      "ExpectedLevel": 51,
+      "NameId": 559,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi06_00_05",
+      "Name": "vi06_00_05",
+      "Role": "Bruiser",
+      "ExpectedHp": 350,
+      "ExpectedLevel": 51,
+      "NameId": 560,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vi06_00_06",
+      "Name": "vi06_00_06",
+      "Role": "Bruiser",
+      "ExpectedHp": 410,
+      "ExpectedLevel": 53,
+      "NameId": 561,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vi08_00_00",
+      "Name": "vi08_00_00",
+      "Role": "Raider",
+      "ExpectedHp": 440,
+      "ExpectedLevel": 52,
+      "NameId": 566,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi08_00_01",
+      "Name": "vi08_00_01",
+      "Role": "Raider",
+      "ExpectedHp": 360,
+      "ExpectedLevel": 53,
+      "NameId": 567,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi08_00_02",
+      "Name": "vi08_00_02",
+      "Role": "Raider",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 51,
+      "NameId": 568,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi08_00_03",
+      "Name": "vi08_00_03",
+      "Role": "Raider",
+      "ExpectedHp": 280,
+      "ExpectedLevel": 51,
+      "NameId": 569,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi08_00_04",
+      "Name": "vi08_00_04",
+      "Role": "Raider",
+      "ExpectedHp": 290,
+      "ExpectedLevel": 51,
+      "NameId": 570,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi08_00_05",
+      "Name": "vi08_00_05",
+      "Role": "Bruiser",
+      "ExpectedHp": 350,
+      "ExpectedLevel": 51,
+      "NameId": 571,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vi08_00_06",
+      "Name": "vi08_00_06",
+      "Role": "Bruiser",
+      "ExpectedHp": 410,
+      "ExpectedLevel": 53,
+      "NameId": 572,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vi13_00_00",
+      "Name": "Hawk Man",
+      "Role": "Raider",
+      "ExpectedHp": 260,
+      "ExpectedLevel": 37,
+      "NameId": 582,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi13_00_01",
+      "Name": "Spiker",
+      "Role": "Raider",
+      "ExpectedHp": 120,
+      "ExpectedLevel": 34,
+      "NameId": 583,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi13_00_02",
+      "Name": "Assassin",
+      "Role": "Raider",
+      "ExpectedHp": 140,
+      "ExpectedLevel": 35,
+      "NameId": 584,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi13_00_03",
+      "Name": "Pixie",
+      "Role": "Raider",
+      "ExpectedHp": 60,
+      "ExpectedLevel": 36,
+      "NameId": 585,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi13_00_04",
+      "Name": "Sky Knight",
+      "Role": "Raider",
+      "ExpectedHp": 270,
+      "ExpectedLevel": 52,
+      "NameId": 586,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi13_00_05",
+      "Name": "Leathercut",
+      "Role": "Raider",
+      "ExpectedHp": 220,
+      "ExpectedLevel": 53,
+      "NameId": 587,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi13_00_06",
+      "Name": "Iron Claw",
+      "Role": "Raider",
+      "ExpectedHp": 320,
+      "ExpectedLevel": 54,
+      "NameId": 588,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vi13_00_07",
+      "Name": "vi13_00_07",
+      "Role": "Raider",
+      "ExpectedHp": 130,
+      "ExpectedLevel": 55,
+      "NameId": 589,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vj02_00_00",
+      "Name": "Bronzem",
+      "Role": "Bulwark",
+      "ExpectedHp": 1700,
+      "ExpectedLevel": 58,
+      "NameId": 595,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj02_00_01",
+      "Name": "vj02_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 350,
+      "ExpectedLevel": 56,
+      "NameId": 596,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj02_00_02",
+      "Name": "vj02_00_02",
+      "Role": "Bulwark",
+      "ExpectedHp": 750,
+      "ExpectedLevel": 55,
+      "NameId": 597,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj02_00_03",
+      "Name": "vj02_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 285,
+      "ExpectedLevel": 54,
+      "NameId": 598,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj02_00_04",
+      "Name": "vj02_00_04",
+      "Role": "Bruiser",
+      "ExpectedHp": 290,
+      "ExpectedLevel": 54,
+      "NameId": 599,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj02_00_05",
+      "Name": "vj02_00_05",
+      "Role": "Bruiser",
+      "ExpectedHp": 310,
+      "ExpectedLevel": 54,
+      "NameId": 600,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj02_00_06",
+      "Name": "vj02_00_06",
+      "Role": "Bruiser",
+      "ExpectedHp": 370,
+      "ExpectedLevel": 56,
+      "NameId": 601,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj03_00_00",
+      "Name": "vj03_00_00",
+      "Role": "Bulwark",
+      "ExpectedHp": 1700,
+      "ExpectedLevel": 58,
+      "NameId": 603,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj03_00_01",
+      "Name": "vj03_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 350,
+      "ExpectedLevel": 56,
+      "NameId": 604,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj03_00_02",
+      "Name": "vj03_00_02",
+      "Role": "Bulwark",
+      "ExpectedHp": 750,
+      "ExpectedLevel": 55,
+      "NameId": 605,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj03_00_03",
+      "Name": "vj03_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 285,
+      "ExpectedLevel": 54,
+      "NameId": 606,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj03_00_04",
+      "Name": "vj03_00_04",
+      "Role": "Bruiser",
+      "ExpectedHp": 290,
+      "ExpectedLevel": 54,
+      "NameId": 607,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj03_00_05",
+      "Name": "vj03_00_05",
+      "Role": "Bruiser",
+      "ExpectedHp": 310,
+      "ExpectedLevel": 54,
+      "NameId": 608,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj03_00_06",
+      "Name": "vj03_00_06",
+      "Role": "Bruiser",
+      "ExpectedHp": 370,
+      "ExpectedLevel": 56,
+      "NameId": 609,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj04_00_00",
+      "Name": "vj04_00_00",
+      "Role": "Bulwark",
+      "ExpectedHp": 1700,
+      "ExpectedLevel": 58,
+      "NameId": 611,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj04_00_01",
+      "Name": "vj04_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 350,
+      "ExpectedLevel": 56,
+      "NameId": 612,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj04_00_02",
+      "Name": "vj04_00_02",
+      "Role": "Bulwark",
+      "ExpectedHp": 750,
+      "ExpectedLevel": 55,
+      "NameId": 613,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj04_00_03",
+      "Name": "vj04_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 285,
+      "ExpectedLevel": 54,
+      "NameId": 614,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj04_00_04",
+      "Name": "vj04_00_04",
+      "Role": "Bruiser",
+      "ExpectedHp": 290,
+      "ExpectedLevel": 54,
+      "NameId": 615,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj04_00_05",
+      "Name": "vj04_00_05",
+      "Role": "Bruiser",
+      "ExpectedHp": 310,
+      "ExpectedLevel": 54,
+      "NameId": 616,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj04_00_06",
+      "Name": "vj04_00_06",
+      "Role": "Bruiser",
+      "ExpectedHp": 370,
+      "ExpectedLevel": 56,
+      "NameId": 617,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj05_00_00",
+      "Name": "vj05_00_00",
+      "Role": "Bulwark",
+      "ExpectedHp": 1700,
+      "ExpectedLevel": 58,
+      "NameId": 619,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj05_00_01",
+      "Name": "vj05_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 350,
+      "ExpectedLevel": 56,
+      "NameId": 620,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj05_00_02",
+      "Name": "vj05_00_02",
+      "Role": "Bulwark",
+      "ExpectedHp": 750,
+      "ExpectedLevel": 55,
+      "NameId": 621,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj05_00_03",
+      "Name": "vj05_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 285,
+      "ExpectedLevel": 54,
+      "NameId": 622,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj05_00_04",
+      "Name": "vj05_00_04",
+      "Role": "Bruiser",
+      "ExpectedHp": 290,
+      "ExpectedLevel": 54,
+      "NameId": 623,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj05_00_05",
+      "Name": "vj05_00_05",
+      "Role": "Bruiser",
+      "ExpectedHp": 310,
+      "ExpectedLevel": 54,
+      "NameId": 624,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj05_00_06",
+      "Name": "vj05_00_06",
+      "Role": "Bruiser",
+      "ExpectedHp": 370,
+      "ExpectedLevel": 56,
+      "NameId": 625,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj06_00_00",
+      "Name": "vj06_00_00",
+      "Role": "Bulwark",
+      "ExpectedHp": 1700,
+      "ExpectedLevel": 58,
+      "NameId": 627,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj06_00_01",
+      "Name": "vj06_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 350,
+      "ExpectedLevel": 56,
+      "NameId": 628,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj06_00_02",
+      "Name": "vj06_00_02",
+      "Role": "Bulwark",
+      "ExpectedHp": 750,
+      "ExpectedLevel": 55,
+      "NameId": 629,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj06_00_03",
+      "Name": "vj06_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 285,
+      "ExpectedLevel": 54,
+      "NameId": 630,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj06_00_04",
+      "Name": "vj06_00_04",
+      "Role": "Bruiser",
+      "ExpectedHp": 290,
+      "ExpectedLevel": 54,
+      "NameId": 631,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj06_00_05",
+      "Name": "vj06_00_05",
+      "Role": "Bruiser",
+      "ExpectedHp": 310,
+      "ExpectedLevel": 54,
+      "NameId": 632,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj06_00_06",
+      "Name": "vj06_00_06",
+      "Role": "Bruiser",
+      "ExpectedHp": 370,
+      "ExpectedLevel": 56,
+      "NameId": 633,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj11_00_00",
+      "Name": "vj11_00_00",
+      "Role": "Bulwark",
+      "ExpectedHp": 1700,
+      "ExpectedLevel": 58,
+      "NameId": 639,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj11_00_01",
+      "Name": "vj11_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 350,
+      "ExpectedLevel": 56,
+      "NameId": 640,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj11_00_02",
+      "Name": "vj11_00_02",
+      "Role": "Bulwark",
+      "ExpectedHp": 750,
+      "ExpectedLevel": 55,
+      "NameId": 641,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj11_00_03",
+      "Name": "vj11_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 285,
+      "ExpectedLevel": 54,
+      "NameId": 642,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj11_00_04",
+      "Name": "vj11_00_04",
+      "Role": "Bruiser",
+      "ExpectedHp": 290,
+      "ExpectedLevel": 54,
+      "NameId": 643,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj11_00_05",
+      "Name": "vj11_00_05",
+      "Role": "Bruiser",
+      "ExpectedHp": 310,
+      "ExpectedLevel": 54,
+      "NameId": 644,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj11_00_06",
+      "Name": "vj11_00_06",
+      "Role": "Bruiser",
+      "ExpectedHp": 370,
+      "ExpectedLevel": 56,
+      "NameId": 645,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj18_00_00",
+      "Name": "vj18_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 10,
+      "ExpectedLevel": 1,
+      "NameId": 653,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj18_00_01",
+      "Name": "FurFur",
+      "Role": "Bruiser",
+      "ExpectedHp": 30,
+      "ExpectedLevel": 2,
+      "NameId": 654,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj18_00_02",
+      "Name": "vj18_00_02",
+      "Role": "Raider",
+      "ExpectedHp": 40,
+      "ExpectedLevel": 3,
+      "NameId": 655,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vj20_00_00",
+      "Name": "vj20_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 140,
+      "ExpectedLevel": 36,
+      "NameId": 658,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj20_00_01",
+      "Name": "vj20_00_01",
+      "Role": "Raider",
+      "ExpectedHp": 130,
+      "ExpectedLevel": 36,
+      "NameId": 659,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vj20_00_02",
+      "Name": "vj20_00_02",
+      "Role": "Bruiser",
+      "ExpectedHp": 150,
+      "ExpectedLevel": 36,
+      "NameId": 660,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj20_00_03",
+      "Name": "vj20_00_03",
+      "Role": "Bruiser",
+      "ExpectedHp": 180,
+      "ExpectedLevel": 37,
+      "NameId": 661,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj20_00_04",
+      "Name": "vj20_00_04",
+      "Role": "Raider",
+      "ExpectedHp": 250,
+      "ExpectedLevel": 38,
+      "NameId": 662,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vj21_00_00",
+      "Name": "Iron Moon",
+      "Role": "Raider",
+      "ExpectedHp": 440,
+      "ExpectedLevel": 50,
+      "NameId": 664,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vj21_00_01",
+      "Name": "Copper Sun",
+      "Role": "Bruiser",
+      "ExpectedHp": 600,
+      "ExpectedLevel": 51,
+      "NameId": 665,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj21_00_02",
+      "Name": "Fisheye",
+      "Role": "Bruiser",
+      "ExpectedHp": 230,
+      "ExpectedLevel": 48,
+      "NameId": 666,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj22_00_00",
+      "Name": "vj22_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 210,
+      "ExpectedLevel": 43,
+      "NameId": 668,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj22_00_01",
+      "Name": "vj22_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 230,
+      "ExpectedLevel": 43,
+      "NameId": 669,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj22_00_02",
+      "Name": "vj22_00_02",
+      "Role": "Bulwark",
+      "ExpectedHp": 570,
+      "ExpectedLevel": 46,
+      "NameId": 670,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj22_00_03",
+      "Name": "vj22_00_03",
+      "Role": "Raider",
+      "ExpectedHp": 320,
+      "ExpectedLevel": 45,
+      "NameId": 671,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vj22_00_04",
+      "Name": "vj22_00_04",
+      "Role": "Bruiser",
+      "ExpectedHp": 200,
+      "ExpectedLevel": 44,
+      "NameId": 672,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj22_00_05",
+      "Name": "vj22_00_05",
+      "Role": "Bruiser",
+      "ExpectedHp": 208,
+      "ExpectedLevel": 44,
+      "NameId": 673,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj23_00_00",
+      "Name": "Phantom",
+      "Role": "Raider",
+      "ExpectedHp": 250,
+      "ExpectedLevel": 35,
+      "NameId": 675,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vj23_00_01",
+      "Name": "Pink Bird",
+      "Role": "Raider",
+      "ExpectedHp": 210,
+      "ExpectedLevel": 34,
+      "NameId": 676,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "vj24_00_00",
+      "Name": "vj24_00_00",
+      "Role": "Bulwark",
+      "ExpectedHp": 1700,
+      "ExpectedLevel": 58,
+      "NameId": 678,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "vj24_00_01",
+      "Name": "vj24_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 350,
+      "ExpectedLevel": 56,
+      "NameId": 679,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "vj24_00_02",
+      "Name": "vj24_00_02",
+      "Role": "Bulwark",
+      "ExpectedHp": 750,
+      "ExpectedLevel": 55,
+      "NameId": 680,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "wa_00_00",
+      "Name": "wa_00_00",
+      "Role": "Raider",
+      "ExpectedHp": 40,
+      "ExpectedLevel": 4,
+      "NameId": 731,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wa_00_01",
+      "Name": "wa_00_01",
+      "Role": "Raider",
+      "ExpectedHp": 40,
+      "ExpectedLevel": 3,
+      "NameId": 732,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wa_00_02",
+      "Name": "wa_00_02",
+      "Role": "Bruiser",
+      "ExpectedHp": 60,
+      "ExpectedLevel": 5,
+      "NameId": 733,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "wb_00_00",
+      "Name": "wb_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 10,
+      "ExpectedLevel": 1,
+      "NameId": 735,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "wb_00_01",
+      "Name": "wb_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 30,
+      "ExpectedLevel": 2,
+      "NameId": 736,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "wb_00_02",
+      "Name": "wb_00_02",
+      "Role": "Raider",
+      "ExpectedHp": 40,
+      "ExpectedLevel": 3,
+      "NameId": 737,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wb_00_03",
+      "Name": "wb_00_03",
+      "Role": "Raider",
+      "ExpectedHp": 40,
+      "ExpectedLevel": 4,
+      "NameId": 738,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wb_00_04",
+      "Name": "wb_00_04",
+      "Role": "Raider",
+      "ExpectedHp": 40,
+      "ExpectedLevel": 5,
+      "NameId": 739,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wb_00_05",
+      "Name": "Shadow Dog",
+      "Role": "Raider",
+      "ExpectedHp": 60,
+      "ExpectedLevel": 7,
+      "NameId": 740,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wc_00_00",
+      "Name": "Sickle",
+      "Role": "Raider",
+      "ExpectedHp": 70,
+      "ExpectedLevel": 10,
+      "NameId": 742,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wc_00_01",
+      "Name": "Gold Boar",
+      "Role": "Bulwark",
+      "ExpectedHp": 250,
+      "ExpectedLevel": 11,
+      "NameId": 743,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "wc_00_02",
+      "Name": "Poison Spider",
+      "Role": "Bulwark",
+      "ExpectedHp": 130,
+      "ExpectedLevel": 7,
+      "NameId": 744,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "wc_00_03",
+      "Name": "Clock Knight",
+      "Role": "Bruiser",
+      "ExpectedHp": 160,
+      "ExpectedLevel": 35,
+      "NameId": 745,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "wc_00_04",
+      "Name": "White Tiger",
+      "Role": "Bruiser",
+      "ExpectedHp": 230,
+      "ExpectedLevel": 35,
+      "NameId": 746,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "wc_00_05",
+      "Name": "wc_00_05",
+      "Role": "Raider",
+      "ExpectedHp": 440,
+      "ExpectedLevel": 50,
+      "NameId": 747,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wc_00_06",
+      "Name": "wc_00_06",
+      "Role": "Bruiser",
+      "ExpectedHp": 600,
+      "ExpectedLevel": 51,
+      "NameId": 748,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "wc_00_07",
+      "Name": "wc_00_07",
+      "Role": "Bruiser",
+      "ExpectedHp": 230,
+      "ExpectedLevel": 48,
+      "NameId": 749,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "wd_00_00",
+      "Name": "wd_00_00",
+      "Role": "Raider",
+      "ExpectedHp": 75,
+      "ExpectedLevel": 18,
+      "NameId": 751,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wd_00_01",
+      "Name": "Target Lady",
+      "Role": "Raider",
+      "ExpectedHp": 130,
+      "ExpectedLevel": 20,
+      "NameId": 752,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wd_00_02",
+      "Name": "Black Bunny",
+      "Role": "Bruiser",
+      "ExpectedHp": 120,
+      "ExpectedLevel": 19,
+      "NameId": 753,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "we_00_00",
+      "Name": "we_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 45,
+      "ExpectedLevel": 15,
+      "NameId": 755,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "we_00_01",
+      "Name": "Ragged One",
+      "Role": "Raider",
+      "ExpectedHp": 165,
+      "ExpectedLevel": 29,
+      "NameId": 756,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "we_00_02",
+      "Name": "Sauroid",
+      "Role": "Raider",
+      "ExpectedHp": 200,
+      "ExpectedLevel": 30,
+      "NameId": 757,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "we_00_03",
+      "Name": "Eye Flower",
+      "Role": "Bruiser",
+      "ExpectedHp": 260,
+      "ExpectedLevel": 45,
+      "NameId": 758,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "we_00_04",
+      "Name": "Kookaburra",
+      "Role": "Raider",
+      "ExpectedHp": 320,
+      "ExpectedLevel": 47,
+      "NameId": 759,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "we_00_05",
+      "Name": "we_00_05",
+      "Role": "Raider",
+      "ExpectedHp": 70,
+      "ExpectedLevel": 10,
+      "NameId": 760,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "we_00_06",
+      "Name": "we_00_06",
+      "Role": "Bulwark",
+      "ExpectedHp": 130,
+      "ExpectedLevel": 7,
+      "NameId": 761,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "wg_00_00",
+      "Name": "wg_00_00",
+      "Role": "Bruiser",
+      "ExpectedHp": 170,
+      "ExpectedLevel": 39,
+      "NameId": 763,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "wg_00_01",
+      "Name": "wg_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 178,
+      "ExpectedLevel": 39,
+      "NameId": 764,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "wg_00_02",
+      "Name": "Ghost Slug",
+      "Role": "Bruiser",
+      "ExpectedHp": 450,
+      "ExpectedLevel": 40,
+      "NameId": 765,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "wh_00_00",
+      "Name": "Spikebeak",
+      "Role": "Raider",
+      "ExpectedHp": 180,
+      "ExpectedLevel": 27,
+      "NameId": 767,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wh_00_01",
+      "Name": "Rockadillo",
+      "Role": "Bruiser",
+      "ExpectedHp": 140,
+      "ExpectedLevel": 26,
+      "NameId": 768,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "wh_00_02",
+      "Name": "Sandillo",
+      "Role": "Bruiser",
+      "ExpectedHp": 120,
+      "ExpectedLevel": 33,
+      "NameId": 769,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "wi_00_00",
+      "Name": "Fei Yu",
+      "Role": "Raider",
+      "ExpectedHp": 280,
+      "ExpectedLevel": 50,
+      "NameId": 771,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wi_00_01",
+      "Name": "Shiu Lin",
+      "Role": "Raider",
+      "ExpectedHp": 260,
+      "ExpectedLevel": 50,
+      "NameId": 772,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wi_00_02",
+      "Name": "Li Lan",
+      "Role": "Bruiser",
+      "ExpectedHp": 320,
+      "ExpectedLevel": 50,
+      "NameId": 773,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    },
+    {
+      "Id": "wi_00_03",
+      "Name": "Black Tiger",
+      "Role": "Raider",
+      "ExpectedHp": 420,
+      "ExpectedLevel": 52,
+      "NameId": 774,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wi_00_04",
+      "Name": "wi_00_04",
+      "Role": "Raider",
+      "ExpectedHp": 250,
+      "ExpectedLevel": 35,
+      "NameId": 775,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wi_00_05",
+      "Name": "wi_00_05",
+      "Role": "Raider",
+      "ExpectedHp": 210,
+      "ExpectedLevel": 34,
+      "NameId": 776,
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.75
+    },
+    {
+      "Id": "wj_00_00",
+      "Name": "Colossus",
+      "Role": "Bulwark",
+      "ExpectedHp": 1500,
+      "ExpectedLevel": 58,
+      "NameId": 778,
+      "HpMultiplier": 1.85,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "Id": "wj_00_01",
+      "Name": "wj_00_01",
+      "Role": "Bruiser",
+      "ExpectedHp": 280,
+      "ExpectedLevel": 54,
+      "NameId": 779,
+      "HpMultiplier": 1.5,
+      "DamageMultiplier": 1.55
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "recommendedPackagingTag": "v1.12.2-beta.1",
+  "candidates": [
+    {
+      "id": "A",
+      "internalVersion": "1.12.2-guild-ui.1",
+      "sha256": "0B520FDD9182B6C024FE96376D0F284BE249DF93AF2E748DC331D21324910F46",
+      "sunWholeQuestUserAccepted": true,
+      "wholeCampaignAccepted": false
+    },
+    {
+      "id": "B",
+      "internalVersion": "1.13.0-native-war-foundation.1",
+      "sha256": "1A59986703E8346E1B2F6D7968C451C0609A4FB990C8F88EB3D63DBCEBB2CD59",
+      "sunWholeQuestUserAccepted": false,
+      "nativeRuns": 2,
+      "independentSkirmishPlayed": false,
+      "trainingXpEnabled": false
+    }
+  ],
+  "dllsRebuiltDuringPreparation": false,
+  "publicReleaseApproved": false
+}

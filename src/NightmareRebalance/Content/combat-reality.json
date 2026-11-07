@@ -1,0 +1,82 @@
+{
+  "SchemaVersion": 1,
+  "Enabled": true,
+  "EnableFormations": true,
+  "EnablePhysicalRunes": true,
+  "EnablePestRatTactics": true,
+  "PestRatPressureBonus": 12,
+  "PestRatRecoveryBonus": 24,
+  "Formations": [
+    {
+      "PartyId": "vb21_00_03",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vb21_00_05",
+      "Enabled": true
+    },
+    {
+      "PartyId": "ve08_00_00",
+      "Enabled": true
+    },
+    {
+      "PartyId": "ve08_00_02",
+      "Enabled": true
+    },
+    {
+      "PartyId": "ve08_00_04",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vf06_00_00",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vf06_00_07",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vf06_00_14",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vf06_00_21",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vh04_00_00",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vh04_00_02",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vh04_00_05",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vj04_00_05",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vj04_00_07",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vj04_00_09",
+      "Enabled": true
+    }
+  ],
+  "Runes": [
+    {
+      "Id": 82,
+      "Enabled": true
+    },
+    {
+      "Id": 84,
+      "Enabled": true
+    }
+  ],
+  "PestRatRepeatStatusPenalty": 20
+}

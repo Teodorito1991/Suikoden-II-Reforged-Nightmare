@@ -1,0 +1,2884 @@
+{
+  "Characters": [
+    {
+      "Id": 1,
+      "Growth": [
+        101,
+        69,
+        118,
+        117
+      ],
+      "Affinity": [
+        51,
+        51,
+        50,
+        51
+      ],
+      "Slots": [
+        40,
+        1,
+        25
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 0,
+      "Equipment": 10,
+      "Panic": 19
+    },
+    {
+      "Id": 2,
+      "Growth": [
+        102,
+        84,
+        101,
+        37
+      ],
+      "Affinity": [
+        51,
+        68,
+        35,
+        48
+      ],
+      "Slots": [
+        100,
+        1,
+        23
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 8,
+      "Equipment": 42,
+      "Panic": 19
+    },
+    {
+      "Id": 3,
+      "Growth": [
+        161,
+        116,
+        68,
+        86
+      ],
+      "Affinity": [
+        48,
+        68,
+        52,
+        48
+      ],
+      "Slots": [
+        100,
+        1,
+        30
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 8,
+      "Equipment": 10,
+      "Panic": 51
+    },
+    {
+      "Id": 4,
+      "Growth": [
+        38,
+        36,
+        82,
+        131
+      ],
+      "Affinity": [
+        85,
+        85,
+        85,
+        85
+      ],
+      "Slots": [
+        30,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 48,
+      "Equipment": 18,
+      "Panic": 85
+    },
+    {
+      "Id": 5,
+      "Growth": [
+        84,
+        69,
+        84,
+        68
+      ],
+      "Affinity": [
+        35,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        45,
+        1,
+        40
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 64,
+      "Equipment": 42,
+      "Panic": 19
+    },
+    {
+      "Id": 6,
+      "Growth": [
+        66,
+        52,
+        134,
+        36
+      ],
+      "Affinity": [
+        64,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 10,
+      "Panic": 18
+    },
+    {
+      "Id": 7,
+      "Growth": [
+        67,
+        68,
+        85,
+        100
+      ],
+      "Affinity": [
+        52,
+        51,
+        83,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 42,
+      "Panic": 19
+    },
+    {
+      "Id": 8,
+      "Growth": [
+        54,
+        53,
+        68,
+        84
+      ],
+      "Affinity": [
+        35,
+        34,
+        50,
+        48
+      ],
+      "Slots": [
+        100,
+        1,
+        32
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 72,
+      "Equipment": 18,
+      "Panic": 35
+    },
+    {
+      "Id": 9,
+      "Growth": [
+        67,
+        51,
+        86,
+        100
+      ],
+      "Affinity": [
+        68,
+        52,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        30
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 8,
+      "Equipment": 41,
+      "Panic": 19
+    },
+    {
+      "Id": 10,
+      "Growth": [
+        113,
+        131,
+        66,
+        39
+      ],
+      "Affinity": [
+        64,
+        68,
+        4,
+        0
+      ],
+      "Slots": [
+        100,
+        100,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 26,
+      "Equipment": 5,
+      "Panic": 64
+    },
+    {
+      "Id": 11,
+      "Growth": [
+        128,
+        96,
+        118,
+        86
+      ],
+      "Affinity": [
+        0,
+        4,
+        0,
+        0
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 42,
+      "Equipment": 9,
+      "Panic": 81
+    },
+    {
+      "Id": 12,
+      "Growth": [
+        99,
+        68,
+        102,
+        85
+      ],
+      "Affinity": [
+        32,
+        67,
+        51,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        45
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 24,
+      "Equipment": 42,
+      "Panic": 17
+    },
+    {
+      "Id": 13,
+      "Growth": [
+        131,
+        86,
+        83,
+        21
+      ],
+      "Affinity": [
+        48,
+        68,
+        48,
+        32
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 175,
+      "Equipment": 37,
+      "Panic": 66
+    },
+    {
+      "Id": 14,
+      "Growth": [
+        68,
+        70,
+        101,
+        68
+      ],
+      "Affinity": [
+        36,
+        50,
+        35,
+        52
+      ],
+      "Slots": [
+        30,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 96,
+      "Equipment": 9,
+      "Panic": 67
+    },
+    {
+      "Id": 15,
+      "Growth": [
+        83,
+        50,
+        116,
+        116
+      ],
+      "Affinity": [
+        48,
+        35,
+        52,
+        48
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 56,
+      "Equipment": 10,
+      "Panic": 67
+    },
+    {
+      "Id": 16,
+      "Growth": [
+        98,
+        82,
+        67,
+        56
+      ],
+      "Affinity": [
+        64,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 9,
+      "Panic": 36
+    },
+    {
+      "Id": 17,
+      "Growth": [
+        83,
+        68,
+        101,
+        68
+      ],
+      "Affinity": [
+        35,
+        33,
+        50,
+        48
+      ],
+      "Slots": [
+        100,
+        1,
+        45
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 8,
+      "Equipment": 14,
+      "Panic": 20
+    },
+    {
+      "Id": 18,
+      "Growth": [
+        67,
+        69,
+        103,
+        83
+      ],
+      "Affinity": [
+        52,
+        83,
+        83,
+        48
+      ],
+      "Slots": [
+        100,
+        1,
+        16
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 8,
+      "Equipment": 14,
+      "Panic": 20
+    },
+    {
+      "Id": 19,
+      "Growth": [
+        68,
+        69,
+        85,
+        84
+      ],
+      "Affinity": [
+        35,
+        67,
+        52,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        25
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 8,
+      "Equipment": 14,
+      "Panic": 51
+    },
+    {
+      "Id": 20,
+      "Growth": [
+        54,
+        54,
+        68,
+        67
+      ],
+      "Affinity": [
+        50,
+        51,
+        51,
+        51
+      ],
+      "Slots": [
+        35,
+        1,
+        22
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 0,
+      "Equipment": 14,
+      "Panic": 83
+    },
+    {
+      "Id": 21,
+      "Growth": [
+        113,
+        83,
+        33,
+        102
+      ],
+      "Affinity": [
+        64,
+        0,
+        0,
+        0
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 56,
+      "Equipment": 9,
+      "Panic": 69
+    },
+    {
+      "Id": 22,
+      "Growth": [
+        34,
+        19,
+        53,
+        80
+      ],
+      "Affinity": [
+        65,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        35,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 48,
+      "Equipment": 18,
+      "Panic": 19
+    },
+    {
+      "Id": 23,
+      "Growth": [
+        82,
+        99,
+        83,
+        69
+      ],
+      "Affinity": [
+        64,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 41,
+      "Panic": 19
+    },
+    {
+      "Id": 24,
+      "Growth": [
+        36,
+        54,
+        52,
+        115
+      ],
+      "Affinity": [
+        21,
+        34,
+        20,
+        33
+      ],
+      "Slots": [
+        35,
+        12,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 32,
+      "Equipment": 14,
+      "Panic": 19
+    },
+    {
+      "Id": 25,
+      "Growth": [
+        68,
+        52,
+        68,
+        84
+      ],
+      "Affinity": [
+        52,
+        50,
+        50,
+        50
+      ],
+      "Slots": [
+        58,
+        1,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 16,
+      "Equipment": 14,
+      "Panic": 83
+    },
+    {
+      "Id": 26,
+      "Growth": [
+        67,
+        53,
+        87,
+        84
+      ],
+      "Affinity": [
+        64,
+        52,
+        52,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 239,
+      "Equipment": 0,
+      "Panic": 66
+    },
+    {
+      "Id": 27,
+      "Growth": [
+        85,
+        85,
+        67,
+        37
+      ],
+      "Affinity": [
+        20,
+        67,
+        51,
+        48
+      ],
+      "Slots": [
+        100,
+        1,
+        15
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 24,
+      "Equipment": 18,
+      "Panic": 19
+    },
+    {
+      "Id": 28,
+      "Growth": [
+        67,
+        66,
+        84,
+        100
+      ],
+      "Affinity": [
+        64,
+        69,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 41,
+      "Panic": 20
+    },
+    {
+      "Id": 29,
+      "Growth": [
+        51,
+        51,
+        101,
+        99
+      ],
+      "Affinity": [
+        68,
+        69,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 10,
+      "Panic": 20
+    },
+    {
+      "Id": 30,
+      "Growth": [
+        67,
+        69,
+        101,
+        84
+      ],
+      "Affinity": [
+        68,
+        51,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        35
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 8,
+      "Equipment": 10,
+      "Panic": 66
+    },
+    {
+      "Id": 31,
+      "Growth": [
+        67,
+        51,
+        132,
+        100
+      ],
+      "Affinity": [
+        64,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 14,
+      "Panic": 83
+    },
+    {
+      "Id": 32,
+      "Growth": [
+        99,
+        100,
+        68,
+        69
+      ],
+      "Affinity": [
+        32,
+        51,
+        51,
+        0
+      ],
+      "Slots": [
+        100,
+        1,
+        52
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 88,
+      "Equipment": 5,
+      "Panic": 51
+    },
+    {
+      "Id": 33,
+      "Growth": [
+        84,
+        84,
+        85,
+        68
+      ],
+      "Affinity": [
+        52,
+        35,
+        51,
+        0
+      ],
+      "Slots": [
+        100,
+        1,
+        47
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 88,
+      "Equipment": 41,
+      "Panic": 67
+    },
+    {
+      "Id": 34,
+      "Growth": [
+        115,
+        99,
+        67,
+        54
+      ],
+      "Affinity": [
+        64,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        100,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 24,
+      "Equipment": 9,
+      "Panic": 97
+    },
+    {
+      "Id": 35,
+      "Growth": [
+        67,
+        68,
+        68,
+        116
+      ],
+      "Affinity": [
+        35,
+        34,
+        51,
+        48
+      ],
+      "Slots": [
+        100,
+        1,
+        40
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 72,
+      "Equipment": 41,
+      "Panic": 19
+    },
+    {
+      "Id": 36,
+      "Growth": [
+        69,
+        69,
+        84,
+        53
+      ],
+      "Affinity": [
+        51,
+        51,
+        49,
+        51
+      ],
+      "Slots": [
+        52,
+        1,
+        28
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 0,
+      "Equipment": 9,
+      "Panic": 18
+    },
+    {
+      "Id": 37,
+      "Growth": [
+        82,
+        83,
+        51,
+        71
+      ],
+      "Affinity": [
+        64,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 14,
+      "Panic": 20
+    },
+    {
+      "Id": 38,
+      "Growth": [
+        83,
+        69,
+        100,
+        68
+      ],
+      "Affinity": [
+        68,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 14,
+      "Panic": 83
+    },
+    {
+      "Id": 39,
+      "Growth": [
+        84,
+        69,
+        101,
+        69
+      ],
+      "Affinity": [
+        52,
+        68,
+        35,
+        48
+      ],
+      "Slots": [
+        100,
+        1,
+        50
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 24,
+      "Equipment": 42,
+      "Panic": 35
+    },
+    {
+      "Id": 40,
+      "Growth": [
+        67,
+        86,
+        69,
+        38
+      ],
+      "Affinity": [
+        64,
+        51,
+        64,
+        32
+      ],
+      "Slots": [
+        1,
+        42,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 14,
+      "Panic": 20
+    },
+    {
+      "Id": 41,
+      "Growth": [
+        51,
+        53,
+        84,
+        115
+      ],
+      "Affinity": [
+        83,
+        21,
+        21,
+        48
+      ],
+      "Slots": [
+        100,
+        25,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 104,
+      "Equipment": 14,
+      "Panic": 21
+    },
+    {
+      "Id": 42,
+      "Growth": [
+        64,
+        116,
+        84,
+        52
+      ],
+      "Affinity": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Slots": [
+        100,
+        100,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 255,
+      "Equipment": 0,
+      "Panic": 67
+    },
+    {
+      "Id": 43,
+      "Growth": [
+        67,
+        68,
+        86,
+        100
+      ],
+      "Affinity": [
+        51,
+        50,
+        51,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        42
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 8,
+      "Equipment": 14,
+      "Panic": 19
+    },
+    {
+      "Id": 44,
+      "Growth": [
+        67,
+        85,
+        69,
+        68
+      ],
+      "Affinity": [
+        19,
+        34,
+        18,
+        20
+      ],
+      "Slots": [
+        55,
+        1,
+        30
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 0,
+      "Equipment": 10,
+      "Panic": 98
+    },
+    {
+      "Id": 45,
+      "Growth": [
+        70,
+        53,
+        69,
+        36
+      ],
+      "Affinity": [
+        48,
+        35,
+        16,
+        19
+      ],
+      "Slots": [
+        55,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 32,
+      "Equipment": 14,
+      "Panic": 81
+    },
+    {
+      "Id": 46,
+      "Growth": [
+        81,
+        119,
+        67,
+        23
+      ],
+      "Affinity": [
+        0,
+        68,
+        4,
+        0
+      ],
+      "Slots": [
+        100,
+        33,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 104,
+      "Equipment": 9,
+      "Panic": 35
+    },
+    {
+      "Id": 47,
+      "Growth": [
+        83,
+        67,
+        85,
+        84
+      ],
+      "Affinity": [
+        64,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 56,
+      "Equipment": 14,
+      "Panic": 18
+    },
+    {
+      "Id": 48,
+      "Growth": [
+        50,
+        35,
+        53,
+        50
+      ],
+      "Affinity": [
+        80,
+        0,
+        0,
+        0
+      ],
+      "Slots": [
+        100,
+        100,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 223,
+      "Equipment": 0,
+      "Panic": 19
+    },
+    {
+      "Id": 49,
+      "Growth": [
+        113,
+        97,
+        32,
+        95
+      ],
+      "Affinity": [
+        4,
+        0,
+        0,
+        0
+      ],
+      "Slots": [
+        1,
+        100,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 255,
+      "Equipment": 0,
+      "Panic": 19
+    },
+    {
+      "Id": 50,
+      "Growth": [
+        83,
+        67,
+        85,
+        77
+      ],
+      "Affinity": [
+        64,
+        36,
+        52,
+        64
+      ],
+      "Slots": [
+        1,
+        40,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 239,
+      "Equipment": 0,
+      "Panic": 19
+    },
+    {
+      "Id": 51,
+      "Growth": [
+        67,
+        68,
+        68,
+        53
+      ],
+      "Affinity": [
+        64,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 5,
+      "Panic": 17
+    },
+    {
+      "Id": 52,
+      "Growth": [
+        67,
+        84,
+        116,
+        100
+      ],
+      "Affinity": [
+        48,
+        35,
+        50,
+        48
+      ],
+      "Slots": [
+        100,
+        1,
+        20
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 8,
+      "Equipment": 14,
+      "Panic": 19
+    },
+    {
+      "Id": 53,
+      "Growth": [
+        8,
+        7,
+        86,
+        3
+      ],
+      "Affinity": [
+        33,
+        17,
+        34,
+        18
+      ],
+      "Slots": [
+        1,
+        1,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 64,
+      "Equipment": 18,
+      "Panic": 97
+    },
+    {
+      "Id": 54,
+      "Growth": [
+        67,
+        70,
+        69,
+        99
+      ],
+      "Affinity": [
+        68,
+        51,
+        50,
+        84
+      ],
+      "Slots": [
+        55,
+        45,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 0,
+      "Equipment": 14,
+      "Panic": 51
+    },
+    {
+      "Id": 55,
+      "Growth": [
+        69,
+        70,
+        52,
+        68
+      ],
+      "Affinity": [
+        19,
+        50,
+        50,
+        51
+      ],
+      "Slots": [
+        53,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 32,
+      "Equipment": 14,
+      "Panic": 35
+    },
+    {
+      "Id": 56,
+      "Growth": [
+        67,
+        85,
+        69,
+        84
+      ],
+      "Affinity": [
+        52,
+        51,
+        66,
+        32
+      ],
+      "Slots": [
+        52,
+        40,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 0,
+      "Equipment": 14,
+      "Panic": 19
+    },
+    {
+      "Id": 57,
+      "Growth": [
+        52,
+        52,
+        68,
+        84
+      ],
+      "Affinity": [
+        33,
+        34,
+        34,
+        32
+      ],
+      "Slots": [
+        100,
+        35,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 72,
+      "Equipment": 14,
+      "Panic": 19
+    },
+    {
+      "Id": 58,
+      "Growth": [
+        98,
+        83,
+        52,
+        70
+      ],
+      "Affinity": [
+        64,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 5,
+      "Panic": 35
+    },
+    {
+      "Id": 59,
+      "Growth": [
+        51,
+        53,
+        69,
+        68
+      ],
+      "Affinity": [
+        64,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 10,
+      "Panic": 19
+    },
+    {
+      "Id": 60,
+      "Growth": [
+        83,
+        68,
+        68,
+        85
+      ],
+      "Affinity": [
+        52,
+        67,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 9,
+      "Panic": 19
+    },
+    {
+      "Id": 61,
+      "Growth": [
+        55,
+        40,
+        68,
+        20
+      ],
+      "Affinity": [
+        18,
+        34,
+        17,
+        35
+      ],
+      "Slots": [
+        1,
+        1,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 26,
+      "Equipment": 18,
+      "Panic": 66
+    },
+    {
+      "Id": 62,
+      "Growth": [
+        67,
+        67,
+        103,
+        68
+      ],
+      "Affinity": [
+        48,
+        51,
+        52,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 14,
+      "Panic": 19
+    },
+    {
+      "Id": 63,
+      "Growth": [
+        83,
+        84,
+        85,
+        69
+      ],
+      "Affinity": [
+        48,
+        51,
+        52,
+        64
+      ],
+      "Slots": [
+        1,
+        45,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 14,
+      "Panic": 19
+    },
+    {
+      "Id": 64,
+      "Growth": [
+        67,
+        54,
+        100,
+        52
+      ],
+      "Affinity": [
+        64,
+        68,
+        84,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 104,
+      "Equipment": 42,
+      "Panic": 19
+    },
+    {
+      "Id": 65,
+      "Growth": [
+        68,
+        54,
+        84,
+        52
+      ],
+      "Affinity": [
+        64,
+        84,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 168,
+      "Equipment": 10,
+      "Panic": 19
+    },
+    {
+      "Id": 66,
+      "Growth": [
+        51,
+        67,
+        52,
+        68
+      ],
+      "Affinity": [
+        52,
+        51,
+        67,
+        50
+      ],
+      "Slots": [
+        65,
+        1,
+        40
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 0,
+      "Equipment": 10,
+      "Panic": 19
+    },
+    {
+      "Id": 67,
+      "Growth": [
+        67,
+        53,
+        88,
+        52
+      ],
+      "Affinity": [
+        52,
+        19,
+        35,
+        48
+      ],
+      "Slots": [
+        1,
+        25,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 104,
+      "Equipment": 10,
+      "Panic": 19
+    },
+    {
+      "Id": 68,
+      "Growth": [
+        83,
+        68,
+        102,
+        100
+      ],
+      "Affinity": [
+        36,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        45
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 24,
+      "Equipment": 14,
+      "Panic": 19
+    },
+    {
+      "Id": 69,
+      "Growth": [
+        83,
+        68,
+        118,
+        101
+      ],
+      "Affinity": [
+        36,
+        68,
+        68,
+        64
+      ],
+      "Slots": [
+        100,
+        1,
+        40
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 24,
+      "Equipment": 14,
+      "Panic": 19
+    },
+    {
+      "Id": 70,
+      "Growth": [
+        68,
+        85,
+        51,
+        68
+      ],
+      "Affinity": [
+        50,
+        51,
+        49,
+        4
+      ],
+      "Slots": [
+        57,
+        1,
+        37
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 0,
+      "Equipment": 14,
+      "Panic": 19
+    },
+    {
+      "Id": 71,
+      "Growth": [
+        50,
+        50,
+        86,
+        115
+      ],
+      "Affinity": [
+        68,
+        51,
+        67,
+        67
+      ],
+      "Slots": [
+        80,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 32,
+      "Equipment": 10,
+      "Panic": 19
+    },
+    {
+      "Id": 72,
+      "Growth": [
+        101,
+        70,
+        67,
+        45
+      ],
+      "Affinity": [
+        51,
+        51,
+        34,
+        50
+      ],
+      "Slots": [
+        70,
+        38,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 231,
+      "Equipment": 0,
+      "Panic": 19
+    },
+    {
+      "Id": 73,
+      "Growth": [
+        67,
+        53,
+        104,
+        84
+      ],
+      "Affinity": [
+        48,
+        51,
+        52,
+        64
+      ],
+      "Slots": [
+        1,
+        50,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 40,
+      "Equipment": 14,
+      "Panic": 19
+    },
+    {
+      "Id": 74,
+      "Growth": [
+        83,
+        83,
+        50,
+        79
+      ],
+      "Affinity": [
+        0,
+        68,
+        4,
+        64
+      ],
+      "Slots": [
+        1,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 255,
+      "Equipment": 0,
+      "Panic": 19
+    },
+    {
+      "Id": 75,
+      "Growth": [
+        20,
+        36,
+        53,
+        49
+      ],
+      "Affinity": [
+        5,
+        0,
+        0,
+        5
+      ],
+      "Slots": [
+        60,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 231,
+      "Equipment": 0,
+      "Panic": 67
+    },
+    {
+      "Id": 76,
+      "Growth": [
+        34,
+        34,
+        55,
+        50
+      ],
+      "Affinity": [
+        0,
+        80,
+        0,
+        0
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 239,
+      "Equipment": 0,
+      "Panic": 83
+    },
+    {
+      "Id": 77,
+      "Growth": [
+        50,
+        34,
+        52,
+        82
+      ],
+      "Affinity": [
+        0,
+        0,
+        80,
+        0
+      ],
+      "Slots": [
+        100,
+        1,
+        100
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 239,
+      "Equipment": 0,
+      "Panic": 51
+    },
+    {
+      "Id": 78,
+      "Growth": [
+        65,
+        67,
+        19,
+        52
+      ],
+      "Affinity": [
+        0,
+        5,
+        0,
+        0
+      ],
+      "Slots": [
+        100,
+        100,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 223,
+      "Equipment": 0,
+      "Panic": 35
+    },
+    {
+      "Id": 80,
+      "Growth": [
+        87,
+        86,
+        118,
+        100
+      ],
+      "Affinity": [
+        35,
+        35,
+        35,
+        18
+      ],
+      "Slots": [
+        30,
+        1,
+        15
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 0,
+      "Equipment": 10,
+      "Panic": 66
+    },
+    {
+      "Id": 82,
+      "Growth": [
+        103,
+        102,
+        117,
+        101
+      ],
+      "Affinity": [
+        50,
+        51,
+        51,
+        18
+      ],
+      "Slots": [
+        1,
+        1,
+        1
+      ],
+      "Restrictions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Fixed": 16,
+      "Equipment": 10,
+      "Panic": 19
+    }
+  ],
+  "Spells": [
+    {
+      "Id": 1,
+      "name": 1019,
+      "text": 1020,
+      "info": [
+        34,
+        96
+      ],
+      "atrb": 1,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 60,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 2,
+      "name": 1870,
+      "text": 1871,
+      "info": [
+        34,
+        224
+      ],
+      "atrb": 1,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 150,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 3,
+      "name": 1872,
+      "text": 1873,
+      "info": [
+        34,
+        96
+      ],
+      "atrb": 1,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 300,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 4,
+      "name": 1874,
+      "text": 1875,
+      "info": [
+        34,
+        96
+      ],
+      "atrb": 1,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 700,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 5,
+      "name": 1876,
+      "text": 1877,
+      "info": [
+        34,
+        96
+      ],
+      "atrb": 1,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 900,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 6,
+      "name": 1878,
+      "text": 1879,
+      "info": [
+        35,
+        16
+      ],
+      "atrb": 2,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 32000,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 8,
+      "name": 1882,
+      "text": 1883,
+      "info": [
+        35,
+        80
+      ],
+      "atrb": 2,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 300,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 12,
+      "name": 1890,
+      "text": 1879,
+      "info": [
+        35,
+        16
+      ],
+      "atrb": 3,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 32000,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 13,
+      "name": 1891,
+      "text": 1892,
+      "info": [
+        34,
+        96
+      ],
+      "atrb": 3,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 450,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 15,
+      "name": 1895,
+      "text": 1896,
+      "info": [
+        34,
+        112
+      ],
+      "atrb": 3,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 500,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 19,
+      "name": 1902,
+      "text": 1903,
+      "info": [
+        34,
+        96
+      ],
+      "atrb": 4,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 800,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 21,
+      "name": 1906,
+      "text": 1907,
+      "info": [
+        34,
+        32
+      ],
+      "atrb": 5,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 100,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 22,
+      "name": 1908,
+      "text": 1909,
+      "info": [
+        34,
+        160
+      ],
+      "atrb": 5,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 120,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 23,
+      "name": 1910,
+      "text": 1911,
+      "info": [
+        34,
+        32
+      ],
+      "atrb": 5,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 600,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 24,
+      "name": 1912,
+      "text": 1913,
+      "info": [
+        34,
+        32
+      ],
+      "atrb": 5,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 1000,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 25,
+      "name": 1914,
+      "text": 1915,
+      "info": [
+        34,
+        32
+      ],
+      "atrb": 5,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 1200,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 27,
+      "name": 1918,
+      "text": 1919,
+      "info": [
+        34,
+        96
+      ],
+      "atrb": 7,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 500,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 29,
+      "name": 1922,
+      "text": 1923,
+      "info": [
+        34,
+        32
+      ],
+      "atrb": 7,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 1500,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 30,
+      "name": 1924,
+      "text": 1925,
+      "info": [
+        34,
+        32
+      ],
+      "atrb": 6,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 30,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 32,
+      "name": 1928,
+      "text": 1929,
+      "info": [
+        34,
+        96
+      ],
+      "atrb": 6,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 400,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 33,
+      "name": 1930,
+      "text": 1883,
+      "info": [
+        35,
+        80
+      ],
+      "atrb": 6,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 300,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 34,
+      "name": 1931,
+      "text": 1932,
+      "info": [
+        35,
+        80
+      ],
+      "atrb": 8,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 70,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 35,
+      "name": 1933,
+      "text": 1934,
+      "info": [
+        34,
+        96
+      ],
+      "atrb": 8,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 130,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 36,
+      "name": 1935,
+      "text": 1883,
+      "info": [
+        35,
+        80
+      ],
+      "atrb": 8,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 300,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 37,
+      "name": 1936,
+      "text": 1937,
+      "info": [
+        34,
+        32
+      ],
+      "atrb": 8,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 2000,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 43,
+      "name": 1946,
+      "text": 1947,
+      "info": [
+        34,
+        96
+      ],
+      "atrb": 0,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 150,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 45,
+      "name": 1950,
+      "text": 1951,
+      "info": [
+        34,
+        32
+      ],
+      "atrb": 7,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 300,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 47,
+      "name": 1954,
+      "text": 1955,
+      "info": [
+        34,
+        32
+      ],
+      "atrb": 1,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 50,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 48,
+      "name": 1956,
+      "text": 1957,
+      "info": [
+        34,
+        96
+      ],
+      "atrb": 5,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 150,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 49,
+      "name": 1958,
+      "text": 1919,
+      "info": [
+        34,
+        96
+      ],
+      "atrb": 0,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 500,
+      "uni_no": 0,
+      "uni_magic": 0
+    },
+    {
+      "Id": 50,
+      "name": 1959,
+      "text": 1960,
+      "info": [
+        34,
+        112
+      ],
+      "atrb": 0,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "eff_val": 900,
+      "uni_no": 0,
+      "uni_magic": 0
+    }
+  ]
+}

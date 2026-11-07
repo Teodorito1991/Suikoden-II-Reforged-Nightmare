@@ -1,0 +1,156 @@
+{
+  "SchemaVersion": 1,
+  "Id": "the-last-bridge",
+  "Name": "The Last Bridge",
+  "Description": "A smaller Dunan force must hold the western crossing for eight full rounds, or defeat the Highland commander. A breach or the loss of your commander is defeat.",
+  "Map": [
+    "......W......",
+    "..FF..W...FF.",
+    "..FF..W......",
+    "......W......",
+    "..CR=====R...",
+    "......W......",
+    "...F..W..FF..",
+    "...F..W......",
+    "......W......"
+  ],
+  "Types": [
+    {
+      "Id": "commander",
+      "Name": "Commander",
+      "Icon": "CMD",
+      "Health": 8,
+      "Attack": 4,
+      "Defense": 1,
+      "Move": 2,
+      "MinRange": 1,
+      "Range": 1,
+      "RallyUses": 2,
+      "RallyHeal": 2
+    },
+    {
+      "Id": "guard",
+      "Name": "Shield Infantry",
+      "Icon": "GRD",
+      "Health": 8,
+      "Attack": 3,
+      "Defense": 2,
+      "Move": 2,
+      "MinRange": 1,
+      "Range": 1,
+      "RallyUses": 0,
+      "RallyHeal": 0
+    },
+    {
+      "Id": "archer",
+      "Name": "Archers",
+      "Icon": "BOW",
+      "Health": 5,
+      "Attack": 3,
+      "Defense": 0,
+      "Move": 2,
+      "MinRange": 2,
+      "Range": 4,
+      "RallyUses": 0,
+      "RallyHeal": 0
+    },
+    {
+      "Id": "raider",
+      "Name": "Raiders",
+      "Icon": "RID",
+      "Health": 5,
+      "Attack": 5,
+      "Defense": 0,
+      "Move": 3,
+      "MinRange": 1,
+      "Range": 1,
+      "RallyUses": 0,
+      "RallyHeal": 0
+    }
+  ],
+  "Units": [
+    {
+      "Id": "p-command",
+      "Name": "Dunan Captain",
+      "Type": "commander",
+      "Side": "Player",
+      "X": 2,
+      "Y": 4
+    },
+    {
+      "Id": "p-guard",
+      "Name": "Bridge Guard",
+      "Type": "guard",
+      "Side": "Player",
+      "X": 4,
+      "Y": 4
+    },
+    {
+      "Id": "p-archer",
+      "Name": "Dunan Archers",
+      "Type": "archer",
+      "Side": "Player",
+      "X": 3,
+      "Y": 2
+    },
+    {
+      "Id": "e-raider-a",
+      "Name": "Highland Vanguard",
+      "Type": "raider",
+      "Side": "Enemy",
+      "X": 9,
+      "Y": 4
+    },
+    {
+      "Id": "e-raider-b",
+      "Name": "Highland Flankers",
+      "Type": "raider",
+      "Side": "Enemy",
+      "X": 9,
+      "Y": 2
+    },
+    {
+      "Id": "e-archer",
+      "Name": "Highland Archers",
+      "Type": "archer",
+      "Side": "Enemy",
+      "X": 11,
+      "Y": 3
+    },
+    {
+      "Id": "e-guard",
+      "Name": "Highland Infantry",
+      "Type": "guard",
+      "Side": "Enemy",
+      "X": 10,
+      "Y": 6
+    },
+    {
+      "Id": "e-command",
+      "Name": "Highland Commander",
+      "Type": "commander",
+      "Side": "Enemy",
+      "X": 11,
+      "Y": 4
+    }
+  ],
+  "Rules": {
+    "HoldTurns": 8,
+    "CriticalX": 2,
+    "CriticalY": 4,
+    "PlayerCommander": "p-command",
+    "EnemyCommander": "e-command",
+    "DefeatOnBreach": true,
+    "DefeatOnCommanderLoss": true,
+    "CommanderKillVictory": true,
+    "SurvivalVictory": true,
+    "MinimumDamage": 1,
+    "BraceDefense": 1,
+    "ForestDefense": 1,
+    "FortDefense": 2,
+    "ForestMoveCost": 2,
+    "EnemyStepMilliseconds": 550,
+    "ForestBlocksShots": true,
+    "UnitsBlockShots": true
+  }
+}

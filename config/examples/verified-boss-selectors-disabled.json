@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "profiles": [
+    {
+      "profileId": "pest-rat-disabled-example",
+      "enabled": false,
+      "priority": 100,
+      "tableId": "boss_rat",
+      "encounterId": "boss_rat_00",
+      "enemyId": "boss_rat_00",
+      "hpMultiplier": 1.4,
+      "damageMultiplier": 1.25
+    },
+    {
+      "profileId": "hap1-disabled-example",
+      "enabled": false,
+      "priority": 100,
+      "tableId": "boss_hap1",
+      "encounterId": "boss_hap1_00",
+      "enemyId": "boss_hap1_00",
+      "hpMultiplier": 1.7,
+      "damageMultiplier": 1.5
+    },
+    {
+      "profileId": "sie1-disabled-example",
+      "enabled": false,
+      "priority": 100,
+      "tableId": "boss_sie1",
+      "encounterId": "boss_sie1_00",
+      "enemyId": "boss_sie1_00",
+      "hpMultiplier": 1.9,
+      "damageMultiplier": 1.6
+    }
+  ]
+}

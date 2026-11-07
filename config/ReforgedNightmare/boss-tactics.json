@@ -1,0 +1,109 @@
+{
+  "SchemaVersion": 1,
+  "Enabled": true,
+  "EnableMajorBosses": false,
+  "EnableExistingBosses": true,
+  "Preference": 110,
+  "Patterns": [
+    {
+      "TableId": "boss_ryo",
+      "EnemyId": "boss_ryo_00",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "Period": 3,
+      "PressureMode": 1,
+      "RecoveryMode": 2,
+      "AdaptiveMode": 0
+    },
+    {
+      "TableId": "boss_rat",
+      "EnemyId": "boss_rat_00",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "Period": 3,
+      "PressureMode": 2,
+      "RecoveryMode": 0,
+      "AdaptiveMode": 1
+    },
+    {
+      "TableId": "boss_hap1",
+      "EnemyId": "boss_hap1_00",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "Period": 3,
+      "PressureMode": 3,
+      "RecoveryMode": 0,
+      "AdaptiveMode": 1
+    },
+    {
+      "TableId": "boss_sie1",
+      "EnemyId": "boss_sie1_00",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "Period": 3,
+      "PressureMode": 2,
+      "RecoveryMode": 0,
+      "AdaptiveMode": 1
+    },
+    {
+      "TableId": "boss_gwo1",
+      "EnemyId": "boss_gwo1_00",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "Period": 3,
+      "PressureMode": 2,
+      "RecoveryMode": 1,
+      "AdaptiveMode": 0
+    },
+    {
+      "TableId": "boss_gwo2",
+      "EnemyId": "boss_gwo2_00",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "Period": 3,
+      "PressureMode": 2,
+      "RecoveryMode": 1,
+      "AdaptiveMode": 0
+    },
+    {
+      "TableId": "boss_hap2",
+      "EnemyId": "boss_hap2_00",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "Period": 3,
+      "PressureMode": 3,
+      "RecoveryMode": 0,
+      "AdaptiveMode": 1
+    },
+    {
+      "TableId": "boss_lus1",
+      "EnemyId": "boss_lus1_03",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "Period": 3,
+      "PressureMode": 3,
+      "RecoveryMode": 0,
+      "AdaptiveMode": 2
+    },
+    {
+      "TableId": "boss_lus2",
+      "EnemyId": "boss_lus2_00",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "Period": 3,
+      "PressureMode": 3,
+      "RecoveryMode": 0,
+      "AdaptiveMode": 2
+    },
+    {
+      "TableId": "boss_nec3",
+      "EnemyId": "boss_nec3_00",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "Period": 3,
+      "PressureMode": 3,
+      "RecoveryMode": 0,
+      "AdaptiveMode": 1
+    }
+  ]
+}

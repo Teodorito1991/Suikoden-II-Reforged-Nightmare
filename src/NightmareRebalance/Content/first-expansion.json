@@ -1,0 +1,8 @@
+{
+  "SchemaVersion": 1,
+  "EnableExperimentalHunt": false,
+  "SunKingHpMultiplier": 2.0,
+  "SorcererHpMultiplier": 1.4,
+  "HuntDamageMultiplier": 1.15,
+  "VictoryBonusPotch": 2500
+}

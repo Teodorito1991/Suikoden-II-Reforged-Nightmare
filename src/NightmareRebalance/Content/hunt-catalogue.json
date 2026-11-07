@@ -1,0 +1,27 @@
+{
+  "SchemaVersion": 1,
+  "SelectedHuntId": "sun-kings-retinue",
+  "Hunts": [
+    {
+      "Id": "sun-kings-retinue",
+      "Enabled": true,
+      "VictoryBonusPotch": null,
+      "DamageMultiplier": null,
+      "Units": []
+    },
+    {
+      "Id": "dreamers-circuit",
+      "Enabled": false,
+      "VictoryBonusPotch": null,
+      "DamageMultiplier": null,
+      "Units": []
+    },
+    {
+      "Id": "thornwake-patrol",
+      "Enabled": false,
+      "VictoryBonusPotch": null,
+      "DamageMultiplier": null,
+      "Units": []
+    }
+  ]
+}

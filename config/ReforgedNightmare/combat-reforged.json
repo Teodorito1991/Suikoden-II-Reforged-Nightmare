@@ -1,0 +1,78 @@
+{
+  "SchemaVersion": 1,
+  "Enabled": true,
+  "EnableEnemyAi": true,
+  "EnableBossEncounters": true,
+  "EnablePacing": true,
+  "EnableHealingBalance": true,
+  "EnableSleepBalance": true,
+  "RepeatPenalty": 28,
+  "FocusLimit": 2,
+  "HealingThreshold": 0.65,
+  "SpellEffects": [
+    {
+      "Id": 6,
+      "Expected": 100,
+      "Effect": 180
+    },
+    {
+      "Id": 12,
+      "Expected": 210,
+      "Effect": 240
+    },
+    {
+      "Id": 34,
+      "Expected": 100,
+      "Effect": 120
+    }
+  ],
+  "SleepSusceptibilityMultiplier": 1.0,
+  "RolePacing": [
+    {
+      "Role": "Bruiser",
+      "HpMultiplier": 1.35,
+      "DamageMultiplier": 1.3
+    },
+    {
+      "Role": "Raider",
+      "HpMultiplier": 1.25,
+      "DamageMultiplier": 1.4
+    },
+    {
+      "Role": "Bulwark",
+      "HpMultiplier": 1.6,
+      "DamageMultiplier": 1.2
+    },
+    {
+      "Role": "FragilePressure",
+      "HpMultiplier": 1.2,
+      "DamageMultiplier": 1.25
+    }
+  ],
+  "Bosses": [
+    {
+      "TableId": "boss_ryo",
+      "Enabled": true,
+      "HpMultiplier": 1.15,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "TableId": "boss_rat",
+      "Enabled": true,
+      "HpMultiplier": 1.2,
+      "DamageMultiplier": 1.15
+    },
+    {
+      "TableId": "boss_hap1",
+      "Enabled": true,
+      "HpMultiplier": 1.15,
+      "DamageMultiplier": 1.1
+    },
+    {
+      "TableId": "boss_sie1",
+      "Enabled": true,
+      "HpMultiplier": 1.1,
+      "DamageMultiplier": 1.1
+    }
+  ]
+}

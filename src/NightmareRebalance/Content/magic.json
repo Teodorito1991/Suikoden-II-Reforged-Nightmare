@@ -1,0 +1,161 @@
+{
+  "SchemaVersion": 1,
+  "WindOfSleepSusceptibilityMultiplier": 1.5,
+  "Spells": [
+    {
+      "Id": 1,
+      "Name": "Flaming Arrows",
+      "Effect": 80
+    },
+    {
+      "Id": 2,
+      "Name": "Fire Wall",
+      "Effect": 200
+    },
+    {
+      "Id": 3,
+      "Name": "Dancing Flames",
+      "Effect": 390
+    },
+    {
+      "Id": 4,
+      "Name": "Explosion",
+      "Effect": 780
+    },
+    {
+      "Id": 5,
+      "Name": "Final Flame",
+      "Effect": 1050
+    },
+    {
+      "Id": 6,
+      "Name": "Drops of Kindness",
+      "Effect": 100
+    },
+    {
+      "Id": 8,
+      "Name": "Rain of Kindness",
+      "Effect": 420
+    },
+    {
+      "Id": 12,
+      "Name": "Healing Wind",
+      "Effect": 210
+    },
+    {
+      "Id": 13,
+      "Name": "Shredding Wind",
+      "Effect": 540
+    },
+    {
+      "Id": 15,
+      "Name": "Shining Wind",
+      "Effect": 580
+    },
+    {
+      "Id": 19,
+      "Name": "Earthquake",
+      "Effect": 980
+    },
+    {
+      "Id": 21,
+      "Name": "Angry Blow",
+      "Effect": 145
+    },
+    {
+      "Id": 22,
+      "Name": "Thunder Runner",
+      "Effect": 220
+    },
+    {
+      "Id": 23,
+      "Name": "Bolt of Wrath",
+      "Effect": 640
+    },
+    {
+      "Id": 24,
+      "Name": "Lightning Ball",
+      "Effect": 1040
+    },
+    {
+      "Id": 25,
+      "Name": "Thunder Storm",
+      "Effect": 1250
+    },
+    {
+      "Id": 27,
+      "Name": "Black Shadow",
+      "Effect": 580
+    },
+    {
+      "Id": 29,
+      "Name": "Judgment",
+      "Effect": 1350
+    },
+    {
+      "Id": 30,
+      "Name": "Scolding",
+      "Effect": 110
+    },
+    {
+      "Id": 32,
+      "Name": "Exorcism",
+      "Effect": 560
+    },
+    {
+      "Id": 33,
+      "Name": "Scream",
+      "Effect": 360
+    },
+    {
+      "Id": 34,
+      "Name": "Great Blessing",
+      "Effect": 100
+    },
+    {
+      "Id": 35,
+      "Name": "Shining Light",
+      "Effect": 210
+    },
+    {
+      "Id": 36,
+      "Name": "Battle Oath",
+      "Effect": 360
+    },
+    {
+      "Id": 37,
+      "Name": "Sign of Forgiveness",
+      "Effect": 1900
+    },
+    {
+      "Id": 43,
+      "Name": "Set!",
+      "Effect": 240
+    },
+    {
+      "Id": 45,
+      "Name": "Stealer of Souls",
+      "Effect": 380
+    },
+    {
+      "Id": 47,
+      "Name": "Open Gate",
+      "Effect": 100
+    },
+    {
+      "Id": 48,
+      "Name": "Kings Road",
+      "Effect": 260
+    },
+    {
+      "Id": 49,
+      "Name": "Pale Palace",
+      "Effect": 650
+    },
+    {
+      "Id": 50,
+      "Name": "Empty World",
+      "Effect": 1100
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+name: Bug report
+description: Report an observed Reforged Nightmare problem.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "Redact personal paths. Never attach game binaries, metadata, generated interop, secrets or save collections."
+  - type: input
+    id: versions
+    attributes:
+      label: Mod internal version and DLL SHA256
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Game build, BepInEx version and difficulty
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Area, party, enabled modules and reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Expected versus actual result
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Selected redacted log lines and evidence type
+      description: Say whether this was actual gameplay, a native fixture or simulation.

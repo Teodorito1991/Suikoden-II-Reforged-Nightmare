@@ -1,0 +1,181 @@
+{
+  "SchemaVersion": 1,
+  "Enabled": true,
+  "EnableFormations": true,
+  "EnablePhysicalRunes": true,
+  "EnableUniteOptions": true,
+  "EnableBossCadence": true,
+  "CadencePreference": 40,
+  "Formations": [
+    {
+      "PartyId": "vb21_00_00",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vb21_00_04",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vb21_00_06",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vc07_00_01",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vc07_00_10",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vc07_00_11",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vc07_00_12",
+      "Enabled": true
+    },
+    {
+      "PartyId": "ve08_00_01",
+      "Enabled": true
+    },
+    {
+      "PartyId": "ve08_00_03",
+      "Enabled": true
+    },
+    {
+      "PartyId": "ve08_00_06",
+      "Enabled": true
+    },
+    {
+      "PartyId": "ve08_00_07",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vf06_00_04",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vf06_00_17",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vf06_00_20",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vh04_00_03",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vh04_00_09",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vh04_00_14",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vj04_00_03",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vj04_00_08",
+      "Enabled": true
+    },
+    {
+      "PartyId": "vj04_00_12",
+      "Enabled": true
+    }
+  ],
+  "Runes": [
+    {
+      "Id": 80,
+      "Enabled": true
+    },
+    {
+      "Id": 83,
+      "Enabled": true
+    },
+    {
+      "Id": 85,
+      "Enabled": true
+    },
+    {
+      "Id": 97,
+      "Enabled": true
+    }
+  ],
+  "Unites": [
+    {
+      "Id": 24,
+      "Enabled": true
+    },
+    {
+      "Id": 38,
+      "Enabled": true
+    },
+    {
+      "Id": 39,
+      "Enabled": true
+    }
+  ],
+  "BossCadence": [
+    {
+      "TableId": "boss_ryo",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "PressureMode": 1,
+      "RecoveryMode": 2,
+      "RecoverySelections": 1
+    },
+    {
+      "TableId": "boss_rat",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "PressureMode": 2,
+      "RecoveryMode": 0,
+      "RecoverySelections": 1
+    },
+    {
+      "TableId": "boss_hap1",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "PressureMode": 3,
+      "RecoveryMode": 0,
+      "RecoverySelections": 1
+    },
+    {
+      "TableId": "boss_sie1",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "PressureMode": 2,
+      "RecoveryMode": 0,
+      "RecoverySelections": 1
+    },
+    {
+      "TableId": "boss_gwo1",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "PressureMode": 2,
+      "RecoveryMode": 0,
+      "RecoverySelections": 1
+    },
+    {
+      "TableId": "boss_gwo2",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "PressureMode": 2,
+      "RecoveryMode": 0,
+      "RecoverySelections": 1
+    },
+    {
+      "TableId": "boss_hap2",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "PressureMode": 3,
+      "RecoveryMode": 0,
+      "RecoverySelections": 1
+    }
+  ]
+}

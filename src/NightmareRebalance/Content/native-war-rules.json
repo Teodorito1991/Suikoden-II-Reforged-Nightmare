@@ -1,0 +1,15 @@
+{
+  "SchemaVersion": 1,
+  "Wars": [
+    {
+      "WarNumber": 2,
+      "Enabled": true,
+      "PlayerCommands": true,
+      "CommanderVictory": true,
+      "MaximumTurn": 20,
+      "EnemyAi": true,
+      "WoundedTargetBonus": 6,
+      "PoorOddsPenalty": 4
+    }
+  ]
+}

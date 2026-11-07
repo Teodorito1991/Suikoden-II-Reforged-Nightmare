@@ -1,0 +1,77 @@
+[
+  {
+    "Id": "magic-protection-stone",
+    "Name": "Stone of Magic Protection",
+    "Kind": 0,
+    "Number": 24,
+    "UseCount": 1,
+    "Template": {
+      "name": 2070,
+      "text": 2071,
+      "dummyname": "",
+      "dummytext": "",
+      "info": [
+        17,
+        20
+      ],
+      "cnt": 1,
+      "eff_val": 3,
+      "atrb": 0,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "botch": 200
+    }
+  },
+  {
+    "Id": "power-stone",
+    "Name": "Stone of Power",
+    "Kind": 0,
+    "Number": 21,
+    "UseCount": 1,
+    "Template": {
+      "name": 2064,
+      "text": 2065,
+      "dummyname": "",
+      "dummytext": "",
+      "info": [
+        17,
+        20
+      ],
+      "cnt": 1,
+      "eff_val": 3,
+      "atrb": 0,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "botch": 200
+    }
+  },
+  {
+    "Id": "flowing-orb",
+    "Name": "Flowing Orb",
+    "Kind": 2,
+    "Number": 4,
+    "UseCount": 32,
+    "Template": {
+      "name": 2541,
+      "text": 2542,
+      "info": [
+        112,
+        5
+      ],
+      "bonus": 0,
+      "magic_no": [
+        7,
+        8,
+        9,
+        10
+      ],
+      "botch": 2200
+    }
+  }
+]
