@@ -9,7 +9,7 @@ import sys
 
 root = Path(__file__).resolve().parents[1]
 if (root / '.git').exists():
-    result = subprocess.run(['git', '-C', str(root), 'ls-files', '-z'],
+    result = subprocess.run(['git', '-C', str(root), 'ls-files', '--cached', '--others', '--exclude-standard', '-z'],
                             check=True, stdout=subprocess.PIPE)
     files = [root / s.decode() for s in result.stdout.split(b'\0') if s]
 else:
