@@ -2,6 +2,10 @@
 
 - **Whole campaign unverified.** Native fixtures cover more than actual gameplay.
   Fairness projections are not a guarantee for every party, boss or story phase.
+- **New privacy-scrubbed public hashes untested at runtime.** Only debug-path bytes
+  changed; static checks confirm managed metadata/other bytes are intact. Originals
+  remain preserved. Neither derivative was launched or played. Startup smoke
+  verification is pending before a public release recommendation.
 - **Exact builds matter.** Sun's accepted full quest belongs to v1.12.2's0B520...
   DLL. v1.13's1A599... DLL has native regression evidence, not current-hash human
   gameplay. Full hashes and scope are in [ACCEPTANCE](docs/ACCEPTANCE.md).

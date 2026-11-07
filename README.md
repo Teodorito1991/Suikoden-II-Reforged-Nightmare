@@ -9,8 +9,10 @@ hunting rewards preparation and grinding without becoming mandatory.
 
 **Pre-publication beta preparation. Overall campaign: experimental.**
 Main development source is **v1.13 Native War Foundation**. The recommended first
-beta uses the unchanged **v1.12.2 Castle Hunt Guild DLL**, which has stronger exact-
-binary gameplay evidence. No public release has been approved or published.
+beta is based on the **v1.12.2 Castle Hunt Guild DLL**, which has stronger exact-
+binary gameplay evidence. Public review copies remove a personal PDB build path
+from debug metadata only. They have new hashes and no exact-hash gameplay
+acceptance. Originals remain preserved. No public release is approved or published.
 [Compare both candidates](docs/RELEASE-CANDIDATES.md).
 
 ## What changes

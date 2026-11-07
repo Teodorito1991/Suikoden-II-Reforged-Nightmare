@@ -6,7 +6,7 @@ clearance of a game's EULA or proof that an arbitrary future commit is safe.
 ## Included deliberately
 
 - Authored C# plugin source and numerical balance/compatibility definitions from
-  the v1.13 snapshot; no gameplay rewrite during preparation.
+  the v1.13 main or v1.12.2 beta snapshot; no gameplay rewrite.
 - All retained managed regression inputs, including two authored archived arena
   model files used only by tests. No retired arena renderer/runtime is included.
 - Public configuration examples, documentation, issue templates and read-only CI.
@@ -41,7 +41,11 @@ large strings. A later history/ZIP inventory checks all proposed refs and the
 installation archives. These checks are not an exhaustive secret scanner or a
 legal opinion. No third-party runtime/game DLL is shipped in the plugin-only ZIP.
 
-Both candidate DLLs retain their original SHA256. Managed suites and ten additional
+Both original candidate DLLs retain their original SHA256 privately. A personal
+PDB path was found in each. Public copies replace only that CodeView string, with
+new hashes, identical managed metadata and every other byte unchanged. No rebuild
+occurred; neither derivative has runtime acceptance. A startup check is pending.
+Managed suites and ten additional
 public-default parser/safety checks were run separately on both source snapshots.
 Neither DLL was rebuilt, installed or launched during this preparation. Exact-
 build gameplay evidence remains scoped as documented in docs/ACCEPTANCE.md.

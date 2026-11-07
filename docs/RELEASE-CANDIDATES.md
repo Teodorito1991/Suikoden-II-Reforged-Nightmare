@@ -20,8 +20,19 @@ claimed. A nevertheless has stronger real player-path evidence, and B adds hooks
 without new playable benefit. This is an evidence-based recommendation, not a
 statistical crash-rate comparison or full-campaign certification.
 
-Exact DLLs are copied unchanged. Tags identify packaging versions; internal plugin
-versions and hashes stay unchanged. CandidateA must not be labelled v1.13.
+Original DLLs remain unchanged and preserved. Binary inspection found a personal
+PDB path in each. Public review copies replace only that debug-path string, without
+rebuilding or changing managed metadata/gameplay bytes. Their hashes are:
+
+- A-derived: `8F3F085C3D9338C43FD74F80110D86CEFAD5F77A08A738EBA06D0B341C9DBD34`
+- B-derived: `386CF34C6B549A185C5DACC6A5F64C38150FED935D36D1B9E9551E6CEDDBDE17`
+
+Neither derivative inherits exact-hash runtime acceptance. The safer first-beta
+recommendation is **A-derived, pending startup verification**, based on stronger
+historical behaviour evidence and a strictly bounded metadata change, not a claim
+that its new hash was played. See publication/binary-privacy-audit.json.
+Tags identify packaging versions; internal versions remain unchanged. CandidateA
+must not be labelled v1.13.
 
 Fresh public defaults enable Sun castle entry, automatic request and native item
 fallback. Unplayed contracts, major bosses, debug/probes and research witness are

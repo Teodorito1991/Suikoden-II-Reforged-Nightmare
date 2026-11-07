@@ -14,7 +14,10 @@ tag **v1.13.0-dev.1** must not be presented as gameplay-accepted.
 - Include only the clean publication history, never push the original private
   development repository/history bundle with logs, saves or extracted material.
 - Confirm MIT approval, retained third-party notices and original-game exclusions.
-- Verify installation ZIPs and DLL hashes; do not silently substitute a rebuild.
+- Verify ZIP/DLL hashes and the documented debug-path-only privacy change. Never
+  substitute a rebuild or transfer exact-hash proof without disclosure.
+- Complete a safe startup smoke check for each proposed public DLL hash before
+  recommending publication. Static equality is not runtime acceptance.
 - Keep acceptance exact-build scoped; do not advertise playable war skirmishes/XP.
 - Check installation, update/config preservation and rollback instructions.
 - Keep missing genuine screenshot slots honest; no generated mockup as evidence.
@@ -32,8 +35,8 @@ repository to the new remote and push `main`, `beta/v1.12.2` and the reviewed ta
 Never use `git push --mirror` on the private development project.
 
 Prepare a **draft pre-release** targeting the reviewed beta tag. Attach only the
-clean installation ZIP and checksums, with release notes that state the unchanged
-internal DLL version and exact SHA256. A private repository is still a data upload;
+clean installation ZIP and checksums, with notes stating unchanged internal version,
+new public hash and original-to-public mapping. A private repo is still an upload;
 keep proprietary/private content excluded even before public publication.
 
 No public visibility change or release publication is authorised by these
