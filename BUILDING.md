@@ -26,7 +26,7 @@ Generated interop, metadata, raw assets and native binaries must remain local.
 Or separately:
 
 ```powershell
-dotnet build src/NightmareRebalance/NightmareRebalance.csproj -c Release '-p:GamePath=D:\SteamLibrary\steamapps\common\Suikoden I and II HD Remaster'
+dotnet build src/NightmareRebalance/NightmareRebalance.csproj -c Release '-p:GamePath=D:\SteamLibrary\steamapps\common\Suikoden I and II HD Remaster' -p:DebugType=none
 dotnet run --project tests/NightmareRebalance.Tests.csproj -c Release
 ```
 
@@ -46,3 +46,7 @@ exact-hash acceptance; see publication/binary-privacy-audit.json. Never
 replace one with a rebuild and retain its acceptance label. Public CI runs managed
 tests and hygiene; it neither downloads game files nor certifies gameplay. Native
 fixtures require locally owned inputs and must not run on a loaded player save.
+
+The public helper passes DebugType=none for future plugin builds to avoid embedding
+personal PDB paths. Private debugging builds may use symbols, but must be audited
+before distribution. This helper was not used to rebuild either review payload.

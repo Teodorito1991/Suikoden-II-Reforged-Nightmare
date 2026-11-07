@@ -4,7 +4,7 @@ param(
 )
 $ErrorActionPreference='Stop'
 if (-not (Test-Path -LiteralPath (Join-Path $GamePath 'BepInEx/interop/GSD2.dll'))) { throw 'Install BepInEx IL2CPP and run your legally owned game once. See BUILDING.md.' }
-& $Dotnet build "$PSScriptRoot/src/NightmareRebalance/NightmareRebalance.csproj" -c Release "-p:GamePath=$GamePath" --nologo
+& $Dotnet build "$PSScriptRoot/src/NightmareRebalance/NightmareRebalance.csproj" -c Release "-p:GamePath=$GamePath" "-p:DebugType=none" --nologo
 if($LASTEXITCODE -ne 0){throw 'Plugin compilation failed.'}
 & $Dotnet run --project "$PSScriptRoot/tests/NightmareRebalance.Tests.csproj" -c Release
 if($LASTEXITCODE -ne 0){throw 'Managed regression tests failed.'}
