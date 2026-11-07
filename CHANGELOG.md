@@ -2,6 +2,13 @@
 
 These are private development milestones, not previous public releases.
 
+## Unreleased — project workflow
+
+Added a permanent completed-milestone GitHub synchronization policy in AGENTS.md:
+update documentation/configuration guidance and exact-hash evidence, push audited
+source, verify the remote commit and CI, and report the commit link. Development
+remains private; existing beta assets, tags and draft releases are unchanged.
+
 ## Proposed v1.12.2-beta.1
 
 Packaging-only proposal, unchanged internal 1.12.2-guild-ui.1. A personal CodeView

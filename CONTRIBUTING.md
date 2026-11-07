@@ -1,5 +1,9 @@
 # Contributing
 
+Follow the standing [GitHub synchronization rules](AGENTS.md). Completed and verified
+milestones must be committed, pushed to the private development repository and
+verified remotely with CI. This does not authorize beta replacement or publication.
+
 Keep changes focused, independently configurable and faithful to the original
 engines. Describe the player-visible problem, evidence and resulting behaviour.
 
