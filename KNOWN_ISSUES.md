@@ -11,7 +11,7 @@
   gameplay. Full hashes and scope are in [ACCEPTANCE](docs/ACCEPTANCE.md).
 - **No independent war or training.** Launcher unavailable; no repeatable skirmish,
   commander XP or persistent army progression.
-- **Story-war transitions incompletely played.** Audited wars1,2,3,6,13 retain
+- **Story-war transitions incompletely played.** Audited wars 1,2,3,6,13 retain
   original story handlers, but most full ending/return routes remain unplayed.
 - **Major bosses opt-in.** Luca/Neclord policies have not completed rendered
   multi-party/phase/story validation. Public EnableMajorBosses=false. Seven earlier
@@ -25,7 +25,7 @@
 - **Reward limits remain native.** Rolled loot takes priority over the fallback;
   inventory capacity, decline and money cap apply. Offers are not inventory receipt.
 - **Historical UI labels.** Unchanged binaries may still call Sun experimental or
-  say acceptance is pending. Later documentation records exactv1.12.2 proof; the
+  say acceptance is pending. Later documentation records exact v1.12.2 proof; the
   DLL was not rebuilt just to update those labels.
 - **Hard is not the target.** Record admission is Normal/Hard component-tested,
   with historical Hard encounters, not a full Hard campaign/boss/hunt acceptance.
@@ -36,7 +36,7 @@
 
 ## Compatibility and reporting
 
-Use the exact game hashes and BepInEx6 IL2CPP x64 family in INSTALL.md. BepInEx5,
+Use the exact game hashes and BepInEx 6 IL2CPP x64 family in INSTALL.md. BepInEx 5,
 Mono or interop generated for another build is unsuitable. HarmonyX/Il2CppInterop
 come with the separate loader. Suikoden Fix, PKCore and S2 Character Mod are not
 required. Their MP/HP/reward/character/war patches can overlap; coexistence is not

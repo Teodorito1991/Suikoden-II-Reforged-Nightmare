@@ -10,13 +10,13 @@ not yet been certified.
 | Characters |80 growth/affinity/rune-slot profiles| On; native/component coverage, not all characters played |
 | Magic |31 spell edits plus healing/sleep layers| On; historical ordinary healing observed, wider interactions unplayed |
 | Regular enemies |280 guarded profiles| On; Normal/Hard production-copy checks, selected historical actual encounters |
-| Formations |51 remixes in original locations| On; native asset/setup coverage, not51 rendered battles |
+| Formations |51 remixes in original locations| On; native asset/setup coverage, not 51 rendered battles |
 | Boss tactics |10 policies across eligible encounters/phases| Earlier policies on; Luca/Neclord major policies off pending rendered phase/story validation |
 | Physical runes / Unites |Six rune and eight Unite options| On; guarded native-tested coefficients, wider balance uncalibrated |
 | Rune recovery |One missing charge per eligible survivor| On; genuine recovery observed; Escape exclusion on an earlier hash |
-| Sun King's Retinue |Castle contract, Cave encounter, native rewards, report/repeat| On publicly; complete exactv1.12.2 quest accepted |
+| Sun King's Retinue |Castle contract, Cave encounter, native rewards, report/repeat| On publicly; complete exact v1.12.2 quest accepted |
 | Dreamer / Thornwake |Two additional native-table contracts| Off; native-only prototypes |
-| Story wars |Original-engine unit/AI/objective changes for wars1,2,3,6,13| On; native evaluators and historical War2 evidence, not all transitions played |
+| Story wars |Original-engine unit/AI/objective changes for wars 1,2,3,6,13| On; native evaluators and historical War2 evidence, not all transitions played |
 | Independent war foundation |Flag-isolation rehearsal, field-owner prerequisites| v1.13 only; launcher unavailable, no XP/persistence |
 
 ## Difficulty and builds

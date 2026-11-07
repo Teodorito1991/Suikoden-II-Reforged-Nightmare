@@ -44,7 +44,7 @@ Never accept at castle and load a Cave save as a shortcut.
 
 | Contract | Destination | Public proposal |
 |---|---|---|
-| Sun King's Retinue |Cave of the Wind, vd06_00| Enabled; accepted exactv1.12.2 quest |
+| Sun King's Retinue |Cave of the Wind, vd06_00| Enabled; accepted exact v1.12.2 quest |
 | Dreamer's Circuit |Audited Sindar Ruins field vc12_00| Disabled; native-only |
 | Thornwake Patrol |Audited forest field ve03_00; English location label pending| Disabled; native-only |
 

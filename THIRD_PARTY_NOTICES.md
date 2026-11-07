@@ -18,7 +18,7 @@ not copy those libraries into the release. Original mod source/build guidance is
 provided for review and rebuilding. This is a distribution inventory, not a legal
 opinion on reverse engineering or the game's EULA in every jurisdiction.
 
-Official license sources checked2026-11-07:
+Official license sources checked 2026-11-07:
 [BepInEx](https://github.com/BepInEx/BepInEx/blob/master/LICENSE),
 [Il2CppInterop](https://github.com/BepInEx/Il2CppInterop/blob/master/LICENSE),
 [HarmonyX](https://github.com/BepInEx/HarmonyX/blob/master/LICENSE),
