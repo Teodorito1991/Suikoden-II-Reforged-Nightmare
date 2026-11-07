@@ -31,11 +31,11 @@ internal static class NativeWarWitness
  internal static void MapTick(){if(!Live||Current is not{ChapterDestroyed:true,Invalidated:null,MapUpdates:<30})return;Safe(()=>{if(Current.MapTick(Capture())){Current.Event("ThirtyMapUpdates",Current.Entry,Capture());Persist("MapUpdatesObserved");}});}
  internal static void SaveRequest(){if(Live&&Current is{} c&&c.Invalidated==null&&c.MapUpdates<30&&c.SaveRequests<256)c.SaveRequests++;}
  internal static void Invalidate(){requestOwner=0;if(!Live||Current==null)return;Safe(()=>{Current.Invalidated="OriginalSaveLoadStarted";Current.Event("OriginalSaveLoadStarted",Current.Entry,Capture());Last=Current;Persist("InvalidatedByLoad");Current=null;});}
- static void Persist(string kind){if(Current==null||!Live)return;string dir=Path.Combine(BepInEx.Paths.BepInExRootPath,"ReforgedNightmare","native-war");Directory.CreateDirectory(dir);string record=JsonSerializer.Serialize(new{Version="1.12.2-guild-ui.1",Utc=DateTime.UtcNow,SnapshotKind=kind,Evidence=Current});DiagnosticHistoryStore.Append(Path.Combine(dir,"war-lifecycle-history.json"),record);}
+ static void Persist(string kind){if(Current==null||!Live)return;string dir=Path.Combine(BepInEx.Paths.BepInExRootPath,"ReforgedNightmare","native-war");Directory.CreateDirectory(dir);string record=JsonSerializer.Serialize(new{Version="1.13.0-native-war-foundation.1",Utc=DateTime.UtcNow,SnapshotKind=kind,Evidence=Current});DiagnosticHistoryStore.Append(Path.Combine(dir,"war-lifecycle-history.json"),record);}
  internal static object Snapshot()=>new{Config.Enabled,Current,Last,IndependentSkirmishImplemented=false,SkirmishLaunchExposed=false,TrainingProgressionImplemented=false,TrainingAwardsIssued=0,SaveFilesWritten=false,History="12 bounded stage snapshots; no training receipts",HashScope="Five flag arrays, not all campaign fields; map updates do not prove field control"};
 }
 [HarmonyPatch(typeof(EVENTCON),"ECWarEventGo")]
-internal static class WarWitnessEvent{[HarmonyPostfix]static void Postfix()=>NativeWarWitness.EventRequest();}
+internal static class WarWitnessEvent{[HarmonyPrefix]static void Prefix(EVENTCON __instance)=>NativeWarBoundary.EventBefore(__instance);[HarmonyPostfix]static void Postfix()=>NativeWarWitness.EventRequest();}
 [HarmonyPatch(typeof(WarChapter),nameof(WarChapter.Start))]
 internal static class WarWitnessStart{[HarmonyPrefix]static void Prefix()=>NativeWarWitness.Start();}
 [HarmonyPatch(typeof(w_battle),nameof(w_battle.InitBattle))]
@@ -55,8 +55,11 @@ internal static class WarWitnessCompletion
 [HarmonyPatch(typeof(WarChapter),nameof(WarChapter.OnDestroy))]
 internal static class WarWitnessDestroy{[HarmonyPostfix]static void Postfix()=>NativeWarWitness.Destroy();}
 [HarmonyPatch(typeof(MapChapter),nameof(MapChapter.Update))]
-internal static class WarWitnessMap{[HarmonyPostfix]static void Postfix()=>NativeWarWitness.MapTick();}
+internal static class WarWitnessMap{[HarmonyPostfix]static void Postfix(MapChapter __instance){NativeWarWitness.MapTick();NativeWarBoundary.MapTick(__instance);}}
 [HarmonyPatch(typeof(GSD2SaveData),nameof(GSD2SaveData.LoadDataCore))]
-internal static class WarWitnessLoad{[HarmonyPrefix]static void Prefix()=>NativeWarWitness.Invalidate();}
+internal static class WarWitnessLoad{[HarmonyPrefix]static void Prefix(){NativeWarBoundary.Invalidate("Original load started");NativeWarWitness.Invalidate();}}
 [HarmonyPatch(typeof(GSD2SaveData),nameof(GSD2SaveData.SaveFile))]
 internal static class WarWitnessSave{[HarmonyPrefix]static void Prefix()=>NativeWarWitness.SaveRequest();}
+
+[HarmonyPatch(typeof(MapChapter),nameof(MapChapter.OnDestroy))]
+internal static class WarBoundaryMapEnd{[HarmonyPrefix]static void Prefix(){NativeWarBoundary.LeavingMap();}}

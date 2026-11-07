@@ -32,7 +32,7 @@ internal static class NativeInputAudit
  {
   if(!Requested||writeFaulted)return;
   try{
-   string text=System.Text.Json.JsonSerializer.Serialize(new{Version="1.12.2-guild-ui.1",Utc=DateTime.UtcNow,Audit=Snapshot()});
+   string text=System.Text.Json.JsonSerializer.Serialize(new{Version="1.13.0-native-war-foundation.1",Utc=DateTime.UtcNow,Audit=Snapshot()});
    if(System.Text.Encoding.UTF8.GetByteCount(text)>1048576)return;
    string dir=Path.Combine(BepInEx.Paths.BepInExRootPath,"ReforgedNightmare","developer");Directory.CreateDirectory(dir);string path=Path.Combine(dir,"input-audit.json");
    if(!fileStarted){if(File.Exists(path))File.Move(path,path+".previous",true);fileStarted=true;}

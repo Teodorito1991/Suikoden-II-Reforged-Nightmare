@@ -7,7 +7,7 @@ internal static class HuntSessionRuntime
  internal static void Begin()
  {
   if(!RealSession)return;
-  try{if(Current is{Finished:false})Finish("ReplacedWithoutCompletion",0);Persist(Last);Current=new(){Build="1.12.2-guild-ui.1",Entry=HuntAccess.Selections,HuntId=HuntRuntime.Active?.Id??"",TableId=HuntRuntime.Active?.Audit.TableId??""};Current.DebugArmed(HuntDebug.Enabled&&HuntDebug.Armed);CastleGuildRuntime.Started(Current);}catch(Exception e){Warn(e);}
+  try{if(Current is{Finished:false})Finish("ReplacedWithoutCompletion",0);Persist(Last);Current=new(){Build="1.13.0-native-war-foundation.1",Entry=HuntAccess.Selections,HuntId=HuntRuntime.Active?.Id??"",TableId=HuntRuntime.Active?.Audit.TableId??""};Current.DebugArmed(HuntDebug.Enabled&&HuntDebug.Armed);CastleGuildRuntime.Started(Current);}catch(Exception e){Warn(e);}
  }
  internal static void Finish(string outcome,int charges)
  {if(!RealSession||Current==null)return;Current.Finish(outcome,charges);CastleGuildRuntime.Finished(Current);Last=Current;Current=null;}

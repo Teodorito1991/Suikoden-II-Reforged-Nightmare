@@ -73,7 +73,7 @@ internal static class War2Probe
         Check(w_unit.unit?.Pointer==savedUnits?.Pointer);Check(w_dat_2.chara_2?.Pointer==savedCharacters?.Pointer);Check(war_h.g_w_war_no==savedWar);Check(war_sys.turn==savedTurn);Check(war_sys.end_event_no==savedEnd);Check(war_sys.game_over_flag==savedGameOver);Check(!War2Runtime.Ready&&!War2Runtime.Armed);
         Passed=true;
         string directory=Path.Combine(Paths.BepInExRootPath,"ReforgedNightmare","native-war");Directory.CreateDirectory(directory);
-        File.WriteAllText(Path.Combine(directory,"revolution-probe.json"),JsonSerializer.Serialize(new{Version="1.12.2-guild-ui.1",Assertions,Passed,GlobalsRestored=true,BattlefieldPlayed=false,StoryCallbacksExecuted=false,AiNativeEvaluatorVerified=Plugin.Options.EnableNativeWarAI.Value},new JsonSerializerOptions{WriteIndented=true}));
+        File.WriteAllText(Path.Combine(directory,"revolution-probe.json"),JsonSerializer.Serialize(new{Version="1.13.0-native-war-foundation.1",Assertions,Passed,GlobalsRestored=true,BattlefieldPlayed=false,StoryCallbacksExecuted=false,AiNativeEvaluatorVerified=Plugin.Options.EnableNativeWarAI.Value},new JsonSerializerOptions{WriteIndented=true}));
         Plugin.Logger.LogInfo($"Native war revolution probe PASS: {Assertions} assertions; native war-2 outcomes/control/evaluator exercised on disposable records. No chapter, ending demo or campaign callback invoked.");
     }
 }

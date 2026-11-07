@@ -111,6 +111,18 @@ Console.WriteLine("PASS: Integration outcome gate 12 assertions; non-victory, co
 Check(!new HuntGuildFile().EnableVictoryItems,"Omitted experimental item setting stays off");
 Check(!new BossTacticsFile().EnableMajorBosses,"Omitted experimental major boss setting stays off");
 Check(!new HuntOverride().Enabled,"Omitted contract enabled setting stays off");
+int beforeBoundaryChecks=assertions;
+var lease=new WarFieldLease(1,2,3,4,5,6,7,8,9,10,11,12,13,14,"abc");
+Check(!WarBoundaryRules.CanLaunch,"No configuration unlocks incomplete skirmish lifecycle");
+Check(WarBoundaryRules.Compare(lease,lease).StartsWith("Prerequisite"),"Lease consistency is prerequisite only");
+Check(WarBoundaryRules.Compare(null,lease).StartsWith("Missing"),"Missing field rejected");
+Check(WarBoundaryRules.Compare(lease,lease with{Epoch=2}).StartsWith("Load"),"Load invalidates lease");
+foreach(var changed in new[]{lease with{Game=3},lease with{System=4},lease with{Party=5},lease with{Data=6}})Check(WarBoundaryRules.Compare(lease,changed).StartsWith("Campaign owner"),"Foreign campaign owner rejected");
+foreach(var changed in new[]{lease with{Map=7},lease with{Event=8},lease with{Asset=9}})Check(WarBoundaryRules.Compare(lease,changed).StartsWith("Original field"),"Foreign field resource rejected");
+foreach(var changed in new[]{lease with{Area=11},lease with{Town=12},lease with{Variant=13},lease with{X=14},lease with{Y=15}})Check(WarBoundaryRules.Compare(lease,changed).StartsWith("Field location"),"Changed return coordinates rejected");
+Check(WarBoundaryRules.Compare(lease,lease with{Flags="changed"}).StartsWith("Campaign flags"),"Changed flags rejected");
+Check(WarBoundaryRules.Compare(lease,lease with{Chapter=88}).StartsWith("Prerequisite"),"Recreated chapter does not imply field destruction or successful return");
+Console.WriteLine($"PASS: War boundary rules {assertions-beforeBoundaryChecks} assertions; prerequisite-only leases, no launch permission.");
 Console.WriteLine("PASS: Integration experimental defaults 3 assertions; missing values do not silently opt in.");
 
 GuildQuestTests.Run();

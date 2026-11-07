@@ -113,7 +113,7 @@ internal static class NativeWarRemix
         ProbePassed=true;
         var folder=Path.Combine(Paths.BepInExRootPath,"ReforgedNightmare","native-war");Directory.CreateDirectory(folder);
         // Only summaries; no proprietary script bytes or campaign state exported.
-        File.WriteAllText(Path.Combine(folder,"native-probe.json"),JsonSerializer.Serialize(new{Version="1.12.2-guild-ui.1",Cases=cases,Assertions=ProbeAssertions,GlobalsRestored=true,CampaignLoaded=false,BattlefieldRendered=false},new JsonSerializerOptions{WriteIndented=true}));
+        File.WriteAllText(Path.Combine(folder,"native-probe.json"),JsonSerializer.Serialize(new{Version="1.13.0-native-war-foundation.1",Cases=cases,Assertions=ProbeAssertions,GlobalsRestored=true,CampaignLoaded=false,BattlefieldRendered=false},new JsonSerializerOptions{WriteIndented=true}));
         Plugin.Logger.LogInfo($"Native war remix probe PASS: {ProbeAssertions} assertions; actual IL2CPP outcome checks on disposable armies, original globals restored. No map launched or campaign transition tested.");
     }
 }

@@ -139,7 +139,7 @@ internal static class TotalWarProbe
         Check(w_tact.selected_result?.Pointer==savedSelected?.Pointer);Check(w_tact.result?.Pointer==savedResult?.Pointer);Check(!TotalWarRuntime.Ready&&!TotalWarRuntime.Armed);
         Passed=true;
         string directory=Path.Combine(Paths.BepInExRootPath,"ReforgedNightmare","native-war");Directory.CreateDirectory(directory);
-        File.WriteAllText(Path.Combine(directory,"total-war-probe.json"),JsonSerializer.Serialize(new{Version="1.12.2-guild-ui.1",Assertions,Passed,DecisionDifferences,GlobalsRestored=true,RandomStateRestored=true,BattlefieldPlayed=false,StoryCallbacksExecuted=false},new JsonSerializerOptions{WriteIndented=true}));
+        File.WriteAllText(Path.Combine(directory,"total-war-probe.json"),JsonSerializer.Serialize(new{Version="1.13.0-native-war-foundation.1",Assertions,Passed,DecisionDifferences,GlobalsRestored=true,RandomStateRestored=true,BattlefieldPlayed=false,StoryCallbacksExecuted=false},new JsonSerializerOptions{WriteIndented=true}));
         Plugin.Logger.LogInfo($"Total War probe PASS: {Assertions} assertions; actual native later-war outcomes, evaluator and selection. Decision differences={DecisionDifferences}; globals/RNG restored. No ending playback or campaign callback tested.");
     }
 }

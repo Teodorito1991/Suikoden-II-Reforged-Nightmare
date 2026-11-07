@@ -159,5 +159,5 @@ internal static class CombatReforgedProbe
         Passed=true;string dir=Path.Combine(Paths.BepInExRootPath,"ReforgedNightmare","combat");Directory.CreateDirectory(dir);File.WriteAllText(Path.Combine(dir,"native-combat-probe.json"),JsonSerializer.Serialize(Snapshot(),new JsonSerializerOptions{WriteIndented=true}));
         Plugin.Logger.LogInfo($"Combat Reforged probe PASS: {Assertions} assertions; native mode differences={ModeDifferences}; native target differences={TargetDifferences}; formulas checked; work/RNG restored. No battle/story/save played.");
     }
-    internal static object Snapshot()=>new{Version="1.12.2-guild-ui.1",Ran=Assertions>0,Passed,Assertions,ModeDifferences,TargetDifferences,Results=Results.ToArray(),BattlefieldPlayed=false,StoryCallbacksInvoked=false};
+    internal static object Snapshot()=>new{Version="1.13.0-native-war-foundation.1",Ran=Assertions>0,Passed,Assertions,ModeDifferences,TargetDifferences,Results=Results.ToArray(),BattlefieldPlayed=false,StoryCallbacksInvoked=false};
 }

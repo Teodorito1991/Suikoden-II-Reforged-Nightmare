@@ -124,7 +124,7 @@ internal static class WarTacticsProbe
         var rs=UnityEngine.Random.state;Check(rs.s0==rng.s0&&rs.s1==rng.s1&&rs.s2==rng.s2&&rs.s3==rng.s3);
         for(int i=0;i<props.Length;i++)Check(((Il2CppReferenceArray<WAR_CHARA_TYPE>?)props[i].GetValue(null))?.Pointer==((Il2CppReferenceArray<WAR_CHARA_TYPE>?)chars[i])?.Pointer);
         Passed=true;string directory=Path.Combine(Paths.BepInExRootPath,"ReforgedNightmare","native-war");Directory.CreateDirectory(directory);
-        File.WriteAllText(Path.Combine(directory,"war-tactics-probe.json"),JsonSerializer.Serialize(new{Version="1.12.2-guild-ui.1",Assertions,Passed,SelectionDifferences,LegalCandidates,GlobalsAndRandomRestored=true,StoryEventsExecuted=false,BattlefieldPlayed=false,Maps},new JsonSerializerOptions{WriteIndented=true}));
+        File.WriteAllText(Path.Combine(directory,"war-tactics-probe.json"),JsonSerializer.Serialize(new{Version="1.13.0-native-war-foundation.1",Assertions,Passed,SelectionDifferences,LegalCandidates,GlobalsAndRandomRestored=true,StoryEventsExecuted=false,BattlefieldPlayed=false,Maps},new JsonSerializerOptions{WriteIndented=true}));
         Plugin.Logger.LogInfo($"War Tactics probe PASS: {Assertions} assertions; native real-map legal candidates={LegalCandidates}; selection differences={SelectionDifferences}; restored globals/RNG. Story/gameplay acceptance separate.");
     }
 }
