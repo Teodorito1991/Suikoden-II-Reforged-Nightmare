@@ -17,7 +17,7 @@ not yet been certified.
 | Sun King's Retinue |Castle contract, Cave encounter, native rewards, report/repeat| On publicly; complete exact v1.12.2 quest accepted |
 | Dreamer / Thornwake |Two additional native-table contracts| Off; native-only prototypes |
 | Story wars |Original-engine unit/AI/objective changes for wars 1,2,3,6,13| On; native evaluators and historical War2 evidence, not all transitions played |
-| Independent war foundation |Flag-isolation rehearsal, field-owner prerequisites| v1.13 only; launcher unavailable, no XP/persistence |
+| Independent war foundation/bridge |Flag rehearsal, field prerequisites, private native resource cleanup| v1.14 development only; resources tested, no battle/return, launcher unavailable, no XP/persistence |
 
 ## Difficulty and builds
 

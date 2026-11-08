@@ -9,6 +9,18 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.14 — Native War Skirmish Bridge (development only)
+
+Implemented private native ReleaseCheck ownership and original WarChapter cleanup
+on an isolated scratch object. Actual War1 asset loading/release and a retained
+castle asset with a colliding timing-4 ledger passed twice per process in two
+exact-hash native runs. Added duplicate/nested/thread/fault/once-only guards.
+All retained managed and full production-native regressions passed. No tactical
+battle or live field return was attempted; chapter ownership, asynchronous UI/
+audio/cache lifetimes and complete campaign-write isolation remain blockers.
+Live launch and commander progression remain unavailable. No install/config/save
+or beta-release asset changes. [Exact hash/evidence](docs/WAR-BRIDGE-V114.md).
+
 ## Proposed v1.12.2-beta.1
 
 Packaging-only proposal, unchanged internal 1.12.2-guild-ui.1. A personal CodeView
@@ -21,7 +33,7 @@ debug and probes off. Full campaign remains experimental.
 
 ## v1.13 — Native War Foundation
 
-Latest development source. Added unloaded native flag-isolation rehearsal,
+Historical development foundation. Added unloaded native flag-isolation rehearsal,
 exception-safe singleton/RNG restoration and field ownership prerequisites.
 Two native runs, no chapter launch, earned war outcome or current-hash human
 session. Independent skirmishes and training remain unavailable.

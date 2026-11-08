@@ -75,3 +75,10 @@ attendant separately with castle-guild.json's Enabled=false. Disable custom fall
 item preparation with EnableVictoryItems=false. Native drops still belong to the
 game. Reporting pays nothing again. Contracts are session-only; selector preference
 persistence is not campaign quest persistence. No setting enables skirmishes or XP.
+
+## Development-only war bridge
+
+v1.14 adds no gameplay switch, commander reward or contract option. Its native
+resource probe requires explicit unloaded batch arguments and an isolated runtime;
+RunNativeWarSelfTest=true alone does not schedule it. Existing examples remain
+unchanged and no user opt-ins are migrated. Live launching stays unavailable.

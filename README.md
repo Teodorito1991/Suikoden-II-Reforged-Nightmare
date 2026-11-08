@@ -8,7 +8,7 @@ maps and interfaces. Normal is the intended difficulty foundation. Optional
 hunting rewards preparation and grinding without becoming mandatory.
 
 **Pre-publication beta preparation. Overall campaign: experimental.**
-Main development source is **v1.13 Native War Foundation**. The recommended first
+Main development source is **v1.14 Native War Skirmish Bridge**. The recommended first
 beta is based on the **v1.12.2 Castle Hunt Guild DLL**, which has stronger exact-
 binary gameplay evidence. Public review copies remove a personal PDB build path
 from debug metadata only. They have new hashes and no exact-hash gameplay
@@ -31,8 +31,10 @@ No public release is approved or published.
 - Original-engine story-war unit, AI and objective modifications.
 
 **Repeatable native war skirmishes, commander XP and persistent army training are
-NOT playable features.** v1.13 adds an isolated flag-write rehearsal and read-only
-field-owner prerequisites. Its independent launcher remains unavailable. The
+NOT playable features.** v1.14 adds an original-engine asset/cleanup ownership
+adapter, with two repeated native resource cycles per test process. It retains
+v1.13 flag/field prerequisites. This is not a battle or live field return; the
+independent launcher remains unavailable. See [technical result](docs/WAR-BRIDGE-V114.md). The
 retired custom Unity arena is not part of the playable mod.
 
 ## Start here
@@ -56,7 +58,7 @@ the first met the native money cap.
 
 That evidence belongs to DLL SHA256:
 `0B520FDD9182B6C024FE96376D0F284BE249DF93AF2E748DC331D21324910F46`.
-It does not certify the whole campaign or v1.13 gameplay. Dreamer's Circuit and
+It does not certify the whole campaign or later development-build gameplay. Dreamer's Circuit and
 Thornwake Patrol are native-tested prototypes, disabled in the proposed defaults.
 [Exact-build evidence](docs/ACCEPTANCE.md).
 

@@ -1,0 +1,59 @@
+{
+  "Version": "1.14.0-native-war-bridge.1",
+  "DllSha256": "EA5BA3832CA141D48E01966E65B4D9EFBC8D784F547530D944E554EF1B20F1B8",
+  "BuiltFromParentCommit": "929fb1734b7048f3eca73e724d00f6d1d1f24a83",
+  "Date": "2026-11-08",
+  "BuildWarnings": 0,
+  "BuildErrors": 0,
+  "CodeViewPersonalPathAbsent": true,
+  "ManagedRegressionPassed": true,
+  "ManagedAssertions": 703781,
+  "BridgeRuns": [
+    {
+      "Run": "final-bridge-first",
+      "Assertions": 45,
+      "CompletedResourceCycles": 2,
+      "Passed": true
+    },
+    {
+      "Run": "final-bridge-repeat",
+      "Assertions": 45,
+      "CompletedResourceCycles": 2,
+      "Passed": true
+    }
+  ],
+  "NativeRegressionRuns": [
+    {
+      "Run": "final-production-first",
+      "Passed": true,
+      "ProductionAssertions": 3649,
+      "MaintenanceAssertions": 7919,
+      "CrossProcessHistory": false
+    },
+    {
+      "Run": "final-production-repeat",
+      "Passed": true,
+      "ProductionAssertions": 3649,
+      "MaintenanceAssertions": 7919,
+      "CrossProcessHistory": true
+    }
+  ],
+  "OriginalNativeResourceLoaderExecuted": true,
+  "OriginalWarChapterOnDestroyExecutedOnScratchObject": true,
+  "PrivateTiming4LedgerConsumed": true,
+  "RetainedCastleResourceAndCollidingLedgerPreserved": true,
+  "ExceptionNestedDuplicateAndThreadGuardsPassed": true,
+  "NormalApplicationQuit": true,
+  "ForceClosed": false,
+  "OriginalFilesUnchanged": 37,
+  "OriginalInstalledDllSha256": "1A59986703E8346E1B2F6D7968C451C0609A4FB990C8F88EB3D63DBCEBB2CD59",
+  "GameRegistryRestoredByteEqual": true,
+  "LiveLauncherAvailable": false,
+  "FullCampaignIsolationProven": false,
+  "GenuineTacticalBattlePlayed": false,
+  "LiveFieldReturnVerified": false,
+  "CommanderXpGranted": 0,
+  "CurrentHashHumanGameplayAccepted": false,
+  "PrivateHarness": "Independent full runtime copy; separate private-only Steam file-root guard; no original campaign saves copied or loaded",
+  "InitialFixtureConfigurationMismatch": "Full boss fixture rejected admission under proposed beta EnableMajorBosses=false. Re-run with unchanged development opt-ins in the isolated copy passed. Original/public configurations were not changed."
+}

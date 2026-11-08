@@ -34,7 +34,7 @@ This helper compiles/runs managed tests only. It does not install, launch the ga
 load saves or execute native acceptance. Archived arena inputs compile into managed
 tests only, not the plugin. No custom arena UI/runtime is reintroduced.
 
-Main contains v1.13 development source. `beta/v1.12.2` is the clean older candidate
+Main contains v1.14 development source. `beta/v1.12.2` is the clean older candidate
 snapshot. Original development branches/history remain independently preserved,
 not imported into the publication repository. Source provenance is recorded in
 publication/source-provenance.json.
@@ -50,3 +50,9 @@ fixtures require locally owned inputs and must not run on a loaded player save.
 The public helper passes DebugType=none for future plugin builds to avoid embedding
 personal PDB paths. Private debugging builds may use symbols, but must be audited
 before distribution. This helper was not used to rebuild either review payload.
+
+The v1.14 resource bridge probe is NOT a player option. It requires both existing
+self-test settings, explicit batch/test/bridge flags and the independent-copy
+marker, plus the private isolation harness for save-root protection. Do not run
+it in the installed game or infer safety from copying the executable alone.
+It adds no JSON setting or live launcher. See docs/WAR-BRIDGE-V114.md for scope.

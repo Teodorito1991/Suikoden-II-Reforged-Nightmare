@@ -19,3 +19,11 @@ Next credible work is a disposable War1 resource/cleanup inventory and complete
 side-effect graph before any independent transition. No XP, campaign identity or
 commander persistence is enabled. The native attack/defence seam is a future
 application point only. No engine reconstruction or replacement arena is planned.
+
+## v1.14 continuation
+
+The next resource/cleanup component has now been implemented and executed against
+original War1 assets, with colliding retained-resource protection and repeated
+acquisition/teardown. See [the bridge report](WAR-BRIDGE-V114.md). This supersedes
+the resource-inventory-only next step above; complete asynchronous ownership and
+field continuation are still blocked. No playable skirmish is claimed.

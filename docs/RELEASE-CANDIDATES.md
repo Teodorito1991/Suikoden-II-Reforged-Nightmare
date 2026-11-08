@@ -1,6 +1,6 @@
 # First beta decision
 
-**Recommend A: v1.12.2**, packaging tag **v1.12.2-beta.1**. Main stays at v1.13;
+**Recommend A: v1.12.2**, packaging tag **v1.12.2-beta.1**. The original staging comparison used v1.13; main now develops v1.14, separately from beta;
 candidate B is a separate developer review package. No local rollback or rebuild.
 
 | Criterion | A:1.12.2-guild-ui.1 | B:1.13.0-native-war-foundation.1 |

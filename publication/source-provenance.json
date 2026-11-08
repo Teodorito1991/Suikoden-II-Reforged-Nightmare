@@ -2,7 +2,6 @@
   "SourceVersion": "1.13.0-native-war-foundation.1",
   "PrivateDevelopmentCommit": "7e461f8d7b576d35cc9e7894cdf6faa22ec5c13a",
   "SnapshotOnlyNoPrivateHistory": true,
-  "PluginSourceUnchangedExceptGitLineEndings": true,
   "SourceFiles": [
     {
       "Path": "src/NightmareRebalance/BossProfiles.cs",
@@ -630,5 +629,7 @@
     "Public config profile; embedded defaults unchanged",
     "Public build helper",
     "Publication hygiene and defaults tests; retained gameplay tests unchanged"
-  ]
+  ],
+  "RecordScope": "Historical v1.13 clean import snapshot; subsequent development is recorded by clean Git commits, not these old per-file hashes.",
+  "PluginSourceUnchangedExceptGitLineEndingsAtImport": true
 }

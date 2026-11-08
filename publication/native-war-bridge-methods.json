@@ -1,0 +1,53 @@
+{
+  "Scope": "Bounded read-only inspection, not a complete reachable campaign-write graph",
+  "Methods": [
+    {
+      "Rva": "0x2147af0",
+      "Method": "EVENTCON.private void ECWarEventGo(sbyte cno)",
+      "Bytes": 1200,
+      "CodeSha256": "A3247E6185A1490216BCD90537E59837CF88113D672EA3181B47E44AE4EB3D3B"
+    },
+    {
+      "Rva": "0x1f34530",
+      "Method": "WarChapter.<WarResLoad>d__8.private bool MoveNext()",
+      "Bytes": 1680,
+      "CodeSha256": "8DCA5A5DE84CEFC81F92F6C011B41CBFBD9375BFA4A4618BF2A7B9CE0105CEC0"
+    },
+    {
+      "Rva": "0x1f365c0",
+      "Method": "WarChapter.public override void OnDestroy()",
+      "Bytes": 80,
+      "CodeSha256": "92E4D9B2163B6001EBD537CB9A12EA35ACD793FD2337839C55168DA3E03AC5A6"
+    },
+    {
+      "Rva": "0x2298170",
+      "Method": "ReleaseCheck.public static void AddLoader(ResourceLoader loader, ReleaseCheck.ReleaseTimming timming = 1)",
+      "Bytes": 512,
+      "CodeSha256": "3A1D78B7F4C84C487E57BD2C0C335A41E04646A4C755D2DDBC66590C48E86EC6"
+    },
+    {
+      "Rva": "0x2298370",
+      "Method": "ReleaseCheck.public static void Invoke(ReleaseCheck.ReleaseTimming timming)",
+      "Bytes": 304,
+      "CodeSha256": "8273976FDB56F409EA32BC81A9D4247FE9F756597B773CD69CCAFDB6F9A16096"
+    },
+    {
+      "Rva": "0x22989f0",
+      "Method": "ReleaseCheck.ReleaseInfo.public void Invoke()",
+      "Bytes": 384,
+      "CodeSha256": "9A4603A9E3793BEC9C9905AD461E7D38829319CED5EECEF46FC58AB0E0AD4E15"
+    },
+    {
+      "Rva": "0x22d3510",
+      "Method": "ResourceLoader.public void Unload()",
+      "Bytes": 144,
+      "CodeSha256": "5CFD413D15FF51A8ABA800F1CCDA91C40AD725C93397BDF1576AA53C75A6B145"
+    },
+    {
+      "Rva": "0x1edb150",
+      "Method": "w_dead.public static int CheckDead(sbyte force, byte unit)",
+      "Bytes": 832,
+      "CodeSha256": "C37EE5B3DA04769F9EB7B5CC9032F22688C05D67F39CFBB2B3035157D3BB5A84"
+    }
+  ]
+}

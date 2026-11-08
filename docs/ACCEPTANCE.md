@@ -50,3 +50,12 @@ Included PNGs are historical user-supplied debug captures, with protection ON an
 no independently attached candidate hash. They illustrate original-engine gameplay,
 not balance or acceptance. Packaging checks, managed tests and native fixtures
 remain distinct from real rendered gameplay. No session is requested this milestone.
+
+## 1.14.0-native-war-bridge.1 — native resource component only
+
+SHA256 `EA5BA3832CA141D48E01966E65B4D9EFBC8D784F547530D944E554EF1B20F1B8`. Two bridge and two full native-regression processes passed on this
+exact rebuilt DLL. All 703,781 retained managed checks passed. Resource acquisition,
+private timing-4 cleanup, retained castle handle/ledger protection, fault guards
+and reacquisition were observed. No rendered battle, earned war result or live
+field return occurred. Existing Sun quest proof stays with original v1.12.2.
+[Verification and limitations](WAR-BRIDGE-V114.md).
