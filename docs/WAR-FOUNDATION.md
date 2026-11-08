@@ -34,3 +34,8 @@ The original OPD async sub-coroutine/cache publication/lookup now completes unde
 per-step ownership scopes, with native cleanup and reacquisition. Unknown native
 callbacks block cleanup. See [resource lifecycle](WAR-RESOURCES-V115.md). This does
 not resolve WarRes UI/audio ownership, live field return or campaign isolation.
+
+
+## v1.16 development note
+
+v1.16 continuation: original header factory now has owned root/font/tween cleanup and reacquisition. Full WarRes, chapter dispatch and return are still blocked. See [current feasibility decision](WAR-UI-V116.md); earlier milestones remain historical evidence.

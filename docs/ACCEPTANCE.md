@@ -68,3 +68,8 @@ checks passed. This is real OPD resource/cache/cleanup execution in an unloaded
 isolated context. No tactical battle, field return or human gameplay occurred.
 The observed public atlas iterator is empty; textures/UI/audio remain unverified.
 [Exact scope and safety boundaries](WAR-RESOURCES-V115.md).
+
+
+## v1.16 development note
+
+v1.16 exact hash `1CA1F3F56200561B49EDCADCCF1295989716F0FB7D3AA4A7D077CC27261893C1` has native header factory/component cleanup/reacquisition evidence only, plus retained component regressions. Canvas disabled: no visible UI, tactical battle, earned outcome, field return or user gameplay acceptance. Historical Castle Hunt evidence is unchanged. See WAR-UI-V116.md.

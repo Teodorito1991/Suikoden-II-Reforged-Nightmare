@@ -62,3 +62,8 @@ self-test and normal-exit prerequisites. It is not a gameplay launch command.
 Run it separately from production/bridge probes under the private root guard;
 never on a loaded campaign. No new configuration option enables a skirmish.
 See docs/WAR-RESOURCES-V115.md for actual coroutine scope and unproven lifetimes.
+
+
+## v1.16 development note
+
+v1.16 additionally requires local generated interop references UnityEngine.UIModule.dll, Unity.TextMeshPro.dll, DOTween.dll, DOTweenPro.dll and DOTweenPro.Scripts.dll from the verified BepInEx/interop directory. They are not redistributed. The explicit --reforged-war-ui-probe requires graphics-enabled unloaded batch mode plus existing self-test/exit guards and an independent protected runtime. Do not use -nographics for the UI factory. Never run against active campaign state. See docs/WAR-UI-V116.md.

@@ -12,7 +12,7 @@ internal static class WarResourceOwnershipTests
             var ledger = new WarResourceOwnership();
             ledger.Observe(kind, 1, owner);
             Check(ledger.CanClean == (owner != WarResourceOwner.Unknown), "Unknown blocks all domain cleanup.");
-            Check(ledger.CanRelease(kind, 1) == (owner == WarResourceOwner.SessionAcquisition && kind is WarResourceKind.Acquisition or WarResourceKind.CacheBinding), "Only owned references and bindings can be released.");
+            Check(ledger.CanRelease(kind, 1) == ((owner == WarResourceOwner.SessionAcquisition && kind is WarResourceKind.Acquisition or WarResourceKind.CacheBinding) || (owner == WarResourceOwner.SessionInstance && kind == WarResourceKind.Instance)), "Only owned references and bindings can be released.");
             Check(!ledger.CanTransition, "Resource readiness cannot authorize chapter dispatch.");
         }
         var mixed = new WarResourceOwnership();

@@ -8,7 +8,7 @@ maps and interfaces. Normal is the intended difficulty foundation. Optional
 hunting rewards preparation and grinding without becoming mandatory.
 
 **Pre-publication beta preparation. Overall campaign: experimental.**
-Main development source is **v1.15 Native War Resource Lifecycle**. The recommended first
+Main development source is **v1.16 Native War UI Ownership**. The recommended first
 beta is based on the **v1.12.2 Castle Hunt Guild DLL**, which has stronger exact-
 binary gameplay evidence. Public review copies remove a personal PDB build path
 from debug metadata only. They have new hashes and no exact-hash gameplay
@@ -31,10 +31,11 @@ No public release is approved or published.
 - Original-engine story-war unit, AI and objective modifications.
 
 **Repeatable native war skirmishes, commander XP and persistent army training are
-NOT playable features.** v1.15 executes the original War1 OPD asynchronous
-resource/cache sub-coroutine with explicit ownership and repeat cleanup. Tactical
-UI/audio, campaign isolation and live field return remain unresolved; the launcher
-is unavailable. See [technical result](docs/WAR-RESOURCES-V115.md). The
+NOT playable features.** v1.16 executes the original tactical header factory,
+tracks its native font/animation ownership, cleans up and reacquires it. This is
+bounded object/component execution, not a visible tactical UI or battle. Full
+chapter entry, campaign isolation and field return remain unresolved; the launcher
+is unavailable. See [technical result and feasibility](docs/WAR-UI-V116.md). The
 retired custom Unity arena is not part of the playable mod.
 
 ## Start here

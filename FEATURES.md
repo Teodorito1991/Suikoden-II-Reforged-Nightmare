@@ -49,3 +49,8 @@ Story-war changes use original maps, units, animations, combat and interpreter.
 There is no selectable repeatable war, earned commander XP or army training.
 The retired custom arena is absent from the plugin; archived pure test inputs
 preserve regression coverage only.
+
+
+## v1.16 development note
+
+v1.16 adds native-tested original war header object/font/tween ownership and repeat cleanup. This is research infrastructure, not a playable or visually accepted tactical UI. See [v1.16 evidence](docs/WAR-UI-V116.md).

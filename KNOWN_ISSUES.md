@@ -55,3 +55,8 @@ Include internal mod version/hash, game build, difficulty, area, party and relev
 settings, reproduction steps and selected redacted log lines. Remove personal paths
 and identifiers. Never attach tokens, proprietary binaries, generated interop,
 metadata, full development logs or someone else's save collection to public issues.
+
+
+## v1.16 development note
+
+v1.16 isolated graphics tests reproduce a TMP_SubMeshUI.UpdateMaterial shutdown exception, including a no-header/probe baseline on the exact DLL. Bounded header initialization/cleanup has zero observed runtime errors, but full application shutdown is not error-free. Full WarRes.Load, chapter entry and field return remain unverified.

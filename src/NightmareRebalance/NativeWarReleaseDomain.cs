@@ -23,7 +23,7 @@ internal sealed class NativeWarReleaseDomain
 
     static void Guard()
     {
-        if (!(NativeWarBridgeProbe.Requested || NativeWarLifecycleProbe.Requested) || !UnityEngine.Application.isBatchMode ||
+        if (!(NativeWarBridgeProbe.Requested || NativeWarLifecycleProbe.Requested || NativeWarUiProbe.Requested) || !UnityEngine.Application.isBatchMode ||
             !Environment.GetCommandLineArgs().Contains("--reforged-test-exit") ||
             Combat.State != null || WarRuntime.Active || WarTacticsRuntime.Armed ||
             war_h.g_w_war_no != 0 || NativeWarWitness.Live ||

@@ -1,0 +1,45 @@
+{
+  "Scope": "Bounded selected UI/root/font/tween native functions; not a full WarRes or campaign-write proof",
+  "Methods": [
+    {
+      "Rva": "0x22fd4a0",
+      "Method": "WarHDHeader.<LoadInstance>d__7.private bool MoveNext()",
+      "CodeSha256": "04655775BC91345F57E3336FE80D926CF77D4ACAEBCE7FB33B8698B5E90B3918"
+    },
+    {
+      "Rva": "0x22be0e0",
+      "Method": "HierarchyManager.public static GameObject KeyGameObject(HierarchyManager.KeyGameObjectID ID)",
+      "CodeSha256": "076BD3EA6B89152CD3201A676C44EA9CE97F5C13A704350DCC15A911094F4498"
+    },
+    {
+      "Rva": "0x22be170",
+      "Method": "HierarchyManager.public static Transform KeyTransform(HierarchyManager.KeyGameObjectID ID)",
+      "CodeSha256": "5145C736CD963A0BF56E0E2684AFCEF41B77BEDB32215ACFD29468F96C902EC9"
+    },
+    {
+      "Rva": "0x22f0b80",
+      "Method": "UIFontBehabiour.private void Awake()",
+      "CodeSha256": "46ED03462594D9F856CD2C41B2E69E8DF8F78204CAD286575094F7B711B4855D"
+    },
+    {
+      "Rva": "0x22f10b0",
+      "Method": "UIFontBehabiour.private void OnEnable()",
+      "CodeSha256": "AB15A7734593CA0C4EC072F8941C0DDA15E49D6597040AC712CE83923FBDBE25"
+    },
+    {
+      "Rva": "0x22f0e00",
+      "Method": "UIFontBehabiour.private void OnDestroy()",
+      "CodeSha256": "DFCBEC90BCC958886653156D71ABEB450105D4B216CB6248A0201A0EF83931FF"
+    },
+    {
+      "Rva": "0x452230",
+      "Method": "DOTweenAnimation.private void OnDestroy()",
+      "CodeSha256": "41A294C2419DA6005FDF9EFB530DBE94C5996DDA858F2A6B416632B4688E7DDA"
+    },
+    {
+      "Rva": "0x25f29c0",
+      "Method": "FontColorSetter.private void Awake()",
+      "CodeSha256": "1CF8FB68B9A3F97E73AFB9B786FECE7D8D8449C7848C6DB69BC8E88F6F9B46DB"
+    }
+  ]
+}

@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Suikoden I and II HD Remaster</GamePath>
-    <Version>1.15.0-native-war-resources.1</Version>
+    <Version>1.16.0-native-war-ui.1</Version>
     <AssemblyName>ReforgedNightmare</AssemblyName>
     <OutputPath>bin/$(Configuration)/$(Version)/</OutputPath>
   </PropertyGroup>
@@ -37,6 +37,11 @@
     <Reference Include="Unity.ResourceManager"><HintPath>$(GamePath)\BepInEx\interop\Unity.ResourceManager.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="Unity.InputSystem"><HintPath>$(GamePath)\BepInEx\interop\Unity.InputSystem.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
+  <ItemGroup><Reference Include="UnityEngine.UIModule"><HintPath>$(GamePath)/BepInEx/interop/UnityEngine.UIModule.dll</HintPath><Private>false</Private></Reference>
+<Reference Include="Unity.TextMeshPro"><HintPath>$(GamePath)/BepInEx/interop/Unity.TextMeshPro.dll</HintPath><Private>false</Private></Reference>
+<Reference Include="DOTween"><HintPath>$(GamePath)/BepInEx/interop/DOTween.dll</HintPath><Private>false</Private></Reference>
+<Reference Include="DOTweenPro"><HintPath>$(GamePath)/BepInEx/interop/DOTweenPro.dll</HintPath><Private>false</Private></Reference>
+<Reference Include="DOTweenPro.Scripts"><HintPath>$(GamePath)/BepInEx/interop/DOTweenPro.Scripts.dll</HintPath><Private>false</Private></Reference></ItemGroup>
   <Target Name="CheckGameReferences" BeforeTargets="ResolveReferences">
     <Error Condition="!Exists('$(GamePath)\BepInEx\interop\GSD2.dll')" Text="Run the installed BepInEx IL2CPP game once to generate interop/GSD2.dll; set -p:GamePath to the game directory." />
   </Target>

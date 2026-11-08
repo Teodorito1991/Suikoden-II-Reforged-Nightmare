@@ -9,6 +9,19 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.16 — Native War UI Ownership and Feasibility (development only)
+
+Executed the original WarHDHeader factory and native component cleanup/reacquisition
+in two isolated processes. Added scoped hierarchy-root ownership, audited prefab
+callback guards and separate instance/material versus borrowed-asset rights.
+Preserved shared fonts, original roots and retained field resources. No active
+chapter, field return, skirmish launcher or gameplay change is enabled.
+
+Exact DLL: `1CA1F3F56200561B49EDCADCCF1295989716F0FB7D3AA4A7D077CC27261893C1`. Managed regressions, retained native resource adapters and two
+production component runs passed. A shutdown TMP exception also reproduces in an
+exact-hash no-header baseline; no full application error-free claim. Installed
+v1.13 and beta unchanged. See [evidence and next experiment](docs/WAR-UI-V116.md).
+
 ## v1.15 — Native War Resource Lifecycle (development only)
 
 Executed the original War01 OPD async sub-coroutine, private cache publication and

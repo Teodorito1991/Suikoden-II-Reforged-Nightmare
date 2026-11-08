@@ -1,7 +1,7 @@
 namespace NightmareRebalance;
 
-internal enum WarResourceOwner { Unknown, SessionAcquisition, SharedGame, RetainedField }
-internal enum WarResourceKind { Acquisition, Asset, CacheBinding, Callback }
+internal enum WarResourceOwner { Unknown, SessionAcquisition, SharedGame, RetainedField, SessionInstance }
+internal enum WarResourceKind { Acquisition, Asset, CacheBinding, Callback, Instance }
 
 // Ownership refers to an acquired reference or binding, never ownership of all
 // objects reachable from an asset. Conflicting observations remain unknown.
@@ -18,8 +18,9 @@ internal sealed class WarResourceOwnership
     internal int Unknown => entries.Count(x => x.Value == WarResourceOwner.Unknown);
     internal bool CanClean => Unknown == 0;
     internal bool CanRelease(WarResourceKind kind, long identity) => CanClean &&
-        kind is WarResourceKind.Acquisition or WarResourceKind.CacheBinding &&
-        entries.TryGetValue((kind, identity), out var owner) && owner == WarResourceOwner.SessionAcquisition;
+        entries.TryGetValue((kind, identity), out var owner) &&
+        ((kind is WarResourceKind.Acquisition or WarResourceKind.CacheBinding && owner == WarResourceOwner.SessionAcquisition) ||
+        (kind == WarResourceKind.Instance && owner == WarResourceOwner.SessionInstance));
     internal int Count(WarResourceOwner owner) => entries.Count(x => x.Value == owner);
     internal bool CanTransition => false; // No resource receipt grants a chapter transition.
 }

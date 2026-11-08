@@ -86,3 +86,8 @@ unchanged and no user opt-ins are migrated. Live launching stays unavailable.
 v1.15 adds no player-facing setting or migration. The resource lifecycle probe is
 also disabled in ordinary play and cannot grant chapter-launch permission. Shared
 or unknown cleanup ownership is not overridden by a JSON setting.
+
+
+## v1.16 development note
+
+v1.16 introduces no player setting or configuration migration. The native UI probe is an explicit developer-only unloaded test path, not a new menu or enabled feature. Independent skirmish launching remains hard-disabled; existing opt-ins are preserved.

@@ -1,0 +1,133 @@
+{
+  "Version": "1.16.0-native-war-ui.1",
+  "DllSha256": "1CA1F3F56200561B49EDCADCCF1295989716F0FB7D3AA4A7D077CC27261893C1",
+  "CompiledFromParent": "71ad9b10b6ee6dac7cd95b4455d6386d5d340542",
+  "Date": "2026-11-08",
+  "BuildWarnings": 0,
+  "BuildErrors": 0,
+  "PersonalCodeViewPathAbsent": true,
+  "ManagedPassed": true,
+  "ManagedChecks": 703862,
+  "NativeUiRuns": [
+    {
+      "Run": "final-ui-first",
+      "Passed": true,
+      "Cycles": [
+        {
+          "Cycle": 1,
+          "Moves": 3,
+          "CreatedTweens": 11,
+          "CreatedMaterials": 3,
+          "NativeFontRegistryRestored": true,
+          "OriginalFactoryExecuted": true,
+          "OriginalRoot7Restored": true,
+          "NativeOnDestroyTweenCleanupVerified": true,
+          "FactoryLoaderReleased": true,
+          "SharedFontMaterialPreserved": true,
+          "RuntimeErrorsBeforeQuit": 0,
+          "OwnedObjectsDestroyed": true,
+          "VisibleRenderingAccepted": false,
+          "TacticalBattle": false
+        },
+        {
+          "Cycle": 2,
+          "Moves": 3,
+          "CreatedTweens": 11,
+          "CreatedMaterials": 3,
+          "NativeFontRegistryRestored": true,
+          "OriginalFactoryExecuted": true,
+          "OriginalRoot7Restored": true,
+          "NativeOnDestroyTweenCleanupVerified": true,
+          "FactoryLoaderReleased": true,
+          "SharedFontMaterialPreserved": true,
+          "RuntimeErrorsBeforeQuit": 0,
+          "OwnedObjectsDestroyed": true,
+          "VisibleRenderingAccepted": false,
+          "TacticalBattle": false
+        }
+      ],
+      "Checks": 526,
+      "GraphicsEnabled": true
+    },
+    {
+      "Run": "final-ui-repeat",
+      "Passed": true,
+      "Cycles": [
+        {
+          "Cycle": 1,
+          "Moves": 3,
+          "CreatedTweens": 11,
+          "CreatedMaterials": 3,
+          "NativeFontRegistryRestored": true,
+          "OriginalFactoryExecuted": true,
+          "OriginalRoot7Restored": true,
+          "NativeOnDestroyTweenCleanupVerified": true,
+          "FactoryLoaderReleased": true,
+          "SharedFontMaterialPreserved": true,
+          "RuntimeErrorsBeforeQuit": 0,
+          "OwnedObjectsDestroyed": true,
+          "VisibleRenderingAccepted": false,
+          "TacticalBattle": false
+        },
+        {
+          "Cycle": 2,
+          "Moves": 3,
+          "CreatedTweens": 11,
+          "CreatedMaterials": 3,
+          "NativeFontRegistryRestored": true,
+          "OriginalFactoryExecuted": true,
+          "OriginalRoot7Restored": true,
+          "NativeOnDestroyTweenCleanupVerified": true,
+          "FactoryLoaderReleased": true,
+          "SharedFontMaterialPreserved": true,
+          "RuntimeErrorsBeforeQuit": 0,
+          "OwnedObjectsDestroyed": true,
+          "VisibleRenderingAccepted": false,
+          "TacticalBattle": false
+        }
+      ],
+      "Checks": 526,
+      "GraphicsEnabled": true
+    }
+  ],
+  "RetainedOpdLifecyclePassed": true,
+  "RetainedResourceBridgePassed": true,
+  "ProductionNativeRuns": [
+    {
+      "Run": "final-production-first",
+      "Passed": true,
+      "ProductionChecks": 3649,
+      "MaintenanceChecks": 7919,
+      "HistoryRestart": false
+    },
+    {
+      "Run": "final-production-repeat",
+      "Passed": true,
+      "ProductionChecks": 3649,
+      "MaintenanceChecks": 7919,
+      "HistoryRestart": true
+    }
+  ],
+  "NativeWarHeaderFactoryExecuted": true,
+  "OriginalHierarchy7MappingRestored": true,
+  "NativeComponentCleanupAndReacquisitionObserved": true,
+  "RuntimeUnityErrorsBeforeQuit": 0,
+  "ShutdownErrorFree": false,
+  "KnownIsolatedShutdownException": "One TMP_SubMeshUI.UpdateMaterial NullReferenceException during shutdown; independently reproduced on exact-hash graphics baseline without header loading or probes. No suppression or engine fix claimed.",
+  "GraphicsUsed": true,
+  "VisibleUiGameplayAccepted": false,
+  "CompleteWarResLoadExecuted": false,
+  "ActiveWarChapterStarted": false,
+  "IndependentLauncherAvailable": false,
+  "EarnedBattleOutcome": false,
+  "FieldReturnVerified": false,
+  "CommanderXpGranted": 0,
+  "OriginalInstalledFilesByteEqual": 37,
+  "OriginalInstalledDllSha256": "1A59986703E8346E1B2F6D7968C451C0609A4FB990C8F88EB3D63DBCEBB2CD59",
+  "V115ArtifactPreserved": true,
+  "OriginalSavesLoadedOrWritten": false,
+  "RegistryRestoredByteEqual": true,
+  "ProcessesExitedAfterNormalApplicationQuit": true,
+  "ForceClosed": false,
+  "TestScope": "Copied unloaded runtime, private Steam-root guard, owned disabled Canvas; original prefab and factory. Native object/component lifecycle, not visual/controller or battle acceptance."
+}
