@@ -7,7 +7,7 @@ using HarmonyLib;
 
 namespace NightmareRebalance;
 
-[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.16.0")]
+[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.17.0")]
 [BepInDependency("d3xMachina.suikoden_fix", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("faospark.pkcore", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("nightmare.suikoden2.rebalance", BepInDependency.DependencyFlags.SoftDependency)]
@@ -60,6 +60,7 @@ public sealed class Plugin : BasePlugin
             WarTacticsProbe.Run();
             NativeWarSafetyProbe.Run();
             NativeWarFoundationProbe.Run();
+            if(NativeSkirmishProbe.Requested){AddComponent<NativeSkirmishProbe>();NativeSkirmishProbe.Scheduled=true;}
             if(NativeWarUiProbe.Requested){AddComponent<NativeWarUiProbe>();NativeWarUiProbe.Scheduled=true;}
             if(NativeWarLifecycleProbe.Requested){AddComponent<NativeWarLifecycleProbe>();NativeWarLifecycleProbe.Scheduled=true;}
             if(NativeWarBridgeProbe.Requested){AddComponent<NativeWarBridgeProbe>();NativeWarBridgeProbe.Scheduled=true;}
@@ -76,7 +77,7 @@ public sealed class Plugin : BasePlugin
             CombatRealityProbe.Run();
             if(ProductionAssetAudit.Requested){AddComponent<ProductionAssetAudit>();ProductionAssetAudit.Scheduled=true;}
             if (Options.EnableDeveloperTools.Value) AddComponent<DeveloperOverlay>();
-            Log.LogInfo("Reforged Nightmare 1.16.0-native-war-ui.1 experimental content installed. Combat Reality; native war modules retained; custom arena excluded.");
+            Log.LogInfo("Reforged Nightmare 1.17.0-native-skirmish-session.1 experimental content installed. Combat Reality; native war modules retained; custom arena excluded.");
         }
         catch (Exception ex)
         {
@@ -88,7 +89,7 @@ public sealed class Plugin : BasePlugin
             // Only our explicitly requested, noninteractive startup process may
             // exit automatically. A normal player session never meets this gate.
             if (UnityEngine.Application.isBatchMode && Environment.GetCommandLineArgs().Contains("--reforged-test-exit") &&
-                Options.RunCombatSelfTest.Value && !NativeWarBridgeProbe.Scheduled && !NativeWarLifecycleProbe.Scheduled && !NativeWarUiProbe.Scheduled && (!ProductionAssetAudit.Requested||!ProductionAssetAudit.Scheduled) && Combat.State==null && !WarRuntime.Active && !WarTacticsRuntime.Armed)
+                Options.RunCombatSelfTest.Value && !NativeWarBridgeProbe.Scheduled && !NativeWarLifecycleProbe.Scheduled && !NativeWarUiProbe.Scheduled && !NativeSkirmishProbe.Scheduled && (!ProductionAssetAudit.Requested||!ProductionAssetAudit.Scheduled) && Combat.State==null && !WarRuntime.Active && !WarTacticsRuntime.Armed)
             {
                 Log.LogInfo("Headless probe requested normal application exit; no campaign loaded.");
                 UnityEngine.Application.Quit();

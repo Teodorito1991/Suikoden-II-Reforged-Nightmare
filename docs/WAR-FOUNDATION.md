@@ -39,3 +39,8 @@ not resolve WarRes UI/audio ownership, live field return or campaign isolation.
 ## v1.16 development note
 
 v1.16 continuation: original header factory now has owned root/font/tween cleanup and reacquisition. Full WarRes, chapter dispatch and return are still blocked. See [current feasibility decision](WAR-UI-V116.md); earlier milestones remain historical evidence.
+
+
+## v1.17 development note
+
+The current integrated owner and go/no-go replace disconnected resource research as the next foundation. See [v1.17](SKIRMISH-SESSION-V117.md). Active launching remains disabled.

@@ -54,3 +54,8 @@ preserve regression coverage only.
 ## v1.16 development note
 
 v1.16 adds native-tested original war header object/font/tween ownership and repeat cleanup. This is research infrastructure, not a playable or visually accepted tactical UI. See [v1.16 evidence](docs/WAR-UI-V116.md).
+
+
+## v1.17 development note
+
+v1.17 has native-tested integrated OPD/header sessions with ordered cleanup and re-entry, not playable skirmishes. See [scope and NO-GO](docs/SKIRMISH-SESSION-V117.md).

@@ -67,3 +67,8 @@ See docs/WAR-RESOURCES-V115.md for actual coroutine scope and unproven lifetimes
 ## v1.16 development note
 
 v1.16 additionally requires local generated interop references UnityEngine.UIModule.dll, Unity.TextMeshPro.dll, DOTween.dll, DOTweenPro.dll and DOTweenPro.Scripts.dll from the verified BepInEx/interop directory. They are not redistributed. The explicit --reforged-war-ui-probe requires graphics-enabled unloaded batch mode plus existing self-test/exit guards and an independent protected runtime. Do not use -nographics for the UI factory. Never run against active campaign state. See docs/WAR-UI-V116.md.
+
+
+## v1.17 development note
+
+The v1.17 --reforged-skirmish-session-probe uses the same local interop dependencies and protected graphics-enabled unloaded runtime as v1.16. Both self-test options, private isolation marker and explicit test-exit arguments are required. It is not a player launch switch; active MapChapter/WarChapter contexts remain rejected.

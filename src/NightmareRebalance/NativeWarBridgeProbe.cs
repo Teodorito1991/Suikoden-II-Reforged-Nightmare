@@ -139,7 +139,7 @@ public sealed class NativeWarBridgeProbe : MonoBehaviour
         Application.runInBackground = previousBackground;
         Finished = true;
         string dir = Path.Combine(BepInEx.Paths.BepInExRootPath, "ReforgedNightmare", "native-war"); Directory.CreateDirectory(dir);
-        File.WriteAllText(Path.Combine(dir, "bridge-probe.json"), JsonSerializer.Serialize(new { Version = "1.16.0-native-war-ui.1", Passed, Assertions, Failure = failure, Cycles = rows, OriginalResourceLoaderExecuted = true, GenuineTacticalBattle = false, GenuineFieldReturn = false, EntryInterpreterInvoked = false, CampaignSaveLoaded = false, EarnedOutcome = false, CommanderXpGranted = 0 }, new JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(Path.Combine(dir, "bridge-probe.json"), JsonSerializer.Serialize(new { Version = "1.17.0-native-skirmish-session.1", Passed, Assertions, Failure = failure, Cycles = rows, OriginalResourceLoaderExecuted = true, GenuineTacticalBattle = false, GenuineFieldReturn = false, EntryInterpreterInvoked = false, CampaignSaveLoaded = false, EarnedOutcome = false, CommanderXpGranted = 0 }, new JsonSerializerOptions { WriteIndented = true }));
         Plugin.Logger.LogInfo($"Native war bridge probe {(Passed ? "PASS" : "FAIL")}: {cycle} actual resource acquisition/teardown cycles; no tactical battle or field return.");
         Application.Quit();
     }

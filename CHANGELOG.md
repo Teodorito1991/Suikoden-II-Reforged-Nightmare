@@ -9,6 +9,21 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.17 — Integrated Native Session and GO/NO-GO (development only)
+
+Combined verified original OPD coroutine and header initialization under one
+exclusive NativeSkirmishSession. Added ordered native cleanup, re-entry, interrupted
+loading, concurrent-owner rejection and original cache/registry identity checks.
+Reused the audited adapters and shared header preflight; no new gameplay system.
+Two isolated processes each completed two combined sessions and an interrupted
+session. Traced two native casualty-path mode33 writes and rehearsed their flag
+primitive on scratch arrays, without running casualties or story callbacks.
+
+Active skirmish remains NO-GO: genuine field continuation and complete campaign/
+casualty/audio isolation are unresolved. Exact DLL `DC44899D9F3A8182BE95686A831CD351C3C9C2C077ABEFB5A9C0E173DC8E8C97`. Known shutdown TMP
+exception/JobTempAlloc warning reproduce on a no-session baseline. Installed v1.13
+and beta unchanged. See [decision and evidence](docs/SKIRMISH-SESSION-V117.md).
+
 ## v1.16 — Native War UI Ownership and Feasibility (development only)
 
 Executed the original WarHDHeader factory and native component cleanup/reacquisition

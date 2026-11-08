@@ -43,6 +43,10 @@ internal static class NativeWarFoundationProbe
    Check(copy.event_flag[0xA9]==0x42&&source.event_flag[0xA9]==0x02,"Separate original chapter finish primitive isolated");
    G2_SYS.G2_cha_flag(30,121);Check(copy.chara_flag[121]==0x81&&source.chara_flag[121]==0x80,"Original interpreter status primitive mode30 isolated");
    G2_SYS.G2_cha_flag(31,121);Check(copy.chara_flag[121]==0xC7&&source.chara_flag[121]==0x80,"Original interpreter status primitive mode31 isolated");
+   // DriveUnitDestroy has two verified native calls with mode 33. Rehearse
+   // ONLY its flag primitive, not casualty selection, dialogue or combat.
+   copy.chara_flag[121]=0x27; G2_SYS.G2_cha_flag(33,121);
+   Check(copy.chara_flag[121]==0x95&&source.chara_flag[121]==0x80,"Casualty-reachable mode33 OR90/ANDDD primitive isolated");
    Check(a[0].ToArray().Where((v,i)=>i!=0xA9).All(v=>v==0),"No unexpected event flag writes in tested primitives");
    bool nested=false;try{InFork(source,_=>{});}catch(InvalidOperationException){nested=true;}Check(nested,"Nested singleton ownership rejected");
   });

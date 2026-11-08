@@ -47,3 +47,8 @@ reported separately. No installed settings, saves or DLLs change for packaging.
 ## v1.16 development note
 
 Latest separate development artifact: v1.16 `1CA1F3F56200561B49EDCADCCF1295989716F0FB7D3AA4A7D077CC27261893C1`. This does not replace either reviewed beta candidate or its acceptance evidence. No player-facing assets or release status changed. Native-only UI lifecycle details: [v1.16](WAR-UI-V116.md).
+
+
+## v1.17 development note
+
+Latest separate development artifact is v1.17 `DC44899D9F3A8182BE95686A831CD351C3C9C2C077ABEFB5A9C0E173DC8E8C97`. It does not replace the beta or its verification status. Repository remains private; no release assets changed.

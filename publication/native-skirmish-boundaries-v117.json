@@ -1,0 +1,76 @@
+{
+  "Scope": "Read-only bounded native inspection; not an exhaustive write graph or executed field/casualty path",
+  "Methods": [
+    {
+      "Method": "Chapter.protected virtual void Update()",
+      "Rva": "0x57c5b0",
+      "CodeSha256": "64B7855D4EC4A2DCCB32124BBC7DE2E61FB847C343616B8E358F461722E36E04"
+    },
+    {
+      "Method": "MapChapter.public override int Update()",
+      "Rva": "0x1f283f0",
+      "CodeSha256": "80BD8BDFD783B6CBC3A52E46EAF2EBE9E148973A421155096CA07E56DDEA632B"
+    },
+    {
+      "Method": "MapChapter.<Start>d__0.private bool MoveNext()",
+      "Rva": "0x1f30440",
+      "CodeSha256": "843A718FAEE370CDD35BD5F87DD189DFBA81C440ACD87E7B95455554843E8D17"
+    },
+    {
+      "Method": "MapChapter.public override void OnDestroy()",
+      "Rva": "0x1f282b0",
+      "CodeSha256": "16B9FFC70C82A148831BCF3910DAD98F81DF9E73F4D03AD8BE0B68A14467BC23"
+    },
+    {
+      "Method": "WarChapter.<Start>d__5.private bool MoveNext()",
+      "Rva": "0x1f32810",
+      "CodeSha256": "227B4FFDF71867D586582849F4478667ADF58F123CD2F3C2E927036E9CBE7140"
+    },
+    {
+      "Method": "WarChapter.public override int Update()",
+      "Rva": "0x1f36680",
+      "CodeSha256": "E28C2A86C93A26DD5EE6373CAD2BA9D197B91FC8915D282B3288EAE8F0AE1B83"
+    },
+    {
+      "Method": "w_main.public static wMainDelegate warinit(int war_no)",
+      "Rva": "0x1f01f60",
+      "CodeSha256": "69D0F550911C5FC441E45A71B0DBF7086379A3677CDEE48C1BE6C3C260854F7C"
+    },
+    {
+      "Method": "w_main.public static int warmain(int war_no)",
+      "Rva": "0x1f02210",
+      "CodeSha256": "2B129FBC8DE2CA5D2F8D8D1149A796D63B7DBF32736D87D0A7123D8AE21F7029"
+    },
+    {
+      "Method": "w_dead.public static int CheckDead(sbyte force, byte unit)",
+      "Rva": "0x1edb150",
+      "CodeSha256": "C37EE5B3DA04769F9EB7B5CC9032F22688C05D67F39CFBB2B3035157D3BB5A84"
+    },
+    {
+      "Method": "w_udisp.public static int DriveUnitDestroy()",
+      "Rva": "0x1f4e340",
+      "CodeSha256": "E7CAA95168F2FD2AC47A7823DD1EC9F7390E1FCE10EEFBD3C65C406CBA34F155"
+    },
+    {
+      "Method": "MACHICON.private bool AutoSaveCheck()",
+      "Rva": "0x18b87b0",
+      "CodeSha256": "8CDC6B380F6113D2042766F437202B879A0461C0FF41C6F318D12F24BB251762"
+    },
+    {
+      "Method": "SeUtility2.public static void loadBank(int bankID)",
+      "Rva": "0x1df8ef0",
+      "CodeSha256": "45B4E193E506A3D97AADC24E09F812A5BCF4BC86384ADC8325D458A8C572C7CB"
+    }
+  ],
+  "ConfirmedEdges": [
+    "MapChapter.Update -> MACHICON.MachiMain",
+    "MapChapter.Start coroutine -> CreateMenuWindow/CreateBackLogPanel/FadeIn",
+    "MACHICON.AutoSaveCheck -> UISaveLoad2.Save",
+    "w_main.warinit -> SeUtility2.loadBank",
+    "SeUtility2.loadBank -> SoundManager.ReleaseSE",
+    "w_main.warmain -> WarBattle, global war UI/effect cleanup",
+    "DriveUnitDestroy -> CheckDead and G2_cha_flag mode33 at two sites"
+  ],
+  "Mode33Primitive": "(old | 0x90) & 0xDD; source and jump-table branch verified; native scratch fork observed separately, not a casualty simulation",
+  "Unresolved": "Indirect dispatch, full mutation graph and live Map continuation are not closed"
+}

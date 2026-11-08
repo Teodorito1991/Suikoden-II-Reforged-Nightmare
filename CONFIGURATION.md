@@ -91,3 +91,8 @@ or unknown cleanup ownership is not overridden by a JSON setting.
 ## v1.16 development note
 
 v1.16 introduces no player setting or configuration migration. The native UI probe is an explicit developer-only unloaded test path, not a new menu or enabled feature. Independent skirmish launching remains hard-disabled; existing opt-ins are preserved.
+
+
+## v1.17 development note
+
+v1.17 adds no player setting, migration or changed defaults. Existing RPG/Guild/war settings are preserved; the independent launch gate is still hard-disabled.

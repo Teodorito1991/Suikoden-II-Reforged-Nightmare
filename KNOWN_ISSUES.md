@@ -60,3 +60,8 @@ metadata, full development logs or someone else's save collection to public issu
 ## v1.16 development note
 
 v1.16 isolated graphics tests reproduce a TMP_SubMeshUI.UpdateMaterial shutdown exception, including a no-header/probe baseline on the exact DLL. Bounded header initialization/cleanup has zero observed runtime errors, but full application shutdown is not error-free. Full WarRes.Load, chapter entry and field return remain unverified.
+
+
+## v1.17 development note
+
+v1.17 has no verified genuine field suspension/return or complete campaign/casualty isolation. Isolated graphics shutdown emits a TMP_SubMeshUI exception and JobTempAlloc warning, also reproduced without a session. Track-specific cleanup success does not establish global application leak freedom.
