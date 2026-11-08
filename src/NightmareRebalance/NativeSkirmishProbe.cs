@@ -67,7 +67,7 @@ public sealed class NativeSkirmishProbe : MonoBehaviour
         try
         {
             string dir = Path.Combine(BepInEx.Paths.BepInExRootPath, "ReforgedNightmare", "native-war"); Directory.CreateDirectory(dir);
-            File.WriteAllText(Path.Combine(dir, "integrated-session-probe.json"), JsonSerializer.Serialize(new { Version = "1.17.0-native-skirmish-session.1", Passed = passed, Failure = failure,
+            File.WriteAllText(Path.Combine(dir, "integrated-session-probe.json"), JsonSerializer.Serialize(new { Version = "1.18.0-field-observation.1", Passed = passed, Failure = failure,
                 Sessions = records, RuntimeErrors = runtimeErrors, FailedPhase = session?.State.ToString(), GraphicsEnabled = !Environment.GetCommandLineArgs().Contains("-nographics"),
                 LauncherEnabled = WarBoundaryRules.CanLaunch, ActiveWarChapter = false, GenuineFieldRetained = false, FieldReturn = false, EarnedWarOutcome = false, CampaignLoaded = false }, new JsonSerializerOptions { WriteIndented = true }));
             Plugin.Logger.LogInfo($"Integrated native session {(passed ? "PASS" : "FAIL")}: {records.Count} disposed sessions; no tactical battle/field return.");

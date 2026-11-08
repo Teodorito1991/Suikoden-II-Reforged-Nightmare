@@ -9,6 +9,19 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.18 — Real Field Continuation Assessment (development only)
+
+Added strictly passive field ownership/interpreter/input/menu/render/audio registry
+and save-intent instrumentation, bounded diagnostics and fail-closed evidence rules.
+Startup smoke verified the recorder accurately reports NO genuine field baseline.
+No field suspension, resource session under a field or continuation was attempted.
+
+Decision: NO-GO; pause independent skirmish development. The startup-only isolation
+guard rejects campaign loads; a protected normal field and complete ownership/write
+boundary remain unavailable. Do not substitute resource probes or fictional results.
+Exact DLL `376F51AB416C9A785F18B12B6884B690224BC6BEE4DC1F32B8607CA4937AD691`. Installed v1.13, v1.17 artifact/source reference and beta preserved.
+See [status, limitations and restart prerequisites](docs/FIELD-CONTINUATION-V118.md).
+
 ## v1.17 — Integrated Native Session and GO/NO-GO (development only)
 
 Combined verified original OPD coroutine and header initialization under one

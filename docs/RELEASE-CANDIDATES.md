@@ -52,3 +52,8 @@ Latest separate development artifact: v1.16 `1CA1F3F56200561B49EDCADCCF129598971
 ## v1.17 development note
 
 Latest separate development artifact is v1.17 `DC44899D9F3A8182BE95686A831CD351C3C9C2C077ABEFB5A9C0E173DC8E8C97`. It does not replace the beta or its verification status. Repository remains private; no release assets changed.
+
+
+## v1.18 development note
+
+Separate v1.18 artifact `376F51AB416C9A785F18B12B6884B690224BC6BEE4DC1F32B8607CA4937AD691` contains passive diagnostics; it does not replace or re-accept the beta. Installed v1.13 and unpublished beta assets remain unchanged.

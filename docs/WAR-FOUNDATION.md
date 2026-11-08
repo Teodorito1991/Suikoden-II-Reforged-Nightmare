@@ -44,3 +44,8 @@ v1.16 continuation: original header factory now has owned root/font/tween cleanu
 ## v1.17 development note
 
 The current integrated owner and go/no-go replace disconnected resource research as the next foundation. See [v1.17](SKIRMISH-SESSION-V117.md). Active launching remains disabled.
+
+
+## v1.18 development note
+
+Current decision is to PAUSE independent skirmish development. v1.18 adds passive instrumentation but cannot establish a loaded-field boundary in the startup-only runtime. See [v1.18](FIELD-CONTINUATION-V118.md); preserve the v1.17 foundation.

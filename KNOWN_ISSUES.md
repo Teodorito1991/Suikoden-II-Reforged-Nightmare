@@ -65,3 +65,8 @@ v1.16 isolated graphics tests reproduce a TMP_SubMeshUI.UpdateMaterial shutdown 
 ## v1.17 development note
 
 v1.17 has no verified genuine field suspension/return or complete campaign/casualty isolation. Isolated graphics shutdown emits a TMP_SubMeshUI exception and JobTempAlloc warning, also reproduced without a session. Track-specific cleanup success does not establish global application leak freedom.
+
+
+## v1.18 development note
+
+No genuine field continuation evidence exists for v1.18. The native field-capture branch has not run on a normally loaded MapChapter. Audio/filter/coroutine/save callback owners remain incomplete. Zero save/event activity at a launcher is not field isolation proof.

@@ -72,3 +72,8 @@ v1.16 additionally requires local generated interop references UnityEngine.UIMod
 ## v1.17 development note
 
 The v1.17 --reforged-skirmish-session-probe uses the same local interop dependencies and protected graphics-enabled unloaded runtime as v1.16. Both self-test options, private isolation marker and explicit test-exit arguments are required. It is not a player launch switch; active MapChapter/WarChapter contexts remain rejected.
+
+
+## v1.18 development note
+
+v1.18 uses the existing game/interop references. --reforged-field-observer with --reforged-private-startup-smoke and a private marker enables PASSIVE diagnostics only when both self-test switches are OFF. Existing startup isolation cannot load a campaign; this command does not create a field or authorize mutation.

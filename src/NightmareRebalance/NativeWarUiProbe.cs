@@ -86,7 +86,7 @@ public sealed class NativeWarUiProbe : MonoBehaviour
         try
         {
             string dir = Path.Combine(BepInEx.Paths.BepInExRootPath, "ReforgedNightmare", "native-war"); Directory.CreateDirectory(dir);
-            File.WriteAllText(Path.Combine(dir, "ui-ownership-probe.json"), JsonSerializer.Serialize(new { Version = "1.17.0-native-skirmish-session.1", Passed = passed, Checks = checks, Failure = failure, Cycles = rows,
+            File.WriteAllText(Path.Combine(dir, "ui-ownership-probe.json"), JsonSerializer.Serialize(new { Version = "1.18.0-field-observation.1", Passed = passed, Checks = checks, Failure = failure, Cycles = rows,
                 GraphicsEnabled = !Environment.GetCommandLineArgs().Contains("-nographics"), NativeHeaderFactory = true, FullWarResLoad = false, ActiveWarChapter = false, FieldReturn = false, CampaignLoaded = false }, new JsonSerializerOptions { WriteIndented = true }));
             Plugin.Logger.LogInfo($"Native war UI ownership {(passed ? "PASS" : "FAIL")}: {cycles} native header creation/cleanup cycles; no battle or field return.");
         }

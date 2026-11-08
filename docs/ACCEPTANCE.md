@@ -78,3 +78,8 @@ v1.16 exact hash `1CA1F3F56200561B49EDCADCCF1295989716F0FB7D3AA4A7D077CC27261893
 ## v1.17 development note
 
 v1.17 `DC44899D9F3A8182BE95686A831CD351C3C9C2C077ABEFB5A9C0E173DC8E8C97`: genuine integrated resource-only native execution. No rendered tactical battle, loaded field restoration, earned war outcome or human current-hash acceptance. Historical accepted Castle Hunt behavior remains unchanged.
+
+
+## v1.18 development note
+
+v1.18 `376F51AB416C9A785F18B12B6884B690224BC6BEE4DC1F32B8607CA4937AD691`: protected launcher smoke of a passive observer, zero genuine field samples, no lease/session/continuation acceptance. Managed evidence rules and retained native RPG component tests are distinct. Prior v1.17 resource proof and accepted Castle Hunt evidence remain historical hash-scoped records.

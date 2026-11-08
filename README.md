@@ -8,7 +8,7 @@ maps and interfaces. Normal is the intended difficulty foundation. Optional
 hunting rewards preparation and grinding without becoming mandatory.
 
 **Pre-publication beta preparation. Overall campaign: experimental.**
-Main development source is **v1.17 Integrated Native Session**. The recommended first
+Main development source is **v1.18 Field Continuation Assessment**. The recommended first
 beta is based on the **v1.12.2 Castle Hunt Guild DLL**, which has stronger exact-
 binary gameplay evidence. Public review copies remove a personal PDB build path
 from debug metadata only. They have new hashes and no exact-hash gameplay
@@ -31,11 +31,11 @@ No public release is approved or published.
 - Original-engine story-war unit, AI and objective modifications.
 
 **Repeatable native war skirmishes, commander XP and persistent army training are
-NOT playable features.** v1.17 combines original War 1 OPD loading and tactical
-header ownership under one session, with ordered disposal and successful re-entry.
-This is an unloaded resource envelope, not a live tactical battle or field return.
-The launch decision remains NO-GO until field and campaign isolation are proven.
-See [integrated evidence and decision](docs/SKIRMISH-SESSION-V117.md). The
+NOT playable features.** v1.18 adds a passive genuine-field recorder, but no
+protected field continuation was demonstrated. Independent skirmish development
+is paused: the startup-only test guard does not permit campaign loading, and
+field/session/save ownership remains unproven. The proven v1.17 resource foundation
+is preserved. See [the NO-GO decision](docs/FIELD-CONTINUATION-V118.md). The
 retired custom Unity arena is not part of the playable mod.
 
 ## Start here

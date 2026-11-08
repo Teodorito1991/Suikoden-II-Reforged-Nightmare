@@ -59,3 +59,8 @@ v1.16 adds native-tested original war header object/font/tween ownership and rep
 ## v1.17 development note
 
 v1.17 has native-tested integrated OPD/header sessions with ordered cleanup and re-entry, not playable skirmishes. See [scope and NO-GO](docs/SKIRMISH-SESSION-V117.md).
+
+
+## v1.18 development note
+
+v1.18 provides private passive field instrumentation, NOT a verified field lease or playable skirmish. Independent skirmish work is paused pending a real protected field and ownership proof. See [decision](docs/FIELD-CONTINUATION-V118.md).

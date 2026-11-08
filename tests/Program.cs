@@ -131,3 +131,5 @@ GuildScreenTests.Run();
 
 PublicationDefaultsTests.Run();
 WarResourceOwnershipTests.Run();
+
+FieldContinuationTests.Run();

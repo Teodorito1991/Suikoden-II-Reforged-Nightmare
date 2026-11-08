@@ -96,3 +96,8 @@ v1.16 introduces no player setting or configuration migration. The native UI pro
 ## v1.17 development note
 
 v1.17 adds no player setting, migration or changed defaults. Existing RPG/Guild/war settings are preserved; the independent launch gate is still hard-disabled.
+
+
+## v1.18 development note
+
+No player setting/default/migration added. Passive observer requires explicit private-test arguments; it does not run in ordinary gameplay. Field retention and independent launching stay hard-disabled.

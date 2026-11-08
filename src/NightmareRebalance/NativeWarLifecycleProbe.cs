@@ -98,7 +98,7 @@ public sealed class NativeWarLifecycleProbe : MonoBehaviour
         try
         {
             string directory = Path.Combine(BepInEx.Paths.BepInExRootPath, "ReforgedNightmare", "native-war"); Directory.CreateDirectory(directory);
-            File.WriteAllText(Path.Combine(directory, "resource-lifecycle-probe.json"), JsonSerializer.Serialize(new { Version = "1.17.0-native-skirmish-session.1", Passed = passed, Assertions = assertions, Failure = failure, Cycles = rows,
+            File.WriteAllText(Path.Combine(directory, "resource-lifecycle-probe.json"), JsonSerializer.Serialize(new { Version = "1.18.0-field-observation.1", Passed = passed, Assertions = assertions, Failure = failure, Cycles = rows,
                 UnknownCallbackExecutionBlocked = passed, GenuineTacticalBattle = false, LiveFieldReturn = false, WarChapterStartInvoked = false, CampaignLoaded = false, SaveWritten = false }, new JsonSerializerOptions { WriteIndented = true }));
             Plugin.Logger.LogInfo($"Native war resource lifecycle {(passed ? "PASS" : "FAIL")}: {cycles} OPD coroutine/cache/cleanup cycles; no battle or field return.");
         }
