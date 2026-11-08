@@ -57,3 +57,8 @@ Latest separate development artifact is v1.17 `DC44899D9F3A8182BE95686A831CD351C
 ## v1.18 development note
 
 Separate v1.18 artifact `376F51AB416C9A785F18B12B6884B690224BC6BEE4DC1F32B8607CA4937AD691` contains passive diagnostics; it does not replace or re-accept the beta. Installed v1.13 and unpublished beta assets remain unchanged.
+
+
+## v1.19 development note
+
+Separate v1.19 candidate `0EF0B648CC897C2119ED6919DA250FD1FDFFD1CAC5F8F536FB8BA8B5A8A1BEA7` is development-only. Installed v1.13 and beta unchanged. Native rendering/components do not replace human full-quest acceptance; no automatic beta substitution.

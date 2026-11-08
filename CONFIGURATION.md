@@ -101,3 +101,8 @@ v1.17 adds no player setting, migration or changed defaults. Existing RPG/Guild/
 ## v1.18 development note
 
 No player setting/default/migration added. Passive observer requires explicit private-test arguments; it does not run in ordinary gameplay. Field retention and independent launching stay hard-disabled.
+
+
+## v1.19 development note
+
+v1.19 changes no user/default settings. Dreamer and Thornwake remain disabled by default; deliberate existing opt-ins are preserved. Item labels describe conditional fallback loot, not guaranteed grants. Original purse/inventory handling and session-only quests remain.

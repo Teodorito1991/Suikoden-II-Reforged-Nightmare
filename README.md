@@ -8,7 +8,7 @@ maps and interfaces. Normal is the intended difficulty foundation. Optional
 hunting rewards preparation and grinding without becoming mandatory.
 
 **Pre-publication beta preparation. Overall campaign: experimental.**
-Main development source is **v1.18 Field Continuation Assessment**. The recommended first
+Main development source is **v1.19 Hunt Guild Gameplay Polish**. The recommended first
 beta is based on the **v1.12.2 Castle Hunt Guild DLL**, which has stronger exact-
 binary gameplay evidence. Public review copies remove a personal PDB build path
 from debug metadata only. They have new hashes and no exact-hash gameplay
@@ -31,11 +31,9 @@ No public release is approved or published.
 - Original-engine story-war unit, AI and objective modifications.
 
 **Repeatable native war skirmishes, commander XP and persistent army training are
-NOT playable features.** v1.18 adds a passive genuine-field recorder, but no
-protected field continuation was demonstrated. Independent skirmish development
-is paused: the startup-only test guard does not permit campaign loading, and
-field/session/save ownership remains unproven. The proven v1.17 resource foundation
-is preserved. See [the NO-GO decision](docs/FIELD-CONTINUATION-V118.md). The
+NOT playable features.** Independent skirmish development remains paused under
+the [v1.18 NO-GO decision](docs/FIELD-CONTINUATION-V118.md). v1.19 polishes the
+existing Hunt Guild presentation and feedback; see [verification and limitations](docs/GUILD-POLISH-V119.md). The
 retired custom Unity arena is not part of the playable mod.
 
 ## Start here

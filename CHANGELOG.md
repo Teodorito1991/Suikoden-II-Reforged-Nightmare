@@ -9,6 +9,19 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.19 — Hunt Guild Gameplay Polish (development only)
+
+Refined the existing native-looking contract layout, readable spoils and state
+messages. Acceptance errors now appear on screen; disabled prompts, compact quest
+actions and report/acceptance feedback are clearer. Resolved Thornwake's region to
+Greenhill City area through the original native registry/save-name/text alias path.
+
+No reward, drop probability, quest lifecycle, encounter or balance changes. Dreamer/
+Thornwake remain experimental and disabled by default. Exact DLL `0EF0B648CC897C2119ED6919DA250FD1FDFFD1CAC5F8F536FB8BA8B5A8A1BEA7` passed
+unloaded native rendering and RPG/Hunt component checks; no human field/quest
+acceptance on this hash. Installed v1.13/beta preserved, war research paused.
+See [details and known limitations](docs/GUILD-POLISH-V119.md).
+
 ## v1.18 — Real Field Continuation Assessment (development only)
 
 Added strictly passive field ownership/interpreter/input/menu/render/audio registry

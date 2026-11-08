@@ -64,3 +64,8 @@ v1.17 has native-tested integrated OPD/header sessions with ordered cleanup and 
 ## v1.18 development note
 
 v1.18 provides private passive field instrumentation, NOT a verified field lease or playable skirmish. Independent skirmish work is paused pending a real protected field and ownership proof. See [decision](docs/FIELD-CONTINUATION-V118.md).
+
+
+## v1.19 development note
+
+v1.19 improves Guild spacing, state/reward/destination text and visible failed-acceptance feedback, using the existing original frame/font/cursor. Thornwake region now reads Greenhill City area. See [hash-scoped evidence](docs/GUILD-POLISH-V119.md).

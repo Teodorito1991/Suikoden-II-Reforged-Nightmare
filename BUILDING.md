@@ -77,3 +77,8 @@ The v1.17 --reforged-skirmish-session-probe uses the same local interop dependen
 ## v1.18 development note
 
 v1.18 uses the existing game/interop references. --reforged-field-observer with --reforged-private-startup-smoke and a private marker enables PASSIVE diagnostics only when both self-test switches are OFF. Existing startup isolation cannot load a campaign; this command does not create a field or authorize mutation.
+
+
+## v1.19 development note
+
+v1.19 reuses existing UI/interoperability references. The existing --reforged-guild-render-smoke needs graphics and non-batch preview mode, isolated runtime and developer preview opt-in; it draws presentation fixtures only. Keep all native-war self-tests OFF for this milestone. No new runtime dependency or configuration setting.

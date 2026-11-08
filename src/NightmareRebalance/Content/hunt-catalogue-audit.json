@@ -670,7 +670,7 @@
   {
     "Id": "thornwake-patrol",
     "Name": "Thornwake Patrol",
-    "Field": "Forest field ve03_00 (English location label pending)",
+    "Field": "Greenhill City area (ve03_00; native save-location label)",
     "PartyCount": 11,
     "Audit": {
       "TableId": "ve03_00",

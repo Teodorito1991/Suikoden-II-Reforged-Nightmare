@@ -10,10 +10,17 @@ internal static class GuildScreenTests
   foreach(var state in new[]{"No contract","Accepted","Completed — report at Guild","Reported — available again"})foreach(int focus in Enumerable.Range(0,4)){
    var m=new GuildScreenModel{Names=GuildScreenRules.Cards.Select(x=>x.Name).ToArray(),Availability=new[]{"Available — elite hunt","Available — experimental","Available — experimental"},Selected=GuildScreenRules.Cards[focus==3?0:focus].Id,State=state,Active=state=="No contract"?"None":"Sun King's Retinue",Objective=state=="Accepted"?"Travel to Cave of the Wind and defeat the target. Escape allows another attempt.":state.StartsWith("Completed")?"Return to the attendant and report. Your battle rewards have already been handled; reporting pays nothing extra.":"Accept a contract, prepare your party and travel to its destination. Hunting is optional and repeatable.",Action=state=="Accepted"?"Withdraw accepted contract":state.StartsWith("Completed")?"Report completed hunt (no extra reward)":"Close",Bonus="2,500",Item="Stone of Power (when no other loot is found; free space required)",Focus=focus,Preview=true};
    m.Bonus=focus==1?"1,200":focus==2?"3,000":"2,500";m.Item=(focus==1?"Stone of Magic Protection":focus==2?"Flowing Orb":"Stone of Power")+" (when no other loot is found; free space required)";
+   var questState=state=="Accepted"?GuildQuestState.Accepted:state.StartsWith("Completed")?GuildQuestState.AwaitingReport:state.StartsWith("Reported")?GuildQuestState.Reported:GuildQuestState.NoContract;
+   m.State=GuildPresentation.State(questState);m.Objective=GuildPresentation.Objective(questState,"sun-kings-retinue");
+   m.Action=questState==GuildQuestState.Accepted?"Withdraw contract":questState==GuildQuestState.AwaitingReport?"Report completion":"Close";
+   m.Item=focus==1?"Stone of Magic Protection":focus==2?"Flowing Orb":"Stone of Power";
+   m.Status=questState==GuildQuestState.NoContract?"Welcome to the Guild. Which quarry will you pursue?":questState==GuildQuestState.Accepted?"Your contract is accepted. Seek your quarry, then return with your report.":questState==GuildQuestState.AwaitingReport?"Quarry defeated! Return to the Guild with your report.":"Well hunted! Your report is recorded. You may take another contract.";
+   m.Availability=GuildScreenRules.Cards.Select(c=>GuildPresentation.Availability(questState,c.Id,"sun-kings-retinue",c.Id=="sun-kings-retinue",true)).ToArray();
+   m.Prompt=GuildPresentation.Prompt(questState,focus==3,focus==0||focus==3);
    models.Add(m);var rows=GuildScreenRules.Text(m);
    Check(rows.All(t=>t.Box.X>=0&&t.Box.Y>=0&&t.Box.W>0&&t.Box.H>0&&t.Box.X+t.Box.W<=1100&&t.Box.Y+t.Box.H<=680),"all labels inside design bounds");
    Check(rows.All(t=>t.Text.Split('\n').Length*t.Size<=t.Box.H+5),"line heights fit assigned rectangles");
-   Check(rows.Any(t=>t.Text.Contains("Session only")),"temporary quest lifetime visible in every state");
+   Check(rows.Any(t=>t.Text.Contains("Loading a save or restarting")),"temporary quest lifetime visible in every state");
    foreach(var size in new[]{(640,480),(1280,720),(1920,1080),(2560,1080),(3840,2160)}){
     float scale=GuildScreenRules.Scale(size.Item1,size.Item2);Check(scale>0&&1100*scale<=size.Item1-31&&680*scale<=size.Item2-31,"centered responsive bounds");
    }

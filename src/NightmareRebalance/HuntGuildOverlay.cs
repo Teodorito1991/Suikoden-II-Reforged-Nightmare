@@ -59,14 +59,14 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   string selected=focus<defs.Length?defs[focus].Id:CastleGuildRuntime.Contract??HuntGuildRuntime.SelectedId;
   var def=defs.FirstOrDefault(d=>d.Id==selected)??defs[0];var setting=HuntRuntime.Settings(def);
   var reward=HuntGuildRuntime.Config.Rewards.FirstOrDefault(x=>x.HuntId==def.Id&&x.Enabled);var item=reward==null?null:HuntGuildRuntime.Items.FirstOrDefault(x=>x.Id==reward.RewardId);
-  string itemText=HuntGuildRuntime.Config.EnableVictoryItems&&item!=null?item.Name+" (when no other loot is found; free space required)":"Original battle loot";
+  string itemText=HuntGuildRuntime.Config.EnableVictoryItems&&item!=null?item.Name:"Battle loot";
   var state=CastleGuildRuntime.Quest.State;
-  string stateName=state switch{GuildQuestState.Accepted=>"Accepted",GuildQuestState.AwaitingReport=>"Completed — report at Guild",GuildQuestState.Reported=>"Reported — available again",_=>"No contract"};
-  string objective=state==GuildQuestState.Accepted?"Travel to "+GuildScreenRules.Card(CastleGuildRuntime.Contract??selected).Destination+" and defeat the target. Escape allows another attempt.":state==GuildQuestState.AwaitingReport?"Return to the attendant and report. Your battle rewards have already been handled; reporting pays nothing extra.":"Accept a contract, prepare your party and travel to its destination. Hunting is optional and repeatable.";
-  var availability=defs.Select(d=>!HuntRuntime.Settings(d).Enabled?"Disabled in settings":!HuntRuntime.Config.EnableExperimentalHunt?"Hunts disabled in settings":state==GuildQuestState.AwaitingReport?"Report your completed hunt first":state==GuildQuestState.Accepted?(d.Id==CastleGuildRuntime.Contract?"Active contract":"Finish or withdraw active contract"):d.Id=="sun-kings-retinue"?"Available — elite hunt":"Available — experimental").ToArray();
-  string prompt=focus==defs.Length?(state==GuildQuestState.Accepted?"Confirm: withdraw contract":state==GuildQuestState.AwaitingReport?"Confirm: report completion":"Confirm: close"):state==GuildQuestState.Accepted?"Finish or withdraw your active contract":state==GuildQuestState.AwaitingReport?"Choose Report below to finish":"Up / Down: browse    Confirm: accept";
+  string stateName=GuildPresentation.State(state);
+  string objective=GuildPresentation.Objective(state,CastleGuildRuntime.Contract??selected);
+  var availability=defs.Select(d=>GuildPresentation.Availability(state,d.Id,CastleGuildRuntime.Contract??CastleGuildRuntime.Quest.LastReportedId,HuntRuntime.Settings(d).Enabled,HuntRuntime.Config.EnableExperimentalHunt)).ToArray();
+  string prompt=GuildPresentation.Prompt(state,focus==defs.Length,setting.Enabled&&HuntRuntime.Config.EnableExperimentalHunt);
   if(!castle)prompt="Developer:1/2/3 browse    F10 close    4 requests";
-  return new(){Names=defs.Select(d=>d.Name).ToArray(),Availability=availability,Focus=focus,Selected=def.Id,State=stateName,Active=CastleGuildRuntime.ContractName.Length>0?CastleGuildRuntime.ContractName:"None",Objective=objective,Action=castle?CastleGuildRuntime.ActionLabel:"Close",Status=CastleGuildRuntime.Status,Bonus=HuntCatalogueRules.Bonus(def,setting,HuntRuntime.Config).ToString("N0"),Item=itemText,Prompt=prompt,Castle=castle,Preview=HuntGuildRuntime.Preview};
+  return new(){Names=defs.Select(d=>d.Name).ToArray(),Availability=availability,Focus=focus,Selected=def.Id,State=stateName,Active=CastleGuildRuntime.ContractName.Length>0?CastleGuildRuntime.ContractName:state==GuildQuestState.Reported?defs.FirstOrDefault(d=>d.Id==CastleGuildRuntime.Quest.LastReportedId)?.Name??"None":"None",Objective=objective,Action=castle?CastleGuildRuntime.ActionLabel:"Close",Status=castle?CastleGuildRuntime.Status:"Developer preview — no live contract changed",Bonus=HuntCatalogueRules.Bonus(def,setting,HuntRuntime.Config).ToString("N0"),Item=itemText,Prompt=prompt,Castle=castle,Preview=HuntGuildRuntime.Preview};
  }
  public void OnGUI()
  {
@@ -83,7 +83,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     if(HuntGuildRuntime.RenderSmoke){
      // Presentation-only scenarios: never change Quest, selection, receipt or native state.
      int scenario=Math.Min(3,(int)(timer.ElapsedMilliseconds/2200));m.Focus=scenario;
-     if(scenario==3){m.State="Completed — report at Guild";m.Active="Sun King's Retinue";m.Action="Report completed hunt (no extra reward)";m.Objective="Return to the attendant and report. Battle rewards were already handled; reporting pays nothing extra.";m.Prompt="Confirm: report completion";}
+     if(scenario==3){m.State="Completed — report at Guild";m.Active="Sun King's Retinue";m.Action="Report completion";m.Objective="The quarry is defeated. Report to the attendant; battle spoils are already yours.";m.Prompt="Confirm: report completion";}
      smokeScenarios.Add(scenario);
     }
     Window(ToRect(GuildScreenRules.Catalogue,x,y,scale));Window(ToRect(GuildScreenRules.Detail,x,y,scale));Window(ToRect(GuildScreenRules.Active,x,y,scale));

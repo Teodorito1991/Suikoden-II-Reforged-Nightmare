@@ -1,0 +1,51 @@
+{
+  "Scope": "Native read-only map registry and save-name SID plus original English text alias lookup; no original text/assets redistributed",
+  "Rows": [
+    {
+      "Contract": "sun-kings-retinue",
+      "Area": 3,
+      "Town": 5,
+      "SourceAssetKey": "gsd2-classic-machi-vd06-vd06",
+      "NativeRegistryMatch": true,
+      "SaveNameSid": 3051,
+      "TextAliasChain": [
+        3051,
+        366
+      ],
+      "EnglishName": "Cave of the Wind",
+      "WalkingMapCount": 14,
+      "ActualFieldEntered": false
+    },
+    {
+      "Contract": "dreamers-circuit",
+      "Area": 2,
+      "Town": 11,
+      "SourceAssetKey": "gsd2-classic-machi-vc12-vc12",
+      "NativeRegistryMatch": true,
+      "SaveNameSid": 3044,
+      "TextAliasChain": [
+        3044
+      ],
+      "EnglishName": "Sindar Ruins",
+      "WalkingMapCount": 8,
+      "ActualFieldEntered": false
+    },
+    {
+      "Contract": "thornwake-patrol",
+      "Area": 4,
+      "Town": 2,
+      "SourceAssetKey": "gsd2-classic-machi-ve03-ve03",
+      "NativeRegistryMatch": true,
+      "SaveNameSid": 3052,
+      "TextAliasChain": [
+        3052,
+        432
+      ],
+      "EnglishName": "Greenhill City",
+      "WalkingMapCount": 4,
+      "ActualFieldEntered": false
+    }
+  ],
+  "ThornwakeRegionResolved": true,
+  "ThornwakePreciseTravelRoutePlayed": false
+}

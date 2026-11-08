@@ -83,3 +83,8 @@ v1.17 `DC44899D9F3A8182BE95686A831CD351C3C9C2C077ABEFB5A9C0E173DC8E8C97`: genuin
 ## v1.18 development note
 
 v1.18 `376F51AB416C9A785F18B12B6884B690224BC6BEE4DC1F32B8607CA4937AD691`: protected launcher smoke of a passive observer, zero genuine field samples, no lease/session/continuation acceptance. Managed evidence rules and retained native RPG component tests are distinct. Prior v1.17 resource proof and accepted Castle Hunt evidence remain historical hash-scoped records.
+
+
+## v1.19 development note
+
+v1.19 `0EF0B648CC897C2119ED6919DA250FD1FDFFD1CAC5F8F536FB8BA8B5A8A1BEA7`: unloaded real native drawing/resources, original Hunt field/name lookup and retained component verification; reviewed offline previews. No human field interaction or full quest on this hash. Historical full Sun quest remains v1.12.2 only.

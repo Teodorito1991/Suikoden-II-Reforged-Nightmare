@@ -70,3 +70,8 @@ v1.17 has no verified genuine field suspension/return or complete campaign/casua
 ## v1.18 development note
 
 No genuine field continuation evidence exists for v1.18. The native field-capture branch has not run on a normally loaded MapChapter. Audio/filter/coroutine/save callback owners remain incomplete. Zero save/event activity at a launcher is not field isolation proof.
+
+
+## v1.19 development note
+
+v1.19 has no human current-hash field/menu/complete-quest acceptance. Dreamer/Thornwake remain native/component-only; Greenhill City region is verified but Thornwake exact travel route is unplayed. A preparatory unloaded asset render timed out, then passed on retry; final native render passed. Existing shutdown exceptions/warnings remain documented.

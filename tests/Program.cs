@@ -133,3 +133,4 @@ PublicationDefaultsTests.Run();
 WarResourceOwnershipTests.Run();
 
 FieldContinuationTests.Run();
+GuildPolishTests.Run();

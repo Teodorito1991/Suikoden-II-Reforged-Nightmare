@@ -1,7 +1,7 @@
 # The Castle Hunt Guild
 
 Sun King's Retinue has complete gameplay acceptance on **1.12.2-guild-ui.1**.
-v1.13 preserves its implementation but has no separate user-assisted quest session.
+v1.19 refines its presentation and feedback; it has no separate user-assisted quest session.
 See [exact-build evidence](docs/ACCEPTANCE.md).
 
 ## Take a contract
@@ -46,8 +46,25 @@ Never accept at castle and load a Cave save as a shortcut.
 |---|---|---|
 | Sun King's Retinue |Cave of the Wind, vd06_00| Enabled; accepted exact v1.12.2 quest |
 | Dreamer's Circuit |Audited Sindar Ruins field vc12_00| Disabled; native-only |
-| Thornwake Patrol |Audited forest field ve03_00; English location label pending| Disabled; native-only |
+| Thornwake Patrol |Greenhill City area, ve03_00; precise route unplayed| Disabled; native-only |
 
 The attendant is limited to **vk08 tavern, event variant1**. Other castle stages
 may have no attendant. No persistent Guild rank, training XP or war skirmish board
 is implemented. No campaign flag or original save field stores contract state.
+
+## v1.19 presentation
+
+Contract details separate destination, targets, preparation and victory spoils.
+Unavailable contracts remain visible for browsing, with a clear unavailable prompt;
+failed acceptance now appears in the screen's message line. Confirm/cancel retain
+the original game's bindings. Cancel closes the panel without withdrawing a hunt.
+
+Dreamer and Thornwake stay experimental and disabled by default. Thornwake's region
+uses the original map registry and save-location text alias (3052 → 432, Greenhill
+City); the exact walking route has not been played. No encounter, balance, reward
+or drop probability was changed. Conditional item offers still depend on native
+loot, eligibility and inventory handling; reporting grants nothing extra.
+
+The final development DLL is `0EF0B648CC897C2119ED6919DA250FD1FDFFD1CAC5F8F536FB8BA8B5A8A1BEA7`. Original frame/font/cursor rendering was
+exercised in an unloaded preview. Offline previews are not gameplay screenshots,
+and no current-hash field, controller or complete-quest acceptance is claimed.

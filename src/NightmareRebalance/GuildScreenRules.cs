@@ -14,9 +14,9 @@ internal static class GuildScreenRules
  internal const float Width=1100,Height=680;
  internal static readonly GuildBox Catalogue=new(0,80,350,376),Detail=new(366,80,734,376),Active=new(0,470,1100,124),Footer=new(0,608,1100,72);
  internal static readonly GuildContractCard[] Cards={
-  new("sun-kings-retinue","Sun King's Retinue","Cave of the Wind","Elite contract","Sun King / Sorcerer","A sturdy guardian fights beside a dangerous caster. Prepare both physical and magical options.","Experimental quest: final gameplay acceptance pending."),
-  new("dreamers-circuit","Dreamer's Circuit","Sindar Ruins","Elite / status pressure","Mr. Venus / Nightmare / MegaWatt","Sleep and mixed attacks punish an unprepared party. Bring recovery options.","Experimental: battle and travel await gameplay confirmation."),
-  new("thornwake-patrol","Thornwake Patrol","Forest area (route unconfirmed)","Elite / disruption","Melonzoo / two Holly Elves","Prepare status recovery and varied attacks. Field identity is audited; travel label remains unverified.","Experimental contract: destination and gameplay await confirmation.")};
+  new("sun-kings-retinue","Sun King's Retinue","Cave of the Wind","Elite contract","Sun King / Sorcerer","A sturdy guardian fights beside a dangerous caster. Prepare both physical and magical options.","Optional hunt. Report completion to take the contract again."),
+  new("dreamers-circuit","Dreamer's Circuit","Sindar Ruins","Elite / status pressure","Mr. Venus / Nightmare / MegaWatt","Sleep and mixed attacks punish an unprepared party. Bring recovery options.","Experimental contract. Disabled by default."),
+  new("thornwake-patrol","Thornwake Patrol","Greenhill City area","Elite / disruption","Melonzoo / two Holly Elves","A heavy forest beast travels with two nimble escorts. Bring status recovery and varied attacks.","Experimental contract. Disabled by default.")};
  internal static GuildContractCard Card(string id)=>Cards.FirstOrDefault(x=>x.Id==id)??Cards[0];
  internal static int Move(int focus,bool up,bool down,int contracts){if(contracts<1)return 0;if(up==down)return Math.Clamp(focus,0,contracts);return (Math.Clamp(focus,0,contracts)+(down?1:contracts))%(contracts+1);}
  internal static float Scale(int w,int h)=>Math.Max(.1f,Math.Min((w-32)/Width,(h-32)/Height));
@@ -43,17 +43,20 @@ internal static class GuildScreenRules
    T(48,177+i*76,278,26,Fit(m.Availability.ElementAtOrDefault(i)??"Unavailable",32,1),17,"muted");
   }
   T(48,399,274,40,Fit(m.Action,28,2),20,m.Focus==3?"gold":"body");
-  var card=Card(m.Selected);T(392,98,680,36,card.Name,28,"title");
-  T(392,141,680,28,card.Destination,23,"gold");T(392,177,680,25,card.Danger+"  /  Normal difficulty",19,"muted");
-  T(392,217,680,29,"Targets: "+card.Monsters,21);
-  T(392,255,680,72,Fit(card.Tactics,65,3),21);
-  T(392,332,680,30,"Potch: battle reward + "+m.Bonus+" bonus",22,"gold");
-  T(392,370,680,50,Fit("Possible item: "+m.Item,65,2),20);
-  T(392,426,680,23,Fit(card.Evidence,79,1),16,"muted");
-  T(24,486,245,27,"Active contract",23,"gold");T(275,486,799,27,Fit(m.State+"  /  "+m.Active,76,1),22);
-  T(24,526,1052,52,Fit(m.Objective,102,2),21);
-  T(24,619,1052,25,m.Prompt+"     Cancel: close",20,"gold");
-  T(24,649,1052,24,"Session only: loading a save or restarting clears the contract.",18,"muted");
+  var card=Card(m.Selected);  T(392,100,680,38,Fit(card.Name,45,1),28,"title");
+  T(392,148,680,28,Fit("Destination: "+card.Destination,55,1),22,"gold");
+  T(392,186,680,24,card.Danger+"  /  Normal difficulty",18,"muted");
+  T(392,224,680,28,Fit("Targets: "+card.Monsters,61,1),21);
+  T(392,261,680,54,Fit(card.Tactics,64,2),20);
+  T(392,325,680,24,"Victory spoils",20,"gold");
+  T(392,355,680,28,"Battle Potch + "+m.Bonus+" contract bonus",22);
+  T(392,390,680,27,Fit("Possible item: "+m.Item,65,1),20);
+  T(392,427,680,23,"Other loot takes priority; bag space and the purse limit apply.",15,"muted");
+  T(24,486,245,27,"Your contract",23,"gold");T(275,486,799,27,Fit(m.State+"  /  "+m.Active,70,1),21);
+  T(24,526,1052,52,Fit(m.Objective,100,2),20);
+  T(24,610,1052,24,Fit(m.Status.Length>0?m.Status:card.Evidence,104,1),18,"body");
+  T(24,637,1052,23,Fit(m.Prompt+"     Cancel: close",108,1),18,"gold");
+  T(24,664,1052,16,"Loading a save or restarting ends your contract.",15,"muted");
   return a;
  }
 }

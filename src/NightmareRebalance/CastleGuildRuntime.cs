@@ -100,7 +100,7 @@ internal static class CastleGuildRuntime
   if(inputFrame==Time.frameCount&&Modal&&HuntGuildRuntime.RenderReady){e.EventPlayerDisp(false);return false;}inputFrame=Time.frameCount;
   bool decide=Press(GRInputManager.Type.Decide),cancel=Press(GRInputManager.Type.Cancel);
   if(ReleaseFence){if(++releaseFrames>120||(!Held(GRInputManager.Type.Decide)&&!Held(GRInputManager.Type.Cancel))){ReleaseFence=false;return true;}e.EventPlayerDisp(false);return false;}
-  if(!Modal){if(!decide)return true;Modal=true;Focus=Quest.State==GuildQuestState.AwaitingReport?HuntRuntime.Definitions.Length:0;confirmReleased=false;HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;Opens++;Status="Select a contract with directional controls; confirm accepts; cancel closes";}
+  if(!Modal){if(!decide)return true;Modal=true;Focus=Quest.State==GuildQuestState.AwaitingReport?HuntRuntime.Definitions.Length:0;confirmReleased=false;HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;Opens++;Status="Welcome to the Guild. Which quarry will you pursue?";}
   if(!HuntGuildRuntime.Visible||HuntGuildRuntime.RenderFaulted){Close(false);return true;}
   if(!Held(GRInputManager.Type.Decide))confirmReleased=true;
   Focus=GuildScreenRules.Move(Focus,Press(GRInputManager.Type.Up),Press(GRInputManager.Type.Down),HuntRuntime.Definitions.Length);
@@ -123,21 +123,22 @@ internal static class CastleGuildRuntime
  static void Notify(string text){if(!HuntSessionRuntime.RealSession)return;FeedbackText=text;feedbackUntil=Environment.TickCount64+6000;}
  internal static string QuestPrompt=>Quest.State switch{GuildQuestState.Accepted=>"Contract: "+ContractName,GuildQuestState.AwaitingReport=>"Hunt complete — report to the Guild",GuildQuestState.Reported=>"Report accepted — contracts available again",_=>"Hunt Guild attendant"};
  internal static string QuestSummary=>Quest.State switch{
-  GuildQuestState.Accepted=>"Accepted: "+ContractName+". Travel to its destination.",
-  GuildQuestState.AwaitingReport=>"Completed: "+ContractName+". Return here and report; rewards already handled after battle.",
-  GuildQuestState.Reported=>"Reported. Thank you! Contracts are available again; no additional reward is paid here.",
+  GuildQuestState.Accepted=>"Accepted: "+ContractName+". Seek your quarry in "+GuildScreenRules.Card(Contract??"").Destination+".",
+  GuildQuestState.AwaitingReport=>"Completed: "+ContractName+". Return to the Guild to report.",
+  GuildQuestState.Reported=>"Well hunted! Your report is recorded. You may take another contract.",
   _=>"No active contract. Choose one to begin."};
  internal static string ContractName=>HuntRuntime.Definitions.FirstOrDefault(x=>x.Id==Contract)?.Name??Contract??"";
- internal static string ActionLabel=>Quest.State==GuildQuestState.AwaitingReport?"Report completed hunt (no extra reward)":Quest.State==GuildQuestState.Accepted?"Withdraw accepted contract":"Close";
+ internal static string ActionLabel=>Quest.State==GuildQuestState.AwaitingReport?"Report completion":Quest.State==GuildQuestState.Accepted?"Withdraw contract":"Close";
  internal static bool AcceptContract(string id){
   if(!Context)return false;
   if(Quest.State is GuildQuestState.Accepted or GuildQuestState.AwaitingReport){Status=Quest.State==GuildQuestState.AwaitingReport?"Report the completed hunt first.":"Finish or withdraw your active contract first.";return false;}
   if(!DifficultyProvenance.Difficulty(out int d,out _)||d!=0){Status="Hunt encounters require Normal difficulty. Your difficulty was not changed.";return false;}
   if(!HuntRuntime.Config.EnableExperimentalHunt||!CombatReforgedRuntime.Config.Enabled){Status="Hunt requests are disabled in configuration.";return false;}
-  if(!HuntGuildRuntime.Select(id)||!Quest.Accept(id))return false;
+  if(!HuntRuntime.Definitions.Any(x=>x.Id==id&&HuntRuntime.Settings(x).Enabled)){Status="This contract is not currently available.";return false;}
+  if(!HuntGuildRuntime.Select(id)||!Quest.Accept(id)){Status="The Guild cannot accept this contract right now.";return false;}
   ContractParty=Framework.Singleton<GAME_WORK>.instance!.party_data.Pointer;Accepts++;Status=QuestSummary;Notify(Status);Journal("Accepted");return true;
  }
- internal static bool WithdrawContract(){if(!Context||!Quest.Withdraw())return false;HuntAccess.Ticket.Cancel();Status="Contract withdrawn. You can choose another; no reward issued.";Notify(Status);Journal("Withdrawn");return true;}
+ internal static bool WithdrawContract(){if(!Context||!Quest.Withdraw())return false;HuntAccess.Ticket.Cancel();Status="Contract withdrawn. Choose another whenever you are ready.";Notify(Status);Journal("Withdrawn");return true;}
  internal static bool ReportContract(){if(!Context||Framework.Singleton<GAME_WORK>.instance?.party_data?.Pointer!=ContractParty||!Quest.Report()){Status="Completion is not ready to report.";return false;}HuntAccess.Ticket.Cancel();Status=QuestSummary;Notify(Status);Journal("Reported");return true;}
  internal static void ClearContract(string reason="Contract cleared by native load or session change"){
   bool had=Quest.State!=GuildQuestState.NoContract;Quest=new();ContractParty=IntPtr.Zero;HuntAccess.Ticket.Cancel();
@@ -170,7 +171,7 @@ internal static class CastleGuildRuntime
   if(completed){HuntAccess.Ticket.Cancel();Status=QuestSummary;Journal("VictoryAwaitingReport");}
   else if(owned&&run.Finished){Status="No completed victory. Your contract remains retryable.";Journal("NonVictoryRetryable");}
  }
- internal static void FieldReturned(HuntRunProgress run){if(Framework.Singleton<GAME_WORK>.instance?.party_data?.Pointer==ContractParty&&Quest.FieldReturned(run)){Status=QuestSummary;Notify("Hunt complete! Return to the Guild to report. Rewards were handled after battle.");Journal("NativeFieldResumed");}}
+ internal static void FieldReturned(HuntRunProgress run){if(Framework.Singleton<GAME_WORK>.instance?.party_data?.Pointer==ContractParty&&Quest.FieldReturned(run)){Status=QuestSummary;Notify("Quarry defeated! Return to the Guild with your report.");Journal("NativeFieldResumed");}}
  static void Journal(string stage){
   if(!HuntSessionRuntime.RealSession)return;
   try{string dir=Path.Combine(BepInEx.Paths.BepInExRootPath,"ReforgedNightmare","guild");Directory.CreateDirectory(dir);var row=new{Version="1.13.0-native-war-foundation.1",Utc=DateTime.UtcNow,Stage=stage,State=Quest.State.ToString(),Contract,Quest.RunningReceipt,Quest.CompletedReceipt,Quest.Completions,Quest.Reports,Quest.FieldReturnObserved,AutoRequests,LastWalkingEvidence,Status,DiagnosticsOnly=true,Hydrated=false,CampaignIdentityImplemented=false,RewardsGrantedByReporting=0};DiagnosticHistoryStore.Append(Path.Combine(dir,"castle-quest-history.json"),System.Text.Json.JsonSerializer.Serialize(row));Plugin.Logger.LogInfo("Castle quest: "+stage+"; "+Quest.State+"; "+Contract);}
