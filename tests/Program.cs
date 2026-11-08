@@ -130,3 +130,4 @@ GuildQuestTests.Run();
 GuildScreenTests.Run();
 
 PublicationDefaultsTests.Run();
+WarResourceOwnershipTests.Run();

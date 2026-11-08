@@ -82,11 +82,11 @@ public sealed class NativeWarBridgeProbe : MonoBehaviour
             bool nested = false;
             domain!.Within(() => { try { new NativeWarReleaseDomain().Within(() => { }); } catch (InvalidOperationException) { nested = true; } });
             Check(nested, "Nested ownership rejected");
-            bool threadRejected = System.Threading.Tasks.Task.Run(() => { try { domain.Register(war); return false; } catch (InvalidOperationException) { return true; } }).GetAwaiter().GetResult();
+            bool threadRejected = System.Threading.Tasks.Task.Run(() => { try { domain.Register(war, WarResourceOwner.SessionAcquisition); return false; } catch (InvalidOperationException) { return true; } }).GetAwaiter().GetResult();
             Check(threadRejected && domain.Registrations == 0, "Foreign thread rejected before native registration");
-            domain!.Register(war);
+            domain!.Register(war, WarResourceOwner.SessionAcquisition);
             bool duplicate = false;
-            try { domain.Register(war); } catch (InvalidOperationException) { duplicate = true; }
+            try { domain.Register(war, WarResourceOwner.SessionAcquisition); } catch (InvalidOperationException) { duplicate = true; }
             Check(duplicate && domain.Registrations == 1, "Duplicate loader rejected before native registration");
             Check(ReleaseCheck.releaseDelegate?.Pointer == retainedFixture.Pointer && TableFingerprint() == tableBefore, "Retained timing-4 ledger untouched by registration");
             Check(domain.Close(), "Original scratch WarChapter destructor executed");
@@ -139,7 +139,7 @@ public sealed class NativeWarBridgeProbe : MonoBehaviour
         Application.runInBackground = previousBackground;
         Finished = true;
         string dir = Path.Combine(BepInEx.Paths.BepInExRootPath, "ReforgedNightmare", "native-war"); Directory.CreateDirectory(dir);
-        File.WriteAllText(Path.Combine(dir, "bridge-probe.json"), JsonSerializer.Serialize(new { Version = "1.14.0-native-war-bridge.1", Passed, Assertions, Failure = failure, Cycles = rows, OriginalResourceLoaderExecuted = true, GenuineTacticalBattle = false, GenuineFieldReturn = false, EntryInterpreterInvoked = false, CampaignSaveLoaded = false, EarnedOutcome = false, CommanderXpGranted = 0 }, new JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(Path.Combine(dir, "bridge-probe.json"), JsonSerializer.Serialize(new { Version = "1.15.0-native-war-resources.1", Passed, Assertions, Failure = failure, Cycles = rows, OriginalResourceLoaderExecuted = true, GenuineTacticalBattle = false, GenuineFieldReturn = false, EntryInterpreterInvoked = false, CampaignSaveLoaded = false, EarnedOutcome = false, CommanderXpGranted = 0 }, new JsonSerializerOptions { WriteIndented = true }));
         Plugin.Logger.LogInfo($"Native war bridge probe {(Passed ? "PASS" : "FAIL")}: {cycle} actual resource acquisition/teardown cycles; no tactical battle or field return.");
         Application.Quit();
     }

@@ -9,9 +9,10 @@
 - **Exact builds matter.** Sun's accepted full quest belongs to v1.12.2's0B520...
   DLL. v1.13's1A599... DLL has native regression evidence, not current-hash human
   gameplay. Full hashes and scope are in [ACCEPTANCE](docs/ACCEPTANCE.md).
-- **v1.14 resource evidence only.** Original War1 assets and scratch-chapter cleanup
-  were executed; live field return, tactical combat, UI/audio/cache ownership and
-  complete write isolation remain unresolved. See [bridge report](docs/WAR-BRIDGE-V114.md).
+- **v1.15 resource evidence only.** The original OPD async/cache stage completes;
+  its public atlas iterator is empty in this binary. This does not validate actual
+  tactical textures, UI/audio, full chapter ownership or live field return.
+  See [resource report](docs/WAR-RESOURCES-V115.md).
 - **No independent war or training.** Launcher unavailable; no repeatable skirmish,
   commander XP or persistent army progression.
 - **Story-war transitions incompletely played.** Audited wars 1,2,3,6,13 retain

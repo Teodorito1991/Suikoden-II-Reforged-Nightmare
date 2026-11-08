@@ -27,3 +27,10 @@ original War1 assets, with colliding retained-resource protection and repeated
 acquisition/teardown. See [the bridge report](WAR-BRIDGE-V114.md). This supersedes
 the resource-inventory-only next step above; complete asynchronous ownership and
 field continuation are still blocked. No playable skirmish is claimed.
+
+## v1.15 continuation
+
+The original OPD async sub-coroutine/cache publication/lookup now completes under
+per-step ownership scopes, with native cleanup and reacquisition. Unknown native
+callbacks block cleanup. See [resource lifecycle](WAR-RESOURCES-V115.md). This does
+not resolve WarRes UI/audio ownership, live field return or campaign isolation.

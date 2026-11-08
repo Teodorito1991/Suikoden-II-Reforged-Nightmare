@@ -1,0 +1,55 @@
+{
+  "Scope": "Targeted resource/coroutine/field prerequisites only; not a full campaign reachability proof",
+  "Methods": [
+    {
+      "Rva": "0x2034c60",
+      "Method": "OPDResLoader.<LoadOPDRes>d__4.private bool MoveNext()",
+      "CodeSha256": "4F6AD9B9AF011BB50AD2183AAD2D19CA55502733A2B24239B9ACA4849E1F9BE4"
+    },
+    {
+      "Rva": "0x2030720",
+      "Method": "OPDResLoader.public static void RemoveResPack(string id)",
+      "CodeSha256": "D680C00A5C9B6EDE479854A320237AD1E7A6F31BCAB2664D1B9046F5EE53CCE8"
+    },
+    {
+      "Rva": "0x22975c0",
+      "Method": "OPD_DATA.public IEnumerator LoadAtlas(string folder)",
+      "CodeSha256": "0638F64BA5C53BBC0B0A33A740C5F8601FEE38B11EBDCD6B9C013B1699D9138C"
+    },
+    {
+      "Rva": "0x581720",
+      "Method": "Shared empty MoveNext body used by OPD_DATA.LoadAtlas(folder)",
+      "CodeSha256": "0FE3C3844B7EC38C601C845125528EC76523724C3C999E4745B37211B2200DE2"
+    },
+    {
+      "Rva": "0x2297380",
+      "Method": "OPD_DATA.private void OnDestroy()",
+      "CodeSha256": "C250CA65AEC379DEF135483CE1CEF67D2BD23240833E1201C2983144842D4409"
+    },
+    {
+      "Rva": "0x22d6180",
+      "Method": "SystemObject.public static void Changemode(SystemObject.Mode newMode)",
+      "CodeSha256": "8A7865966DA8875A58DE2B6514AF870016FF10939CD2175566BF9DB3327644A0"
+    },
+    {
+      "Rva": "0x22d7580",
+      "Method": "SystemObject.public static string get_DataPath()",
+      "CodeSha256": "D3B00B83CF26EAE74FD8B002FA9D0596D8DA0AA5563FD28427660B8F18A9A768"
+    },
+    {
+      "Rva": "0x1f30440",
+      "Method": "MapChapter.<Start>d__0.private bool MoveNext()",
+      "CodeSha256": "843A718FAEE370CDD35BD5F87DD189DFBA81C440ACD87E7B95455554843E8D17"
+    },
+    {
+      "Rva": "0x1f283f0",
+      "Method": "MapChapter.public override int Update()",
+      "CodeSha256": "80BD8BDFD783B6CBC3A52E46EAF2EBE9E148973A421155096CA07E56DDEA632B"
+    },
+    {
+      "Rva": "0x1df8ef0",
+      "Method": "SeUtility2.public static void loadBank(int bankID)",
+      "CodeSha256": "45B4E193E506A3D97AADC24E09F812A5BCF4BC86384ADC8325D458A8C572C7CB"
+    }
+  ]
+}

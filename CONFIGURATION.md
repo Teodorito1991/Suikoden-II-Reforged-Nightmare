@@ -82,3 +82,7 @@ v1.14 adds no gameplay switch, commander reward or contract option. Its native
 resource probe requires explicit unloaded batch arguments and an isolated runtime;
 RunNativeWarSelfTest=true alone does not schedule it. Existing examples remain
 unchanged and no user opt-ins are migrated. Live launching stays unavailable.
+
+v1.15 adds no player-facing setting or migration. The resource lifecycle probe is
+also disabled in ordinary play and cannot grant chapter-launch permission. Shared
+or unknown cleanup ownership is not overridden by a JSON setting.

@@ -34,7 +34,7 @@ This helper compiles/runs managed tests only. It does not install, launch the ga
 load saves or execute native acceptance. Archived arena inputs compile into managed
 tests only, not the plugin. No custom arena UI/runtime is reintroduced.
 
-Main contains v1.14 development source. `beta/v1.12.2` is the clean older candidate
+Main contains v1.15 development source. `beta/v1.12.2` is the clean older candidate
 snapshot. Original development branches/history remain independently preserved,
 not imported into the publication repository. Source provenance is recorded in
 publication/source-provenance.json.
@@ -56,3 +56,9 @@ self-test settings, explicit batch/test/bridge flags and the independent-copy
 marker, plus the private isolation harness for save-root protection. Do not run
 it in the installed game or infer safety from copying the executable alone.
 It adds no JSON setting or live launcher. See docs/WAR-BRIDGE-V114.md for scope.
+
+The separate v1.15 `--reforged-war-lifecycle-probe` uses the same isolated-copy,
+self-test and normal-exit prerequisites. It is not a gameplay launch command.
+Run it separately from production/bridge probes under the private root guard;
+never on a loaded campaign. No new configuration option enables a skirmish.
+See docs/WAR-RESOURCES-V115.md for actual coroutine scope and unproven lifetimes.

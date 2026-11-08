@@ -1,0 +1,131 @@
+{
+  "Version": "1.15.0-native-war-resources.1",
+  "DllSha256": "CC25A41F666009DC71D056FE06B5973411DF3F1F2F325C404514965DAF916001",
+  "CompiledFromParentCommit": "69d25f9e17a1a737d1ee06eb2814d1346b9b62d4",
+  "Date": "2026-11-08",
+  "BuildWarnings": 0,
+  "BuildErrors": 0,
+  "PersonalCodeViewPathAbsent": true,
+  "ManagedChecks": 703835,
+  "AddedManagedOwnershipChecks": 54,
+  "ManagedPassed": true,
+  "NativeLifecycleRuns": [
+    {
+      "Run": "final-lifecycle-first",
+      "Passed": true,
+      "Cycles": [
+        {
+          "Cycle": 1,
+          "Moves": 40,
+          "AtlasNoOpStages": 19,
+          "RealNativeOpdCoroutineCompleted": true,
+          "PrivateCachePublishedAndLookedUp": true,
+          "HandleReleased": true,
+          "RetainedCastleResourceValid": true,
+          "SourceSpriteStateUnchanged": true,
+          "SharedReferences": 20,
+          "RetainedFieldReferences": 1,
+          "UnknownOwnership": 0,
+          "NativeAtlasTexturesLoaded": false,
+          "FieldReturn": false
+        },
+        {
+          "Cycle": 2,
+          "Moves": 40,
+          "AtlasNoOpStages": 19,
+          "RealNativeOpdCoroutineCompleted": true,
+          "PrivateCachePublishedAndLookedUp": true,
+          "HandleReleased": true,
+          "RetainedCastleResourceValid": true,
+          "SourceSpriteStateUnchanged": true,
+          "SharedReferences": 20,
+          "RetainedFieldReferences": 1,
+          "UnknownOwnership": 0,
+          "NativeAtlasTexturesLoaded": false,
+          "FieldReturn": false
+        }
+      ],
+      "Assertions": 175,
+      "UnknownCallbackBlockedBeforeExecution": true,
+      "CacheAndGameSelectorRestoredBetweenStepsAndOnException": true
+    },
+    {
+      "Run": "final-lifecycle-repeat",
+      "Passed": true,
+      "Cycles": [
+        {
+          "Cycle": 1,
+          "Moves": 40,
+          "AtlasNoOpStages": 19,
+          "RealNativeOpdCoroutineCompleted": true,
+          "PrivateCachePublishedAndLookedUp": true,
+          "HandleReleased": true,
+          "RetainedCastleResourceValid": true,
+          "SourceSpriteStateUnchanged": true,
+          "SharedReferences": 20,
+          "RetainedFieldReferences": 1,
+          "UnknownOwnership": 0,
+          "NativeAtlasTexturesLoaded": false,
+          "FieldReturn": false
+        },
+        {
+          "Cycle": 2,
+          "Moves": 40,
+          "AtlasNoOpStages": 19,
+          "RealNativeOpdCoroutineCompleted": true,
+          "PrivateCachePublishedAndLookedUp": true,
+          "HandleReleased": true,
+          "RetainedCastleResourceValid": true,
+          "SourceSpriteStateUnchanged": true,
+          "SharedReferences": 20,
+          "RetainedFieldReferences": 1,
+          "UnknownOwnership": 0,
+          "NativeAtlasTexturesLoaded": false,
+          "FieldReturn": false
+        }
+      ],
+      "Assertions": 177,
+      "UnknownCallbackBlockedBeforeExecution": true,
+      "CacheAndGameSelectorRestoredBetweenStepsAndOnException": true
+    }
+  ],
+  "RetainedV114NativeBridgePassed": true,
+  "FullProductionNativeRuns": [
+    {
+      "Run": "final-production-first",
+      "Passed": true,
+      "ProductionAssertions": 3649,
+      "MaintenanceAssertions": 7919,
+      "CrossProcessHistory": false
+    },
+    {
+      "Run": "final-production-repeat",
+      "Passed": true,
+      "ProductionAssertions": 3649,
+      "MaintenanceAssertions": 7919,
+      "CrossProcessHistory": true
+    }
+  ],
+  "NativeOpdCoroutineExecuted": true,
+  "NativePrivateCachePublicationAnd19LookupsExecuted": true,
+  "NativeTiming4RegistrationAndWarChapterScratchCleanupExecuted": true,
+  "PublicAtlasLoadingMethodIsNoOpInSupportedBinary": true,
+  "ActualAtlasTextureLoadingVerified": false,
+  "TacticalUiInitialized": false,
+  "SoundBank61Loaded": false,
+  "LiveFieldReturnVerified": false,
+  "WarChapterStarted": false,
+  "TacticalBattlePlayed": false,
+  "IndependentLauncherAvailable": false,
+  "CommanderXpGranted": 0,
+  "CampaignSavesLoadedOrWritten": false,
+  "CurrentHashHumanGameplayAccepted": false,
+  "OriginalInstalledFilesByteEqual": 37,
+  "OriginalInstalledDllSha256": "1A59986703E8346E1B2F6D7968C451C0609A4FB990C8F88EB3D63DBCEBB2CD59",
+  "V114ArtifactPreserved": true,
+  "GameRegistryRestoredByteEqual": true,
+  "NormalApplicationQuit": true,
+  "ForceClosed": false,
+  "TestContext": "Independent copied runtime and private Steam-root guard; transient GSD2 resource selector scoped to each synchronous native coroutine step; not a genuine field session",
+  "InitialExperimentFailure": "Unselected launcher routed the native OPD request to GSD1. Guard rejected the failed acquisition. Verified native selector setter is now scoped/restored per operation; no story flag or campaign state was fabricated."
+}

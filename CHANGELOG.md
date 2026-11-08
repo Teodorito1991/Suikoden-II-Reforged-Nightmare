@@ -9,6 +9,19 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.15 — Native War Resource Lifecycle (development only)
+
+Executed the original War01 OPD async sub-coroutine, private cache publication and
+native lookups, native release and reacquisition. Added ownership categories for
+acquired references, shared assets, retained resources and unknown/conflicting
+registrations. Actual unclassified native callbacks now block before cleanup.
+Scoped/restored the native GSD2 resource selector and private cache per coroutine
+step, including exception paths. Verified that the public atlas sub-coroutine is
+empty on the supported build; no texture/UI/audio or battle claim follows.
+All retained regressions pass. Live chapter entry, sound-bank ownership, field
+continuation and full campaign-write isolation remain blocked. No player config,
+installed DLL, saves or beta assets changed. [Exact evidence](docs/WAR-RESOURCES-V115.md).
+
 ## v1.14 — Native War Skirmish Bridge (development only)
 
 Implemented private native ReleaseCheck ownership and original WarChapter cleanup

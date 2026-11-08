@@ -12,6 +12,7 @@ internal sealed class NativeWarReleaseDomain
     static NativeWarReleaseDomain? entered;
     readonly ReleaseTable table = new();
     readonly HashSet<IntPtr> owned = new();
+    internal readonly WarResourceOwnership Ownership = new();
     readonly int thread = Environment.CurrentManagedThreadId;
     bool closed, faulted;
     internal int Registrations { get; private set; }
@@ -22,7 +23,7 @@ internal sealed class NativeWarReleaseDomain
 
     static void Guard()
     {
-        if (!NativeWarBridgeProbe.Requested || !UnityEngine.Application.isBatchMode ||
+        if (!(NativeWarBridgeProbe.Requested || NativeWarLifecycleProbe.Requested) || !UnityEngine.Application.isBatchMode ||
             !Environment.GetCommandLineArgs().Contains("--reforged-test-exit") ||
             Combat.State != null || WarRuntime.Active || WarTacticsRuntime.Armed ||
             war_h.g_w_war_no != 0 || NativeWarWitness.Live ||
@@ -53,9 +54,14 @@ internal sealed class NativeWarReleaseDomain
         finally { ReleaseCheck.releaseDelegate = retained; entered = null; }
     }
 
-    internal void Register(ResourceLoader loader)
+    internal void Register(ResourceLoader loader, WarResourceOwner owner)
     {
         CheckCanEnter();
+        if (owner != WarResourceOwner.SessionAcquisition)
+        {
+            if (loader != null) Ownership.Observe(WarResourceKind.Acquisition, loader.Pointer.ToInt64(), owner);
+            throw new InvalidOperationException("Borrowed or unknown acquisition cannot be registered for cleanup.");
+        }
         if (closed || faulted || loader == null || loader.IsLoading || loader.IsScene ||
             !loader.handle.IsValid() || loader.Asset == null || owned.Contains(loader.Pointer))
             throw new InvalidOperationException("Only a distinct, completed, explicitly owned asset load can be registered.");
@@ -63,12 +69,28 @@ internal sealed class NativeWarReleaseDomain
         // game loaders, scene handles, unknown callbacks or shared cache entries.
         Within(() => ReleaseCheck.AddLoader(loader, (ReleaseCheck.ReleaseTimming)4));
         owned.Add(loader.Pointer); Registrations++;
+        Ownership.Observe(WarResourceKind.Acquisition, loader.Pointer.ToInt64(), owner);
+    }
+
+    internal void RequireKnownCleanupOwnership()
+    {
+        CheckCanEnter();
+        // Timing is not ownership. Reject callbacks and registrations not made
+        // through this domain before invoking ANY destructor/unload.
+        foreach (var pair in table)
+        {
+            if ((int)pair.Key != 4) Ownership.Observe(WarResourceKind.Callback, pair.Value.Pointer.ToInt64(), WarResourceOwner.Unknown);
+            if (pair.Value.releaseAction != null) Ownership.Observe(WarResourceKind.Callback, pair.Value.releaseAction.Pointer.ToInt64(), WarResourceOwner.Unknown);
+            foreach (var loader in pair.Value.loaderList)
+                if (!owned.Contains(loader.Pointer)) Ownership.Observe(WarResourceKind.Acquisition, loader.Pointer.ToInt64(), WarResourceOwner.Unknown);
+        }
+        if (!Ownership.CanClean) throw new InvalidOperationException("Unknown native cleanup ownership; teardown blocked.");
     }
 
     internal bool Close()
     {
         if (closed) return false;
-        CheckCanEnter();
+        RequireKnownCleanupOwnership();
         // The inspected GSD2 destructor only invokes ReleaseCheck timing 4. This raw
         // scratch object is NEVER registered with Chapter or sent Start/Update.
         RuntimeHelpers.RunClassConstructor(typeof(WarChapter).TypeHandle);

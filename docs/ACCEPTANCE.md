@@ -59,3 +59,12 @@ private timing-4 cleanup, retained castle handle/ledger protection, fault guards
 and reacquisition were observed. No rendered battle, earned war result or live
 field return occurred. Existing Sun quest proof stays with original v1.12.2.
 [Verification and limitations](WAR-BRIDGE-V114.md).
+
+## 1.15.0-native-war-resources.1 — original resource coroutine only
+
+SHA256 `CC25A41F666009DC71D056FE06B5973411DF3F1F2F325C404514965DAF916001`. Two full native OPD-lifecycle processes completed two cycles each,
+plus the retained bridge and two production-native regressions. All 703,835 managed
+checks passed. This is real OPD resource/cache/cleanup execution in an unloaded
+isolated context. No tactical battle, field return or human gameplay occurred.
+The observed public atlas iterator is empty; textures/UI/audio remain unverified.
+[Exact scope and safety boundaries](WAR-RESOURCES-V115.md).
