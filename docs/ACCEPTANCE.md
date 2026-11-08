@@ -88,3 +88,8 @@ v1.18 `376F51AB416C9A785F18B12B6884B690224BC6BEE4DC1F32B8607CA4937AD691`: protec
 ## v1.19 development note
 
 v1.19 `0EF0B648CC897C2119ED6919DA250FD1FDFFD1CAC5F8F536FB8BA8B5A8A1BEA7`: unloaded real native drawing/resources, original Hunt field/name lookup and retained component verification; reviewed offline previews. No human field interaction or full quest on this hash. Historical full Sun quest remains v1.12.2 only.
+
+
+## v1.20 development note
+
+v1.20 `288B5D76311ADFE379D08174CE0C6CE0BE22A90FA294787F10A562F25593FA7B`: native/helper admission for all ten actual policies, refined Rat/Harpy action/target comparisons and same-move damage equivalence. No rendered boss/earned victory/ending acceptance. Previous lus1/lus2 evidence is Lucia, never Luca Blight.

@@ -67,7 +67,7 @@ vanilla toggle. Restart after edits. Copy only missing files when updating.
 ## Optional content
 
 Unplayed contracts require an explicit Enabled opt-in for that catalogue entry.
-Major Luca/Neclord policies require EnableMajorBosses=true. Both have native-only
+Major Lucia/Neclord policies require EnableMajorBosses=true. Both have native-only
 coverage and are not recommended for the first public campaign.
 
 Disable hunting with first-expansion.json's EnableExperimentalHunt=false; hide the
@@ -106,3 +106,8 @@ No player setting/default/migration added. Passive observer requires explicit pr
 ## v1.19 development note
 
 v1.19 changes no user/default settings. Dreamer and Thornwake remain disabled by default; deliberate existing opt-ins are preserved. Item labels describe conditional fallback loot, not guaranteed grants. Original purse/inventory handling and session-only quests remain.
+
+
+## v1.20 development note
+
+Boss tactics now accepts optional EnableCombatQuality (default true) for Pest Rat and first Harpy only. Missing key in existing files is valid. Set false for prior v1.19 tactics/targeting; all previous opt-outs still apply. Major means Lucia lus1/lus2 and final Neclord nec3, NOT Luca Blight. Actual Luca tables luc1/luc2/luc3 are not covered. Boss tactics stay Normal-only; Hard regular-enemy compatibility is separate.

@@ -62,3 +62,8 @@ Separate v1.18 artifact `376F51AB416C9A785F18B12B6884B690224BC6BEE4DC1F32B8607CA
 ## v1.19 development note
 
 Separate v1.19 candidate `0EF0B648CC897C2119ED6919DA250FD1FDFFD1CAC5F8F536FB8BA8B5A8A1BEA7` is development-only. Installed v1.13 and beta unchanged. Native rendering/components do not replace human full-quest acceptance; no automatic beta substitution.
+
+
+## v1.20 development note
+
+Separate v1.20 `288B5D76311ADFE379D08174CE0C6CE0BE22A90FA294787F10A562F25593FA7B` remains development-only. It does not replace the installed v1.13 or private beta. Native boss helpers are not campaign acceptance; major defaults remain off and source documentation corrects the Lucia/Luca identity mistake.

@@ -17,7 +17,7 @@
   commander XP or persistent army progression.
 - **Story-war transitions incompletely played.** Audited wars 1,2,3,6,13 retain
   original story handlers, but most full ending/return routes remain unplayed.
-- **Major bosses opt-in.** Luca/Neclord policies have not completed rendered
+- **Major bosses opt-in.** Lucia/Neclord policies have not completed rendered
   multi-party/phase/story validation. Public EnableMajorBosses=false. Seven earlier
   admissions also do not certify every move or transition.
 - **Dreamer/Thornwake unplayed.** Native-tested prototypes, disabled publicly.
@@ -75,3 +75,8 @@ No genuine field continuation evidence exists for v1.18. The native field-captur
 ## v1.19 development note
 
 v1.19 has no human current-hash field/menu/complete-quest acceptance. Dreamer/Thornwake remain native/component-only; Greenhill City region is verified but Thornwake exact travel route is unplayed. A preparatory unloaded asset render timed out, then passed on retry; final native render passed. Existing shutdown exceptions/warnings remain documented.
+
+
+## v1.20 development note
+
+No v1.20 player-earned boss fight or story transition was tested. Harpy can still deal heavy damage to an underprepared illustrative party; critical/status/rune/full-fight interactions remain uncertain. Existing major policies are Lucia and final Neclord; earlier references to Luca were erroneous. No new earlier-Neclord or Luca phase changes. Boss tactics remain Normal-only.

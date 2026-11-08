@@ -11,7 +11,7 @@ not yet been certified.
 | Magic |31 spell edits plus healing/sleep layers| On; historical ordinary healing observed, wider interactions unplayed |
 | Regular enemies |280 guarded profiles| On; Normal/Hard production-copy checks, selected historical actual encounters |
 | Formations |51 remixes in original locations| On; native asset/setup coverage, not 51 rendered battles |
-| Boss tactics |10 policies across eligible encounters/phases| Earlier policies on; Luca/Neclord major policies off pending rendered phase/story validation |
+| Boss tactics |10 policies across eligible encounters/phases| Earlier policies on; Lucia/Neclord major policies off pending rendered phase/story validation |
 | Physical runes / Unites |Six rune and eight Unite options| On; guarded native-tested coefficients, wider balance uncalibrated |
 | Rune recovery |One missing charge per eligible survivor| On; genuine recovery observed; Escape exclusion on an earlier hash |
 | Sun King's Retinue |Castle contract, Cave encounter, native rewards, report/repeat| On publicly; complete exact v1.12.2 quest accepted |
@@ -69,3 +69,8 @@ v1.18 provides private passive field instrumentation, NOT a verified field lease
 ## v1.19 development note
 
 v1.19 improves Guild spacing, state/reward/destination text and visible failed-acceptance feedback, using the existing original frame/font/cursor. Thornwake region now reads Greenhill City area. See [hash-scoped evidence](docs/GUILD-POLISH-V119.md).
+
+
+## v1.20 development note
+
+v1.20 refines Pest Rat/first Harpy native action and target choices, without stat/damage changes. Corrected Lucia/Luca identity confusion; actual Luca Blight has no dedicated tactics policy. [Native evidence and limitations](docs/BOSS-COMBAT-QUALITY-V120.md).

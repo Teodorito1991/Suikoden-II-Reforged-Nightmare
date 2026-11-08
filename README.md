@@ -8,7 +8,7 @@ maps and interfaces. Normal is the intended difficulty foundation. Optional
 hunting rewards preparation and grinding without becoming mandatory.
 
 **Pre-publication beta preparation. Overall campaign: experimental.**
-Main development source is **v1.19 Hunt Guild Gameplay Polish**. The recommended first
+Main development source is **v1.20 Boss Combat Quality**. The recommended first
 beta is based on the **v1.12.2 Castle Hunt Guild DLL**, which has stronger exact-
 binary gameplay evidence. Public review copies remove a personal PDB build path
 from debug metadata only. They have new hashes and no exact-hash gameplay
@@ -22,7 +22,9 @@ No public release is approved or published.
 - **80 character profiles** and **31 spell adjustments** for more build choices.
 - **280 regular enemy profiles** and **51 remixed formations**, with guarded native
   action/target selection, damage, healing and encounter changes.
-- Boss tactical policies, **six physical rune** and **eight Unite** improvements.
+- Refined Pest Rat/first Harpy decisions; optional Lucia/final Neclord policies
+  remain native-only. Actual Luca Blight tactics are not implemented.
+- **Six physical rune** and **eight Unite** improvements.
 - Victory rune regeneration: one missing charge per eligible survivor, starting
   at the lowest depleted spell level by default.
 - A real **Hunt Guild attendant inside Leona's tavern** in the audited castle variant.

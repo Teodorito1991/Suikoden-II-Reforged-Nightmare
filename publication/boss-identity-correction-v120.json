@@ -1,0 +1,65 @@
+{
+  "Correction": "boss_lus1/lus2 are Lucia, not Luca Blight. Earlier documentation and startup wording were incorrect. Policies/IDs were not reassigned.",
+  "VerifiedNativeSourceNameIds": {
+    "boss_lus1_03": 833,
+    "boss_lus2_00": 834
+  },
+  "OriginalEnglishResolvedName": "Lucia",
+  "LucaBlightRecords": [
+    {
+      "Id": "boss_luc3_00",
+      "Hp": 6500,
+      "NameId": 829,
+      "EnglishAlias": [
+        829,
+        825
+      ],
+      "EnglishName": "Luca Blight"
+    },
+    {
+      "Id": "boss_luc2_02",
+      "Hp": 6500,
+      "NameId": 828,
+      "EnglishAlias": [
+        828,
+        825
+      ],
+      "EnglishName": "Luca Blight"
+    },
+    {
+      "Id": "boss_luc1_02",
+      "Hp": 6500,
+      "NameId": 825,
+      "EnglishAlias": [
+        825
+      ],
+      "EnglishName": "Luca Blight"
+    }
+  ],
+  "LucaPartyMemberCounts": {
+    "boss_luc1": 6,
+    "boss_luc2": 4,
+    "boss_luc3": 1
+  },
+  "LucaAdmittedToTactics": false,
+  "LucaCallbacksExecuted": false,
+  "NeclordNewScopeUnchanged": "Only existing boss_nec3 optional policy; nec1/nec2 excluded; no earlier invulnerability/phase changes",
+  "LuciaTextAliases": [
+    {
+      "NameId": 833,
+      "AliasChain": [
+        833,
+        160
+      ],
+      "EnglishName": "Lucia"
+    },
+    {
+      "NameId": 834,
+      "AliasChain": [
+        834,
+        160
+      ],
+      "EnglishName": "Lucia"
+    }
+  ]
+}

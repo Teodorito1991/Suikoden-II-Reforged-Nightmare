@@ -82,3 +82,8 @@ v1.18 uses the existing game/interop references. --reforged-field-observer with 
 ## v1.19 development note
 
 v1.19 reuses existing UI/interoperability references. The existing --reforged-guild-render-smoke needs graphics and non-batch preview mode, isolated runtime and developer preview opt-in; it draws presentation fixtures only. Keep all native-war self-tests OFF for this milestone. No new runtime dependency or configuration setting.
+
+
+## v1.20 development note
+
+v1.20 adds no external references. Existing production-audit path includes disposable original-engine boss selectors/targets and damage helpers. Use independent protected runtime, combat self-test on and native-war self-tests OFF. No boss story callbacks or rendered battles are invoked.

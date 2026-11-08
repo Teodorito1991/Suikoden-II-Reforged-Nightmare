@@ -7,7 +7,7 @@ internal sealed class BossPattern
 }
 internal sealed class BossTacticsFile
 {
- public int SchemaVersion{get;set;}=1;public bool Enabled{get;set;}=true;public bool EnableMajorBosses{get;set;}=false;public bool EnableExistingBosses{get;set;}=true;public int Preference{get;set;}=110;
+ public int SchemaVersion{get;set;}=1;public bool Enabled{get;set;}=true;public bool EnableMajorBosses{get;set;}=false;public bool EnableExistingBosses{get;set;}=true;public bool EnableCombatQuality{get;set;}=true;public int Preference{get;set;}=110;
  public BossPattern[] Patterns{get;set;}=Array.Empty<BossPattern>();
 }
 internal static class BossTacticsRules
@@ -16,7 +16,8 @@ internal static class BossTacticsRules
  internal static BossTacticsFile Parse(string text,FormationAudit[] audit)
  {
   if(text.Length>65536)throw new JsonException("Boss tactics exceeds64KiB.");using var doc=JsonDocument.Parse(text);
-  OverhaulRules.Keys(doc.RootElement,"SchemaVersion","Enabled","EnableMajorBosses","EnableExistingBosses","Preference","Patterns");
+  string[] keys=doc.RootElement.TryGetProperty("EnableCombatQuality",out _)?new[]{"SchemaVersion","Enabled","EnableMajorBosses","EnableExistingBosses","EnableCombatQuality","Preference","Patterns"}:new[]{"SchemaVersion","Enabled","EnableMajorBosses","EnableExistingBosses","Preference","Patterns"};
+  OverhaulRules.Keys(doc.RootElement,keys);
   foreach(var x in doc.RootElement.GetProperty("Patterns").EnumerateArray())OverhaulRules.Keys(x,"TableId","EnemyId","Enabled","ThresholdPercent","Period","PressureMode","RecoveryMode","AdaptiveMode");
   var c=ContentRules.Read<BossTacticsFile>(text);
   if(c.SchemaVersion!=1||c.Preference is <0 or >120||c.Patterns==null||c.Patterns.Any(x=>x==null)||!c.Patterns.Select(x=>x.TableId).OrderBy(x=>x).SequenceEqual(audit.Select(x=>x.TableId).OrderBy(x=>x)))throw new JsonException("Unexpected boss identities/schema/preference.");

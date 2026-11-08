@@ -105,5 +105,6 @@
       "RecoveryMode": 0,
       "AdaptiveMode": 1
     }
-  ]
+  ],
+  "EnableCombatQuality": true
 }

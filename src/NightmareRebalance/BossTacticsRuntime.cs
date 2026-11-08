@@ -6,7 +6,7 @@ internal static class BossTacticsRuntime
  internal sealed record Binding(BATTLE_WORK Work,MONSTER_PARTY_DATA Party,BossPattern Pattern,MONSTER_DATA Data,int[] Signature);
  internal static readonly Dictionary<IntPtr,Binding> Bindings=new();internal static readonly List<object> Events=new();
  internal static int Selections,Changes,RoutineEntries;internal static bool Suppress;
- internal static void Initialize(){try{Audit=ContentRules.Read<FormationAudit[]>(ContentRuntime.Resource("boss-tactics-audit.json"));Config=BossTacticsRules.Parse(OverhaulRuntime.Load("boss-tactics.json"),Audit);Plugin.Logger.LogInfo("Boss Reforged: seven retained encounters plus guarded Luca lus1/lus2 and Neclord nec3 action-only tactics; native callbacks untouched.");}catch(Exception e){Config.Enabled=false;Plugin.Logger.LogWarning("Boss tactics disabled: "+e.Message);}}
+ internal static void Initialize(){try{Audit=ContentRules.Read<FormationAudit[]>(ContentRuntime.Resource("boss-tactics-audit.json"));Config=BossTacticsRules.Parse(OverhaulRuntime.Load("boss-tactics.json"),Audit);Plugin.Logger.LogInfo("Boss Reforged: seven retained encounters plus guarded Lucia lus1/lus2 and Neclord nec3 (Luca luc1/luc2/luc3 not covered) action-only tactics; native callbacks untouched.");}catch(Exception e){Config.Enabled=false;Plugin.Logger.LogWarning("Boss tactics disabled: "+e.Message);}}
  internal static void Clear(){Bindings.Clear();Events.Clear();Selections=Changes=RoutineEntries=0;}
  internal static bool Enabled(BossPattern p)=>Config.Enabled&&!Suppress&&p.Enabled&&(BossTacticsRules.Major(p.TableId)?Config.EnableMajorBosses:Config.EnableExistingBosses);
  internal static void Record(object value){if(!CombatReforgedRuntime.Probe&&Events.Count<64)Events.Add(value);}
@@ -36,9 +36,22 @@ internal static class BossTacticsRuntime
  }
  internal static bool Bound(PM_DATA u)=>Config.Enabled&&!Suppress&&Bindings.TryGetValue(u.Pointer,out var b)&&Enabled(b.Pattern)&&b.Work.Pointer==CombatReforgedRuntime.Work&&b.Work.monster_party_data?.Pointer==b.Party.Pointer&&u.monster_data?.Pointer==b.Data.Pointer&&CombatReforgedRuntime.Signature(b.Data).SequenceEqual(b.Signature);
  internal static bool Plan(PM_DATA u,out CombatUnitPlan plan){plan=null!;if(!Bound(u))return false;var b=Bindings[u.Pointer];plan=new(b.Pattern.EnemyId,"Alternating",true,null,null);return true;}
- internal static int Score(BATTLE_WORK w,PM_DATA u,CombatAction action,IReadOnlyList<CombatTarget> targets,int prior){var b=Bindings[u.Pointer];int score=BossTacticsRules.Score(b.Pattern,Config.Preference,w.battle_kaisuu,u.hp,u.max_hp,action,targets,prior);return score;}
+ internal static int Score(BATTLE_WORK w,PM_DATA u,CombatAction action,IReadOnlyList<CombatTarget> targets,int prior){var b=Bindings[u.Pointer];int score=BossTacticsRules.Score(b.Pattern,Config.Preference,w.battle_kaisuu,u.hp,u.max_hp,action,targets,prior);return Config.EnableCombatQuality?BossCombatQuality.Score(b.Pattern,w.battle_kaisuu,u.hp,u.max_hp,action,targets,score,CombatReforgedRuntime.Previous.GetValueOrDefault(u.Pointer,-1)):score;}
+ internal static int ChooseTarget(PM_DATA u,IReadOnlyList<CombatTarget> targets,int original,int limit)
+ {
+  if(!Bound(u)||!Config.EnableCombatQuality)return original;var b=Bindings[u.Pointer];
+  if(!BossCombatQuality.Supports(b.Pattern.TableId)||u.c_mode is <0 or >3)return original;
+  var a=b.Data.attack_data[u.c_mode];if(a==null||a.attack_prob==0||a.attack_type is not(1 or 2))return original;
+  bool multi=(a.attack_seishitsu&0xf00) is 0x200 or 0x400 or 0x800;
+  var legal=targets.Select(t=>CombatReforgedRuntime.Target(b.Work.pm_data[t.Slot],t.Slot,a.status)).ToArray();
+  var action=new CombatAction(u.c_mode,a.attack_type,a.attack,(a.attack_zokusei&0x10)!=0,multi,a.status,a.attack_prob,255,true);
+  int chosen=BossCombatQuality.ChooseTarget(action,legal,original,limit);
+  Record(new{Kind="BossQualityTargetSelected",b.Pattern.TableId,Mode=u.c_mode,Before=original,After=chosen,Changed=chosen!=original,NativeCandidatesOnly=true});
+  return chosen;
+ }
+ internal static bool QualityTarget(PM_DATA u)=>Bound(u)&&Config.EnableCombatQuality&&BossCombatQuality.Supports(Bindings[u.Pointer].Pattern.TableId);
  internal static void Selected(BATTLE_WORK w,PM_DATA u,int before,int after)
  {if(!Bound(u))return;Selections++;if(before!=after)Changes++;var p=Bindings[u.Pointer].Pattern;Record(new{Kind="BossTacticsSelected",p.TableId,NativeCounter=w.battle_kaisuu,Window=BossTacticsRules.Window(p,w.battle_kaisuu,u.hp,u.max_hp),Before=before,After=after,Changed=before!=after,Executed=false});}
  internal static void NativeEntry(PM_DATA u,string source){if(CombatReforgedRuntime.Probe||!Bound(u)||source is not("MonsterCalcAttack" or "MonsterCalcTokushu" or "MonsterCalcKaifuku"))return;RoutineEntries++;Record(new{Kind="BossNativeRoutineEntered",Bindings[u.Pointer].Pattern.TableId,Slot=u.chara_no,Mode=u.c_mode,Command=u.c_koudou,Source=source,AnimationCompletionObserved=false});}
- internal static object Snapshot()=>new{Config.Enabled,Config.EnableMajorBosses,Config.EnableExistingBosses,Bindings=Bindings.Values.Select(x=>x.Pattern.TableId).ToArray(),Selections,Changes,RoutineEntries,Events=Events.ToArray(),NativeActionsExecutedInferred=false,StoryCallbacksChanged=false,StatScalingAdded=false};
+ internal static object Snapshot()=>new{Config.Enabled,Config.EnableMajorBosses,Config.EnableExistingBosses,Config.EnableCombatQuality,Bindings=Bindings.Values.Select(x=>x.Pattern.TableId).ToArray(),Selections,Changes,RoutineEntries,Events=Events.ToArray(),NativeActionsExecutedInferred=false,StoryCallbacksChanged=false,StatScalingAdded=false};
 }

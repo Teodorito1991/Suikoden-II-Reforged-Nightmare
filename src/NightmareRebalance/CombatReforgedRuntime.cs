@@ -140,7 +140,7 @@ internal static class CombatReforgedRuntime
         LastNativeTargets=choices.OrderBy(i=>i).ToArray();
         var legal=choices.Where(i=>i>=0&&i<w.pm_data.Length&&w.pm_data[i] is {IsPlayer:true} u&&u.hp>0&&!u.IsDead&&u.MokuhyoCanCheck()).Select(i=>Target(w.pm_data[i],i)).ToArray();
         int before=result;
-        if(c!=null){PhaseScope(w);result=CombatReforgedRules.ChooseTarget(c.Plan.Behavior,legal,result,Config.FocusLimit);Focus[result]=Focus.GetValueOrDefault(result)+1;}
+        if(c!=null){PhaseScope(w);result=BossTacticsRuntime.QualityTarget(c.Attacker)?BossTacticsRuntime.ChooseTarget(c.Attacker,legal,result,Config.FocusLimit):CombatReforgedRules.ChooseTarget(c.Plan.Behavior,legal,result,Config.FocusLimit);Focus[result]=Focus.GetValueOrDefault(result)+1;}
         else result=TargetingRules.PreferWounded(legal.Select(t=>new TargetCandidate(t.Slot,t.Hp,t.MaxHp,true,true)).ToArray(),result,Plugin.Options.EnemyTargetHealthThreshold.Value);
         Record(new{Kind="TargetSelection",Attacker=attacker,Behavior=c?.Plan.Behavior??"LegacyRaider",Before=before,After=result,Changed=before!=result,ObservedNativeCandidates=choices.ToArray(),RandomRestored=true});
         if(result!=before){if(!Probe){TargetChanges++;if(legacy)TargetingRuntime.Changes++;}Record(new{Kind="NativeSampledTarget",Attacker=attacker,Behavior=c?.Plan.Behavior??"LegacyRaider",Before=before,After=result,ObservedNativeCandidates=choices.ToArray(),RandomRestored=true});}

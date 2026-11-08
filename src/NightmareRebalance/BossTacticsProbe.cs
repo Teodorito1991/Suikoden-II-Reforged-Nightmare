@@ -11,7 +11,7 @@ internal static class BossTacticsProbe
  internal static void Table(BATTLE_DATA table)
  {
   var a=BossTacticsRuntime.Audit.FirstOrDefault(x=>x.TableId==table.id);if(a==null)return;
-  var game=Framework.Singleton<GAME_WORK>.instance;var work=Framework.Singleton<BATTLE_WORK>.instance;var state=Combat.State;var rng=UnityEngine.Random.state;bool strict=DifficultyProvenance.StrictProbe,ai=CombatReforgedRuntime.Config.EnableEnemyAi,suppress=BossTacticsRuntime.Suppress;
+  var game=Framework.Singleton<GAME_WORK>.instance;var work=Framework.Singleton<BATTLE_WORK>.instance;var state=Combat.State;var rng=UnityEngine.Random.state;bool quality=BossTacticsRuntime.Config.EnableCombatQuality;bool strict=DifficultyProvenance.StrictProbe,ai=CombatReforgedRuntime.Config.EnableEnemyAi,suppress=BossTacticsRuntime.Suppress;
   var copies=new List<MONSTER_DATA>();
   try{
    var g=Alloc<GAME_WORK>();g.game_data=Alloc<GAME_DATA>();g.chara_data=Alloc<CHARA_DATA>();g.chara_data.c_varia_dat=new Il2CppReferenceArray<C_VARIA_DAT>(1);Framework.Singleton<GAME_WORK>.instance=g;
@@ -51,6 +51,7 @@ internal static class BossTacticsProbe
    Check(actor.max_hp==max&&s.StatsAllowed==stat,"AI adds no stats or eligibility");Check(CombatEvolutionRuntime.Hooks(w.monster_party_data.data).SequenceEqual(hooks)&&w.monster_be_func.Pointer==ending&&w.monster_bm_func?.Pointer==main,"Callbacks unchanged");
    w.battle_kaisuu=2;actor.hp=(short)max;var builds=new List<int>();
    foreach(bool armored in new[]{true,false}){for(int i=0;i<6;i++){w.pm_data[i].calc_para[2]=armored?200:20;w.pm_data[i].calc_para[3]=armored?20:200;}CombatReforgedRuntime.Previous.Clear();UnityEngine.Random.InitState(991);int mode=actor.SelectAttackMode();builds.Add(mode);Check(mode is >=0 and <4&&actor.monster_data.attack_data[mode].attack_prob>0,"Build-responsive selection legal");}
+   if(BossCombatQuality.Supports(table.id))Quality(manager,w,actor,pattern);
    // Exhaust original limited attacks, never replenishing or inventing a use.
    foreach(int i in Enumerable.Range(0,4).Where(i=>actor.monster_data.attack_data[i].kaisu>0))w.pm_attack_data[actor.chara_no].curent_use_cnt[i]=0;
    UnityEngine.Random.InitState(72);int depleted=actor.SelectAttackMode();Check(depleted is >=0 and <4&&actor.CheckMonsterAttackCnt(depleted),"Native use exhaustion respected");
@@ -61,8 +62,59 @@ internal static class BossTacticsProbe
    }s.StatsAllowed=statScope;
    foreach(var m in a.Monsters)Check(CombatReforgedRuntime.Signature(table.monster_data[m.Index]).SequenceEqual(m.Signature),"Source asset untouched");
    Rows.Add(new{a.TableId,NativeSelectorDifferences=changed,Selections=144,Windows=windows,ArmoredSelection=builds[0],WardedSelection=builds[1],BuildChangedSelection=builds[0]!=builds[1],ExhaustedSelection=depleted,NativeRawDamageBudgets=budgets,AdmissionProductionPath=true,StoryCallbacksInvoked=false,RenderedBossPlayed=false});
-  }finally{DifficultyProvenance.StrictProbe=strict;CombatReforgedRuntime.Config.EnableEnemyAi=ai;BossTacticsRuntime.Suppress=suppress;CombatReforgedRuntime.Probe=false;CombatReforgedRuntime.ProbeWork=null;CombatReforgedRuntime.Clear();Combat.State=state;Framework.Singleton<GAME_WORK>.instance=game;Framework.Singleton<BATTLE_WORK>.instance=work;UnityEngine.Random.state=rng;foreach(var copy in copies)UnityEngine.Object.Destroy(copy);}
+  }finally{BossTacticsRuntime.Config.EnableCombatQuality=quality;DifficultyProvenance.StrictProbe=strict;CombatReforgedRuntime.Config.EnableEnemyAi=ai;BossTacticsRuntime.Suppress=suppress;CombatReforgedRuntime.Probe=false;CombatReforgedRuntime.ProbeWork=null;CombatReforgedRuntime.Clear();Combat.State=state;Framework.Singleton<GAME_WORK>.instance=game;Framework.Singleton<BATTLE_WORK>.instance=work;UnityEngine.Random.state=rng;foreach(var copy in copies)UnityEngine.Object.Destroy(copy);}
  }
- internal static object Snapshot()=>new{Assertions,Selections,Differences,Covered=Covered.ToArray(),Rows=Rows.ToArray(),RenderedBossPlayed=false,CallbacksInvoked=false,PlayerItemAward=false};
+ internal static readonly List<object> QualityRows=new();
+ static void Quality(BattleManager manager,BATTLE_WORK w,BattleMonsterCharacter actor,BossPattern pattern)
+ {
+  int level=actor.monster_data.level;int max=actor.max_hp;int totalActions=0,totalTargets=0;
+  foreach(string party in new[]{"Physical","Magic","Balanced","DefensiveHealing","Underprepared","WoundedBalanced"}){
+   int hp=Math.Clamp(level*9+80,180,650);if(party=="Underprepared")hp=hp*4/5;
+   for(int i=0;i<6;i++){
+    var u=w.pm_data[i];u.max_hp=(ushort)hp;u.hp=(short)(party=="WoundedBalanced"&&i<3?hp/4:hp);
+    u.calc_para[0]=level*(party=="Physical"?4:2)+30;u.calc_para[1]=level*(party=="Magic"?3:1)+30;
+    u.calc_para[2]=level*(party is "Physical" or "DefensiveHealing"?3:party=="Underprepared"?1:2)+20+i*4;
+    u.calc_para[3]=level*(party is "Magic" or "DefensiveHealing"?3:1)+20+i*3;
+   }
+   var distributions=new Dictionary<string,int>();int actionChanged=0,targetChanged=0,vanillaChanged=0;var raw=new List<int>();var modified=new List<int>();
+   foreach(int bossHp in new[]{max,Math.Max(1,max/2)})foreach(byte counter in new byte[]{0,1,2,3})for(int seed=0;seed<6;seed++){
+    actor.hp=(short)bossHp;w.battle_kaisuu=counter;
+    void Reset(bool quality){BossTacticsRuntime.Config.EnableCombatQuality=quality;CombatReforgedRuntime.Previous.Clear();CombatReforgedRuntime.Focus.Clear();CombatMasteryRuntime.Recovery.Clear();UnityEngine.Random.InitState(400+seed);}
+    Reset(false);CombatReforgedRuntime.Config.EnableEnemyAi=false;int vanilla=actor.SelectAttackMode();CombatReforgedRuntime.Config.EnableEnemyAi=true;
+    Reset(false);int old=actor.SelectAttackMode();var rng=UnityEngine.Random.state;
+    Reset(true);int revised=actor.SelectAttackMode();Check(Same(rng,UnityEngine.Random.state),"Quality selector consumes no extra native RNG");
+    Check(revised is >=0 and <4&&actor.CheckMonsterAttackCnt(revised)&&actor.AttackModeKyoriCheck(revised),"Quality choice remains original-legal");
+    Check(w.battle_kaisuu==counter,"Quality does not advance the battle counter");
+    if(old!=revised)actionChanged++;if(vanilla!=revised)vanillaChanged++;
+    string window=BossTacticsRules.Window(pattern,counter,bossHp,max);distributions[window+"/"+revised]=distributions.GetValueOrDefault(window+"/"+revised)+1;
+    bool broad=(actor.monster_data.attack_data[revised].attack_seishitsu&0xf00) is 0x200 or 0x400 or 0x800;
+    if(counter==1)Check(revised==pattern.RecoveryMode,"Native recovery selection remains basic when legal");
+    if(party=="WoundedBalanced")Check(!broad,"Wounded-party fixture avoids broad native attacks table="+pattern.TableId+" counter="+counter+" revised="+revised+" basicRange="+actor.AttackModeKyoriCheck(0)+" basicUses="+actor.CheckMonsterAttackCnt(0)+" canAttack="+actor.AttackCanCheck()+" bound="+BossTacticsRuntime.Bound(actor)+" targets="+CombatReforgedRuntime.Targets(w,true).Count);
+    if(seed==0){bool stats=Combat.State!.StatsAllowed;var damageRng=UnityEngine.Random.state;
+     try{
+      Combat.State.StatsAllowed=false;UnityEngine.Random.state=damageRng;raw.Add(actor.CalcMonsterDamage(0,revised));
+      Combat.State.StatsAllowed=true;BossTacticsRuntime.Config.EnableCombatQuality=false;UnityEngine.Random.state=damageRng;int priorDamage=actor.CalcMonsterDamage(0,revised);
+      BossTacticsRuntime.Config.EnableCombatQuality=true;UnityEngine.Random.state=damageRng;int qualityDamage=actor.CalcMonsterDamage(0,revised);
+      Check(priorDamage==qualityDamage,"Quality adds no damage multiplier to identical native move");modified.Add(qualityDamage);
+     }finally{Combat.State.StatsAllowed=stats;UnityEngine.Random.state=damageRng;BossTacticsRuntime.Config.EnableCombatQuality=true;}}
+
+   }
+   // Exercise the ACTUAL native single-target evaluator and patched production
+   // hook, comparing the previous mod policy with the quality option. Not a fight.
+   actor.c_mode=0;w.pm_data[0].hp=(short)(hp/4);w.pm_data[5].calc_para[2]=10;
+   for(int seed=0;seed<6;seed++){
+    BossTacticsRuntime.Config.EnableCombatQuality=false;CombatReforgedRuntime.Focus.Clear();UnityEngine.Random.InitState(900+seed);int old=manager.parties[1].MonsterFindKojinMokuhyo(actor.chara_no);var rng=UnityEngine.Random.state;
+    BossTacticsRuntime.Config.EnableCombatQuality=true;CombatReforgedRuntime.Focus.Clear();UnityEngine.Random.InitState(900+seed);int revised=manager.parties[1].MonsterFindKojinMokuhyo(actor.chara_no);
+    Check(Same(rng,UnityEngine.Random.state),"Quality targeting preserves native post-selection RNG");
+    Check(CombatReforgedRuntime.LastNativeTargets.Contains(revised)&&revised>=0&&revised<6,"Quality target was returned by native legal discovery");
+    if(old!=revised)targetChanged++;
+   }
+   totalActions+=actionChanged;totalTargets+=targetChanged;
+   QualityRows.Add(new{pattern.TableId,Party=party,NativeActionComparisons=48,ActionChangesFromV119=actionChanged,ActionChangesFromNativeSelector=vanillaChanged,NativeTargetComparisons=6,TargetChangesFromV119=targetChanged,SelectionDistribution=distributions,NativeSelectedRawDamage=raw,NativeSelectedDamageWithExistingModifiers=modified,QualityDamageUnchanged=true,IllustrativePartyHp=hp,
+    OriginalDamageFormulaExecuted=true,FullPartyBuild=false,ActualHealExecuted=false,NativeAnimationExecuted=false,StoryCallbackExecuted=false,FullFightOutcome="Not simulated or played"});
+  }
+  Check(totalActions>0&&totalTargets>0,"Quality changes actual native action and target selections for "+pattern.TableId);
+ }
+ internal static object Snapshot()=>new{Assertions,Selections,Differences,Covered=Covered.ToArray(),Rows=Rows.ToArray(),CombatQuality=QualityRows.ToArray(),RenderedBossPlayed=false,CallbacksInvoked=false,PlayerItemAward=false};
 }
 

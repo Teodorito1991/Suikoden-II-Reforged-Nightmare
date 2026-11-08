@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net9.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
   <ItemGroup>
+ <Compile Include="../src/NightmareRebalance/BossCombatQuality.cs" Link="BossCombatQuality.cs" />
  <Compile Include="../src/NightmareRebalance/GuildPresentation.cs" Link="GuildPresentation.cs" />
  <Compile Include="../src/NightmareRebalance/FieldContinuationRules.cs" Link="FieldContinuationRules.cs" />
  <Compile Include="../src/NightmareRebalance/WarResourceOwnership.cs" Link="WarResourceOwnership.cs" />

@@ -9,6 +9,20 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.20 — Boss Combat Quality (development only)
+
+Refined Pest Rat and first Harpy action/target preferences: focused openings and
+wounded-party pressure, stronger basic recovery windows, current HP/defence response
+and reduced redundant status/focus. Actual native selectors/targets differ from the
+v1.19 layer, preserve RNG/legality and add no damage/HP factor. Added compatible
+optional EnableCombatQuality switch; existing files/opt-outs remain supported.
+
+Corrected a substantive audit error: lus1/lus2 are Lucia, not Luca Blight. Actual
+luc1/luc2/luc3 party transitions remain unmodified and unverified. Earlier Neclord
+forms remain excluded. Exact DLL `288B5D76311ADFE379D08174CE0C6CE0BE22A90FA294787F10A562F25593FA7B`; native/component evidence only, no full
+boss gameplay/story-return acceptance. Guild1.19, installed v1.13, original settings,
+war research and private beta preserved. [Detailed audit](docs/BOSS-COMBAT-QUALITY-V120.md).
+
 ## v1.19 — Hunt Guild Gameplay Polish (development only)
 
 Refined the existing native-looking contract layout, readable spoils and state
