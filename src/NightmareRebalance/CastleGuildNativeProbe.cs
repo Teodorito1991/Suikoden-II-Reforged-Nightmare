@@ -70,35 +70,79 @@ internal static class CastleGuildNativeProbe
  static T Alloc<T>() where T:Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase{System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(T).TypeHandle);return(T)Activator.CreateInstance(typeof(T),Il2CppInterop.Runtime.IL2CPP.il2cpp_object_new(Il2CppInterop.Runtime.Il2CppClassPointerStore<T>.NativeClassPtr))!;}
  internal static MACHIDAT BindWalkingFixture(EVENTCON e,BATTLE_DATA table){
   if(!UnityEngine.Application.isBatchMode||!Plugin.Options.RunCombatSelfTest.Value)throw new InvalidOperationException("Walking scene fixture is batch-test only");
-  var m=Alloc<MACHICON>();var data=UnityEngine.ScriptableObject.CreateInstance<MACHIDAT>();data.battle_dat=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<BATTLE_DATA>(new[]{table});m.ano=3;m.vno=5;m.mdat=data;m.econ=e;e.mcon=m;e.mdat=data;return data;
+  var m=Alloc<MACHICON>();var data=UnityEngine.ScriptableObject.CreateInstance<MACHIDAT>();data.battle_dat=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<BATTLE_DATA>(new[]{table});var location=HuntFieldSourceProbe.FindLocation(table.id.Split('_')[0])??throw new InvalidOperationException("Missing unique native map ID");m.ano=location.Area;m.vno=location.Town;m.mdat=data;m.econ=e;e.mcon=m;e.mdat=data;return data;
  }
+ // Drives the actual request observer, followed by BattleDataSetup in the caller.
+ // The walking scope is synthetic and the original EVENTCON methods are not run.
+ internal static void RequestCatalogueSetup(BATTLE_DATA table,HuntDefinition hunt,GAME_WORK game)
+ {
+  var quest=CastleGuildRuntime.Quest;
+  var config=CastleGuildRuntime.Config;
+  var owner=CastleGuildRuntime.ContractParty;
+  var selected=HuntGuildRuntime.SessionSelection;
+  var checking=HuntLaunchProof.Checking;
+  MACHIDAT? field=null;
+  try
+  {
+   var caller=Alloc<EVENTCON>();
+   field=BindWalkingFixture(caller,table);
+   CastleGuildRuntime.Config=new(){Enabled=true,AutoRequestAcceptedContract=true};
+   CastleGuildRuntime.Quest=new();
+   Check(CastleGuildRuntime.Quest.Accept(hunt.Id),"Fixture accepts selected contract");
+   CastleGuildRuntime.ContractParty=game.party_data.Pointer;
+   HuntGuildRuntime.SessionSelection=hunt.Id;
+   HuntLaunchProof.ClearRequest();
+   HuntLaunchProof.Checking=caller.Pointer;
+   HuntLaunchProof.Requested(caller,0);
+   Check(HuntAccess.Ticket.Armed&&HuntLaunchProof.PendingWalkingRequest,
+       "Production request observer arms accepted catalogue contract");
+  }
+  finally
+  {
+   HuntLaunchProof.Checking=checking;
+   HuntGuildRuntime.SessionSelection=selected;
+   CastleGuildRuntime.ContractParty=owner;
+   CastleGuildRuntime.Config=config;
+   CastleGuildRuntime.Quest=quest;
+   if(field!=null)UnityEngine.Object.Destroy(field);
+  }
+ }
+
  internal static void HuntTable(BATTLE_DATA table)
  {
-  if(table.id!="vd06_00")return;
+  var hunt=HuntRuntime.Definitions.SingleOrDefault(d=>d.Audit.TableId==table.id);
+  if(hunt==null)return;
+  string id=hunt.Id;
+  var setting=HuntRuntime.Settings(hunt);
+  bool enabled=setting.Enabled;
   var original=Framework.Singleton<GAME_WORK>.instance;var config=CastleGuildRuntime.Config;var quest=CastleGuildRuntime.Quest;var owner=CastleGuildRuntime.ContractParty;int requests=CastleGuildRuntime.AutoRequests;var selected=HuntGuildRuntime.SessionSelection;bool huntEnabled=HuntRuntime.Config.EnableExperimentalHunt,core=CombatReforgedRuntime.Config.Enabled;string status=CastleGuildRuntime.Status;
   MACHIDAT? fieldData=null;
   try{
    var game=Alloc<GAME_WORK>();game.game_data=Alloc<GAME_DATA>();game.party_data=Alloc<PARTY_DATA>();game.party_data.gold=500;Framework.Singleton<GAME_WORK>.instance=game;
-   CastleGuildRuntime.Config=new(){Enabled=true,AutoRequestAcceptedContract=true};CastleGuildRuntime.Quest=new();CastleGuildRuntime.Quest.Accept("sun-kings-retinue");long count=CastleGuildRuntime.Completions;CastleGuildRuntime.ContractParty=game.party_data.Pointer;HuntGuildRuntime.SessionSelection="sun-kings-retinue";HuntRuntime.Config.EnableExperimentalHunt=true;CombatReforgedRuntime.Config.Enabled=true;HuntAccess.Ticket.Cancel();var e=Alloc<EVENTCON>();fieldData=BindWalkingFixture(e,table);
-   Check(MachiLoader.GetMachiID(3,5)=="vd06","Native map identifier for verified Cave save coordinates");
-   e.mcon.ano=10;e.mcon.vno=6;CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Correct battle table in wrong native field cannot arm quest");e.mcon.ano=3;e.mcon.vno=5;
+   CastleGuildRuntime.Config=new(){Enabled=true,AutoRequestAcceptedContract=true};CastleGuildRuntime.Quest=new();CastleGuildRuntime.Quest.Accept(id);long count=CastleGuildRuntime.Completions;CastleGuildRuntime.ContractParty=game.party_data.Pointer;HuntGuildRuntime.SessionSelection=id;HuntRuntime.Config.EnableExperimentalHunt=true;CombatReforgedRuntime.Config.Enabled=true;setting.Enabled=true;HuntAccess.Ticket.Cancel();var e=Alloc<EVENTCON>();fieldData=BindWalkingFixture(e,table);
+   int area=e.mcon.ano,town=e.mcon.vno;
+   Check(MachiLoader.GetMachiID(area,town)==table.id.Split('_')[0],"Exact native map identifier");
+   e.mcon.ano=10;e.mcon.vno=6;CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Correct battle table in wrong native field cannot arm quest");e.mcon.ano=area;e.mcon.vno=town;
    e.mcon.econ=Alloc<EVENTCON>();CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Foreign field owner cannot arm quest");e.mcon.econ=e;
    var data=e.mdat;e.mdat=Alloc<MACHIDAT>();CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Detached field data cannot arm quest");e.mdat=data;
    CastleGuildRuntime.WalkingRequest(e,table,false);Check(!HuntAccess.Ticket.Armed,"Scripted/non-walking request cannot auto-arm");
    Check(CastleGuildRuntime.InteractionDifficultySupported,"Normal-mode castle interaction admitted");game.game_data.difficulty=1;Check(!CastleGuildRuntime.InteractionDifficultySupported,"Unexplained difficulty rejected for castle interaction");
    game.game_data.difficulty=2;Check(CastleGuildRuntime.InteractionDifficultySupported,"Hard-mode castle interaction admitted independently of combat eligibility");CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Hard context cannot auto-arm");game.game_data.difficulty=0;
    CastleGuildRuntime.ContractParty=IntPtr.Zero;CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Foreign campaign owner cannot auto-arm");CastleGuildRuntime.ContractParty=game.party_data.Pointer;
-   HuntGuildRuntime.SessionSelection="dreamers-circuit";CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Different selected contract cannot auto-arm");HuntGuildRuntime.SessionSelection="sun-kings-retinue";
+   HuntGuildRuntime.SessionSelection=HuntRuntime.Definitions.First(x=>x.Id!=id).Id;CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Different selected contract cannot auto-arm");HuntGuildRuntime.SessionSelection=id;
    var wrong=Alloc<BATTLE_DATA>();wrong.id="unrelated";CastleGuildRuntime.WalkingRequest(e,wrong,true);Check(!HuntAccess.Ticket.Armed,"Unrelated source table cannot auto-arm");
    HuntRuntime.Config.EnableExperimentalHunt=false;CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Explicit global hunt opt-out retained");HuntRuntime.Config.EnableExperimentalHunt=true;
-   Check(CastleGuildRuntime.HuntEntryCompatible,"Production walking-hook compatibility is intact");Check(!WarRuntime.Active,"War session is inactive in walking fixture");Check(CastleGuildRuntime.WalkingSceneMatches(e,table,HuntRuntime.Definitions.Single(x=>x.Id=="sun-kings-retinue")),"Exact native field owner/table fixture is valid");
+   setting.Enabled=false;CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Per-contract opt-out retained");setting.Enabled=true;
+   var foreign=new HuntRunProgress{HuntId=HuntRuntime.Definitions.First(x=>x.Id!=id).Id};CastleGuildRuntime.Started(foreign);foreign.Victory();foreign.Finish("VictoryRewardsCompleted",0);CastleGuildRuntime.Finished(foreign);
+   Check(CastleGuildRuntime.RunningReceipt==null&&CastleGuildRuntime.Completions==count,"Foreign contract cannot claim victory");
+   Check(CastleGuildRuntime.HuntEntryCompatible,"Production walking-hook compatibility is intact");Check(!WarRuntime.Active,"War session is inactive in walking fixture");Check(CastleGuildRuntime.WalkingSceneMatches(e,table,HuntRuntime.Definitions.Single(x=>x.Id==id)),"Exact native field owner/table fixture is valid");
    CastleGuildRuntime.WalkingRequest(e,table,true);Check(HuntAccess.Ticket.Armed,"Accepted contract arms exact original source within walking witness fixture");int once=CastleGuildRuntime.AutoRequests;CastleGuildRuntime.WalkingRequest(e,table,true);Check(CastleGuildRuntime.AutoRequests==once,"Already armed request not duplicated");HuntAccess.Ticket.Cancel();
-   var escape=new HuntRunProgress{HuntId="sun-kings-retinue"};CastleGuildRuntime.Started(escape);escape.Finish("ClosedWithoutVictorySignal",0);CastleGuildRuntime.Finished(escape);Check(CastleGuildRuntime.Completions==count&&CastleGuildRuntime.Contract=="sun-kings-retinue","Escape keeps contract retryable without completion");
-   var win=new HuntRunProgress{HuntId="sun-kings-retinue"};CastleGuildRuntime.Started(win);win.Victory();win.Finish("VictoryRewardsCompleted",0);CastleGuildRuntime.Finished(win);CastleGuildRuntime.Finished(win);Check(CastleGuildRuntime.Completions==count+1&&CastleGuildRuntime.Contract=="sun-kings-retinue"&&CastleGuildRuntime.Quest.State==GuildQuestState.AwaitingReport,"Owning victory receipt completes once and awaits report");
-   Check(!CastleGuildRuntime.Quest.Report(),"Cannot report before native field-resume witness");win.FieldResume();CastleGuildRuntime.FieldReturned(win);Check(CastleGuildRuntime.Quest.Report(),"Synthetic field-resume permits one report without grant");Check(!CastleGuildRuntime.Quest.Report(),"Duplicate report rejected");Check(CastleGuildRuntime.Quest.Accept("sun-kings-retinue"),"Reported contract can be accepted again");CastleGuildRuntime.WalkingRequest(e,table,true);Check(HuntAccess.Ticket.Armed,"Repeat accepted contract can request next eligible native walking selection");Check(game.party_data.gold==500,"Quest completion never adds a second reward");
+   var escape=new HuntRunProgress{HuntId=id};CastleGuildRuntime.Started(escape);escape.Finish("ClosedWithoutVictorySignal",0);CastleGuildRuntime.Finished(escape);Check(CastleGuildRuntime.Completions==count&&CastleGuildRuntime.Contract==id,"Escape keeps contract retryable without completion");
+   var win=new HuntRunProgress{HuntId=id};CastleGuildRuntime.Started(win);win.Victory();win.Finish("VictoryRewardsCompleted",0);CastleGuildRuntime.Finished(win);CastleGuildRuntime.Finished(win);Check(CastleGuildRuntime.Completions==count+1&&CastleGuildRuntime.Contract==id&&CastleGuildRuntime.Quest.State==GuildQuestState.AwaitingReport,"Owning victory receipt completes once and awaits report");
+   Check(!CastleGuildRuntime.Quest.Report(),"Cannot report before native field-resume witness");win.FieldResume();CastleGuildRuntime.FieldReturned(win);Check(CastleGuildRuntime.Quest.Report(),"Synthetic field-resume permits one report without grant");Check(!CastleGuildRuntime.Quest.Report(),"Duplicate report rejected");Check(CastleGuildRuntime.Quest.Accept(id),"Reported contract can be accepted again");CastleGuildRuntime.WalkingRequest(e,table,true);Check(HuntAccess.Ticket.Armed,"Repeat accepted contract can request next eligible native walking selection");Check(game.party_data.gold==500,"Quest completion never adds a second reward");
    CastleGuildRuntime.ClearContract();Check(CastleGuildRuntime.Contract==null&&!HuntAccess.Ticket.Armed,"Withdraw/load invalidates only mod contract and pending request");
-   Rows.Add(new{QuestProductionMethodsExecuted=true,WalkingWitnessSynthetic=true,VictoryReceiptSynthetic=true,ActualQuestCompleted=false,NativeBattleLaunched=false,ExtraPayout=0,HeadquartersMapFromProtectedSave=MachiLoader.GetMachiID(10,6)});
-  }finally{if(fieldData!=null)UnityEngine.Object.Destroy(fieldData);Framework.Singleton<GAME_WORK>.instance=original;CastleGuildRuntime.Config=config;CastleGuildRuntime.Quest=quest;CastleGuildRuntime.ContractParty=owner;CastleGuildRuntime.AutoRequests=requests;HuntGuildRuntime.SessionSelection=selected;HuntRuntime.Config.EnableExperimentalHunt=huntEnabled;CombatReforgedRuntime.Config.Enabled=core;CastleGuildRuntime.Status=status;HuntAccess.Ticket.Cancel();}
+   Rows.Add(new{HuntId=id,QuestProductionMethodsExecuted=true,WalkingWitnessSynthetic=true,VictoryReceiptSynthetic=true,ActualQuestCompleted=false,NativeBattleLaunched=false,ExtraPayout=0,HeadquartersMapFromProtectedSave=MachiLoader.GetMachiID(10,6)});
+  }finally{setting.Enabled=enabled;if(fieldData!=null)UnityEngine.Object.Destroy(fieldData);Framework.Singleton<GAME_WORK>.instance=original;CastleGuildRuntime.Config=config;CastleGuildRuntime.Quest=quest;CastleGuildRuntime.ContractParty=owner;CastleGuildRuntime.AutoRequests=requests;HuntGuildRuntime.SessionSelection=selected;HuntRuntime.Config.EnableExperimentalHunt=huntEnabled;CombatReforgedRuntime.Config.Enabled=core;CastleGuildRuntime.Status=status;HuntAccess.Ticket.Cancel();}
  }
  internal static object Snapshot()=>new{Passed,Assertions,Rows=Rows.ToArray(),NativeActorConstruction=false,RenderedCastle=false,DialogAccepted=false,RoomReentryAccepted=false};
 }

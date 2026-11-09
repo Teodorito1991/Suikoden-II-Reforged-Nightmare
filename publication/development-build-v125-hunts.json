@@ -1,0 +1,28 @@
+{
+  "Version": "1.25.0-hunt-catalogue.1",
+  "DllSha256": "AA27445761E1E7581FF2D32DCF5FA608E47A072F06A5B307B809A46557EA09B0",
+  "Parent": "8aa6299035291272a0e2674ea74ec7b698af2916",
+  "ManagedSuitePassed": true,
+  "NativeRuns": [
+    {
+      "ProductionChecks": 3675,
+      "CastleChecks": 428,
+      "CatalogueChecks": 344,
+      "FieldSourceChecks": 61,
+      "HistoryRestart": false
+    },
+    {
+      "ProductionChecks": 3675,
+      "CastleChecks": 428,
+      "CatalogueChecks": 344,
+      "FieldSourceChecks": 61,
+      "HistoryRestart": true
+    }
+  ],
+  "WalkingProvenanceSynthetic": true,
+  "VictoryAndFieldReturnSynthetic": true,
+  "OriginalBattleSetupExecuted": true,
+  "RenderedQuestExecuted": false,
+  "Original37FilesByteEqual": true,
+  "RegistryRestoredByteEqual": true
+}

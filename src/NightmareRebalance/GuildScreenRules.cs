@@ -15,8 +15,8 @@ internal static class GuildScreenRules
  internal static readonly GuildBox Catalogue=new(0,80,350,376),Detail=new(366,80,734,376),Active=new(0,470,1100,124),Footer=new(0,608,1100,72);
  internal static readonly GuildContractCard[] Cards={
   new("sun-kings-retinue","Sun King's Retinue","Cave of the Wind","Elite contract","Sun King / Sorcerer","A sturdy guardian fights beside a dangerous caster. Prepare both physical and magical options.","Optional hunt. Report completion to take the contract again."),
-  new("dreamers-circuit","Dreamer's Circuit","Sindar Ruins","Elite / status pressure","Mr. Venus / Nightmare / MegaWatt","Sleep and mixed attacks punish an unprepared party. Bring recovery options.","Experimental contract. Disabled by default."),
-  new("thornwake-patrol","Thornwake Patrol","Greenhill City area","Elite / disruption","Melonzoo / two Holly Elves","A heavy forest beast travels with two nimble escorts. Bring status recovery and varied attacks.","Experimental contract. Disabled by default.")};
+  new("dreamers-circuit","Dreamer's Circuit","Sindar Ruins","Elite / status pressure","Mr. Venus / Nightmare / MegaWatt","Nightmare can inflict sleep. Bring a way to wake allies.","Experimental contract. Disabled by default."),
+  new("thornwake-patrol","Thornwake Patrol","Greenhill City area","Elite / disruption","Melonzoo / two Holly Elves","The Holly Elves can inflict Balloon. Plan to deal with the escorts.","Experimental contract. Disabled by default.")};
  internal static GuildContractCard Card(string id)=>Cards.FirstOrDefault(x=>x.Id==id)??Cards[0];
  internal static int Move(int focus,bool up,bool down,int contracts){if(contracts<1)return 0;if(up==down)return Math.Clamp(focus,0,contracts);return (Math.Clamp(focus,0,contracts)+(down?1:contracts))%(contracts+1);}
  internal static float Scale(int w,int h)=>Math.Max(.1f,Math.Min((w-32)/Width,(h-32)/Height));

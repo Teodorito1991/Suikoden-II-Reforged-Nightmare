@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Suikoden I and II HD Remaster</GamePath>
-    <Version>1.24.0-luca-manager-ownership.1</Version>
+    <Version>1.25.0-hunt-catalogue.1</Version>
     <AssemblyName>ReforgedNightmare</AssemblyName>
     <OutputPath>bin/$(Configuration)/$(Version)/</OutputPath>
   </PropertyGroup>

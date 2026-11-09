@@ -28,17 +28,22 @@ internal static class HuntFieldSourceProbe
  }
  // Read the original map-ID registry before querying its save-screen name SID.
  // No map initialization or scene load occurs here.
- static object Location(string field)
+ internal static (int Area,int Town)? FindLocation(string field)
  {
   var ids=MachiLoader.GetMachiIDList();var found=new List<(int A,int V)>();
-  if(ids==null||ids.Count>64)return new{Verified=false};
+  if(ids==null||ids.Count>64)return null;
   for(int a=0;a<ids.Count;a++){
-   if(ids[a]==null||ids[a].Count>256)return new{Verified=false};
+   if(ids[a]==null||ids[a].Count>256)return null;
    for(int v=0;v<ids[a].Count;v++)if(ids[a][v]==field)found.Add((a,v));
   }
-  if(found.Count!=1)return new{Verified=false};
-  var location=found[0];if(MachiLoader.GetMachiID(location.A,location.V)!=field)return new{Verified=false};
-  return new{Verified=true,Area=location.A,Town=location.V,NameSid=savedata_c.GetMachiNameSID(location.A,location.V)};
+  if(found.Count!=1)return null;
+  var location=found[0];if(MachiLoader.GetMachiID(location.A,location.V)!=field)return null;
+  return location;
+ }
+ static object Location(string field)
+ {
+  if(FindLocation(field) is not {} location)return new{Verified=false};
+  return new{Verified=true,location.Area,location.Town,NameSid=savedata_c.GetMachiNameSID(location.Area,location.Town)};
  }
  internal static object Snapshot()=>new{Passed,Assertions,Rows=Rows.ToArray(),FieldSceneEntered=false};
 }

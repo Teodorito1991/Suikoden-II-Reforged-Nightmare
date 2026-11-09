@@ -153,8 +153,8 @@ internal static class CastleGuildRuntime
   if(!walking||Quest.State!=GuildQuestState.Accepted)return;
   WalkingChecks++;
   var hunt=HuntRuntime.Definitions.FirstOrDefault(x=>x.Id==Contract&&HuntRuntime.Settings(x).Enabled);
-  bool owner=Framework.Singleton<GAME_WORK>.instance?.party_data?.Pointer==ContractParty;
-  bool normal=DifficultyProvenance.Difficulty(out int d,out _)&&d==0;
+  bool owner=ContractParty!=IntPtr.Zero&&Framework.Singleton<GAME_WORK>.instance?.party_data?.Pointer==ContractParty;
+  bool normal=DifficultyProvenance.Difficulty(out int d,out float rate)&&d==0&&rate==1f;
   bool source=hunt!=null&&HuntAccess.SourceMatches(table,hunt);
   bool scene=source&&WalkingSceneMatches(e,table,hunt!);
   bool compatible=HuntEntryCompatible;

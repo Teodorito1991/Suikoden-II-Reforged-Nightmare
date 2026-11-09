@@ -9,6 +9,16 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.25 — Monster Hunt Catalogue (development only)
+
+Connected the Castle Guild request observer to native setup for all three
+contracts in isolated tests. Tightened owner and Normal-rate guards and added
+specific Sleep and Balloon preparation text. Dreamer and Thornwake remain
+experimental and opt-in pending gameplay acceptance.
+
+DLL SHA256 `AA27445761E1E7581FF2D32DCF5FA608E47A072F06A5B307B809A46557EA09B0`.
+[Guild evidence and limitations](HUNT_GUILD.md#v125-catalogue-integration).
+
 ## v1.25 — Luca battle context decision (research only)
 
 Mapped original scene setup, camera queue consumption and teardown. Historical

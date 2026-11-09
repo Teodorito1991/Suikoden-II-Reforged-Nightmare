@@ -68,3 +68,38 @@ loot, eligibility and inventory handling; reporting grants nothing extra.
 The final development DLL is `0EF0B648CC897C2119ED6919DA250FD1FDFFD1CAC5F8F536FB8BA8B5A8A1BEA7`. Original frame/font/cursor rendering was
 exercised in an unloaded preview. Offline previews are not gameplay screenshots,
 and no current-hash field, controller or complete-quest acceptance is claimed.
+
+## v1.25 catalogue integration
+
+Development build `1.25.0-hunt-catalogue.1` with SHA256 `AA27445761E1E7581FF2D32DCF5FA608E47A072F06A5B307B809A46557EA09B0`.
+
+| Contract | Original walking table | Preparation | Contract bonus | Possible fallback item |
+|---|---|---|---|---|
+| Dreamer's Circuit | Sindar Ruins, `vc12_00` | Nightmare can inflict Sleep. Prepare recovery while dealing with Mr. Venus and MegaWatt. | 1,200 Potch | Stone of Magic Protection |
+| Thornwake Patrol | Greenhill City region, `ve03_00` | The two Holly Elves can inflict Balloon. Plan for the escorts alongside Melonzoo. | 3,000 Potch | Flowing Orb |
+
+The original field records link eight Sindar and four Greenhill map variants
+to their encounter table. These are verified map records, not directions to a
+walkable route. Follow the ordinary campaign and walk where original encounters
+occur. Normal eligibility requires the native Normal rate and a live, nonzero
+party owner. Both contracts remain opt-in, with the existing Castle Guild
+automatic request and per-contract switches. No configuration migration is needed.
+
+The two isolated native runs exercised the production request observer with a
+synthetic walking witness, then called original `BattleDataSetup` for each
+contract. They verified the chosen party and unchanged RNG after the native
+selection. Separate quest tests checked wrong field, foreign owners, scripted
+requests, Hard mode, disabled contracts, foreign receipts, escape retry,
+duplicate completion and report, reacceptance and reset. Native reward
+calculation used synthetic victory and defeated-roster inputs. The prepared
+totals were 2,008 Potch for Dreamer and 5,678 for Thornwake under the fixture
+settings. The game still applies its normal purse cap, drop priority and
+inventory handling. Reporting supplies no extra reward.
+
+Loaded native records and selectors confirmed the Sleep and Balloon threat
+described on the Guild cards. Party fixtures do not establish encounter fairness,
+so stats and reward rates were preserved. A future acceptance session can select
+one contract at the castle, travel normally without reloading, complete or
+escape the encounter, and confirm the reward and report-back flow. The new
+contracts have no rendered or player-earned quest acceptance. Sun's historical
+v1.12.2 acceptance remains specific to that binary.

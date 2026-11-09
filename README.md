@@ -8,7 +8,7 @@ maps and interfaces. Normal is the intended difficulty foundation. Optional
 hunting rewards preparation and grinding without becoming mandatory.
 
 **Pre-publication beta preparation. Overall campaign: experimental.**
-Main development source is **v1.24 Luca Manager Ownership**. The recommended first
+Main development source is **v1.25 Monster Hunt Catalogue**. The recommended first
 beta is based on the **v1.12.2 Castle Hunt Guild DLL**, which has stronger exact-
 binary gameplay evidence. Public review copies remove a personal PDB build path
 from debug metadata only. They have new hashes and no exact-hash gameplay
