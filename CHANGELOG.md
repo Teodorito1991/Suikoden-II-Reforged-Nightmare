@@ -2,6 +2,16 @@
 
 These are private development milestones, not previous public releases.
 
+## Unreleased — Luca caller-scope architecture audit
+
+Rechecked the supported native selector and dispatcher without launching the
+game. Result substitution remains credible, but the actor-command branch can
+fall through into selection; command-bearing dispatches must remain excluded.
+Prefer observing native ownership over reconstructing managers/cameras/queues.
+Campaign-capable save, preferences and Cloud isolation remains unverified.
+No gameplay source, DLL, configuration or beta change; Luca tactics unavailable.
+See [caller-scope audit](docs/LUCA-CALLER-SCOPE-AUDIT.md).
+
 ## Unreleased — project workflow
 
 Added a permanent completed-milestone GitHub synchronization policy in AGENTS.md:
