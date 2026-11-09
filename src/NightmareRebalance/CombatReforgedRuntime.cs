@@ -150,7 +150,7 @@ internal static class CombatReforgedRuntime
     {var s=Config.SpellEffects.FirstOrDefault(s=>s.Id==id);return Config.Enabled&&Config.EnableHealingBalance&&s!=null&&effect==s.Expected?s.Effect:effect;}
 }
 [HarmonyPatch(typeof(BattleMonsterCharacter),nameof(BattleMonsterCharacter.SelectAttackMode))]
-internal static class CombatModePatch{[HarmonyPostfix]static void Postfix(BattleMonsterCharacter __instance,ref int __result)=>CombatReforgedRuntime.Select(__instance,ref __result);}
+internal static class CombatModePatch{[HarmonyPostfix]static void Postfix(BattleMonsterCharacter __instance,ref int __result){CombatReforgedRuntime.Select(__instance,ref __result);BossTacticsProbe.ObserveDispatchSelection(__instance,ref __result);}}
 [HarmonyPatch(typeof(BattleMonsterCharacter),nameof(BattleMonsterCharacter.AttackDataMakeNormal))]
 internal static class CombatActionScope
 {

@@ -9,6 +9,15 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.23 — Luca Action Commitment (development only)
+
+The original solo Luca dispatcher now commits distinct basic, row and column
+actions in an isolated audit. Silence and no-target cases exercise native retries.
+Live tactics remain gated on full manager initialization and damage validation.
+
+DLL SHA256 `D14F9F29939A099DE1470C5F78EDE34ADA92ABF74E4A937FA3F0184F4F00EA82`.
+[Action commitment audit](docs/LUCA-ACTION-COMMITMENT-V123.md).
+
 ## v1.22 — Luca Tactical Dispatch Audit (development only)
 
 Traced the solo encounter's native attack selection, retry and target-building

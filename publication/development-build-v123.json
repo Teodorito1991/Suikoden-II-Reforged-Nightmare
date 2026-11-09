@@ -1,0 +1,599 @@
+{
+  "Version": "1.23.0-luca-action-commitment.1",
+  "DllSha256": "D14F9F29939A099DE1470C5F78EDE34ADA92ABF74E4A937FA3F0184F4F00EA82",
+  "Parent": "77e9d5d51a10323562838515b15b6f4a54b9a7f9",
+  "ManagedSuitePassed": true,
+  "NativeRuns": [
+    {
+      "ProductionChecks": 3675,
+      "MaintenanceChecks": 7919,
+      "HistoryRestart": false,
+      "Dispatch": [
+        {
+          "Condition": "Full",
+          "Requested": -1,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 1,
+          "action_type": 10,
+          "Data": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 1,
+              "reaction_type": 0,
+              "damage": 159
+            },
+            {
+              "Slot": 4,
+              "reaction_type": 0,
+              "damage": 156
+            }
+          ],
+          "Shape": 1024,
+          "DisplayIndex": 1386,
+          "SelectorCalls": 1,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 1
+            }
+          ]
+        },
+        {
+          "Condition": "Full",
+          "Requested": 0,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 0,
+          "action_type": 0,
+          "Data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 1,
+              "reaction_type": 0,
+              "damage": 223
+            }
+          ],
+          "Shape": 256,
+          "DisplayIndex": 0,
+          "SelectorCalls": 1,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 0
+            }
+          ]
+        },
+        {
+          "Condition": "Full",
+          "Requested": 2,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 2,
+          "action_type": 10,
+          "Data": [
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 0,
+              "reaction_type": 0,
+              "damage": 139
+            },
+            {
+              "Slot": 1,
+              "reaction_type": 0,
+              "damage": 136
+            },
+            {
+              "Slot": 2,
+              "reaction_type": 0,
+              "damage": 141
+            }
+          ],
+          "Shape": 2048,
+          "DisplayIndex": 1387,
+          "SelectorCalls": 1,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 2
+            }
+          ]
+        },
+        {
+          "Condition": "Wounded",
+          "Requested": 0,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 0,
+          "action_type": 0,
+          "Data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 1,
+              "reaction_type": 0,
+              "damage": 223
+            }
+          ],
+          "Shape": 256,
+          "DisplayIndex": 0,
+          "SelectorCalls": 1,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 0
+            }
+          ]
+        },
+        {
+          "Condition": "Wounded",
+          "Requested": 2,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 2,
+          "action_type": 10,
+          "Data": [
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 0,
+              "reaction_type": 0,
+              "damage": 139
+            },
+            {
+              "Slot": 1,
+              "reaction_type": 0,
+              "damage": 136
+            },
+            {
+              "Slot": 2,
+              "reaction_type": 0,
+              "damage": 141
+            }
+          ],
+          "Shape": 2048,
+          "DisplayIndex": 1387,
+          "SelectorCalls": 1,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 2
+            }
+          ]
+        },
+        {
+          "Condition": "Defensive",
+          "Requested": 2,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 2,
+          "action_type": 10,
+          "Data": [
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 0,
+              "reaction_type": 0,
+              "damage": 39
+            },
+            {
+              "Slot": 1,
+              "reaction_type": 0,
+              "damage": 36
+            },
+            {
+              "Slot": 2,
+              "reaction_type": 0,
+              "damage": 41
+            }
+          ],
+          "Shape": 2048,
+          "DisplayIndex": 1387,
+          "SelectorCalls": 1,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 2
+            }
+          ]
+        },
+        {
+          "Condition": "Silenced",
+          "Requested": 2,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 0,
+          "action_type": 0,
+          "Data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 2,
+              "reaction_type": 0,
+              "damage": 222
+            }
+          ],
+          "Shape": 256,
+          "DisplayIndex": 0,
+          "SelectorCalls": 4,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 1
+            },
+            {
+              "Original": 2,
+              "Selected": 2
+            },
+            {
+              "Original": 1,
+              "Selected": 1
+            },
+            {
+              "Original": 0,
+              "Selected": 0
+            }
+          ]
+        },
+        {
+          "Condition": "NoTargets",
+          "Requested": 2,
+          "Result": 0,
+          "Committed": false,
+          "SelectorCalls": 10
+        }
+      ]
+    },
+    {
+      "ProductionChecks": 3675,
+      "MaintenanceChecks": 7919,
+      "HistoryRestart": true,
+      "Dispatch": [
+        {
+          "Condition": "Full",
+          "Requested": -1,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 1,
+          "action_type": 10,
+          "Data": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 1,
+              "reaction_type": 0,
+              "damage": 159
+            },
+            {
+              "Slot": 4,
+              "reaction_type": 0,
+              "damage": 156
+            }
+          ],
+          "Shape": 1024,
+          "DisplayIndex": 1386,
+          "SelectorCalls": 1,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 1
+            }
+          ]
+        },
+        {
+          "Condition": "Full",
+          "Requested": 0,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 0,
+          "action_type": 0,
+          "Data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 1,
+              "reaction_type": 0,
+              "damage": 223
+            }
+          ],
+          "Shape": 256,
+          "DisplayIndex": 0,
+          "SelectorCalls": 1,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 0
+            }
+          ]
+        },
+        {
+          "Condition": "Full",
+          "Requested": 2,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 2,
+          "action_type": 10,
+          "Data": [
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 0,
+              "reaction_type": 0,
+              "damage": 139
+            },
+            {
+              "Slot": 1,
+              "reaction_type": 0,
+              "damage": 136
+            },
+            {
+              "Slot": 2,
+              "reaction_type": 0,
+              "damage": 141
+            }
+          ],
+          "Shape": 2048,
+          "DisplayIndex": 1387,
+          "SelectorCalls": 1,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 2
+            }
+          ]
+        },
+        {
+          "Condition": "Wounded",
+          "Requested": 0,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 0,
+          "action_type": 0,
+          "Data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 1,
+              "reaction_type": 0,
+              "damage": 223
+            }
+          ],
+          "Shape": 256,
+          "DisplayIndex": 0,
+          "SelectorCalls": 1,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 0
+            }
+          ]
+        },
+        {
+          "Condition": "Wounded",
+          "Requested": 2,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 2,
+          "action_type": 10,
+          "Data": [
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 0,
+              "reaction_type": 0,
+              "damage": 139
+            },
+            {
+              "Slot": 1,
+              "reaction_type": 0,
+              "damage": 136
+            },
+            {
+              "Slot": 2,
+              "reaction_type": 0,
+              "damage": 141
+            }
+          ],
+          "Shape": 2048,
+          "DisplayIndex": 1387,
+          "SelectorCalls": 1,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 2
+            }
+          ]
+        },
+        {
+          "Condition": "Defensive",
+          "Requested": 2,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 2,
+          "action_type": 10,
+          "Data": [
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 0,
+              "reaction_type": 0,
+              "damage": 39
+            },
+            {
+              "Slot": 1,
+              "reaction_type": 0,
+              "damage": 36
+            },
+            {
+              "Slot": 2,
+              "reaction_type": 0,
+              "damage": 41
+            }
+          ],
+          "Shape": 2048,
+          "DisplayIndex": 1387,
+          "SelectorCalls": 1,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 2
+            }
+          ]
+        },
+        {
+          "Condition": "Silenced",
+          "Requested": 2,
+          "Result": 1,
+          "Committed": true,
+          "FinalMode": 0,
+          "action_type": 0,
+          "Data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "Reactions": [
+            {
+              "Slot": 2,
+              "reaction_type": 0,
+              "damage": 222
+            }
+          ],
+          "Shape": 256,
+          "DisplayIndex": 0,
+          "SelectorCalls": 4,
+          "Selections": [
+            {
+              "Original": 1,
+              "Selected": 1
+            },
+            {
+              "Original": 2,
+              "Selected": 2
+            },
+            {
+              "Original": 1,
+              "Selected": 1
+            },
+            {
+              "Original": 0,
+              "Selected": 0
+            }
+          ]
+        },
+        {
+          "Condition": "NoTargets",
+          "Requested": 2,
+          "Result": 0,
+          "Committed": false,
+          "SelectorCalls": 10
+        }
+      ]
+    }
+  ],
+  "LiveTacticsEnabled": false,
+  "NativeMonsterDispatcherExecuted": true,
+  "BattleMakeDataExecuted": false,
+  "StoryCallbacksExecuted": false,
+  "RenderedBattleExecuted": false,
+  "Original37FilesByteEqual": true,
+  "RegistryRestoredByteEqual": true
+}

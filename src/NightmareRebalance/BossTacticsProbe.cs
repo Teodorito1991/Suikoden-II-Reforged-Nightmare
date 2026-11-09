@@ -120,7 +120,132 @@ internal static class BossTacticsProbe
   Check(work.monster_be_func.Pointer == end && work.monster_cm_func?.Pointer == command,
       "Luca callback bindings left untouched");
   LucaRows.Add(new { source.TableId, Actor = actor.monster_data.id, EnemyCount = work.monster_kazu,
-      Sequences = sequences, AreaTargets = source.TableId == "boss_luc3" ? ObserveLucaArea(manager, work, actor) : null, ExistingAiChanges = 0, StoryCallbacksInvoked = false, TacticalTurnsExecuted = false });
+      Sequences = sequences, AreaTargets = source.TableId == "boss_luc3" ? ObserveLucaArea(manager, work, actor) : null, Dispatcher = source.TableId == "boss_luc3" ? ObserveLucaCommitment(work, actor) : null, ExistingAiChanges = 0, StoryCallbacksInvoked = false, TacticalTurnsExecuted = false });
+ }
+
+ // Only populated during one synchronous call from the isolated production audit.
+ [ThreadStatic] static DispatchProbe? activeDispatch;
+ sealed class DispatchProbe(BATTLE_WORK work, BattleMonsterCharacter actor, int alternative)
+ {
+  internal readonly BATTLE_WORK Work = work;
+  internal readonly BattleMonsterCharacter Actor = actor;
+  internal readonly int Alternative = alternative;
+  internal readonly List<(int Original, int Selected)> Selections = new();
+ }
+
+ internal static void ObserveDispatchSelection(BattleMonsterCharacter actor, ref int selected)
+ {
+  var probe = activeDispatch;
+  if (probe == null || !CombatReforgedRuntime.Probe ||
+      CombatReforgedRuntime.ProbeWork?.Pointer != probe.Work.Pointer ||
+      probe.Actor.Pointer != actor.Pointer) return;
+  var rng = UnityEngine.Random.state;
+  int original = selected;
+  int alternative = probe.Alternative;
+  if (probe.Selections.Count == 0 && selected is >= 0 and < 3 &&
+      alternative is >= 0 and < 3 && actor.CheckMonsterAttackCnt(alternative) &&
+      actor.AttackModeKyoriCheck(alternative))
+  {
+   var move = actor.monster_data.attack_data[alternative];
+   if (move.attack_prob > 0 &&
+       ((move.attack_zokusei & 16) != 0 ? actor.AttackCanCheck() : actor.MagicCanCheck()))
+    selected = alternative;
+  }
+  Check(Same(rng, UnityEngine.Random.state), "Controlled selector adds no RNG draws");
+  probe.Selections.Add((original, selected));
+ }
+
+ static List<object> ObserveLucaCommitment(BATTLE_WORK work, BattleMonsterCharacter actor)
+ {
+  var rows = new List<object>();
+  work.p_status_data = new Il2CppReferenceArray<PLAYER_STATUS_DATA>(12);
+  for (int slot = 0; slot < work.pm_kazu; slot++) work.p_status_data[slot] = new();
+  var scratch = Framework.Singleton<GAME_WORK>.instance;
+  scratch.party_data = new() { party_cha_no = new Il2CppStructArray<byte>(6) };
+  scratch.chara_data.c_kotei_dat = new Il2CppReferenceArray<C_KOTEI_DAT>(new[] { new C_KOTEI_DAT() });
+  var game = scratch.game_data;
+  game.luka_hp = 4321;
+  var ending = work.monster_be_func.Pointer;
+  actor.position = 2;
+  foreach (var (condition, alternate) in new[]
+  {
+   ("Full", -1), ("Full", 0), ("Full", 2),
+   ("Wounded", 0), ("Wounded", 2), ("Defensive", 2),
+   ("Silenced", 2), ("NoTargets", 2)
+  })
+  {
+   for (int slot = 0; slot < work.player_kazu; slot++)
+   {
+    var player = work.pm_data[slot];
+    player.position = (byte)(slot + 1);
+    player.hp = (short)(condition == "NoTargets" ? 0 :
+        condition == "Wounded" ? 300 : player.max_hp);
+    player.dead_flg = (byte)(condition == "NoTargets" ? 1 : 0);
+    player.status = condition == "NoTargets" ? 0x800000u : 0;
+    player.calc_para[2] = player.calc_para[3] = condition == "Defensive" ? 160 : 60;
+   }
+   actor.status = condition == "Silenced" ? 2048u : 0;
+   actor.action_num = 3;
+   actor.action_kaisu = 0;
+   actor.finished_flg = 0;
+   actor.c_koudou = 0;
+   actor.InitMonsterAttackCnt();
+   var counts = work.pm_attack_data[actor.chara_no].curent_use_cnt;
+   var usesBefore = counts.ToArray();
+   byte counter = work.battle_kaisuu;
+   work.action_top = null;
+   work.action_sp = null;
+   for (int i = 0; i < work.MokuhyoKaisu.Length; i++) work.MokuhyoKaisu[i] = 0;
+   UnityEngine.Random.InitState(2100);
+   var probe = new DispatchProbe(work, actor, alternate);
+   int result;
+   try
+   {
+    activeDispatch = probe;
+    result = actor.monster_attack_sub();
+   }
+   finally { activeDispatch = null; }
+   var action = work.action_top;
+   bool committed = result == 1 && action != null;
+   Check(actor.action_kaisu == 1 && work.battle_kaisuu == counter &&
+       game.luka_hp == 4321 && work.monster_be_func.Pointer == ending &&
+       work.monster_cm_func == null && usesBefore.SequenceEqual(counts),
+       "Luca dispatcher preserves handoff, callbacks, round and unlimited uses");
+   if (condition == "NoTargets")
+   {
+    Check(!committed && action == null && probe.Selections.Count == 10,
+        "No targets exhaust native retry loop without a committed action");
+    rows.Add(new { Condition = condition, Requested = alternate, Result = result,
+        Committed = false, SelectorCalls = probe.Selections.Count });
+    continue;
+   }
+   Check(committed && action!.chara_no == actor.chara_no &&
+       action.reaction_num > 0 && action.next_action_data == null,
+       $"Luca dispatcher produced one owned action (result={result}, mode={actor.c_mode})");
+   if (condition == "Silenced")
+    Check(actor.c_mode == 0 && probe.Selections.All(x => x.Original == x.Selected),
+        "Silence blocks the requested special and preserves the native basic attack");
+   else if (alternate >= 0)
+    Check(actor.c_mode == alternate, "Controlled legal choice survived native action construction");
+   var data = action!.data.Select(x => (int)x).ToArray();
+   if (actor.c_mode is 1 or 2)
+    Check(data[0] == actor.c_mode && action.action_type == 10, "Native special action encodes selected move");
+   var reactions = Enumerable.Range(0, action.reaction_num).Select(i =>
+   {
+    var reaction = action.reaction_data[i];
+    return new { Slot = reaction.mokuhyo, reaction.reaction_type, reaction.damage };
+   }).ToArray();
+   Check(reactions.All(x => x.Slot >= 0 && x.Slot < work.player_kazu),
+       "Committed reactions resolve only player slots in this fixture");
+   Check(reactions.Any(x => x.damage > 0), "Native action recorded positive damage");
+   var move = actor.monster_data.attack_data[actor.c_mode];
+   rows.Add(new { Condition = condition, Requested = alternate, Result = result, Committed = true,
+       FinalMode = actor.c_mode, action.action_type, Data = data, Reactions = reactions,
+       Shape = move.attack_seishitsu & 0xf00, DisplayIndex = move.attack_disp_func_index,
+       SelectorCalls = probe.Selections.Count,
+       Selections = probe.Selections.Select(x => new { x.Original, x.Selected }).ToArray() });
+  }
+  return rows;
  }
 
  [UnmanagedFunctionPointer(CallingConvention.Winapi)]

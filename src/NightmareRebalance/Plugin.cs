@@ -78,7 +78,7 @@ public sealed class Plugin : BasePlugin
             CombatRealityProbe.Run();
             if(ProductionAssetAudit.Requested){AddComponent<ProductionAssetAudit>();ProductionAssetAudit.Scheduled=true;}
             if (Options.EnableDeveloperTools.Value) AddComponent<DeveloperOverlay>();
-            Log.LogInfo("Reforged Nightmare 1.22.0-luca-dispatch-audit.1 experimental content installed. Combat Reality; native war modules retained; custom arena excluded.");
+            Log.LogInfo("Reforged Nightmare 1.23.0-luca-action-commitment.1 experimental content installed. Combat Reality; native war modules retained; custom arena excluded.");
         }
         catch (Exception ex)
         {
