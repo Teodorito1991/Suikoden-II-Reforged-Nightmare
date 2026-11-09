@@ -1,0 +1,12 @@
+{
+  "Milestone": "v1.25",
+  "Decision": "NO-GO",
+  "Verification": "Read-only original binary and source inspection",
+  "BaselineVersion": "1.24.0-luca-manager-ownership.1",
+  "BaselineDllSha256": "6543164A053D3EEFD0BBA4F60B93805472CF51E1C1AC50DA4D351AE8FBC7D427",
+  "NewDllBuilt": false,
+  "NativeExperimentExecuted": false,
+  "GameplayExecuted": false,
+  "SceneOwnershipProven": false,
+  "LiveLucaOptionAvailable": false
+}

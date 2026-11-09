@@ -9,6 +9,13 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.25 — Luca battle context decision (research only)
+
+Mapped original scene setup, camera queue consumption and teardown. Historical
+Hunt evidence does not cover these ownership boundaries for Luca. Further
+isolated Luca experiments are deferred. The v1.24 DLL remains the development
+baseline. [Integration decision](docs/LUCA-BATTLE-CONTEXT-V125.md).
+
 ## v1.24 — Luca Manager Ownership (development only)
 
 Verified native battle-reader initialization and manager/actor queue ownership,
