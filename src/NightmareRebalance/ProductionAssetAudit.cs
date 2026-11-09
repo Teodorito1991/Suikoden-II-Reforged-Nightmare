@@ -13,6 +13,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
  internal static bool Requested=>Plugin.Options.RunCombatSelfTest.Value&&Environment.GetCommandLineArgs().Contains("--reforged-production-audit");
  internal static bool Passed,Finished,Scheduled;internal static int Assertions;internal static readonly List<object> Rows=new();
  static readonly BossSourceAudit[] bossSources=ContentRules.Read<BossSourceAudit[]>(ContentRuntime.Resource("boss-resource-audit.json"));
+ static readonly BossSourceAudit[] lucaSources=ContentRules.Read<BossSourceAudit[]>(ContentRuntime.Resource("luca-source-audit.json"));
  string[]? tables;int quitAt;int index;float started;bool pending,previousBackground;readonly List<AsyncOperationHandle<BATTLE_DATA>> retained=new();AsyncOperationHandle<BATTLE_DATA> handle=null!;
  public ProductionAssetAudit(IntPtr p):base(p){}
  static T Allocate<T>() where T:Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase{RuntimeHelpers.RunClassConstructor(typeof(T).TypeHandle);return (T)Activator.CreateInstance(typeof(T),IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<T>.NativeClassPtr))!;}
@@ -24,14 +25,14 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   try
   {
    if(Combat.State!=null||WarRuntime.Active||WarTacticsRuntime.Armed)throw new InvalidOperationException("Audit requires unloaded launcher.");
-   if(tables==null){previousBackground=Application.runInBackground;Application.runInBackground=true;tables=CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Select(x=>x.TableId).Concat(bossSources.Select(x=>x.Data.TableId)).Concat(CombatReforgedRuntime.Audit.Enemies.Select(x=>x.Id.Substring(0,x.Id.LastIndexOf('_')))).Distinct().ToArray();started=Time.realtimeSinceStartup;}
+   if(tables==null){previousBackground=Application.runInBackground;Application.runInBackground=true;tables=CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Select(x=>x.TableId).Concat(bossSources.Concat(lucaSources).Select(x=>x.Data.TableId)).Concat(CombatReforgedRuntime.Audit.Enemies.Select(x=>x.Id.Substring(0,x.Id.LastIndexOf('_')))).Distinct().ToArray();started=Time.realtimeSinceStartup;}
    if(Time.realtimeSinceStartup-started>40)throw new TimeoutException("Production resource audit timed out before resource completion.");
    // HD UI font/material bundles require the graphics player; never load in -nographics.
    // The explicit unloaded render smoke verifies them separately.
    if(!GuildNativeProbe.Resources())return;
    if(Time.realtimeSinceStartup-started>40)throw new TimeoutException("Production resource audit timed out.");
    if(!pending)
-   {if(index==tables.Length){if(!HuntResourceProbe.Step())return;if(!HuntFieldSourceProbe.Step())return;if(!CastleGuildNativeProbe.Step())return;MaintenanceNativeProbe.Finish();ExpansionNativeProbe.Finish();GuildNativeProbe.Menu();Check(BossTacticsProbe.Covered.Count==10,"All ten boss action fixtures");Check(BossTacticsProbe.Differences>0,"Actual native boss selections changed");Check(GuildNativeProbe.Hunts.Count==3,"Guild rewards tested for three hunts");Check(HuntCatalogueProbe.Covered.Count==3,"All three catalogue native component fixtures executed");Passed=true;Finish();return;}Plugin.Logger.LogInfo("Production asset request: "+tables[index]);handle=Addressables.LoadAssetAsync<BATTLE_DATA>((Il2CppSystem.String)("gsd2-classic-battle-battle-"+tables[index]));pending=true;return;}
+   {if(index==tables.Length){if(!HuntResourceProbe.Step())return;if(!HuntFieldSourceProbe.Step())return;if(!CastleGuildNativeProbe.Step())return;MaintenanceNativeProbe.Finish();ExpansionNativeProbe.Finish();GuildNativeProbe.Menu();Check(BossTacticsProbe.LucaRows.Count==3,"All three original Luca selector baselines");Check(BossTacticsProbe.Covered.Count==10,"All ten boss action fixtures");Check(BossTacticsProbe.Differences>0,"Actual native boss selections changed");Check(GuildNativeProbe.Hunts.Count==3,"Guild rewards tested for three hunts");Check(HuntCatalogueProbe.Covered.Count==3,"All three catalogue native component fixtures executed");Passed=true;Finish();return;}Plugin.Logger.LogInfo("Production asset request: "+tables[index]);handle=Addressables.LoadAssetAsync<BATTLE_DATA>((Il2CppSystem.String)("gsd2-classic-battle-battle-"+tables[index]));pending=true;return;}
    if(!handle.IsDone)return;
    try{Check(handle.Status==AsyncOperationStatus.Succeeded,"Native asset load failed: "+tables[index]);Inspect(handle.Result);}
    finally{retained.Add(handle);pending=false;}
@@ -44,11 +45,17 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   if(table==null||table.monster_data==null||table.monster_party==null)throw new InvalidOperationException("Native battle table arrays");
   CastleGuildNativeProbe.HuntTable(table);
   BossTacticsProbe.Table(table);
+  if (lucaSources.SingleOrDefault(x => x.Data.TableId == table.id) is {} luca)
+  {
+   InspectBoss(table, new[] { luca });
+   BossTacticsProbe.Table(table, luca.Data);
+   return;
+  }
   MaintenanceNativeProbe.Table(table);
   ExpansionNativeProbe.Table(table);
   HuntLifecycleProbe.Table(table);
   HuntCatalogueProbe.Table(table);
-  var configs=CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Where(a=>a.TableId==table.id).ToArray();if(configs.Length==0){if(bossSources.Any(x=>x.Data.TableId==table.id))InspectBoss(table);return;}Check(configs.Length>0,"Original table ID");
+  var configs=CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Where(a=>a.TableId==table.id).ToArray();if(configs.Length==0){if(bossSources.Any(x=>x.Data.TableId==table.id))InspectBoss(table,bossSources.Where(x=>x.Data.TableId==table.id).ToArray());return;}Check(configs.Length>0,"Original table ID");
   MeasureDamage(table);
   foreach(var a in configs)
   {
@@ -61,9 +68,9 @@ public sealed class ProductionAssetAudit : MonoBehaviour
    Rows.Add(new{Kind="LoadedFormationProductionPath",a.TableId,a.PartyId,Passed=true,RenderedFight=false});
   }
  }
- static void InspectBoss(BATTLE_DATA table)
+ static void InspectBoss(BATTLE_DATA table, BossSourceAudit[] expected)
  {
-  var expected=bossSources.Where(x=>x.Data.TableId==table.id).ToArray();Check(expected.Length>0,"Audited original boss table ID");
+  Check(expected.Length>0,"Audited original boss table ID");
   foreach(var record in expected)
   {
    var a=record.Data;var party=table.monster_party[a.Indices[0]];if(party==null)throw new InvalidOperationException("Missing original boss party");Check(party.id==a.PartyId&&party.party_flg==a.Flags&&party.item_no==a.Item,"Original boss identity/flags/item");
@@ -114,6 +121,5 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   if(Application.isBatchMode&&Environment.GetCommandLineArgs().Contains("--reforged-test-exit")){quitAt=Time.frameCount+60;Plugin.Logger.LogInfo("Isolated audit scheduled normal exit after startup settles; no campaign loaded.");}
  }
  void Checkpoint(){string dir=Path.Combine(Paths.BepInExRootPath,"ReforgedNightmare","combat");Directory.CreateDirectory(dir);File.WriteAllText(Path.Combine(dir,"production-asset-audit.json"),JsonSerializer.Serialize(Snapshot(),new JsonSerializerOptions{WriteIndented=true}));}
- internal static object Snapshot()=>new{GuildVisual=GuildVisualNativeProbe.Snapshot(),CastleGuild=CastleGuildNativeProbe.Snapshot(),Requested,Finished,Passed,Assertions,Rows=Rows.ToArray(),Maintenance=MaintenanceNativeProbe.Snapshot(),Expansion=ExpansionNativeProbe.Snapshot(),Guild=GuildNativeProbe.Snapshot(),BossTactics=BossTacticsProbe.Snapshot(),RewardAvailability=HuntRewardAvailabilityProbe.Snapshot(),HuntFieldSources=HuntFieldSourceProbe.Snapshot(),HuntCatalogue=HuntCatalogueProbe.Snapshot(),HuntLifecycle=HuntLifecycleProbe.Snapshot(),HuntResources=HuntResourceProbe.Snapshot(),HuntRewards=HuntRewardProbe.Snapshot(),FullBattlePlayed=false,SaveWritten=false};
+ internal static object Snapshot()=>new{GuildVisual=GuildVisualNativeProbe.Snapshot(),CastleGuild=CastleGuildNativeProbe.Snapshot(),Requested,Finished,Passed,Assertions,Rows=Rows.ToArray(),Maintenance=MaintenanceNativeProbe.Snapshot(),Expansion=ExpansionNativeProbe.Snapshot(),Guild=GuildNativeProbe.Snapshot(),BossTactics=BossTacticsProbe.Snapshot(),LucaSelectors=BossTacticsProbe.LucaRows.ToArray(),RewardAvailability=HuntRewardAvailabilityProbe.Snapshot(),HuntFieldSources=HuntFieldSourceProbe.Snapshot(),HuntCatalogue=HuntCatalogueProbe.Snapshot(),HuntLifecycle=HuntLifecycleProbe.Snapshot(),HuntResources=HuntResourceProbe.Snapshot(),HuntRewards=HuntRewardProbe.Snapshot(),FullBattlePlayed=false,SaveWritten=false};
 }
-

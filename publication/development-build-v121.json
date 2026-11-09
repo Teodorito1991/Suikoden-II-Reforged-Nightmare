@@ -1,0 +1,29 @@
+{
+  "Version": "1.21.0-luca-foundation.1",
+  "DllSha256": "92335E7432D2805536A0409ABB366EB6E155D05EE45F4F8B0670F432863B1E8D",
+  "Parent": "838d0295b6c7711f18c2e20e56d44d2ddccbb736",
+  "BuildWarnings": 0,
+  "BuildErrors": 0,
+  "ManagedSuitePassed": true,
+  "NativeRuns": [
+    {
+      "ProductionChecks": 3675,
+      "MaintenanceChecks": 7919,
+      "RetainedBossPolicies": 10,
+      "LucaPairs": 144,
+      "HistoryRestart": false
+    },
+    {
+      "ProductionChecks": 3675,
+      "MaintenanceChecks": 7919,
+      "RetainedBossPolicies": 10,
+      "LucaPairs": 144,
+      "HistoryRestart": true
+    }
+  ],
+  "ActiveLucaPolicy": false,
+  "StoryCallbacksExecuted": false,
+  "RenderedBattlesExecuted": false,
+  "Original37FilesByteEqual": true,
+  "RegistryRestoredByteEqual": true
+}

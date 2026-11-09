@@ -8,9 +8,9 @@ internal static class BossTacticsProbe
  static T Alloc<T>() where T:Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase{RuntimeHelpers.RunClassConstructor(typeof(T).TypeHandle);return(T)Activator.CreateInstance(typeof(T),IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<T>.NativeClassPtr))!;}
  static void Check(bool x,string message){Assertions++;if(!x)throw new InvalidOperationException("Boss tactics: "+message);}
  static bool Same(UnityEngine.Random.State a,UnityEngine.Random.State b)=>a.s0==b.s0&&a.s1==b.s1&&a.s2==b.s2&&a.s3==b.s3;
- internal static void Table(BATTLE_DATA table)
+ internal static void Table(BATTLE_DATA table, FormationAudit? luca = null)
  {
-  var a=BossTacticsRuntime.Audit.FirstOrDefault(x=>x.TableId==table.id);if(a==null)return;
+  var a=luca??BossTacticsRuntime.Audit.FirstOrDefault(x=>x.TableId==table.id);if(a==null)return;
   var game=Framework.Singleton<GAME_WORK>.instance;var work=Framework.Singleton<BATTLE_WORK>.instance;var state=Combat.State;var rng=UnityEngine.Random.state;bool quality=BossTacticsRuntime.Config.EnableCombatQuality;bool strict=DifficultyProvenance.StrictProbe,ai=CombatReforgedRuntime.Config.EnableEnemyAi,suppress=BossTacticsRuntime.Suppress;
   var copies=new List<MONSTER_DATA>();
   try{
@@ -22,7 +22,7 @@ internal static class BossTacticsProbe
    w.pm_data=new Il2CppReferenceArray<PM_DATA>(12);w.b_chara=new Il2CppReferenceArray<BATTLE_CHARA>(12);w.pm_attack_data=new Il2CppReferenceArray<PM_ATTACK_DATA>(12);w.c_varia_dat=new Il2CppReferenceArray<C_VARIA_DAT>(12);w.MokuhyoKaisu=new Il2CppStructArray<byte>(12);w.b_magic_status=new();
    manager.parties=new Il2CppReferenceArray<BattleParty>(new[]{new BattleParty(0,native),new BattleParty(1,native)});
    for(int i=0;i<w.pm_kazu;i++){
-    PM_DATA u=i<6?Alloc<BattlePlayerCharacter>():Alloc<BattleMonsterCharacter>();u.manager=native;u.chara_no=i;u.chara_id=(byte)(i<6?0:roster[i-6]);u.position=(byte)(i<6?i:Array.IndexOf(a.OldCodes,roster[i-6]));u.hp=600;u.max_hp=600;u.calc_para=new Il2CppStructArray<int>(new[]{120,70,60,50,80,75,60,100});
+    PM_DATA u=i<6?Alloc<BattlePlayerCharacter>():Alloc<BattleMonsterCharacter>();u.manager=native;u.chara_no=i;u.chara_id=(byte)(i<6?0:roster[i-6]);u.position=(byte)(i<6?i:luca==null?Array.IndexOf(a.OldCodes,roster[i-6]):Enumerable.Range(0,a.OldCodes.Length).Where(slot=>a.OldCodes[slot]>0).ElementAt(i-6));u.hp=600;u.max_hp=600;u.calc_para=new Il2CppStructArray<int>(new[]{120,70,60,50,80,75,60,100});
     if(i>=6){u.hp=(short)w.monster_data[u.chara_id].hp;u.max_hp=(ushort)u.hp;for(int k=0;k<7;k++)u.calc_para[k]=w.monster_data[u.chara_id].para[k];}
     w.pm_data[i]=u;w.b_chara[i]=Alloc<BATTLE_CHARA>();w.b_chara[i].chara_id=u.chara_id;w.pm_attack_data[i]=new(){curent_use_cnt=new Il2CppStructArray<byte>(new byte[]{255,255,255,255})};w.c_varia_dat[i]=new(){mon_eqp=new Il2CppStructArray<byte>(3),bogu_eqp=new Il2CppStructArray<byte>(5),mp=new Il2CppStructArray<byte>(4),item_eqp=new Il2CppReferenceArray<PARTY_ITEM>(3)};for(int j=0;j<3;j++)w.c_varia_dat[i].item_eqp[j]=new();
    }
@@ -33,7 +33,13 @@ internal static class BossTacticsProbe
    if(a.Hooks[4]!=0)w.monster_cm_func=(BattleOverlayDelegate)(Func<BATTLE_WORK,int>)(_=>throw new Exception("Forbidden command callback"));
    CombatReforgedRuntime.Probe=true;CombatReforgedRuntime.ProbeWork=w;var s=new BattleState(manager){Ready=true};Combat.State=s;
    CombatReforgedRuntime.Ready(s,w,true);CombatEvolutionRuntime.Ready(s,w,true);CombatReforgedRuntime.Config.EnableEnemyAi=true;
-   BossTacticsRuntime.Suppress=false;BossTacticsRuntime.Ready(w,true);var pattern=BossTacticsRuntime.Config.Patterns.Single(x=>x.TableId==table.id);var actor=w.pm_data.First(x=>x!=null&&!x.IsPlayer&&x.monster_data?.id==pattern.EnemyId).Cast<BattleMonsterCharacter>();
+   BossTacticsRuntime.Suppress=false;BossTacticsRuntime.Ready(w,true);
+   if (luca != null)
+   {
+    ObserveLuca(manager, w, luca);
+    return;
+   }
+   var pattern=BossTacticsRuntime.Config.Patterns.Single(x=>x.TableId==table.id);var actor=w.pm_data.First(x=>x!=null&&!x.IsPlayer&&x.monster_data?.id==pattern.EnemyId).Cast<BattleMonsterCharacter>();
    Check(BossTacticsRuntime.Bound(actor),"Production admission "+table.id);Covered.Add(table.id);bool stat=s.StatsAllowed;int max=actor.max_hp;var hooks=CombatEvolutionRuntime.Hooks(w.monster_party_data.data);var ending=w.monster_be_func.Pointer;var main=w.monster_bm_func?.Pointer;
    Check(BossTacticsRuntime.Source(w,a),"Source and observed ShallowCopy provenance");actor.monster_data.hp++;Check(!BossTacticsRuntime.Source(w,a)&&!BossTacticsRuntime.Bound(actor),"Unexplained or post-admission data mutation rejected");actor.monster_data.hp--;
    var endCallback=w.monster_be_func;w.monster_be_func=null;Check(!BossTacticsRuntime.Source(w,a),"Missing resolved ending excluded");w.monster_be_func=endCallback;
@@ -64,6 +70,58 @@ internal static class BossTacticsProbe
    Rows.Add(new{a.TableId,NativeSelectorDifferences=changed,Selections=144,Windows=windows,ArmoredSelection=builds[0],WardedSelection=builds[1],BuildChangedSelection=builds[0]!=builds[1],ExhaustedSelection=depleted,NativeRawDamageBudgets=budgets,AdmissionProductionPath=true,StoryCallbacksInvoked=false,RenderedBossPlayed=false});
   }finally{BossTacticsRuntime.Config.EnableCombatQuality=quality;DifficultyProvenance.StrictProbe=strict;CombatReforgedRuntime.Config.EnableEnemyAi=ai;BossTacticsRuntime.Suppress=suppress;CombatReforgedRuntime.Probe=false;CombatReforgedRuntime.ProbeWork=null;CombatReforgedRuntime.Clear();Combat.State=state;Framework.Singleton<GAME_WORK>.instance=game;Framework.Singleton<BATTLE_WORK>.instance=work;UnityEngine.Random.state=rng;foreach(var copy in copies)UnityEngine.Object.Destroy(copy);}
  }
+ internal static readonly List<object> LucaRows = new();
+
+ // Baseline only. Counter and HP inputs belong to scratch state, not a story battle.
+ static void ObserveLuca(BattleManager manager, BATTLE_WORK work, FormationAudit source)
+ {
+  Check(BossTacticsRuntime.Source(work, source), "Luca roster, native copies and callback registry");
+  var actor = work.pm_data.First(u => u != null && u.monster_data?.id == source.Monsters.Last().Id)
+      .Cast<BattleMonsterCharacter>();
+  Check(!BossTacticsRuntime.Bound(actor) && !CombatReforgedRuntime.Plans.ContainsKey(actor.Pointer),
+      "Luca remains outside the existing tactics and profile admissions");
+  var end = work.monster_be_func.Pointer;
+  var command = work.monster_cm_func?.Pointer;
+  var sequences = new List<object>();
+  foreach (int seed in Enumerable.Range(0, 8))
+  {
+   var modes = new List<int>();
+   var targets = new List<int>();
+   UnityEngine.Random.State baselineRng = default;
+   foreach (bool modAi in new[] { false, true })
+   {
+    UnityEngine.Random.InitState(seed + 2100);
+    CombatReforgedRuntime.Config.EnableEnemyAi = modAi;
+    for (byte counter = 0; counter < 6; counter++)
+    {
+     work.battle_kaisuu = counter;
+     actor.hp = (short)(actor.max_hp - counter * 200);
+     int mode = actor.SelectAttackMode();
+     Check(mode is >= 0 and < 3 && actor.CheckMonsterAttackCnt(mode) &&
+         actor.AttackModeKyoriCheck(mode), "Luca original mode is available");
+     actor.c_mode = (sbyte)mode;
+     int target = manager.parties[1].MonsterFindKojinMokuhyo(actor.chara_no);
+     Check(target >= 0 && target < work.player_kazu, "Luca native target is in the player party");
+     Check(work.battle_kaisuu == counter, "Luca selectors leave the supplied counter unchanged");
+     if (!modAi)
+     {
+      modes.Add(mode);
+      targets.Add(target);
+     }
+     else
+      Check(mode == modes[counter] && target == targets[counter], "Existing AI leaves Luca selectors unchanged");
+    }
+    if (!modAi) baselineRng = UnityEngine.Random.state;
+    else Check(Same(baselineRng, UnityEngine.Random.state), "Luca selector sequences preserve native RNG");
+   }
+   sequences.Add(new { Modes = modes, TargetSlots = targets });
+  }
+  Check(work.monster_be_func.Pointer == end && work.monster_cm_func?.Pointer == command,
+      "Luca callback bindings left untouched");
+  LucaRows.Add(new { source.TableId, Actor = actor.monster_data.id, EnemyCount = work.monster_kazu,
+      Sequences = sequences, ExistingAiChanges = 0, StoryCallbacksInvoked = false, TacticalTurnsExecuted = false });
+ }
+
  internal static readonly List<object> QualityRows=new();
  static void Quality(BattleManager manager,BATTLE_WORK w,BattleMonsterCharacter actor,BossPattern pattern)
  {
@@ -117,4 +175,3 @@ internal static class BossTacticsProbe
  }
  internal static object Snapshot()=>new{Assertions,Selections,Differences,Covered=Covered.ToArray(),Rows=Rows.ToArray(),CombatQuality=QualityRows.ToArray(),RenderedBossPlayed=false,CallbacksInvoked=false,PlayerItemAward=false};
 }
-

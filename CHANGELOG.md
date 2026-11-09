@@ -9,6 +9,16 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.21 — Luca Blight Encounter Foundation (development only)
+
+Audited Luca's three original records and traced the HP carryover and distinct
+outcome callbacks. Added two isolated native selector runs covering all three
+records. Existing AI changed zero choices in the paired sequences. Luca tactics
+remain unavailable pending live dispatch and party handoff verification.
+
+DLL SHA256 `92335E7432D2805536A0409ABB366EB6E155D05EE45F4F8B0670F432863B1E8D`.
+[Encounter audit and evidence](docs/LUCA-ENCOUNTER-V121.md).
+
 ## v1.20 — Boss Combat Quality (development only)
 
 Refined Pest Rat and first Harpy action/target preferences: focused openings and

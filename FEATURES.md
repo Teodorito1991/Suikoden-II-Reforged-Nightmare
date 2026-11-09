@@ -73,4 +73,4 @@ v1.19 improves Guild spacing, state/reward/destination text and visible failed-a
 
 ## v1.20 development note
 
-v1.20 refines Pest Rat/first Harpy native action and target choices, without stat/damage changes. Corrected Lucia/Luca identity confusion; actual Luca Blight has no dedicated tactics policy. [Native evidence and limitations](docs/BOSS-COMBAT-QUALITY-V120.md).
+v1.20 refines Pest Rat/first Harpy native action and target choices, without stat/damage changes. Corrected Lucia/Luca identity confusion; v1.21 audits Luca Blight’s three original records and HP carryover. Live Luca tactics remain unavailable. [Luca encounter audit](docs/LUCA-ENCOUNTER-V121.md). [Native evidence and limitations](docs/BOSS-COMBAT-QUALITY-V120.md).
