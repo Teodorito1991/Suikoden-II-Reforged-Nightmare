@@ -9,6 +9,16 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.26 — Playable development integration
+
+Packaged the exact v1.25 DLL with separate Dreamer and Thornwake opt-ins.
+Verified both profiles at startup and documented original local map connections,
+protected checkpoint requirements and a short quest checklist. Full campaign
+isolation and rendered quest acceptance remain pending.
+
+Reused DLL SHA256 `AA27445761E1E7581FF2D32DCF5FA608E47A072F06A5B307B809A46557EA09B0`.
+[Protected gameplay candidate](docs/HUNT-ACCEPTANCE-V126.md).
+
 ## v1.25 — Monster Hunt Catalogue (development only)
 
 Connected the Castle Guild request observer to native setup for all three

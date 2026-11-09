@@ -65,7 +65,7 @@ City); the exact walking route has not been played. No encounter, balance, rewar
 or drop probability was changed. Conditional item offers still depend on native
 loot, eligibility and inventory handling; reporting grants nothing extra.
 
-The final development DLL is `0EF0B648CC897C2119ED6919DA250FD1FDFFD1CAC5F8F536FB8BA8B5A8A1BEA7`. Original frame/font/cursor rendering was
+The historical v1.19 presentation DLL was `0EF0B648CC897C2119ED6919DA250FD1FDFFD1CAC5F8F536FB8BA8B5A8A1BEA7`. Original frame/font/cursor rendering was
 exercised in an unloaded preview. Offline previews are not gameplay screenshots,
 and no current-hash field, controller or complete-quest acceptance is claimed.
 
@@ -103,3 +103,5 @@ one contract at the castle, travel normally without reloading, complete or
 escape the encounter, and confirm the reward and report-back flow. The new
 contracts have no rendered or player-earned quest acceptance. Sun's historical
 v1.12.2 acceptance remains specific to that binary.
+
+For protected play preparation and the latest candidate, see the [v1.26 acceptance guide](docs/HUNT-ACCEPTANCE-V126.md).

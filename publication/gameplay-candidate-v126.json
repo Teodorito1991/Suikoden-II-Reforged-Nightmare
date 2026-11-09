@@ -1,0 +1,69 @@
+{
+  "Milestone": "v1.26",
+  "BinaryVersion": "1.25.0-hunt-catalogue.1",
+  "DllSha256": "AA27445761E1E7581FF2D32DCF5FA608E47A072F06A5B307B809A46557EA09B0",
+  "BinaryReused": true,
+  "SourceBaseline": "29ea8b5cda8dda1a79bb65a99a3ab7840c8e4910",
+  "StartupRuns": [
+    {
+      "Profile": "dreamers-circuit",
+      "Scene": "Main",
+      "EnabledHunts": [
+        "dreamers-circuit",
+        "sun-kings-retinue"
+      ],
+      "MajorBossesEnabled": false,
+      "DeveloperToolsEnabled": false,
+      "CampaignLoaded": false,
+      "NormalQuit": true
+    },
+    {
+      "Profile": "thornwake-patrol",
+      "Scene": "Main",
+      "EnabledHunts": [
+        "sun-kings-retinue",
+        "thornwake-patrol"
+      ],
+      "MajorBossesEnabled": false,
+      "DeveloperToolsEnabled": false,
+      "CampaignLoaded": false,
+      "NormalQuit": true
+    }
+  ],
+  "VerifiedLocalConnections": {
+    "Sindar": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "GreenhillRegion": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        1
+      ]
+    ]
+  },
+  "OverworldRouteVerified": false,
+  "CheckpointStagedOffline": true,
+  "CampaignIsolationAvailable": false,
+  "RenderedQuestExecuted": false,
+  "Original37FilesByteEqual": true,
+  "RegistryRestoredByteEqual": true
+}
