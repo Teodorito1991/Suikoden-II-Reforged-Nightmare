@@ -1,6 +1,7 @@
 using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 namespace NightmareRebalance;
 internal static class BossTacticsProbe
 {
@@ -119,7 +120,62 @@ internal static class BossTacticsProbe
   Check(work.monster_be_func.Pointer == end && work.monster_cm_func?.Pointer == command,
       "Luca callback bindings left untouched");
   LucaRows.Add(new { source.TableId, Actor = actor.monster_data.id, EnemyCount = work.monster_kazu,
-      Sequences = sequences, ExistingAiChanges = 0, StoryCallbacksInvoked = false, TacticalTurnsExecuted = false });
+      Sequences = sequences, AreaTargets = source.TableId == "boss_luc3" ? ObserveLucaArea(manager, work, actor) : null, ExistingAiChanges = 0, StoryCallbacksInvoked = false, TacticalTurnsExecuted = false });
+ }
+
+ [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+ delegate int NativeAreaSelector(IntPtr party, int actor, ref IntPtr targets, IntPtr methodInfo);
+
+ // Observe the actual target buffers used by the solo encounter's area attacks.
+ static List<object> ObserveLucaArea(BattleManager manager, BATTLE_WORK work, BattleMonsterCharacter actor)
+ {
+  var rows = new List<object>();
+  var party = manager.parties[1];
+  // This startup-only probe runs after Plugin's exact GameAssembly/metadata check.
+  // Use the native by-reference array ABI. The generated wrapper returned the
+  // original zero-filled buffer even when the native result reported two slots.
+  var module = NativeLibrary.Load("GameAssembly.dll");
+  var column = Marshal.GetDelegateForFunctionPointer<NativeAreaSelector>(module + 0x1a75600);
+  var row = Marshal.GetDelegateForFunctionPointer<NativeAreaSelector>(module + 0x1a759d0);
+  try
+  {
+   actor.position = 2;
+   foreach (bool sparse in new[] { false, true })
+   {
+    for (int slot = 0; slot < work.player_kazu; slot++)
+    {
+     var player = work.pm_data[slot];
+     bool unavailable = sparse && slot % 2 == 0;
+     player.position = (byte)(slot + 1);
+     player.hp = (short)(unavailable ? 0 : player.max_hp);
+     player.dead_flg = (byte)(unavailable ? 1 : 0);
+     player.status = unavailable ? 0x800000u : 0;
+    }
+    foreach (sbyte mode in new sbyte[] { 1, 2 })
+    {
+     actor.c_mode = mode;
+     var groups = new List<int[]>();
+     for (int seed = 0; seed < 8; seed++)
+     {
+      UnityEngine.Random.InitState(2200 + seed);
+      var buffer = new Il2CppStructArray<int>(6);
+      IntPtr nativeBuffer = buffer.Pointer;
+      int count = (mode == 1 ? column : row)(party.Pointer, actor.chara_no, ref nativeBuffer, IntPtr.Zero);
+      GC.KeepAlive(buffer);
+      Check(nativeBuffer == buffer.Pointer, "Luca area selector retains caller-owned target buffer");
+      Check(count > 0 && count <= buffer.Length, "Luca native area target count");
+      var targets = buffer.Take(count).ToArray();
+      Check(targets.Distinct().Count() == count && targets.All(slot =>
+          slot >= 0 && slot < work.player_kazu && work.pm_data[slot].hp > 0 &&
+          work.pm_data[slot].MokuhyoCanCheck()), $"Luca area target mismatch: mode={mode}, sparse={sparse}, slots={string.Join(",", targets)}");
+      groups.Add(targets);
+     }
+     rows.Add(new { Mode = mode, SparseParty = sparse, Groups = groups });
+    }
+   }
+   return rows;
+  }
+  finally { NativeLibrary.Free(module); }
  }
 
  internal static readonly List<object> QualityRows=new();

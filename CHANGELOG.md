@@ -9,6 +9,16 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.22 — Luca Tactical Dispatch Audit (development only)
+
+Traced the solo encounter's native attack selection, retry and target-building
+paths. Added isolated native row and column target checks with full and depleted
+party fixtures. Live Luca tactics remain gated on verifying action commitment
+through the original dispatcher. No configuration migration is required.
+
+DLL SHA256 `C3360B8BFB82006E84DD4434DA18BB1E30709978449930CE022591E328A3E8ED`.
+[Dispatch audit](docs/LUCA-DISPATCH-V122.md).
+
 ## v1.21 — Luca Blight Encounter Foundation (development only)
 
 Audited Luca's three original records and traced the HP carryover and distinct

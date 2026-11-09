@@ -1,0 +1,30 @@
+{
+  "Version": "1.22.0-luca-dispatch-audit.1",
+  "DllSha256": "C3360B8BFB82006E84DD4434DA18BB1E30709978449930CE022591E328A3E8ED",
+  "Parent": "8cf259d49683b49fc7d4d5a87690a137a3f5a7d2",
+  "ManagedSuitePassed": true,
+  "NativeRuns": [
+    {
+      "ProductionChecks": 3675,
+      "MaintenanceChecks": 7919,
+      "AreaCalls": 32,
+      "LucaBaselineDecisionPairs": 144,
+      "RetainedBossPolicies": 10,
+      "HistoryRestart": false
+    },
+    {
+      "ProductionChecks": 3675,
+      "MaintenanceChecks": 7919,
+      "AreaCalls": 32,
+      "LucaBaselineDecisionPairs": 144,
+      "RetainedBossPolicies": 10,
+      "HistoryRestart": true
+    }
+  ],
+  "LiveLucaTactics": false,
+  "NativeAttackDispatchExecuted": false,
+  "StoryCallbacksExecuted": false,
+  "RenderedBattleExecuted": false,
+  "Original37FilesByteEqual": true,
+  "RegistryRestoredByteEqual": true
+}
