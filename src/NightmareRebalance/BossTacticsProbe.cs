@@ -120,7 +120,63 @@ internal static class BossTacticsProbe
   Check(work.monster_be_func.Pointer == end && work.monster_cm_func?.Pointer == command,
       "Luca callback bindings left untouched");
   LucaRows.Add(new { source.TableId, Actor = actor.monster_data.id, EnemyCount = work.monster_kazu,
-      Sequences = sequences, AreaTargets = source.TableId == "boss_luc3" ? ObserveLucaArea(manager, work, actor) : null, Dispatcher = source.TableId == "boss_luc3" ? ObserveLucaCommitment(work, actor) : null, ExistingAiChanges = 0, StoryCallbacksInvoked = false, TacticalTurnsExecuted = false });
+      Sequences = sequences, AreaTargets = source.TableId == "boss_luc3" ? ObserveLucaArea(manager, work, actor) : null, ManagerPrerequisite = source.TableId == "boss_luc3" ? ObserveManagerQueue(manager, work, actor) : null, Dispatcher = source.TableId == "boss_luc3" ? ObserveLucaCommitment(work, actor) : null, ExistingAiChanges = 0, StoryCallbacksInvoked = false, TacticalTurnsExecuted = false });
+ }
+
+ // Verify the native reader and queue ownership without entering the camera tail of BattleMakeData.
+ static object ObserveManagerQueue(BattleManager manager, BATTLE_WORK work, BattleMonsterCharacter actor)
+ {
+  Check(manager.battle_work?.Pointer == work.Pointer &&
+      work.action_top == null && work.action_sp == null && work.b_read_work == null,
+      "Fresh scratch manager owns the battle work and its queue");
+  var priorReader = Framework.Singleton<b_read>.instance;
+  var reader = Alloc<b_read>();
+  var readerWork = new B_READ_WORK();
+  var rng = UnityEngine.Random.state;
+  work.b_read_work = readerWork;
+  try
+  {
+   // This reader is bound to the scratch manager only. The singleton is untouched.
+   reader.InitBRead(manager.Cast<IBattleManager>());
+   var table = readerWork.read_data_table;
+   Check(table != null && table.Length == 18 && table.All(entry => entry == 0),
+       "Native reader allocated an empty 18-slot table");
+   table![0] = 19;
+   table[17] = 23;
+   reader.InitBReadTable();
+   Check(readerWork.read_data_table.Pointer == table.Pointer && table.All(entry => entry == 0) &&
+       readerWork.cd_status == 2 && readerWork.seek_flg == 1,
+       "BattleMakeData reader initialization cleared its own table");
+   for (int cycle = 0; cycle < 2; cycle++)
+   {
+    var head = manager.CreateActionData((sbyte)actor.chara_no);
+    var tail = actor.GetActionData();
+    Check(head.Pointer != tail.Pointer && work.action_top?.Pointer == head.Pointer &&
+        work.action_sp?.Pointer == tail.Pointer && head.next_action_data?.Pointer == tail.Pointer &&
+        tail.next_action_data == null && head.chara_no == actor.chara_no &&
+        tail.chara_no == actor.chara_no && head.data.All(value => value == 0),
+        "Manager and actor append to one owned native action chain");
+    tail.CreateReActionData(2);
+    Check(tail.reaction_num == 2 && head.reaction_data == null,
+        "Native reaction allocation belongs to the tail only");
+    tail.DeleteActionData();
+    Check(tail.reaction_data == null, "Native deletion clears owned reaction references");
+    head.next_action_data = null;
+    work.action_top = null;
+    work.action_sp = null;
+   }
+   Check(Same(rng, UnityEngine.Random.state) &&
+       Framework.Singleton<b_read>.instance?.Pointer == priorReader?.Pointer,
+       "Reader and queue operations preserve RNG and the original reader singleton");
+   return new { NativeReaderSlots = 18, NativeQueueCycles = 2,
+       NativeReactionCleanup = true, BattleMakeDataInvoked = false };
+  }
+  finally
+  {
+   work.action_top = null;
+   work.action_sp = null;
+   work.b_read_work = null;
+  }
  }
 
  // Only populated during one synchronous call from the isolated production audit.

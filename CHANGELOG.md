@@ -9,6 +9,15 @@ update documentation/configuration guidance and exact-hash evidence, push audite
 source, verify the remote commit and CI, and report the commit link. Development
 remains private; existing beta assets, tags and draft releases are unchanged.
 
+## v1.24 — Luca Manager Ownership (development only)
+
+Verified native battle-reader initialization and manager/actor queue ownership,
+including reaction cleanup and re-entry. Full dispatch still requires an owned
+battle field, camera and continuation. Live tactics remain unavailable.
+
+DLL SHA256 `6543164A053D3EEFD0BBA4F60B93805472CF51E1C1AC50DA4D351AE8FBC7D427`.
+[Manager ownership audit](docs/LUCA-MANAGER-OWNERSHIP-V124.md).
+
 ## v1.23 — Luca Action Commitment (development only)
 
 The original solo Luca dispatcher now commits distinct basic, row and column

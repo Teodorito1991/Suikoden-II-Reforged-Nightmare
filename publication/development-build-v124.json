@@ -1,0 +1,39 @@
+{
+  "Version": "1.24.0-luca-manager-ownership.1",
+  "DllSha256": "6543164A053D3EEFD0BBA4F60B93805472CF51E1C1AC50DA4D351AE8FBC7D427",
+  "Parent": "e853f6cc4d07666e585a25630efd6c09ed0a5064",
+  "ManagedSuitePassed": true,
+  "NativeRuns": [
+    {
+      "ProductionChecks": 3675,
+      "MaintenanceChecks": 7919,
+      "HistoryRestart": false,
+      "ManagerPrerequisite": {
+        "NativeReaderSlots": 18,
+        "NativeQueueCycles": 2,
+        "NativeReactionCleanup": true,
+        "BattleMakeDataInvoked": false
+      },
+      "RetainedDispatcherCases": 8
+    },
+    {
+      "ProductionChecks": 3675,
+      "MaintenanceChecks": 7919,
+      "HistoryRestart": true,
+      "ManagerPrerequisite": {
+        "NativeReaderSlots": 18,
+        "NativeQueueCycles": 2,
+        "NativeReactionCleanup": true,
+        "BattleMakeDataInvoked": false
+      },
+      "RetainedDispatcherCases": 8
+    }
+  ],
+  "LiveTacticsEnabled": false,
+  "NativeMonsterDispatcherExecuted": true,
+  "BattleMakeDataExecuted": false,
+  "StoryCallbacksExecuted": false,
+  "RenderedBattleExecuted": false,
+  "Original37FilesByteEqual": true,
+  "RegistryRestoredByteEqual": true
+}
