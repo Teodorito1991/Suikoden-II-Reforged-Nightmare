@@ -133,3 +133,19 @@ before restoration, and only position and clock differences in compared data.
 The new manual save also matched the original test checkpoint for all five
 flag arrays and the serialized war, character, and party data. Commander Rout
 victory and defeat in other scenarios were outside this acceptance run.
+
+### War 3 distinct-field candidate
+
+Candidate 1.31.0-training.3 adds a separate default-off War 3 drill. The
+original completion flag, map 9, roster and script fingerprints must match.
+The drill uses the stock tactical rules and original ending dispatch. The
+War 1 defeat-result interceptor does not apply to War 3.
+
+SHA-256: 4D86F2D17378AF28E3A925CDE61C5CDB7CDC1DE0E7D859BADB2B53EBF6D39BA2.
+Build and managed checks passed. The disposable runtime loaded the DLL and
+entered native WarChapter with scenario 3. The owner completed the battle and
+returned to the tavern. Native result 1 passed through unchanged. The trace
+recorded WarChapter teardown before MapChapter resumed. The return audit found
+equal restored flags, zero save calls before restoration, a matching destination
+and only position and clock differences. Repeat entry was available at return.
+A second War 3 run, defeat and post-War 3 save/reload were outside this test.

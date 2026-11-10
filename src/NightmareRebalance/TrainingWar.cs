@@ -6,7 +6,7 @@ namespace NightmareRebalance;
 
 internal static class TrainingWar
 {
-    internal enum Drill { Standard, FortDefense, CommanderRout }
+    internal enum Drill { Standard, FortDefense, CommanderRout, War3 }
 
     sealed class Session(GAME_WORK game, SYS_WORK system, MACHICON field, EVENTCON events, EVENT_HUMAN player, Drill drill)
     {
@@ -22,7 +22,7 @@ internal static class TrainingWar
         internal readonly int FadeFrame = Time.frameCount;
         internal WarChapter? War;
         internal readonly Drill SelectedDrill = drill;
-        internal readonly byte WarNumber = drill == Drill.FortDefense ? (byte)2 : (byte)1;
+        internal readonly byte WarNumber = drill switch { Drill.FortDefense => 2, Drill.War3 => 3, _ => 1 };
         internal bool Committed, Destroyed;
         internal int Result, SaveCalls;
     }
@@ -41,6 +41,8 @@ internal static class TrainingWar
         NativeWarRemix.DefinitionsVerified;
     internal static bool FortDefenseAvailable => Available && Plugin.Options.EnableTrainingWar2.Value &&
         War2Runtime.DefinitionsVerified && Framework.Singleton<GAME_WORK>.instance?.eventFlgCHK(0xAA, 0x02) == true;
+    internal static bool War3Available => Available && Plugin.Options.EnableTrainingWar3.Value &&
+        TotalWarRuntime.Verified.Contains(3) && Framework.Singleton<GAME_WORK>.instance?.eventFlgCHK(0x0C, 0x80) == true;
     internal static bool ChallengeActive => current is { Committed: true, SelectedDrill: Drill.CommanderRout };
     internal static bool FortDefenseActive => current is { Committed: true, SelectedDrill: Drill.FortDefense };
 
@@ -49,6 +51,7 @@ internal static class TrainingWar
         var available = new List<Drill> { Drill.Standard };
         if (FortDefenseAvailable) available.Add(Drill.FortDefense);
         if (ChallengeAvailable) available.Add(Drill.CommanderRout);
+        if (War3Available) available.Add(Drill.War3);
         int index = Math.Max(0, available.IndexOf(selection));
         return available[(index + (forward ? 1 : available.Count - 1)) % available.Count];
     }
@@ -59,6 +62,7 @@ internal static class TrainingWar
         {
             Drill.FortDefense => FortDefenseAvailable,
             Drill.CommanderRout => ChallengeAvailable,
+            Drill.War3 => War3Available,
             _ => Available
         };
         requestedDrill = drill;
@@ -122,6 +126,13 @@ internal static class TrainingWar
                     (!game.eventFlgCHK(0xAA, 0x02) || !War2Runtime.Audit() || !Plugin.CheckCompatibility()))
                 {
                     Reject("War 2 requires the original battle to be complete and its native scripts to match.");
+                    return;
+                }
+
+                if (requestedDrill == Drill.War3 &&
+                    (!game.eventFlgCHK(0x0C, 0x80) || !TotalWarRuntime.Audit(3) || !Plugin.CheckCompatibility()))
+                {
+                    Reject("War 3 requires the original battle to be complete and its native scripts and roster to match.");
                     return;
                 }
 

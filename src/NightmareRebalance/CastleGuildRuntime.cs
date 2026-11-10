@@ -97,6 +97,7 @@ internal static class CastleGuildRuntime
  internal static TrainingWar.Drill SelectedTraining => trainingDrill switch
  {
   TrainingWar.Drill.FortDefense when TrainingWar.FortDefenseAvailable => trainingDrill,
+  TrainingWar.Drill.War3 when TrainingWar.War3Available => trainingDrill,
   TrainingWar.Drill.CommanderRout when TrainingWar.ChallengeAvailable => trainingDrill,
   _ => TrainingWar.Drill.Standard
  };
@@ -142,7 +143,7 @@ internal static class CastleGuildRuntime
   GuildQuestState.Reported=>"Well hunted! Your report is recorded. You may take another contract.",
   _=>"No active contract. Choose one to begin."};
  internal static string ContractName=>HuntRuntime.Definitions.FirstOrDefault(x=>x.Id==Contract)?.Name??Contract??"";
- internal static string ActionLabel=>Quest.State==GuildQuestState.AwaitingReport?"Report completion":Quest.State==GuildQuestState.Accepted?"Withdraw contract":TrainingWar.Available?(SelectedTraining switch { TrainingWar.Drill.FortDefense => "Train: Fort Defense", TrainingWar.Drill.CommanderRout => "Train: Commander Rout", _ => "Train: War 1" }):"Close";
+ internal static string ActionLabel=>Quest.State==GuildQuestState.AwaitingReport?"Report completion":Quest.State==GuildQuestState.Accepted?"Withdraw contract":TrainingWar.Available?(SelectedTraining switch { TrainingWar.Drill.FortDefense => "Train: Fort Defense", TrainingWar.Drill.War3 => "Train: War 3", TrainingWar.Drill.CommanderRout => "Train: Commander Rout", _ => "Train: War 1" }):"Close";
  internal static bool AcceptContract(string id){
   if(!Context)return false;
   if(Quest.State is GuildQuestState.Accepted or GuildQuestState.AwaitingReport){Status=Quest.State==GuildQuestState.AwaitingReport?"Report the completed hunt first.":"Finish or withdraw your active contract first.";return false;}

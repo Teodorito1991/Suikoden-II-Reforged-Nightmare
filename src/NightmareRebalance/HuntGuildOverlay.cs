@@ -64,10 +64,11 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   string stateName=GuildPresentation.State(state);
   string objective=GuildPresentation.Objective(state,CastleGuildRuntime.Contract??selected);
   var availability=defs.Select(d=>GuildPresentation.Availability(state,d.Id,CastleGuildRuntime.Contract??CastleGuildRuntime.Quest.LastReportedId,HuntRuntime.Settings(d).Enabled,HuntRuntime.Config.EnableExperimentalHunt)).ToArray();
-  string prompt=castle&&CastleGuildRuntime.TrainingSelected?(TrainingWar.FortDefenseAvailable||TrainingWar.ChallengeAvailable?"Left / Right: choose drill    Confirm: train":"Confirm: train"):GuildPresentation.Prompt(state,focus==defs.Length,setting.Enabled&&HuntRuntime.Config.EnableExperimentalHunt);
+  string prompt=castle&&CastleGuildRuntime.TrainingSelected?(TrainingWar.FortDefenseAvailable||TrainingWar.ChallengeAvailable||TrainingWar.War3Available?"Left / Right: choose drill    Confirm: train":"Confirm: train"):GuildPresentation.Prompt(state,focus==defs.Length,setting.Enabled&&HuntRuntime.Config.EnableExperimentalHunt);
   if(castle&&CastleGuildRuntime.TrainingSelected)
    objective=CastleGuildRuntime.SelectedTraining switch {
     TrainingWar.Drill.FortDefense => "War 2. Command four squads and defend the fort against the Highland advance. No reward.",
+    TrainingWar.Drill.War3 => "War 3. Fight on a different battlefield with the original units and objectives. No reward.",
     TrainingWar.Drill.CommanderRout => "War 1 challenge. Fight past turn three and rout the enemy commander. No reward.",
     _ => "War 1 standard drill. Play the original battle and its timed ending. No reward."
    };

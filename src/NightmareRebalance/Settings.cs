@@ -13,7 +13,7 @@ internal sealed class Settings
     internal readonly ConfigEntry<bool> EnableBossProfiles, EnableRuneBalancing, EnableCharacterBalancing, EnableEnemyProfiles, EnableWarUnitProfiles, EnableDeveloperTools, EnableWarArena, EnableEnemyTargeting;
     internal readonly ConfigEntry<string> BossProfilePath;
     internal readonly ConfigEntry<bool> EnableBossProfileDiagnostics, FallbackToGlobalNightmare;
-    internal readonly ConfigEntry<bool> EnableTrainingWar, EnableTrainingChallenge, EnableTrainingDefeatReturn, EnableTrainingWar2;
+    internal readonly ConfigEntry<bool> EnableTrainingWar, EnableTrainingChallenge, EnableTrainingDefeatReturn, EnableTrainingWar2, EnableTrainingWar3;
     internal readonly ConfigEntry<bool> EnableNativeWarRemix,RunNativeWarSelfTest,ExportNativeWarResearch,EnableNativeWarAI,EnableWarSpecializations,EnableWarTactics;
 
     internal readonly ConfigEntry<bool> EnableCombatReforgedAi, RunCombatSelfTest, EnableHuntDebugTools;
@@ -49,6 +49,7 @@ internal sealed class Settings
         ExportNativeWarResearch = config.Bind("Developer", nameof(ExportNativeWarResearch), false, "Developer-only read-only static war script export. No campaign entry or edits.");
         EnableTrainingWar = config.Bind("Native War", nameof(EnableTrainingWar), false, "Disposable War 1 training experiment.");
         EnableTrainingWar2 = config.Bind("Native War", nameof(EnableTrainingWar2), false, "Experimental War 2 fort defense in the disposable copy.");
+        EnableTrainingWar3 = config.Bind("Native War", nameof(EnableTrainingWar3), false, "Experimental original War 3 in the disposable copy.");
         EnableTrainingChallenge = config.Bind("Native War", nameof(EnableTrainingChallenge), false, "Experimental War 1 commander-rout challenge in the disposable copy.");
         EnableTrainingDefeatReturn = config.Bind("Native War", nameof(EnableTrainingDefeatReturn), false, "Experimental return after native training defeat in the disposable copy.");
         EnableNativeWarRemix = config.Bind("Native War", nameof(EnableNativeWarRemix), true, "Audited scenario remixes for native wars 1,2,3,6,13. Original ending/campaign scripts retained; per-war configuration and experimental acceptance limits in docs.");

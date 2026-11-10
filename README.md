@@ -37,7 +37,7 @@ No public release is approved or published.
 
 Experimental Castle War Training uses the stock field-to-war transition in a
 controlled test copy. Standard War 1 was played twice on v1.29 and Fort Defense
-(War 2) completed on v1.30. On v1.31, an earned Commander Rout defeat returned to the tavern, and Fort Defense completed after manual save and reload. See [War Training](docs/WAR-TRAINING-V130.md)
+(War 2) completed on v1.30. On v1.31, an earned Commander Rout defeat returned to the tavern, and Fort Defense completed after manual save and reload. The original War 3 battlefield also completed and returned to the tavern in the test copy. See [War Training](docs/WAR-TRAINING-V130.md)
 for opt-ins and verification. Commander XP, persistent army training and the
 retired Unity arena are unavailable. The beta does not include Castle War Training.
 

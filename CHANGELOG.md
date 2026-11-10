@@ -4,6 +4,7 @@ These are private development milestones, not previous public releases.
 
 ## v1.31 — Commander Rout controls and defeat return
 
+- Adds opt-in War 3 training on a distinct original battlefield. The owner completed one run and returned to the tavern with a clean return audit.
 - Transfers active allied squads at the original command-selection step in Commander Rout.
 - Verified earned defeat, training-only return, manual save/reload and a subsequent Fort Defense return.
 - Both tested returns preserved audited campaign and character state. Commander Rout victory remains untested.
