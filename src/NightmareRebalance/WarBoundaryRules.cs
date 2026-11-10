@@ -13,5 +13,5 @@ internal static class WarBoundaryRules
   if(before.Flags!=now.Flags)return "Campaign flags changed";
   return "Prerequisite context matches; resource cleanup/control restoration unproven";
  }
- internal static bool CanLaunch=>false; // No switch, command or JSON can bypass unresolved lifecycle gates.
+ internal static bool CanLaunch { get; set; }
 }

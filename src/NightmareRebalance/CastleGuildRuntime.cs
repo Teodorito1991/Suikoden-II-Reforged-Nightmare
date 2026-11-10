@@ -92,6 +92,14 @@ internal static class CastleGuildRuntime
  }
  internal static bool Context=>Modal&&Idle&&Near&&!HuntGuildRuntime.RenderFaulted;
  static bool Press(GRInputManager.Type t)=>GRInputManager.IsInstantiated&&GRInputManager.Instance.keys!=null&&GRInputManager.Instance.keys.TryGetValue(t,out var k)&&k!=null&&k.on;
+ static TrainingWar.Drill trainingDrill;
+ internal static bool TrainingSelected => Focus==HuntRuntime.Definitions.Length&&Quest.State is not (GuildQuestState.Accepted or GuildQuestState.AwaitingReport)&&TrainingWar.Available;
+ internal static TrainingWar.Drill SelectedTraining => trainingDrill switch
+ {
+  TrainingWar.Drill.FortDefense when TrainingWar.FortDefenseAvailable => trainingDrill,
+  TrainingWar.Drill.CommanderRout when TrainingWar.ChallengeAvailable => trainingDrill,
+  _ => TrainingWar.Drill.Standard
+ };
  static bool Held(GRInputManager.Type t)=>GRInputManager.IsInstantiated&&GRInputManager.Instance.keys!=null&&GRInputManager.Instance.keys.TryGetValue(t,out var k)&&k!=null&&k.press;
  internal static bool Tick(EVENTCON e)
  {
@@ -100,15 +108,21 @@ internal static class CastleGuildRuntime
   if(inputFrame==Time.frameCount&&Modal&&HuntGuildRuntime.RenderReady){e.EventPlayerDisp(false);return false;}inputFrame=Time.frameCount;
   bool decide=Press(GRInputManager.Type.Decide),cancel=Press(GRInputManager.Type.Cancel);
   if(ReleaseFence){if(++releaseFrames>120||(!Held(GRInputManager.Type.Decide)&&!Held(GRInputManager.Type.Cancel))){ReleaseFence=false;return true;}e.EventPlayerDisp(false);return false;}
-  if(!Modal){if(!decide)return true;Modal=true;Focus=Quest.State==GuildQuestState.AwaitingReport?HuntRuntime.Definitions.Length:0;confirmReleased=false;HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;Opens++;Status="Welcome to the Guild. Which quarry will you pursue?";}
+  if(!Modal){if(!decide)return true;Modal=true;trainingDrill=TrainingWar.Drill.Standard;Focus=Quest.State==GuildQuestState.AwaitingReport?HuntRuntime.Definitions.Length:0;confirmReleased=false;HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;Opens++;Status="Welcome to the Guild. Which quarry will you pursue?";}
   if(!HuntGuildRuntime.Visible||HuntGuildRuntime.RenderFaulted){Close(false);return true;}
   if(!Held(GRInputManager.Type.Decide))confirmReleased=true;
   Focus=GuildScreenRules.Move(Focus,Press(GRInputManager.Type.Up),Press(GRInputManager.Type.Down),HuntRuntime.Definitions.Length);
+  if(TrainingSelected)
+  {
+   bool left=Press(GRInputManager.Type.Left),right=Press(GRInputManager.Type.Right);
+   if(left!=right)trainingDrill=TrainingWar.Cycle(SelectedTraining,right);
+  }
   if(cancel){Close(true);e.EventPlayerDisp(false);return false;}
   if(decide&&confirmReleased&&HuntGuildRuntime.RenderReady){
    if(Focus==HuntRuntime.Definitions.Length){
     if(Quest.State==GuildQuestState.AwaitingReport)ReportContract();
     else if(Quest.State==GuildQuestState.Accepted)WithdrawContract();
+    else if(TrainingSelected)TrainingWar.Request(SelectedTraining);
     Close(true);e.EventPlayerDisp(false);return false;
    }
    if(AcceptContract(HuntRuntime.Definitions[Focus].Id)){Close(true);e.EventPlayerDisp(false);return false;}
@@ -128,7 +142,7 @@ internal static class CastleGuildRuntime
   GuildQuestState.Reported=>"Well hunted! Your report is recorded. You may take another contract.",
   _=>"No active contract. Choose one to begin."};
  internal static string ContractName=>HuntRuntime.Definitions.FirstOrDefault(x=>x.Id==Contract)?.Name??Contract??"";
- internal static string ActionLabel=>Quest.State==GuildQuestState.AwaitingReport?"Report completion":Quest.State==GuildQuestState.Accepted?"Withdraw contract":"Close";
+ internal static string ActionLabel=>Quest.State==GuildQuestState.AwaitingReport?"Report completion":Quest.State==GuildQuestState.Accepted?"Withdraw contract":TrainingWar.Available?(SelectedTraining switch { TrainingWar.Drill.FortDefense => "Train: Fort Defense", TrainingWar.Drill.CommanderRout => "Train: Commander Rout", _ => "Train: War 1" }):"Close";
  internal static bool AcceptContract(string id){
   if(!Context)return false;
   if(Quest.State is GuildQuestState.Accepted or GuildQuestState.AwaitingReport){Status=Quest.State==GuildQuestState.AwaitingReport?"Report the completed hunt first.":"Finish or withdraw your active contract first.";return false;}

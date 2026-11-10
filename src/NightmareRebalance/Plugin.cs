@@ -7,7 +7,7 @@ using HarmonyLib;
 
 namespace NightmareRebalance;
 
-[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.27.0")]
+[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.30.0")]
 [BepInDependency("d3xMachina.suikoden_fix", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("faospark.pkcore", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("nightmare.suikoden2.rebalance", BepInDependency.DependencyFlags.SoftDependency)]
@@ -53,6 +53,8 @@ public sealed class Plugin : BasePlugin
             if(HuntRuntime.Config.EnableExperimentalHunt||HuntGuildRuntime.Config.EnableSelector) AddComponent<HuntAccessControl>();
             HuntDebug.Initialize(this);
             harmony.PatchAll(typeof(Plugin).Assembly);
+            WarBoundaryRules.CanLaunch = TrainingWar.Enabled;
+            if (WarBoundaryRules.CanLaunch) Log.LogInfo("Disposable native war training enabled.");
             if(UnityEngine.Application.isBatchMode&&Environment.GetCommandLineArgs().Contains("--reforged-hunt-debug-selftest")){HuntDebugProbe.Run();AddComponent<HuntDebugExit>();}
             WarRuntime.NativeCopyProbe();
             NativeWarRemix.SelfTest();
@@ -78,7 +80,7 @@ public sealed class Plugin : BasePlugin
             CombatRealityProbe.Run();
             if(ProductionAssetAudit.Requested){AddComponent<ProductionAssetAudit>();ProductionAssetAudit.Scheduled=true;}
             if (Options.EnableDeveloperTools.Value) AddComponent<DeveloperOverlay>();
-            Log.LogInfo("Reforged Nightmare 1.27.0-boss-expansion.1 experimental content installed. Combat Reality; native war modules retained; custom arena excluded.");
+            Log.LogInfo("Reforged Nightmare 1.30.0-training.2 experimental content installed. Combat Reality; native war modules retained; custom arena excluded.");
         }
         catch (Exception ex)
         {

@@ -13,7 +13,7 @@ internal static class War2Runtime
     internal static War2Outcome Outcome;
     internal static object? LastResult;
     internal static readonly List<object> AiTrace=new();
-    internal static bool Active=>Ready&&Policy is {Enabled:true}&&Plugin.Options.EnableNativeWarRemix.Value;
+    internal static bool Active=>Ready&&!TrainingWar.Active&&Policy is {Enabled:true}&&Plugin.Options.EnableNativeWarRemix.Value;
     internal static void Initialize()
     {
         try{Policy=WarPolicyRules.Parse(OverhaulRuntime.Load("native-war-rules.json")).Wars.Single();DefinitionsVerified=Audit();
@@ -32,7 +32,7 @@ internal static class War2Runtime
             &&w_dat_2.event_data_2[1]?.Pointer==w_dat_2.event_end_0.Pointer
             &&w_dat_2.event_data_2[4]?.Pointer==w_dat_2.event_end_2.Pointer;
     }
-    internal static void Arm(){Clear();Armed=true;}
+    internal static void Arm(){Clear();if(TrainingWar.Active&&!TrainingWar.FortDefenseActive)return;Armed=true;}
     internal static void Begin()
     {
         Ready=false;Generation++;PlayerUnits=ContinueChecks=OutcomeChecks=AiChanges=0;Outcome=War2Outcome.Vanilla;AiTrace.Clear();
@@ -43,7 +43,7 @@ internal static class War2Runtime
         for(int i=0;i<4;i++)if(rows[0][i]==null||w_unit.GetUnitChara(0,i,0)!=leaders[i])return;
         if(w_unit.GetUnitChara(1,0,0)!=61||w_chara.GetCharaZenmetu(61)!=0)return;
         Ready=true;
-        if(Active&&Policy.PlayerCommands)
+        if(TrainingWar.FortDefenseActive||(Active&&Policy.PlayerCommands))
             for(int i=0;i<4;i++){w_unit.SetUnitControl(0,i,war_h.CONTROL_PLAYER);PlayerUnits++;}
         if(!Probe)Plugin.Logger.LogInfo($"War 2 READY: remix={Active}, player squads={PlayerUnits}, native AI scoring={Plugin.Options.EnableNativeWarAI.Value&&Policy.EnemyAi}; fallback turn={Policy.MaximumTurn}. Native fort-breach/ending callbacks retained.");
     }

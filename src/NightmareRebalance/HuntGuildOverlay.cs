@@ -64,7 +64,13 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   string stateName=GuildPresentation.State(state);
   string objective=GuildPresentation.Objective(state,CastleGuildRuntime.Contract??selected);
   var availability=defs.Select(d=>GuildPresentation.Availability(state,d.Id,CastleGuildRuntime.Contract??CastleGuildRuntime.Quest.LastReportedId,HuntRuntime.Settings(d).Enabled,HuntRuntime.Config.EnableExperimentalHunt)).ToArray();
-  string prompt=GuildPresentation.Prompt(state,focus==defs.Length,setting.Enabled&&HuntRuntime.Config.EnableExperimentalHunt);
+  string prompt=castle&&CastleGuildRuntime.TrainingSelected?(TrainingWar.FortDefenseAvailable||TrainingWar.ChallengeAvailable?"Left / Right: choose drill    Confirm: train":"Confirm: train"):GuildPresentation.Prompt(state,focus==defs.Length,setting.Enabled&&HuntRuntime.Config.EnableExperimentalHunt);
+  if(castle&&CastleGuildRuntime.TrainingSelected)
+   objective=CastleGuildRuntime.SelectedTraining switch {
+    TrainingWar.Drill.FortDefense => "War 2. Command four squads and defend the fort against the Highland advance. No reward.",
+    TrainingWar.Drill.CommanderRout => "War 1 challenge. Fight past turn three and rout the enemy commander. No reward.",
+    _ => "War 1 standard drill. Play the original battle and its timed ending. No reward."
+   };
   if(!castle)prompt="Developer:1/2/3 browse    F10 close    4 requests";
   return new(){Names=defs.Select(d=>d.Name).ToArray(),Availability=availability,Focus=focus,Selected=def.Id,State=stateName,Active=CastleGuildRuntime.ContractName.Length>0?CastleGuildRuntime.ContractName:state==GuildQuestState.Reported?defs.FirstOrDefault(d=>d.Id==CastleGuildRuntime.Quest.LastReportedId)?.Name??"None":"None",Objective=objective,Action=castle?CastleGuildRuntime.ActionLabel:"Close",Status=castle?CastleGuildRuntime.Status:"Developer preview — no live contract changed",Bonus=HuntCatalogueRules.Bonus(def,setting,HuntRuntime.Config).ToString("N0"),Item=itemText,Prompt=prompt,Castle=castle,Preview=HuntGuildRuntime.Preview};
  }

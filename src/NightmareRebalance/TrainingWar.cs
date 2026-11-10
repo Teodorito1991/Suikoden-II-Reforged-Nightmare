@@ -1,0 +1,292 @@
+using HarmonyLib;
+using System.Text.Json;
+using UnityEngine;
+
+namespace NightmareRebalance;
+
+internal static class TrainingWar
+{
+    internal enum Drill { Standard, FortDefense, CommanderRout }
+
+    sealed class Session(GAME_WORK game, SYS_WORK system, MACHICON field, EVENTCON events, EVENT_HUMAN player, Drill drill)
+    {
+        internal readonly GAME_WORK Game = game;
+        internal readonly SYS_WORK System = system;
+        internal readonly MACHICON Field = field;
+        internal readonly EVENTCON Events = events;
+        internal readonly long Epoch = NativeWarBoundary.Epoch;
+        internal readonly int Area = field.ano, Town = field.vno, Map = field.mno, Memory = field.memtyp;
+        internal readonly int X = player.x.ss.inte, Y = player.y.ss.inte;
+        internal readonly byte[][] Flags = ReadFlags(game).Select(a => a.ToArray()).ToArray();
+        internal readonly string[] Data = Serialize(game);
+        internal readonly int FadeFrame = Time.frameCount;
+        internal WarChapter? War;
+        internal readonly Drill SelectedDrill = drill;
+        internal readonly byte WarNumber = drill == Drill.FortDefense ? (byte)2 : (byte)1;
+        internal bool Committed, Destroyed;
+        internal int Result, SaveCalls;
+    }
+
+    static Session? current;
+    static bool requested, faulted;
+    static Drill requestedDrill;
+    internal static bool Active => current is { Committed: true };
+    internal static bool Enabled => Plugin.Options?.EnableTrainingWar.Value == true &&
+        StockWarTransitionTrace.Enabled && !Application.isBatchMode &&
+        BepInEx.Paths.GameRootPath.EndsWith(Path.Combine("github-private-staging", "isolated-game"), StringComparison.OrdinalIgnoreCase);
+    internal static bool Available => Enabled && !faulted && current == null && !requested &&
+        Framework.Singleton<GAME_WORK>.instance?.eventFlgCHK(0xA9, 0x40) == true;
+
+    internal static bool ChallengeAvailable => Available && Plugin.Options.EnableTrainingChallenge.Value &&
+        NativeWarRemix.DefinitionsVerified;
+    internal static bool FortDefenseAvailable => Available && Plugin.Options.EnableTrainingWar2.Value &&
+        War2Runtime.DefinitionsVerified && Framework.Singleton<GAME_WORK>.instance?.eventFlgCHK(0xAA, 0x02) == true;
+    internal static bool ChallengeActive => current is { Committed: true, SelectedDrill: Drill.CommanderRout };
+    internal static bool FortDefenseActive => current is { Committed: true, SelectedDrill: Drill.FortDefense };
+
+    internal static Drill Cycle(Drill selection, bool forward)
+    {
+        var available = new List<Drill> { Drill.Standard };
+        if (FortDefenseAvailable) available.Add(Drill.FortDefense);
+        if (ChallengeAvailable) available.Add(Drill.CommanderRout);
+        int index = Math.Max(0, available.IndexOf(selection));
+        return available[(index + (forward ? 1 : available.Count - 1)) % available.Count];
+    }
+
+    internal static void Request(Drill drill)
+    {
+        requested = drill switch
+        {
+            Drill.FortDefense => FortDefenseAvailable,
+            Drill.CommanderRout => ChallengeAvailable,
+            _ => Available
+        };
+        requestedDrill = drill;
+    }
+
+    static Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte>[] ReadFlags(GAME_WORK game) =>
+        [game.chara_flag, game.town_flag, game.event_flag, game.scpoi_flag, game.t_box_flag];
+
+    static string[] Serialize(GAME_WORK game) =>
+        [LitJson.JsonMapper.ToJson(game.game_data), LitJson.JsonMapper.ToJson(game.war_data),
+         LitJson.JsonMapper.ToJson(game.chara_data), LitJson.JsonMapper.ToJson(game.party_data)];
+
+    static EVENT_HUMAN? Player(EVENTCON events) =>
+        events.ehuman is { Count: > 0 } actors ? actors[0] : null;
+
+    static bool Owns(Session session, MACHICON field)
+    {
+        var game = Framework.Singleton<GAME_WORK>.instance;
+        return session.Epoch == NativeWarBoundary.Epoch && game?.Pointer == session.Game.Pointer &&
+            game.sys_work?.Pointer == session.System.Pointer && field.Pointer == session.Field.Pointer &&
+            session.System.mcon?.Pointer == field.Pointer;
+    }
+
+    static void Reject(string reason)
+    {
+        Plugin.Logger.LogWarning("Training war stopped. " + reason);
+        CastleGuildRuntime.Status = reason;
+        requested = false;
+        faulted = current is { Committed: true };
+        current = null;
+    }
+
+    internal static void FieldTick(MACHICON field)
+    {
+        if (!Enabled || (!requested && current == null)) return;
+        try
+        {
+            if (requested)
+            {
+                if (!CastleGuildRuntime.Idle || CastleGuildRuntime.Modal ||
+                    CastleGuildRuntime.Owner?.Pointer != field.Pointer)
+                {
+                    Reject("Castle field is no longer idle.");
+                    return;
+                }
+                if (CastleGuildRuntime.ReleaseFence) return;
+
+                requested = false;
+                var game = Framework.Singleton<GAME_WORK>.instance;
+                var system = game?.sys_work;
+                var events = field.econ;
+                if (game == null || system == null || events == null || system.mcon?.Pointer != field.Pointer ||
+                    Player(events) is not {} player || system.game_mode != 1 || system.game_step?[1] != 1 || system.filter_timer != 0 ||
+                    !game.eventFlgCHK(0xA9, 0x40))
+                {
+                    Reject("Castle field did not match the training prerequisites.");
+                    return;
+                }
+
+                if (requestedDrill == Drill.FortDefense &&
+                    (!game.eventFlgCHK(0xAA, 0x02) || !War2Runtime.Audit() || !Plugin.CheckCompatibility()))
+                {
+                    Reject("War 2 requires the original battle to be complete and its native scripts to match.");
+                    return;
+                }
+
+                current = new Session(game, system, field, events, player, requestedDrill);
+                G2_BACK.FilterSetRGB(255, 0);
+                G2_BACK.FilterBlackOut(2, 15, false);
+                return;
+            }
+
+            var session = current!;
+            if (!session.Committed)
+            {
+                if (!Owns(session, field) || !CastleGuildRuntime.Idle ||
+                    field.econ?.Pointer != session.Events.Pointer ||
+                    field.ano != session.Area || field.vno != session.Town || field.mno != session.Map ||
+                    Player(session.Events) is not {} livePlayer || livePlayer.x.ss.inte != session.X || livePlayer.y.ss.inte != session.Y ||
+                    session.SaveCalls != 0 || Time.frameCount - session.FadeFrame > 180)
+                {
+                    G2_BACK.FilterBlackIn(2, 15);
+                    Reject("Field changed while preparing training.");
+                    return;
+                }
+                if (session.System.filter_timer != 0 || session.Events.EventWindowChk() != 0) return;
+
+                StockWarTransitionTrace.Record("Training.Before", begin: true);
+                session.Committed = true;
+                field._mstep = 45;
+                session.System.war_no = session.WarNumber;
+                field.ano = session.Area;
+                field.vno = session.Town;
+                field.mno = session.Map;
+                field.memtyp = session.Memory;
+                field.px = session.X;
+                field.py = session.Y;
+                session.Events.EventGameWorkSet(field);
+                OldSrcBase.SD_call(15, null);
+                Plugin.Logger.LogInfo($"Training War {session.WarNumber} handed to MachiMain step 45. Return position {session.X},{session.Y}. Drill={session.SelectedDrill}.");
+                return;
+            }
+
+            if (!session.Destroyed) return;
+            if (session.Result != 1 || !Owns(session, field) || field._mstep != 48 ||
+                field.econ != null || session.System.game_mode != 1 || session.SaveCalls != 0)
+            {
+                Reject("Return boundary did not match the armed training session.");
+                return;
+            }
+
+            var flags = ReadFlags(session.Game);
+            if (flags.Where((a, i) => a == null || a.Length != session.Flags[i].Length).Any())
+            {
+                Reject("Campaign flag storage changed during training.");
+                return;
+            }
+            for (int i = 0; i < flags.Length; i++)
+                for (int j = 0; j < flags[i].Length; j++) flags[i][j] = session.Flags[i][j];
+
+            bool equal = flags.Select((a, i) => a.ToArray().SequenceEqual(session.Flags[i])).All(x => x);
+            var after = Serialize(session.Game);
+            string[] names = ["game_data", "war_data", "chara_data", "party_data"];
+            var diff = new List<string>();
+            for (int i = 0; i < names.Length; i++)
+            {
+                using var beforeJson = JsonDocument.Parse(session.Data[i]);
+                using var afterJson = JsonDocument.Parse(after[i]);
+                Compare(beforeJson.RootElement, afterJson.RootElement, names[i], diff);
+            }
+            Plugin.Logger.LogInfo($"Training War {session.WarNumber} return prefix. Flags equal={equal}, save calls={session.SaveCalls}.");
+            Plugin.Logger.LogInfo($"Training War {session.WarNumber} data differences: " + JsonSerializer.Serialize(diff));
+            var destination = session.Game.game_data.deru_pos;
+            bool destinationMatches = destination is { Length: >= 2 } &&
+                destination[0] == session.X && destination[1] == session.Y;
+            faulted = !equal || !destinationMatches || diff.Any(path => !ExpectedDifference(path));
+            Plugin.Logger.LogInfo($"Training War {session.WarNumber} destination matches={destinationMatches}, repeat available={!faulted}.");
+            current = null;
+        }
+        catch (Exception exception) { Reject(exception.Message); }
+    }
+
+    static bool ExpectedDifference(string path) =>
+        path is "game_data.deru_pos[0]" or "game_data.deru_pos[1]" or "game_data.hon_time" or "game_data.hon_time2" ||
+        System.Text.RegularExpressions.Regex.IsMatch(path,
+            @"\Agame_data\.(play_time\[\d+\]|event_time\[\d+\]\[[12]\])\z",
+            System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+
+    static void Compare(JsonElement before, JsonElement after, string path, List<string> diff)
+    {
+        if (diff.Count >= 256 || before.GetRawText() == after.GetRawText()) return;
+        if (before.ValueKind == JsonValueKind.Object && after.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var item in before.EnumerateObject())
+            {
+                if (after.TryGetProperty(item.Name, out var value)) Compare(item.Value, value, path + "." + item.Name, diff);
+                else if (diff.Count < 256) diff.Add(path + "." + item.Name);
+            }
+            foreach (var item in after.EnumerateObject())
+                if (!before.TryGetProperty(item.Name, out _) && diff.Count < 256) diff.Add(path + "." + item.Name);
+            return;
+        }
+        if (before.ValueKind == JsonValueKind.Array && after.ValueKind == JsonValueKind.Array &&
+            before.GetArrayLength() == after.GetArrayLength())
+        {
+            for (int i = 0; i < before.GetArrayLength() && diff.Count < 256; i++)
+                Compare(before[i], after[i], path + "[" + i + "]", diff);
+            return;
+        }
+        diff.Add(path);
+    }
+
+    [HarmonyPatch(typeof(MACHICON), nameof(MACHICON.MachiMain))]
+    static class FieldHook
+    {
+        [HarmonyPrefix] static void Prefix(MACHICON __instance) => FieldTick(__instance);
+    }
+
+    [HarmonyPatch(typeof(WarChapter), nameof(WarChapter.Start))]
+    static class WarStart
+    {
+        [HarmonyPrefix] static void Prefix(WarChapter __instance)
+        {
+            if (current is not { Committed: true } session) return;
+            if (session.War != null || session.System.game_mode != 5 || session.System.war_no != session.WarNumber)
+                Reject("Unexpected war chapter start.");
+            else session.War = __instance;
+        }
+    }
+
+    [HarmonyPatch(typeof(WarChapter), nameof(WarChapter.Update))]
+    static class WarUpdate
+    {
+        [HarmonyPostfix, HarmonyPriority(Priority.Last)]
+        static void Postfix(WarChapter __instance, ref int __result)
+        {
+            if (__result == 0 || current is not {} session || session.War?.Pointer != __instance.Pointer) return;
+
+            int nativeResult = __result;
+            if (nativeResult == 2 && session.WarNumber == 1 && Plugin.Options.EnableTrainingDefeatReturn.Value &&
+                Owns(session, session.Field) && session.System.game_mode == 5 &&
+                session.System.war_no == 1 && session.Field._mstep == 48 &&
+                session.Field.econ == null && session.SaveCalls == 0)
+                __result = 1;
+
+            session.Result = __result;
+            Plugin.Logger.LogInfo($"Training War {session.WarNumber} completed. Native result={nativeResult}, manager result={__result}.");
+        }
+    }
+
+    [HarmonyPatch(typeof(WarChapter), nameof(WarChapter.OnDestroy))]
+    static class WarEnd
+    {
+        [HarmonyPostfix] static void Postfix(WarChapter __instance)
+        {
+            if (current is not { Committed: true } session) return;
+            if (session.War?.Pointer != __instance.Pointer || session.Destroyed || session.Result != 1)
+                Reject($"Training teardown observed result {session.Result}. A normal return is required.");
+            else session.Destroyed = true;
+        }
+    }
+
+    [HarmonyPatch(typeof(GSD2SaveData), nameof(GSD2SaveData.SaveFile))]
+    static class SaveWitness
+    {
+        [HarmonyPrefix] static void Prefix()
+        {
+            if (current is {} session) session.SaveCalls++;
+        }
+    }
+}

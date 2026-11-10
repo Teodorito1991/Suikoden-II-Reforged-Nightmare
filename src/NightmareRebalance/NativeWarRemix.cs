@@ -32,10 +32,10 @@ internal static class NativeWarRemix
         if(!DefinitionsVerified)Plugin.Logger.LogWarning("Native war remix disabled: war 1 script/map fingerprint mismatch.");
         else Plugin.Logger.LogInfo("Native war 1 scripts verified. Turn-three auto-ending can be replaced; original ending/campaign handlers remain installed.");
     }
-    internal static void Arm(){Clear();Armed=true;}
+    internal static void Arm(){Clear();if(TrainingWar.Active&&!TrainingWar.ChallengeActive)return;Armed=true;}
     internal static void Begin()
     {
-        Active=Armed&&Plugin.Options.EnableNativeWarRemix.Value&&war_h.g_w_war_no==1&&DefinitionsVerified&&AuditDefinitions()&&Plugin.CheckCompatibility();
+        Active=Armed&&(TrainingWar.ChallengeActive||Plugin.Options.EnableNativeWarRemix.Value)&&war_h.g_w_war_no==1&&DefinitionsVerified&&AuditDefinitions()&&Plugin.CheckCompatibility();
         // Verified war-1 command is character slot 61 (Solon Jhee). Permanent death immunity
         // is native; annihilation immunity is a separate bit and would make this objective impossible.
         if(Active&&(w_unit.GetUnitChara(1,0,0)!=61||w_chara.GetCharaZenmetu(61)!=0))
@@ -46,7 +46,7 @@ internal static class NativeWarRemix
     internal static void Clear(){Armed=Active=false;LastDecision=NativeWarDecision.Vanilla;}
     internal static bool Check(ref int result)
     {
-        if(!DefinitionsVerified||!(Active||probing)||(!probing&&!Plugin.Options.EnableNativeWarRemix.Value)||war_h.g_w_war_no!=1||war_sys.turn<=3)return true;
+        if(!DefinitionsVerified||!(Active||probing)||(!probing&&!TrainingWar.ChallengeActive&&!Plugin.Options.EnableNativeWarRemix.Value)||war_h.g_w_war_no!=1||war_sys.turn<=3)return true;
         var roster=w_unit.unit;
         if(roster==null||roster.Length!=2||roster[0]==null||roster[1]==null||roster[0].Length!=15||roster[1].Length!=15||roster[1][0]==null)return true;
         var allies=new int[15];

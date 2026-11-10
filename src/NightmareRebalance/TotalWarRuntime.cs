@@ -55,7 +55,7 @@ internal static class TotalWarRuntime
         return table[a.TimerEnding]?.Pointer==ending.Pointer;
     }
     internal static Il2CppReferenceArray<WAR_CHARA_TYPE>? Characters(int war)=>typeof(w_dat_2).Assembly.GetType("w_dat_"+war)?.GetProperty("chara_"+war)?.GetValue(null) as Il2CppReferenceArray<WAR_CHARA_TYPE>;
-    internal static void Arm(){Clear();Armed=true;Transition="Chapter started";}
+    internal static void Arm(){Clear();if(TrainingWar.Active)return;Armed=true;Transition="Chapter started";}
     internal static void Begin()
     {
         Ready=false;Generation++;ActiveWar=war_h.g_w_war_no;Result="Vanilla";Ending=null;AiChanges=SelectedChanges=0;AiTrace.Clear();

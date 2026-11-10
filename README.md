@@ -35,11 +35,11 @@ No public release is approved or published.
   rewards. Accept, travel, hunt, return and report without developer hotkeys.
 - Original-engine story-war unit, AI and objective modifications.
 
-**Repeatable native war skirmishes, commander XP and persistent army training are
-NOT playable features.** Independent skirmish development remains paused under
-the [v1.18 NO-GO decision](docs/FIELD-CONTINUATION-V118.md). v1.19 polishes the
-existing Hunt Guild presentation and feedback; see [verification and limitations](docs/GUILD-POLISH-V119.md). The
-retired custom Unity arena is not part of the playable mod.
+Experimental Castle War Training uses the stock field-to-war transition in a
+controlled test copy. Standard War 1 was played twice on v1.29 and Fort Defense
+(War 2) completed once on v1.30. See [War Training](docs/WAR-TRAINING-V130.md)
+for opt-ins and verification. Commander XP, persistent army training and the
+retired Unity arena are unavailable. The beta does not include Castle War Training.
 
 ## Start here
 

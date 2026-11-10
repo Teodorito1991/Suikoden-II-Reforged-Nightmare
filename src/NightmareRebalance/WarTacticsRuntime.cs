@@ -50,7 +50,7 @@ internal static class WarTacticsRuntime
         var units=(Il2CppReferenceArray<Il2CppReferenceArray<Il2CppStructArray<sbyte>>>)type.GetProperty("unit_init_data_"+war)!.GetValue(null)!;
         return units.Length==2&&units.All(s=>s.Length==15)&&Convert.ToHexString(SHA256.HashData(units.SelectMany(s=>s.SelectMany(u=>u.Select(v=>unchecked((byte)v)))).ToArray()))==row.GetProperty("Roster").GetString();
     }
-    internal static void Arm(){Clear();Armed=true;}
+    internal static void Arm(){Clear();if(TrainingWar.Active)return;Armed=true;}
     internal static void Begin()
     {
         Ready=false;AiFaulted=false;War=war_h.g_w_war_no;Generation++;Routed.Clear();Focus.Clear();Commitments.Clear();History.Clear();PhaseTurn=-1;ScoreChanges=SelectedChanges=0;ScoreTrace.Clear();CommandTrace.Clear();

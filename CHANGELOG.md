@@ -2,6 +2,17 @@
 
 These are private development milestones, not previous public releases.
 
+## v1.30 — Experimental Castle War Training
+
+- Adds Fort Defense using the original War 2 scenario and four controllable squads.
+- Retains standard War 1 and the same-map Commander Rout variant.
+- The owner completed Fort Defense and returned to the castle. The return
+  audit found equal restored flags and only position and clock differences.
+- Training remains opt-in and limited to the test runtime. Repeat War 2,
+  defeat and manual save/reload remain unverified on this build.
+
+See [War Training verification](docs/WAR-TRAINING-V130.md) for the exact hash.
+
 ## v1.27 — Boss expansion and campaign combat polish
 
 - Sierra varies focused pressure and area attacks based on party health.

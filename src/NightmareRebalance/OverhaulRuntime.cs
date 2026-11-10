@@ -44,8 +44,8 @@ internal static class WarRuntime
     static readonly HashSet<int> unsafeAbilities=new();
     internal static bool Active=>session.Active;
     internal static int Generation=>session.Generation;
-    internal static void Arm(){session.Arm();unsafeAbilities.Clear();}
-    internal static void Begin(){unsafeAbilities.Clear();session.Begin(Plugin.Options.EnableWarUnitProfiles.Value&&Plugin.CheckCompatibility(),war_h.g_w_war_no);}
+    internal static void Arm(){if(!TrainingWar.Active)session.Arm();unsafeAbilities.Clear();}
+    internal static void Begin(){unsafeAbilities.Clear();session.Begin(!TrainingWar.Active&&Plugin.Options.EnableWarUnitProfiles.Value&&Plugin.CheckCompatibility(),war_h.g_w_war_no);}
     internal static void Clear(){session.Clear();unsafeAbilities.Clear();}
     static string Branch(byte type)=>type==war_data_h.INFANTRY?"Infantry":type==war_data_h.ARCHER?"Archer":type==war_data_h.MAGICIANS?"Magicians":"Unknown";
     static bool Usable(int id)
