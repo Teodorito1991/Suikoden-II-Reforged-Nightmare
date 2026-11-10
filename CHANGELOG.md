@@ -2,6 +2,13 @@
 
 These are private development milestones, not previous public releases.
 
+## v1.26 — Steam campaign installation
+
+Installed the existing candidate without rebuilding. Verified the exact DLL
+hash, plugin initialization and the original game selector in the Steam
+installation. New Game entry remains unobserved. See the
+[Normal campaign setup](docs/NORMAL-CAMPAIGN.md) for installed options.
+
 ## Unreleased — Luca caller-scope architecture audit
 
 Rechecked the supported native selector and dispatcher without launching the
