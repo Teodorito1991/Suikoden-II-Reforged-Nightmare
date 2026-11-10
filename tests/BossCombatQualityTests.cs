@@ -19,6 +19,26 @@ internal static class BossCombatQualityTests
         Check(BossCombatQuality.Score(p, 2, 100, 100, broad, healthy, 100, 2) == BossCombatQuality.Score(p, 2, 100, 100, broad, healthy, 100, -1), "Quality cadence does not advance from selector evaluation history.");
         Check(BossCombatQuality.Score(p, 2, 100, 100, broad, healthy, int.MinValue, -1) == int.MinValue, "Native-illegal actions remain unavailable.");
         Check(!BossCombatQuality.Supports("boss_nec1") && !BossCombatQuality.Supports("boss_lus1") && !BossCombatQuality.Supports("boss_nec3"), "Major/scripted phases excluded from new quality scope.");
+        Check(!BossCombatQuality.Supports("boss_ryo") && !BossCombatQuality.Supports("boss_luc3"),
+            "Script-dependent encounters stay on their previous policies.");
+        var sierra = new BossPattern { TableId = "boss_sie1", PressureMode = 2, RecoveryMode = 0, AdaptiveMode = 1 };
+        Check(BossCombatQuality.Score(sierra, 2, 100, 100, broad, healthy, 100, -1) > 100
+            && BossCombatQuality.Score(sierra, 2, 100, 100, broad, hurt, 100, -1) < 100,
+            "Sierra favours area pressure only against a healthy party.");
+        foreach (string table in new[] { "boss_gwo1", "boss_gwo2" })
+        {
+            var wolf = new BossPattern { TableId = table, PressureMode = 2, RecoveryMode = 1 };
+            var armored = healthy.Select(t => t with { Defense = 150, MagicDefense = 60 }).ToArray();
+            Check(BossCombatQuality.Score(wolf, 2, 100, 100, broad, armored, 100, -1)
+                > BossCombatQuality.Score(wolf, 2, 100, 100, broad, healthy, 100, -1),
+                "Golden Wolf reads the party's defence gap.");
+        }
+        var harpy = new BossPattern { TableId = "boss_hap2", PressureMode = 3, RecoveryMode = 0 };
+        var statusMove = broad with { Mode = 1, Status = 7, Multi = false };
+        Check(BossCombatQuality.Score(harpy, 2, 100, 100, statusMove, healthy, 100, -1)
+            > BossCombatQuality.Score(harpy, 2, 100, 100, statusMove,
+                healthy.Select(t => t with { StatusUseful = false }).ToArray(), 100, -1),
+            "Second Harpy favours its status move when it can affect the party.");
         var choices = new[] { healthy[0] with { Hp = 80 }, healthy[1] with { Defense = 20 }, healthy[2] with { Defense = 30, Focus = 3 } };
         Check(BossCombatQuality.ChooseTarget(broad with { Physical = true, Multi = false }, choices, 0, 2) == 1, "Attack exposed defence without automatic wounded execution or repeated focus.");
         Check(BossCombatQuality.ChooseTarget(broad, choices, 0, 2) == 0, "Multi-target routines retain native targeting.");

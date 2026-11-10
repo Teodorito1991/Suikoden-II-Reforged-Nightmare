@@ -1,10 +1,11 @@
 namespace NightmareRebalance;
 
-// Only two audited encounters. Uses current visible combat state, not queued
+// Only audited encounters. Uses current visible combat state, not queued
 // player commands, character identities or inferred healer roles. No RNG/stats.
 internal static class BossCombatQuality
 {
-    internal static bool Supports(string table) => table is "boss_rat" or "boss_hap1";
+    internal static bool Supports(string table) => table is
+        "boss_rat" or "boss_hap1" or "boss_hap2" or "boss_sie1" or "boss_gwo1" or "boss_gwo2";
     internal static bool GroupReady(IReadOnlyList<CombatTarget> targets) => targets.Count >= 3 && targets.All(t => t.MaxHp > 0 && t.Hp > 0 && t.Hp <= t.MaxHp) &&
         targets.Count(t => (long)t.Hp * 100 <= (long)t.MaxHp * 35) <= 1 &&
         targets.Average(t => 100.0 * t.Hp / Math.Max(1, t.MaxHp)) >= 60;
@@ -23,6 +24,30 @@ internal static class BossCombatQuality
         // A repeated status move is less useful when its native status mask is
         // already present. Do not invent immunity or remove native legality.
         if (action.Status != 0 && targets.Count(t => t.StatusUseful) * 2 < targets.Count) score -= 100;
+        switch (pattern.TableId)
+        {
+            case "boss_sie1":
+                // Strong focused pressure is telegraphed by cadence. A healthy
+                // party can face the existing area move between pressure turns.
+                if (counter > 0 && ready && window == "Adaptive" && action.Multi) score += 90;
+                if (window == "Pressure" && action.Mode == pattern.PressureMode) score += 70;
+                break;
+            case "boss_gwo1":
+            case "boss_gwo2":
+                // Keep the lower-power focused technique attractive during
+                // recovery. Outside it, favour the group spell against armour
+                // only when a healthy party has a clear magical defence gap.
+                if (window == "Recovery" && !action.Multi && action.Mode == pattern.RecoveryMode) score += 85;
+                if (counter > 0 && ready && window == "Adaptive" && action.Multi && !action.Physical)
+                    score += Math.Clamp(targets.Average(t => Math.Clamp(t.Defense, 0, 300) - Math.Clamp(t.MagicDefense, 0, 300)), -60, 60) >= 30 ? 100 : -45;
+                break;
+            case "boss_hap2":
+                // Limited status technique gains priority only against eligible
+                // targets. Existing use limits still govern the entire fight.
+                if (counter > 0 && ready && window == "Adaptive" && action.Status != 0 && targets.Count(t => t.StatusUseful) * 2 >= targets.Count)
+                    score += 100;
+                break;
+        }
         // Additional selector evaluations cannot advance this quality cadence.
         return score;
     }

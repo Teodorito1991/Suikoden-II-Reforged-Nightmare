@@ -110,4 +110,4 @@ v1.19 changes no user/default settings. Dreamer and Thornwake remain disabled by
 
 ## v1.20 development note
 
-Boss tactics now accepts optional EnableCombatQuality (default true) for Pest Rat and first Harpy only. Missing key in existing files is valid. Set false for prior v1.19 tactics/targeting; all previous opt-outs still apply. Major means Lucia lus1/lus2 and final Neclord nec3, NOT Luca Blight. Actual Luca tables luc1/luc2/luc3 are not covered. Boss tactics stay Normal-only; Hard regular-enemy compatibility is separate.
+Boss tactics now accepts optional EnableCombatQuality (default true) for Pest Rat, both Harpy encounters, Sierra and both Golden Wolf encounters. Missing key in existing files is valid. Set false to use the base boss tactics without the combat-quality layer; all previous opt-outs still apply. Major means Lucia lus1/lus2 and final Neclord nec3, NOT Luca Blight. Actual Luca tables luc1/luc2/luc3 are not covered. Boss tactics stay Normal-only; Hard regular-enemy compatibility is separate.

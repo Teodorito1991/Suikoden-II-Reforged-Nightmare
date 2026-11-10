@@ -1,0 +1,46 @@
+{
+  "Version": "1.27.0-boss-expansion.1",
+  "DllSha256": "6553AD40C0568A08153C86F94E1E1220D90CF24E38AE092678C37A1CE5FC3C7D",
+  "InstalledCandidateSha256": "AA27445761E1E7581FF2D32DCF5FA608E47A072F06A5B307B809A46557EA09B0",
+  "BuildWarnings": 0,
+  "BuildErrors": 0,
+  "ManagedRegressionPassed": true,
+  "NativeProductionAuditPassed": true,
+  "NativeMaintenancePassed": true,
+  "ExactHashLauncherStartup": true,
+  "BossAdmissionCount": 10,
+  "NativeQualityComparisonsPerTable": {
+    "Action": 288,
+    "Target": 36
+  },
+  "ChangedChoicesAgainstQualityDisabled": {
+    "boss_gwo1": {
+      "ActionChanges": 78,
+      "TargetChanges": 36
+    },
+    "boss_gwo2": {
+      "ActionChanges": 78,
+      "TargetChanges": 36
+    },
+    "boss_hap1": {
+      "ActionChanges": 114,
+      "TargetChanges": 32
+    },
+    "boss_hap2": {
+      "ActionChanges": 78,
+      "TargetChanges": 32
+    },
+    "boss_rat": {
+      "ActionChanges": 162,
+      "TargetChanges": 36
+    },
+    "boss_sie1": {
+      "ActionChanges": 48,
+      "TargetChanges": 36
+    }
+  },
+  "StoryCallbacksInvoked": false,
+  "RenderedBossFightsPlayed": false,
+  "CampaignGameplayAccepted": false,
+  "IndependentSkirmishesEnabled": false
+}

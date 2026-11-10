@@ -383,7 +383,7 @@ internal static class BossTacticsProbe
     if(old!=revised)actionChanged++;if(vanilla!=revised)vanillaChanged++;
     string window=BossTacticsRules.Window(pattern,counter,bossHp,max);distributions[window+"/"+revised]=distributions.GetValueOrDefault(window+"/"+revised)+1;
     bool broad=(actor.monster_data.attack_data[revised].attack_seishitsu&0xf00) is 0x200 or 0x400 or 0x800;
-    if(counter==1)Check(revised==pattern.RecoveryMode,"Native recovery selection remains basic when legal");
+    if(counter==1&&actor.CheckMonsterAttackCnt(pattern.RecoveryMode)&&actor.AttackModeKyoriCheck(pattern.RecoveryMode))Check(revised==pattern.RecoveryMode,"Native recovery selection prefers the configured legal move");
     if(party=="WoundedBalanced")Check(!broad,"Wounded-party fixture avoids broad native attacks table="+pattern.TableId+" counter="+counter+" revised="+revised+" basicRange="+actor.AttackModeKyoriCheck(0)+" basicUses="+actor.CheckMonsterAttackCnt(0)+" canAttack="+actor.AttackCanCheck()+" bound="+BossTacticsRuntime.Bound(actor)+" targets="+CombatReforgedRuntime.Targets(w,true).Count);
     if(seed==0){bool stats=Combat.State!.StatsAllowed;var damageRng=UnityEngine.Random.state;
      try{
@@ -405,7 +405,7 @@ internal static class BossTacticsProbe
     if(old!=revised)targetChanged++;
    }
    totalActions+=actionChanged;totalTargets+=targetChanged;
-   QualityRows.Add(new{pattern.TableId,Party=party,NativeActionComparisons=48,ActionChangesFromV119=actionChanged,ActionChangesFromNativeSelector=vanillaChanged,NativeTargetComparisons=6,TargetChangesFromV119=targetChanged,SelectionDistribution=distributions,NativeSelectedRawDamage=raw,NativeSelectedDamageWithExistingModifiers=modified,QualityDamageUnchanged=true,IllustrativePartyHp=hp,
+   QualityRows.Add(new{pattern.TableId,Party=party,NativeActionComparisons=48,ActionChangesFromQualityDisabled=actionChanged,ActionChangesFromNativeSelector=vanillaChanged,NativeTargetComparisons=6,TargetChangesFromQualityDisabled=targetChanged,SelectionDistribution=distributions,NativeSelectedRawDamage=raw,NativeSelectedDamageWithExistingModifiers=modified,QualityDamageUnchanged=true,IllustrativePartyHp=hp,
     OriginalDamageFormulaExecuted=true,FullPartyBuild=false,ActualHealExecuted=false,NativeAnimationExecuted=false,StoryCallbackExecuted=false,FullFightOutcome="Not simulated or played"});
   }
   Check(totalActions>0&&totalTargets>0,"Quality changes actual native action and target selections for "+pattern.TableId);

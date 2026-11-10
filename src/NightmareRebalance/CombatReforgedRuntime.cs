@@ -138,9 +138,15 @@ internal static class CombatReforgedRuntime
         finally{Sampling=false;UnityEngine.Random.state=saved;}
         if(w?.pm_data==null)return;
         LastNativeTargets=choices.OrderBy(i=>i).ToArray();
-        var legal=choices.Where(i=>i>=0&&i<w.pm_data.Length&&w.pm_data[i] is {IsPlayer:true} u&&u.hp>0&&!u.IsDead&&u.MokuhyoCanCheck()).Select(i=>Target(w.pm_data[i],i)).ToArray();
+        if(c!=null)PhaseScope(w);
+        int status=0;
+        if(c?.Attacker is {} unit && unit.monster_data?.attack_data is {} attacks
+            && unit.c_mode >= 0 && unit.c_mode < attacks.Length
+            && attacks[unit.c_mode] is { attack_type: 1 or 2 } attack)
+            status=attack.status;
+        var legal=choices.Where(i=>i>=0&&i<w.pm_data.Length&&w.pm_data[i] is {IsPlayer:true} u&&u.hp>0&&!u.IsDead&&u.MokuhyoCanCheck()).Select(i=>Target(w.pm_data[i],i,status)).ToArray();
         int before=result;
-        if(c!=null){PhaseScope(w);result=BossTacticsRuntime.QualityTarget(c.Attacker)?BossTacticsRuntime.ChooseTarget(c.Attacker,legal,result,Config.FocusLimit):CombatReforgedRules.ChooseTarget(c.Plan.Behavior,legal,result,Config.FocusLimit);Focus[result]=Focus.GetValueOrDefault(result)+1;}
+        if(c!=null){result=BossTacticsRuntime.QualityTarget(c.Attacker)?BossTacticsRuntime.ChooseTarget(c.Attacker,legal,result,Config.FocusLimit):CombatReforgedRules.ChooseTarget(c.Plan.Behavior,legal,result,Config.FocusLimit);Focus[result]=Focus.GetValueOrDefault(result)+1;}
         else result=TargetingRules.PreferWounded(legal.Select(t=>new TargetCandidate(t.Slot,t.Hp,t.MaxHp,true,true)).ToArray(),result,Plugin.Options.EnemyTargetHealthThreshold.Value);
         Record(new{Kind="TargetSelection",Attacker=attacker,Behavior=c?.Plan.Behavior??"LegacyRaider",Before=before,After=result,Changed=before!=result,ObservedNativeCandidates=choices.ToArray(),RandomRestored=true});
         if(result!=before){if(!Probe){TargetChanges++;if(legacy)TargetingRuntime.Changes++;}Record(new{Kind="NativeSampledTarget",Attacker=attacker,Behavior=c?.Plan.Behavior??"LegacyRaider",Before=before,After=result,ObservedNativeCandidates=choices.ToArray(),RandomRestored=true});}

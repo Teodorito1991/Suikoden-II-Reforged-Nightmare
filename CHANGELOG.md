@@ -2,6 +2,20 @@
 
 These are private development milestones, not previous public releases.
 
+## v1.27 — Boss expansion and campaign combat polish
+
+- Sierra varies focused pressure and area attacks based on party health.
+- Both Golden Wolf encounters use a focused recovery move and are more
+  likely to use their original group spell against armour than magic defence.
+- The second Harpy encounter prefers its existing limited-use status move
+  when it can still affect the party.
+- Regular enemy targeting reads the active attack's status and discards
+  previous-phase focus before scoring native-legal candidates.
+- The loader banner now identifies the current development version.
+
+No new boss admissions, stat multipliers, story changes or independent
+skirmishes. See [boss expansion](docs/BOSS-EXPANSION-V127.md).
+
 ## v1.26 — Steam campaign installation
 
 Installed the existing candidate without rebuilding. Verified the exact DLL

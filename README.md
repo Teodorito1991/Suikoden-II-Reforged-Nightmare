@@ -1,5 +1,8 @@
 # Suikoden II: Reforged Nightmare
 
+The v1.27 development candidate expands boss tactics and corrects regular-enemy
+targeting. See [boss expansion and verification](docs/BOSS-EXPANSION-V127.md).
+
 **A familiar world. More demanding battles. A reason to go hunting.**
 
 An unofficial Windows Steam gameplay overhaul and expansion for **Suikoden II HD
