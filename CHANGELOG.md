@@ -2,6 +2,14 @@
 
 These are private development milestones, not previous public releases.
 
+## v1.31 — Commander Rout controls and defeat return
+
+- Transfers active allied squads at the original command-selection step in Commander Rout.
+- Verified earned defeat, training-only return, manual save/reload and a subsequent Fort Defense return.
+- Both tested returns preserved audited campaign and character state. Commander Rout victory remains untested.
+
+See [War Training verification](docs/WAR-TRAINING-V130.md) for the exact hash.
+
 ## v1.30 — Experimental Castle War Training
 
 - Adds Fort Defense using the original War 2 scenario and four controllable squads.

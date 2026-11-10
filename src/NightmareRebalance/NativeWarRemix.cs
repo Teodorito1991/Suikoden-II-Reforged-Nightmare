@@ -43,6 +43,27 @@ internal static class NativeWarRemix
         ContinueChecks=Victories=Defeats=0;LastDecision=NativeWarDecision.Vanilla;
         if(Active)Plugin.Logger.LogInfo("Native War Remix ACTIVE: war 1. Continue after turn 3 until enemy command routes or allied army falls. Original map/UI/AI/end scripts retained.");
     }
+    internal static void AssignTrainingControls()
+    {
+        if (!Active || !TrainingWar.ChallengeActive || war_h.g_w_war_no != 1 ||
+            war_h.g_w_map_no != war_h.war2map[1] || w_unit.unit is not { Length: 2 } rows ||
+            rows[0] is not { Length: 15 } allies)
+            return;
+
+        int changed = 0;
+        for (int i = 0; i < allies.Length; i++)
+        {
+            if (allies[i] is not { flag: 1 } squad || squad.control == war_h.CONTROL_PLAYER)
+                continue;
+
+            w_unit.SetUnitControl(0, i, war_h.CONTROL_PLAYER);
+            if (squad.control == war_h.CONTROL_PLAYER)
+                changed++;
+        }
+
+        if (changed > 0)
+            Plugin.Logger.LogInfo($"Commander Rout training: native command step assigned {changed} allied squads to player control.");
+    }
     internal static void Clear(){Armed=Active=false;LastDecision=NativeWarDecision.Vanilla;}
     internal static bool Check(ref int result)
     {
@@ -129,3 +150,7 @@ internal static class NativeRemixChapterExit
 [HarmonyPatch(typeof(w_syouha),nameof(w_syouha.CheckSyouhai))]
 internal static class NativeRemixOutcome
 {[HarmonyPrefix]static bool Prefix(ref int __result)=>NativeWarRemix.Check(ref __result);}
+
+[HarmonyPatch(typeof(w_battle),nameof(w_battle.CheckControlStepCheck))]
+internal static class NativeRemixTrainingControl
+{[HarmonyPrefix]static void Prefix()=>NativeWarRemix.AssignTrainingControls();}

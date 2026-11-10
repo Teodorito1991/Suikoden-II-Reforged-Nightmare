@@ -91,3 +91,45 @@ equal restored flag arrays and zero save calls before the return hook.
 The compared data differed only in position and clocks. The owner confirmed
 the return worked. Repeat entry was available at the return boundary, but a
 second War 2 run, defeat, and manual save/reload were not observed on this DLL.
+
+## Commander Rout control candidate (v1.31)
+
+On v1.30.0-training.2, the owner entered Commander Rout and played past the
+original timed withdrawal. The original war continued, but the owner could
+not reliably lose while allied squads were under their original control.
+No native defeat or ending result was observed.
+
+The v1.31.0-training.1 candidate uses the existing native SetUnitControl seam
+after admitted Commander Rout initialization to make each active allied
+squad player-controlled. It preserves native attacks, casualty handling and
+ending playback. The existing War 1 defeat-result interceptor is enabled in
+the disposable copy. It checks the armed training session, current chapter
+and field ownership, return step, load epoch and save-call count. Story wars
+cannot use that interceptor.
+
+SHA-256: 3E9B06357328FC2E71E1C094334DDE179D4189BFB3C84302C535E1B88987861E.
+The candidate compiled, passed managed regression checks and loaded in the
+copied game. Live squad control, earned defeat, altered ending, subsequent
+campaign state and post-save re-entry remain awaiting owner playtest.
+
+The first control candidate assigned zero squads because InitBattle ran before
+the War 1 opening staged them. Candidate 1.31.0-training.2 instead assigns
+active allied squads just before the original CheckControlStepCheck examines
+command availability. It only runs in the admitted Commander Rout drill and
+uses the same native control setter. Build, managed regression and copied
+startup passed. Native input acceptance and battle outcomes remain pending.
+SHA-256: 90983930FF4495FFA95DB4B2640C21DEEF9A8F0FB0821F1C6C771C585968FECD.
+
+### v1.31.0-training.2 gameplay acceptance
+
+The owner earned a Commander Rout defeat. The native command step transferred
+three allied squads, the battle continued past turn three, and native ending
+3 ran. WarChapter returned 2. The armed training-only intercept passed 1 to
+the manager and the owner regained control in the tavern. The owner manually
+saved to an empty slot, reloaded it, completed Fort Defense, and returned.
+
+Both returns recorded matching destination and restored flags, zero save calls
+before restoration, and only position and clock differences in compared data.
+The new manual save also matched the original test checkpoint for all five
+flag arrays and the serialized war, character, and party data. Commander Rout
+victory and defeat in other scenarios were outside this acceptance run.
