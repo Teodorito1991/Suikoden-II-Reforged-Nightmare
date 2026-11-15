@@ -1,5 +1,8 @@
 # Known issues and validation limits
 
+The public source repository tracks v1.32 (`v1.32.0-dev.2`). An installable
+release remains unpublished. [Current Army Training evidence](docs/ARMY-TRAINING-V132.md).
+
 - **Whole campaign unverified.** Native fixtures cover more than actual gameplay.
   Fairness projections are not a guarantee for every party, boss or story phase.
 - **Public-hash verification is limited.** A passed its own isolated startup smoke
@@ -13,15 +16,20 @@
   its public atlas iterator is empty in this binary. This does not validate actual
   tactical textures, UI/audio, full chapter ownership or live field return.
   See [resource report](docs/WAR-RESOURCES-V115.md).
-- **No independent war or training.** Launcher unavailable; no repeatable skirmish,
-  commander XP or persistent army progression.
+- **Castle Army Training is experimental.** Three original scenarios have live
+  tavern returns in the copied test runtime. v1.32 confirmed Veteran War 3's timed
+  return and Veteran Commander Rout's earned victory. The latter earned 1,500
+  Potch at the purse cap. Below-cap credit, War 3 defeat return and a second
+  consecutive War 3 run remain unverified. Commander XP and persistent army
+  progression are deferred. [Exact-build training evidence](docs/ARMY-TRAINING-V132.md).
 - **Story-war transitions incompletely played.** Audited wars 1,2,3,6,13 retain
   original story handlers, but most full ending/return routes remain unplayed.
 - **Major bosses opt-in.** Lucia/Neclord policies have not completed rendered
   multi-party/phase/story validation. Public EnableMajorBosses=false. Seven earlier
   admissions also do not certify every move or transition.
-- **Dreamer/Thornwake unplayed.** Native-tested prototypes, disabled publicly.
-  Thornwake's English destination label is pending.
+- **Dreamer and Thornwake await full gameplay acceptance.** Both are native-tested
+  and opt-in. Thornwake's Greenhill City region is verified. Its exact travel
+  route remains unplayed.
 - **Guild map coverage.** Only the exact audited headquarters tavern variant is
   admitted. Other castle stages may not show the attendant.
 - **Session-only contracts.** Actual loading/restart clears accepted/unreported
@@ -57,26 +65,28 @@ and identifiers. Never attach tokens, proprietary binaries, generated interop,
 metadata, full development logs or someone else's save collection to public issues.
 
 
-## v1.16 development note
+## Historical development notes
+
+### v1.16 development note
 
 v1.16 isolated graphics tests reproduce a TMP_SubMeshUI.UpdateMaterial shutdown exception, including a no-header/probe baseline on the exact DLL. Bounded header initialization/cleanup has zero observed runtime errors, but full application shutdown is not error-free. Full WarRes.Load, chapter entry and field return remain unverified.
 
 
-## v1.17 development note
+### v1.17 development note
 
 v1.17 has no verified genuine field suspension/return or complete campaign/casualty isolation. Isolated graphics shutdown emits a TMP_SubMeshUI exception and JobTempAlloc warning, also reproduced without a session. Track-specific cleanup success does not establish global application leak freedom.
 
 
-## v1.18 development note
+### v1.18 development note
 
 No genuine field continuation evidence exists for v1.18. The native field-capture branch has not run on a normally loaded MapChapter. Audio/filter/coroutine/save callback owners remain incomplete. Zero save/event activity at a launcher is not field isolation proof.
 
 
-## v1.19 development note
+### v1.19 development note
 
 v1.19 has no human current-hash field/menu/complete-quest acceptance. Dreamer/Thornwake remain native/component-only; Greenhill City region is verified but Thornwake exact travel route is unplayed. A preparatory unloaded asset render timed out, then passed on retry; final native render passed. Existing shutdown exceptions/warnings remain documented.
 
 
-## v1.20 development note
+### v1.20 development note
 
 No v1.20 player-earned boss fight or story transition was tested. Harpy can still deal heavy damage to an underprepared illustrative party; critical/status/rune/full-fight interactions remain uncertain. Existing major policies are Lucia and final Neclord; earlier references to Luca were erroneous. No new earlier-Neclord or Luca phase changes. Boss tactics remain Normal-only.

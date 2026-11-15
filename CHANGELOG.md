@@ -1,8 +1,15 @@
 # Development history
 
-These are private development milestones, not previous public releases.
+This changelog records development milestones. The source repository is public.
+Binary distribution requires separate owner approval.
 
-## v1.32 — Castle Army Training candidate
+## Documentation maintenance
+
+- Records the owner's decision to keep the source repository public.
+- Updates the README and known issues to reflect v1.32 Army Training and its
+  gameplay verification limits.
+
+## v1.32 — Castle Army Training (`v1.32.0-dev.2`)
 
 - Adds an optional Veteran tier using the existing native enemy tactics.
 - Adds 750 Potch on Standard or 1,500 on Veteran for a qualifying commander rout.
@@ -64,7 +71,7 @@ Campaign-capable save, preferences and Cloud isolation remains unverified.
 No gameplay source, DLL, configuration or beta change; Luca tactics unavailable.
 See [caller-scope audit](docs/LUCA-CALLER-SCOPE-AUDIT.md).
 
-## Unreleased — project workflow
+## Historical — private staging workflow
 
 Added a permanent completed-milestone GitHub synchronization policy in AGENTS.md:
 update documentation/configuration guidance and exact-hash evidence, push audited

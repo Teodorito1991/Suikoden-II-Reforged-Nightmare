@@ -1,24 +1,15 @@
 # Suikoden II: Reforged Nightmare
 
-The v1.27 development candidate expands boss tactics and corrects regular-enemy
-targeting. See [boss expansion and verification](docs/BOSS-EXPANSION-V127.md).
-
-**A familiar world. More demanding battles. A reason to go hunting.**
+**Latest development milestone: v1.32** (`v1.32.0-dev.2`, DLL
+`1.32.0-army-training.2`). This is the public source repository. The installable
+beta and GitHub Release remain unpublished. [Army Training verification](docs/ARMY-TRAINING-V132.md).
 
 An unofficial Windows Steam gameplay overhaul and expansion for **Suikoden II HD
 Remaster**, using the original RPG and tactical war engines, artwork, animations,
 maps and interfaces. Normal is the intended difficulty foundation. Optional
 hunting rewards preparation and grinding without becoming mandatory.
 
-**Pre-publication beta preparation. Overall campaign: experimental.**
-The **v1.26 gameplay candidate** packages the verified v1.25 Hunt Catalogue DLL. See the [protected acceptance guide](docs/HUNT-ACCEPTANCE-V126.md). The recommended first
-beta is based on the **v1.12.2 Castle Hunt Guild DLL**, which has stronger exact-
-binary gameplay evidence. Public review copies remove a personal PDB build path
-from debug metadata only. They have new hashes and no exact-hash gameplay
-acceptance. Candidate A now passed an isolated startup smoke test with the original
-launcher observed; no hunt was played on its public hash. Originals remain preserved.
-No public release is approved or published.
-[Compare both candidates](docs/RELEASE-CANDIDATES.md).
+**Overall campaign status: experimental.** [Known issues](KNOWN_ISSUES.md).
 
 ## What changes
 
@@ -35,26 +26,21 @@ No public release is approved or published.
   rewards. Accept, travel, hunt, return and report without developer hotkeys.
 - Original-engine story-war unit, AI and objective modifications.
 
-Experimental Castle War Training uses the stock field-to-war transition in a
-controlled test copy. Standard War 1 was played twice on v1.29 and Fort Defense
-(War 2) completed on v1.30. On v1.31, an earned Commander Rout defeat returned to the tavern, and Fort Defense completed after manual save and reload. The original War 3 battlefield also completed and returned to the tavern in the test copy. See [War Training](docs/WAR-TRAINING-V130.md)
-for opt-ins and verification. Commander XP, persistent army training and the
-retired Unity arena are unavailable. The beta does not include Castle War Training.
+## Castle Army Training
 
-The v1.32 development candidate adds Veteran tactics and Potch for earned
-commander routs. See [Army Training](docs/ARMY-TRAINING-V132.md) for controls,
-configuration and verification status.
+The opt-in training system replays three original war scenarios from Leona's
+tavern in a copied test runtime. Each scenario has completed at least one
+live tavern return across v1.29–v1.32. On v1.32, Veteran War 3 returned after
+its timer and Veteran Commander Rout returned after an earned victory.
+Commander Rout earned 1,500 Potch at the purse cap. A below-cap payout,
+War 3 defeat return, and a second consecutive War 3 entry remain unverified.
+Commander experience remains deferred. [Training controls, build hash and evidence](docs/ARMY-TRAINING-V132.md).
 
-## Start here
+## Working from source
 
-1. Read [INSTALL.md](INSTALL.md) for the exact supported game and loader.
-2. Install the reviewed installation ZIP while closed; use **Normal**.
-3. Begin an experimental campaign or use a backed-up compatible save.
-4. At headquarters, visit [the Hunt Guild](HUNT_GUILD.md). Ordinary contracts need
-   no F6, F10 or Ctrl shortcut. Loading/restarting clears session-only contracts.
-
-Players need no Codex, Visual Studio or developer script. GitHub's Code ZIP is
-source, **not** the installation package.
+Read the build guide for the supported Windows Steam build and BepInEx
+dependencies. GitHub's Code ZIP contains source files for developers. Normal
+is the baseline for campaign testing. [Build guide](BUILDING.md).
 
 ## What has actually been played
 
