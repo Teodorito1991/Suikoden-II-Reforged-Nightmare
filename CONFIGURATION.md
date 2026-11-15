@@ -48,7 +48,7 @@ distinct from newer boss-tactics JSON. Do not enable every switch indiscriminate
 |---|---|
 | characters.json / magic.json | Per-character/spell authored values |
 | enemy-profiles.json | Exact-ID regular profiles |
-| combat-reforged.json | Enabled; enemy AI, boss encounters, pacing, healing, sleep |
+| combat-reforged.json | Enabled; enemy AI, boss encounters, pacing, healing, sleep, EnableTeamwork and EnableArcaneGuard |
 | combat-evolution.json | Enabled; formations, boss phases, additional bosses, Unites |
 | combat-mastery.json | Enabled; formations, physical runes, Unites, boss cadence |
 | combat-reality.json | Enabled; formations, physical runes, Pest Rat tactics |
@@ -68,6 +68,11 @@ distinct from newer boss-tactics JSON. Do not enable every switch indiscriminate
 Other legacy boss definitions are under `BepInEx/config/NightmareRebalance`.
 Setting a later module's Enabled=false removes only that layer; it is not a universal
 vanilla toggle. Restart after edits. Copy only missing files when updating.
+
+`EnableTeamwork` and `EnableArcaneGuard` default to true when absent. Set
+either to false independently to opt out. Both apply only to
+[the audited Normal formations and Hunts](docs/TACTICAL-REVOLUTION-V139.md).
+Formation teamwork also requires existing Combat Reforged enemy AI.
 
 ## Optional content
 

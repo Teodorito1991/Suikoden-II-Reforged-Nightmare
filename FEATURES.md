@@ -11,6 +11,8 @@ not yet been certified.
 | Magic |31 spell edits, seven revised in v1.34, plus healing/sleep layers| On; historical ordinary healing observed, wider interactions unplayed |
 | Regular enemies |280 guarded profiles| On; Normal/Hard production-copy checks, selected historical actual encounters |
 | Formations |58 remixes in original locations| On; native asset/setup coverage, full campaign unplayed |
+| Formation teamwork |12 ordinary remixes and five Hunts use battle-local pressure, status coordination, caster escorts and defense matchups| On for audited Normal formations; original native selector comparisons. Full fights await gameplay. [Tactical Revolution](docs/TACTICAL-REVOLUTION-V139.md). |
+| Defend |10% additional reduction against qualifying magical monster attacks in those encounters| Independent toggle; original Guard and original damage function verified on disposable actors. |
 | Boss tactics |22 policies across eligible encounter records| Six v1.35 scripted records use the guarded Normal-mode selector. Four independent family switches. The earlier major-boss opt-in keeps its existing Lucia/final Neclord scope. [Legendary Bosses](docs/LEGENDARY-BOSSES-V135.md). |
 | Physical runes / Unites |Ten physical techniques and fourteen Unite options| On; guarded native-tested coefficients, wider balance uncalibrated |
 | Rune recovery |One missing charge per eligible survivor| On; genuine recovery observed; Escape exclusion on an earlier hash |

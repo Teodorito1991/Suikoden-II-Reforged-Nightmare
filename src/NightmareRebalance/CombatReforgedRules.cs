@@ -5,6 +5,8 @@ internal sealed class CombatReforgedFile
 {
     public int SchemaVersion {get;set;}=1;
     public bool Enabled {get;set;}=true;
+    public bool EnableTeamwork {get;set;}=true;
+    public bool EnableArcaneGuard {get;set;}=true;
     public bool EnableEnemyAi {get;set;}=true;
     public bool EnableBossEncounters {get;set;}=true;
     public bool EnablePacing {get;set;}=true;
@@ -29,7 +31,7 @@ internal sealed class CombatBossAudit
     public double HpMultiplier {get;set;}public double DamageMultiplier {get;set;}public uint Flags {get;set;}
     public int[] Hooks {get;set;}=Array.Empty<int>();public string[] HookNames {get;set;}=Array.Empty<string>();public int[] Signature {get;set;}=Array.Empty<int>();
 }
-internal readonly record struct CombatTarget(int Slot,int Hp,int MaxHp,int Defense,int MagicDefense,int Magic,int Attack,int Focus,bool StatusUseful=true);
+internal readonly record struct CombatTarget(int Slot,int Hp,int MaxHp,int Defense,int MagicDefense,int Magic,int Attack,int Focus,bool StatusUseful=true,bool Asleep=false,bool Guarding=false);
 internal readonly record struct CombatAction(int Mode,int Type,int Power,bool Physical,bool Multi,int Status,int Probability,int Remaining,bool Legal);
 internal static class CombatReforgedRules
 {
@@ -39,7 +41,10 @@ internal static class CombatReforgedRules
     {
         if(json.Length>65536)throw new JsonException("Combat configuration exceeds 64 KiB.");
         using var d=JsonDocument.Parse(json);
-        OverhaulRules.Keys(d.RootElement,"SchemaVersion","Enabled","EnableEnemyAi","EnableBossEncounters","EnablePacing","EnableHealingBalance","EnableSleepBalance","RepeatPenalty","FocusLimit","HealingThreshold","SleepSusceptibilityMultiplier","RolePacing","SpellEffects","Bosses");
+        string[] keys={"SchemaVersion","Enabled","EnableEnemyAi","EnableBossEncounters","EnablePacing","EnableHealingBalance","EnableSleepBalance","RepeatPenalty","FocusLimit","HealingThreshold","SleepSusceptibilityMultiplier","RolePacing","SpellEffects","Bosses"};
+        foreach(string optional in new[]{"EnableTeamwork","EnableArcaneGuard"})
+            if(d.RootElement.TryGetProperty(optional,out _))keys=keys.Append(optional).ToArray();
+        OverhaulRules.Keys(d.RootElement,keys);
         foreach(var a in d.RootElement.GetProperty("RolePacing").EnumerateArray())OverhaulRules.Keys(a,"Role","HpMultiplier","DamageMultiplier");
         foreach(var a in d.RootElement.GetProperty("SpellEffects").EnumerateArray())OverhaulRules.Keys(a,"Id","Expected","Effect");
         foreach(var a in d.RootElement.GetProperty("Bosses").EnumerateArray())OverhaulRules.Keys(a,"TableId","Enabled","HpMultiplier","DamageMultiplier");

@@ -31,12 +31,24 @@ internal static class DamageScope
 internal static class EnemyDamagePatch
 {
     [HarmonyPrefix] internal static void Prefix(out bool __state) => __state = DamageScope.Enter();
-    [HarmonyPostfix] internal static void Postfix(BattleMonsterCharacter __instance, int mokuhyo, bool __state, System.Reflection.MethodBase __originalMethod, ref int __result)
+    [HarmonyPostfix] internal static void Postfix(BattleMonsterCharacter __instance, int mokuhyo, int attack_mode, bool __state, System.Reflection.MethodBase __originalMethod, ref int __result)
     {
         var w = Framework.Singleton<BATTLE_WORK>.instance;
         Combat.Observe(__originalMethod.Name, w);
         MaintenanceRuntime.Raw(__instance.chara_no,mokuhyo,__result,__originalMethod.Name);
-        DamageScope.Apply(__state, w != null && Combat.EnemyToPlayer(w, __instance.chara_no, mokuhyo), w, __instance.chara_no, mokuhyo, ref __result);
+        bool eligible=w!=null&&Combat.EnemyToPlayer(w,__instance.chara_no,mokuhyo);
+        DamageScope.Apply(__state,eligible,w,__instance.chara_no,mokuhyo,ref __result);
+        if (__state && eligible && __result >= 10 && CombatReforgedRuntime.Config.Enabled &&
+            CombatReforgedRuntime.Config.EnableArcaneGuard && w!.pm_data[mokuhyo] is { hp: > 0, IsDead: false } player &&
+            (player.status & b_game_h.STATUS_GUARD) != 0 && (player.status & b_game_h.STATUS_NO_GUARD) == 0 &&
+            __instance.monster_data?.attack_data is {} attacks && attack_mode >= 0 && attack_mode < attacks.Length &&
+            attacks[attack_mode] is { attack_type: 2, attack: > 0 } action && (action.attack_zokusei & 0x10) == 0 &&
+            TeamworkRuntime.Bound(w) is {} team && team.Roster.ContainsValue(__instance.Pointer))
+        {
+            int before=__result;
+            __result=TacticalTeamwork.ArcaneGuard(before);
+            MaintenanceRuntime.Ai("ArcaneGuard",__instance.chara_no,new{Target=mokuhyo,Before=before,After=__result});
+        }
     }
     [HarmonyFinalizer] internal static Exception? Finalizer(Exception? __exception) => DamageScope.Exit(__exception);
 }
@@ -98,6 +110,6 @@ internal static class PotchPatch
 internal static class EnemyCounterDamagePatch
 {
  [HarmonyPrefix]static void Prefix(out bool __state)=>EnemyDamagePatch.Prefix(out __state);
- [HarmonyPostfix]static void Postfix(BattleMonsterCharacter __instance,int mokuhyo,bool __state,System.Reflection.MethodBase __originalMethod,ref int __result)=>EnemyDamagePatch.Postfix(__instance,mokuhyo,__state,__originalMethod,ref __result);
+ [HarmonyPostfix]static void Postfix(BattleMonsterCharacter __instance,int mokuhyo,bool __state,System.Reflection.MethodBase __originalMethod,ref int __result)=>EnemyDamagePatch.Postfix(__instance,mokuhyo,-1,__state,__originalMethod,ref __result);
  [HarmonyFinalizer]static Exception? Finalizer(Exception? __exception)=>EnemyDamagePatch.Finalizer(__exception);
 }

@@ -29,6 +29,31 @@ internal static class HuntLifecycleProbe
     Remember(w);foreach(var d in w.monster_data.Where(x=>x!=null)){var source=table.monster_data.First(x=>x!=null&&x.id==d.id);Check(d.Pointer!=source.Pointer&&d.hp==source.hp,"Normal disposable copies from actual setup");Check(DifficultyProvenance.Matches(w,d,CombatReforgedRuntime.Signature(source)),"Production provenance from original complete setup");}
     var a=audits.FirstOrDefault(a=>a.Indices.Contains(i));if(a!=null){Check(w.monster_party_data.monster_code.Select(x=>(int)x).SequenceEqual(a.NewCodes),"Retained formation applied after actual native setup");Check(CombatEvolutionRuntime.Hooks(w.monster_party_data.data).SequenceEqual(a.Hooks),"Original callbacks preserved without execution");RemixSetups++;var selected=w.monster_party_data;w.monster_party_data=table.monster_party[i];w.monster_party_index=0;Check(!CombatEvolutionRuntime.ApplyAuditedFormation(w,true,new[]{a},new[]{new EvolutionSwitch{PartyId=a.PartyId}}),"Invalid zero native party number rejected");w.monster_party_index=i+1;w.monster_party_data=selected;}
     Rows.Add(new{Table=table.id,ArrayIndex=i,NativePartyNumber=w.monster_party_index,Party=w.monster_party_data.id,RemixApplied=a!=null,OriginalSetupExecuted=true,RenderedBattle=false});
+    if(a!=null && i==a.Indices[0] && TacticalTeamwork.Formations.ContainsKey(a.PartyId))
+    {
+        game.chara_data=Allocate<CHARA_DATA>();
+        game.chara_data.c_varia_dat=new Il2CppReferenceArray<C_VARIA_DAT>(1);
+        HuntCatalogueProbe.BuildActors(manager,w,a.NewCodes);
+        game.chara_data.c_varia_dat[0]=w.c_varia_dat[0];
+        var battle=new BattleState(manager){Ready=true,Allowed=true,StatsAllowed=true};
+        Combat.State=battle;
+        DifficultyProvenance.StrictProbe=true;
+        CombatReforgedRuntime.Probe=true;
+        CombatReforgedRuntime.ProbeWork=w;
+        try
+        {
+            CombatReforgedRuntime.Ready(battle,w,true);
+            TeamworkNativeProbe.Compare(manager,w,battle,a.PartyId,true);
+        }
+        finally
+        {
+            CombatReforgedRuntime.Probe=false;
+            CombatReforgedRuntime.ProbeWork=null;
+            CombatReforgedRuntime.Clear();
+            Combat.State=null;
+            DifficultyProvenance.StrictProbe=strict;
+        }
+    }
    }
    foreach(var a in audits)RemixIds.Add(a.PartyId);
    if(table.id=="vd06_00"){

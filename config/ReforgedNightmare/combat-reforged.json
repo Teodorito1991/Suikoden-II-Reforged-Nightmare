@@ -2,6 +2,8 @@
   "SchemaVersion": 1,
   "Enabled": true,
   "EnableEnemyAi": true,
+  "EnableTeamwork": true,
+  "EnableArcaneGuard": true,
   "EnableBossEncounters": true,
   "EnablePacing": true,
   "EnableHealingBalance": true,

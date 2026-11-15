@@ -23,7 +23,7 @@ internal static class HuntCatalogueProbe
    HuntRuntime.Catalogue.SelectedHuntId=definition.Id;setting.Enabled=true;HuntRuntime.Config.EnableExperimentalHunt=true;DifficultyProvenance.StrictProbe=true;
    var scratch=Alloc<GAME_WORK>();scratch.sys_work=Alloc<SYS_WORK>();scratch.sys_work.battle_data=table;scratch.sys_work.yobi=new Il2CppStructArray<byte>(8);scratch.game_data=Alloc<GAME_DATA>();scratch.party_data=Alloc<PARTY_DATA>();scratch.party_data.party_cha_no=new Il2CppStructArray<byte>(6);Framework.Singleton<GAME_WORK>.instance=scratch;
    scratch.chara_data=Alloc<CHARA_DATA>();scratch.chara_data.c_varia_dat=new Il2CppReferenceArray<C_VARIA_DAT>(1);scratch.chara_data.c_kotei_dat=new Il2CppReferenceArray<C_KOTEI_DAT>(new[]{new C_KOTEI_DAT{seicyo_type=new Il2CppStructArray<byte>(4),monsyo_seigen=new Il2CppStructArray<byte>(4),mon_zoku_aisyo=new Il2CppStructArray<byte>(4),mon_kosu_type=new Il2CppStructArray<byte>(3)}});
-   var manager=Alloc<BattleManager>();var native=manager.Cast<IBattleManager>();
+   var manager=Alloc<BattleManager>();
    BATTLE_WORK Setup(bool armed,bool walking=true,bool castle=false){var w=Alloc<BATTLE_WORK>();Framework.Singleton<BATTLE_WORK>.instance=w;Combat.State=null;HuntAccess.Ticket.Cancel();if(castle)CastleGuildNativeProbe.RequestCatalogueSetup(table,definition,scratch);else{if(armed)HuntAccess.Ticket.Toggle(true);if(walking)HuntLaunchProof.FixtureRequest(table);else HuntLaunchProof.Clear();}UnityEngine.Random.InitState(17017);manager.BattleDataSetup();Setups++;copies.AddRange(w.monster_data.Where(d=>d!=null));if(!table.monster_party.Any(d=>d.Pointer==w.monster_party_data.Pointer))parties.Add(w.monster_party_data);return w;}
    Check(HuntAccess.SourceMatches(table,definition),"Exact complete source party / monster signatures "+definition.Id);
    var source=table.monster_party[definition.Audit.Indices.Single()];var oldCodes=source.monster_code.ToArray();
@@ -40,13 +40,12 @@ internal static class HuntCatalogueProbe
    Check(CombatEvolutionRuntime.Hooks(w.monster_party_data.data).SequenceEqual(definition.Audit.Hooks),"All original callbacks preserved");
    Check(w.monster_party_data.monster_id.Select(x=>(int)x).SequenceEqual(CombatEvolutionRules.Types(definition.Audit.NewCodes)),"Preload type list matches local native roster");
    Combat.Begin(manager);Check(HuntRuntime.Active==definition&&HuntRuntime.Work==w.Pointer,"Battle begin preserves requested definition");
-   var roster=definition.Audit.NewCodes.Where(x=>x>0).ToArray();int total=6+roster.Length;
-   w.pm_data=new Il2CppReferenceArray<PM_DATA>(12);w.p_status_data=new Il2CppReferenceArray<PLAYER_STATUS_DATA>(12);for(int i=0;i<12;i++)w.p_status_data[i]=new();w.b_chara=new Il2CppReferenceArray<BATTLE_CHARA>(12);w.pm_attack_data=new Il2CppReferenceArray<PM_ATTACK_DATA>(12);w.c_varia_dat=new Il2CppReferenceArray<C_VARIA_DAT>(12);w.MokuhyoKaisu=new Il2CppStructArray<byte>(12);w.b_magic_status=new();w.player_kazu=6;w.monster_kazu=(byte)roster.Length;w.pm_kazu=(byte)total;w.front_player=3;w.back_player=3;
-   manager.parties=new Il2CppReferenceArray<BattleParty>(new[]{new BattleParty(0,native),new BattleParty(1,native)});
-   for(int i=0;i<total;i++){PM_DATA u=i<6?Alloc<BattlePlayerCharacter>():Alloc<BattleMonsterCharacter>();u.manager=native;u.chara_no=i;int code=i<6?0:roster[i-6];u.chara_id=(byte)code;u.position=(byte)(i%6);u.hp=600;u.max_hp=600;u.status=0;u.calc_para=new Il2CppStructArray<int>(new[]{120,70,60,50,80,75,60,100});if(i>=6){u.hp=(short)w.monster_data[code].hp;u.max_hp=w.monster_data[code].hp;for(int j=0;j<7;j++)u.calc_para[j]=w.monster_data[code].para[j];}w.pm_data[i]=u;w.b_chara[i]=Alloc<BATTLE_CHARA>();w.b_chara[i].chara_id=code;w.pm_attack_data[i]=new(){curent_use_cnt=new Il2CppStructArray<byte>(new byte[]{255,255,255,255})};w.c_varia_dat[i]=new(){mon_eqp=new Il2CppStructArray<byte>(3),bogu_eqp=new Il2CppStructArray<byte>(5),mp=new Il2CppStructArray<byte>(4),item_eqp=new Il2CppReferenceArray<PARTY_ITEM>(3)};for(int j=0;j<3;j++)w.c_varia_dat[i].item_eqp[j]=new();}
+   var roster=definition.Audit.NewCodes.Where(x=>x>0).ToArray();
+   BuildActors(manager,w,definition.Audit.NewCodes);
    scratch.chara_data.c_varia_dat[0]=w.c_varia_dat[0];CombatReforgedRuntime.Probe=true;CombatReforgedRuntime.ProbeWork=w;
    var s=new BattleState(manager){Ready=true,Allowed=true,StatsAllowed=true};Combat.State=s;CombatReforgedRuntime.Ready(s,w,true);HuntRuntime.Ready(s,w);
    Check(HuntRuntime.ActiveRoster&&CombatReforgedRuntime.Plans.Count==roster.Length,"Production admission binds full exact roster including duplicates");
+   TeamworkNativeProbe.Compare(manager,w,s,definition.Id,TacticalTeamwork.Hunts.ContainsKey(definition.Id));
    Check(HuntDebug.Scope(w),"Integrated debug scope admits only the exact bound catalogue roster");
    var actors=new List<object>();
    foreach(var actor in w.pm_data.Where(u=>u!=null&&!u.IsPlayer).Select(u=>u.Cast<BattleMonsterCharacter>())){
@@ -78,6 +77,16 @@ internal static class HuntCatalogueProbe
   }
   Check(Framework.Singleton<GAME_WORK>.instance?.Pointer==game?.Pointer&&Framework.Singleton<BATTLE_WORK>.instance?.Pointer==work?.Pointer,"Globals restored");
   Plugin.Logger.LogInfo($"Hunt catalogue native component PASS: {definition.Id}; cumulative assertions={Assertions}; selected differences={Differences}; rendered battle=False.");
+ }
+ internal static void BuildActors(BattleManager manager,BATTLE_WORK w,int[] codes)
+ {
+   var native=manager.Cast<IBattleManager>();
+   var slots=Enumerable.Range(0,codes.Length).Where(slot=>codes[slot]>0).ToArray();
+   var roster=slots.Select(slot=>codes[slot]).ToArray();
+   int total=6+roster.Length;
+   w.pm_data=new Il2CppReferenceArray<PM_DATA>(12);w.p_status_data=new Il2CppReferenceArray<PLAYER_STATUS_DATA>(12);for(int i=0;i<12;i++)w.p_status_data[i]=new();w.b_chara=new Il2CppReferenceArray<BATTLE_CHARA>(12);w.pm_attack_data=new Il2CppReferenceArray<PM_ATTACK_DATA>(12);w.c_varia_dat=new Il2CppReferenceArray<C_VARIA_DAT>(12);w.MokuhyoKaisu=new Il2CppStructArray<byte>(12);w.b_magic_status=new();w.player_kazu=6;w.monster_kazu=(byte)roster.Length;w.pm_kazu=(byte)total;w.front_player=3;w.back_player=3;
+   manager.parties=new Il2CppReferenceArray<BattleParty>(new[]{new BattleParty(0,native),new BattleParty(1,native)});
+   for(int i=0;i<total;i++){PM_DATA u=i<6?Alloc<BattlePlayerCharacter>():Alloc<BattleMonsterCharacter>();u.manager=native;u.chara_no=i;int code=i<6?0:roster[i-6];u.chara_id=(byte)code;u.position=(byte)(i<6?i:slots[i-6]);u.hp=600;u.max_hp=600;u.status=0;u.calc_para=new Il2CppStructArray<int>(new[]{120,70,60,50,80,75,60,100});if(i>=6){u.hp=(short)w.monster_data[code].hp;u.max_hp=w.monster_data[code].hp;for(int j=0;j<7;j++)u.calc_para[j]=w.monster_data[code].para[j];}w.pm_data[i]=u;w.b_chara[i]=Alloc<BATTLE_CHARA>();w.b_chara[i].chara_id=code;w.pm_attack_data[i]=new(){curent_use_cnt=new Il2CppStructArray<byte>(new byte[]{255,255,255,255})};w.c_varia_dat[i]=new(){mon_eqp=new Il2CppStructArray<byte>(3),bogu_eqp=new Il2CppStructArray<byte>(5),mp=new Il2CppStructArray<byte>(4),item_eqp=new Il2CppReferenceArray<PARTY_ITEM>(3)};for(int j=0;j<3;j++)w.c_varia_dat[i].item_eqp[j]=new();}
  }
  internal static object Snapshot()=>new{Assertions,Setups,Selections,Differences,Covered=Covered.ToArray(),Rows=Rows.ToArray(),RenderedBattle=false,ActualVictory=false,ActualPayout=false};
 }

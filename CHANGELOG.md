@@ -3,6 +3,19 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.39 — Tactical Revolution
+
+- Adds coordinated targeting and native move selection to twelve ordinary
+  formations and five Hunts. Packs share pressure, disruption teams check
+  existing statuses, escorts react to living casters and mixed groups weigh
+  physical and magical defenses.
+- Adds an independently configurable Defend enhancement for qualifying magical
+  hits in those formations. Older settings files load with both new keys
+  optional.
+- Original native attack and target comparisons, damage checks and copied-game
+  startup passed. Full RPG battle play and campaign balance await acceptance.
+  [Profiles, exact build and evidence](docs/TACTICAL-REVOLUTION-V139.md).
+
 ## v1.38 — Nightmare Campaign
 
 - Enables all ten native-tested Hunts in the fresh Normal campaign

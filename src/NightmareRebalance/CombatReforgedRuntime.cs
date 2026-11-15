@@ -85,7 +85,7 @@ internal static class CombatReforgedRuntime
     {
         int P(int n)=>t.calc_para is {} p&&p.Length>n?Math.Max(0,p[n]):0;
         bool useful=status==0||PM_DATA.status_henkan_table is not {} masks||status>=masks.Length||(t.status&masks[status])==0;
-        return new(slot,t.hp,t.max_hp,P(2),P(3),P(1),P(0),Focus.GetValueOrDefault(slot),useful);
+        return new(slot,t.hp,t.max_hp,P(2),P(3),P(1),P(0),Focus.GetValueOrDefault(slot),useful,(t.status&b_game_h.STATUS_SLEEP)!=0,(t.status&b_game_h.STATUS_GUARD)!=0);
     }
     internal static List<CombatTarget> Targets(BATTLE_WORK w,bool players,int status=0)=>w.pm_data.Select((u,i)=>(u,i)).Where(x=>x.u!=null&&x.u.IsPlayer==players&&x.u.hp>0&&!x.u.IsDead&&x.u.MokuhyoCanCheck()).Select(x=>Target(x.u,x.i,status)).ToList();
     static void PhaseScope(BATTLE_WORK w){if(Phase!=w.battle_phase_no){Phase=w.battle_phase_no;Focus.Clear();}}
@@ -99,6 +99,10 @@ internal static class CombatReforgedRuntime
             if(attacks?.Length!=4||w.pm_attack_data==null||u.chara_no>=w.pm_attack_data.Length||w.pm_attack_data[u.chara_no]?.curent_use_cnt?.Length!=4||w.b_magic_status==null)return;
             if(attacks[selected] is {attack:0,status:0})return; // Unknown support/summon semantics retain the native choice.
             PhaseScope(w);int original=selected,best=selected,bestScore=int.MinValue;
+            var team=Config.EnableTeamwork&&!c.Plan.Boss&&c.Attacker.Pointer==u.Pointer?TeamworkRuntime.Bound(w):null;
+            int magic=u.calc_para is { Length: > 1 } p?p[1]:0;
+            bool escort=team!=null&&TeamworkRuntime.LivingCaster(w,team,u);
+            CombatAction bestAction=default;
             foreach(int i in Enumerable.Range(0,4).OrderBy(i=>i==original?0:1))
             {
                 var a=attacks[i];if(a==null||a.attack_prob==0||a is {attack:0,status:0}||a.attack_type is not(1 or 2 or 5)||!u.CheckMonsterAttackCnt(i)||!u.AttackModeKyoriCheck(i)||(w.b_magic_status.water_silent_cnt>0&&(a.attack_zokusei&0x20)!=0))continue;
@@ -109,13 +113,17 @@ internal static class CombatReforgedRuntime
                 bool ordinary=!c.Plan.Boss&&!(HuntRuntime.Active!=null&&HuntRuntime.Work==w.Pointer);
                 int score=CombatReforgedRules.ActionScore(c.Plan.Behavior,option,enemies,allies,u.calc_para is {Length:>1}?u.calc_para[1]:0,Previous.GetValueOrDefault(u.Pointer,-1),Config.RepeatPenalty,Config.HealingThreshold,ordinary:ordinary);
                 int baseScore=score;
+                if(score!=int.MinValue&&team!=null)
+                    score+=TacticalTeamwork.ActionBonus(team.Style,option,enemies,magic,escort,
+                        allies.Any(t=>t.Hp*3<=t.MaxHp),multi&&team.AreaReserved(u.chara_no,a.status));
                 if(score!=int.MinValue){if(ordinary&&Config.EnablePacing&&PM_DATA.status_henkan_table is {Length:>10} masks&&masks[10]==b_game_h.STATUS_SLEEP)
                     score-=CombatReforgedRules.OrdinarySleepPenalty(option,enemies);
                 if(BossTacticsRuntime.Bound(u))score=BossTacticsRuntime.Score(w,u,option,enemies,score);
                 else{score+=CombatEvolutionRuntime.Bonus(u,i)+CombatMasteryRuntime.Bonus(u,i);int extra=CombatRealityRuntime.Bonus(u,i);CombatRealityRuntime.Score(u,i,score,extra);score+=extra;}}
                 MaintenanceRuntime.Ai("ActionEvaluated",u.chara_no,new{Mode=i,BaseScore=baseScore,FinalScore=score,ScoreModified=score!=baseScore,NativeLegalityChecked=true});
-                if(score>bestScore){bestScore=score;best=i;}
+                if(score>bestScore){bestScore=score;best=i;bestAction=option;}
             }
+            if(team!=null&&bestAction.Legal)team.Selected(u.chara_no,bestAction);
             int before=selected;selected=best;CombatRealityRuntime.Selected(u,before,best);Previous[u.Pointer]=best;CombatMasteryRuntime.Selected(u,best);BossTacticsRuntime.Selected(w,u,before,best);
             Record(new{Kind="ModeSelection",Attacker=u.chara_no,c.Plan.Id,c.Plan.Behavior,Before=before,After=best,Changed=before!=best,NativeRangeAndUsesChecked=true});
             if(before!=best){if(!Probe)ModeChanges++;Record(new{Kind="Mode",Attacker=u.chara_no,c.Plan.Id,c.Plan.Behavior,Before=before,After=best,NativeRangeAndUsesChecked=true});}
@@ -150,12 +158,46 @@ internal static class CombatReforgedRuntime
             status=attack.status;
         var legal=choices.Where(i=>i>=0&&i<w.pm_data.Length&&w.pm_data[i] is {IsPlayer:true} u&&u.hp>0&&!u.IsDead&&u.MokuhyoCanCheck()).Select(i=>Target(w.pm_data[i],i,status)).ToArray();
         int before=result;
-        if(c!=null){result=BossTacticsRuntime.QualityTarget(c.Attacker)?BossTacticsRuntime.ChooseTarget(c.Attacker,legal,result,Config.FocusLimit):CombatReforgedRules.ChooseTarget(c.Plan.Behavior,legal,result,Config.FocusLimit);Focus[result]=Focus.GetValueOrDefault(result)+1;}
+        if(c!=null)
+        {
+            if(BossTacticsRuntime.QualityTarget(c.Attacker))
+                result=BossTacticsRuntime.ChooseTarget(c.Attacker,legal,result,Config.FocusLimit);
+            else
+                result=ChooseTeamTarget(party,c,legal,result);
+            Focus[result]=Focus.GetValueOrDefault(result)+1;
+        }
         else result=TargetingRules.PreferWounded(legal.Select(t=>new TargetCandidate(t.Slot,t.Hp,t.MaxHp,true,true)).ToArray(),result,Plugin.Options.EnemyTargetHealthThreshold.Value);
         Record(new{Kind="TargetSelection",Attacker=attacker,Behavior=c?.Plan.Behavior??"LegacyRaider",Before=before,After=result,Changed=before!=result,ObservedNativeCandidates=choices.ToArray(),RandomRestored=true});
         if(result!=before){if(!Probe){TargetChanges++;if(legacy)TargetingRuntime.Changes++;}Record(new{Kind="NativeSampledTarget",Attacker=attacker,Behavior=c?.Plan.Behavior??"LegacyRaider",Before=before,After=result,ObservedNativeCandidates=choices.ToArray(),RandomRestored=true});}
     }
-    internal static object Snapshot()=>new{BossTactics=BossTacticsRuntime.Snapshot(),Enabled=Config.Enabled,ActiveWork=Work!=IntPtr.Zero,ModeChanges,TargetChanges,RetainedAiTraceRows=Trace.Count,ObservedActionSelectors=CombatRealityRuntime.SelectorCalls.Values.Sum(),EnemyRoutineEntries=MaintenanceRuntime.EnemyRoutineEntries,SelectorAbsenceDoesNotProveScriptBypass=true,TrackedEnemies=Plans.Count,Plans=Plans.Values.ToArray(),Trace=Trace.ToArray(),FaultedEnemies=Faulted.Count,FullBattleTested=false};
+    static int ChooseTeamTarget(BattleParty party, Context c, CombatTarget[] legal, int original)
+    {
+        if (!Config.EnableTeamwork || c.Plan.Boss || TeamworkRuntime.Bound(c.Work) is not {} team ||
+            c.Attacker.manager?.Pointer != Combat.State?.Manager ||
+            c.Attacker.manager?.TryCast<BattleManager>()?.parties is not { Length: > 1 } parties ||
+            party.Pointer != parties[1]?.Pointer ||
+            c.Attacker.monster_data?.attack_data is not {} attacks || c.Attacker.c_mode < 0 ||
+            c.Attacker.c_mode >= attacks.Length || attacks[c.Attacker.c_mode] is not { attack_type: 1 or 2 } a ||
+            (a.attack_seishitsu & 0xf00) is 0x200 or 0x400 or 0x800)
+            return CombatReforgedRules.ChooseTarget(c.Plan.Behavior,legal,original,Config.FocusLimit);
+
+        var action=new CombatAction(c.Attacker.c_mode,a.attack_type,a.attack,(a.attack_zokusei&0x10)!=0,
+            false,a.status,a.attack_prob,1,true);
+        int magic=c.Attacker.calc_para is { Length: > 1 } p?p[1]:0;
+        bool escort=TeamworkRuntime.LivingCaster(c.Work,team,c.Attacker);
+        int best=original,bestScore=int.MinValue;
+        foreach(var t in legal.OrderBy(t=>t.Slot==original?0:1))
+        {
+            int score=CombatReforgedRules.TargetScore(c.Plan.Behavior,t,Config.FocusLimit);
+            if(score==int.MinValue)continue;
+            score+=TacticalTeamwork.TargetBonus(team.Style,action,t,magic,escort,team.AlliedSelections(c.Attacker.chara_no,t.Slot));
+            if(score>bestScore){bestScore=score;best=t.Slot;}
+        }
+        if(bestScore!=int.MinValue)team.Targeted(c.Attacker.chara_no,best);
+        return best;
+    }
+
+    internal static object Snapshot()=>new{BossTactics=BossTacticsRuntime.Snapshot(),Enabled=Config.Enabled,Config.EnableTeamwork,Config.EnableArcaneGuard,Teamwork=Combat.State?.TeamworkProfile,ActiveWork=Work!=IntPtr.Zero,ModeChanges,TargetChanges,RetainedAiTraceRows=Trace.Count,ObservedActionSelectors=CombatRealityRuntime.SelectorCalls.Values.Sum(),EnemyRoutineEntries=MaintenanceRuntime.EnemyRoutineEntries,SelectorAbsenceDoesNotProveScriptBypass=true,TrackedEnemies=Plans.Count,Plans=Plans.Values.ToArray(),Trace=Trace.ToArray(),FaultedEnemies=Faulted.Count,FullBattleTested=false};
     internal static int Spell(int id,int effect)
     {var s=Config.SpellEffects.FirstOrDefault(s=>s.Id==id);return Config.Enabled&&Config.EnableHealingBalance&&s!=null&&effect==s.Expected?s.Effect:effect;}
 }

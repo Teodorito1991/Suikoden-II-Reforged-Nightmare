@@ -7,6 +7,15 @@ internal static class CombatReforgedTests
         int n=0;void Check(bool v){n++;if(!v)throw new Exception("Combat Reforged managed assertion "+n);}
         string Resource(string name){using var s=Assembly.GetExecutingAssembly().GetManifestResourceStream("ReforgedContent."+name)!;using var r=new StreamReader(s);return r.ReadToEnd();}
         string json=Resource("combat-reforged.json");var p=CombatReforgedRules.Parse(json);var audit=ContentRules.Read<CombatAudit>(Resource("combat-audit.json"));
+        var settings=System.Text.Json.Nodes.JsonNode.Parse(json)!.AsObject();
+        settings.Remove("EnableTeamwork");
+        settings.Remove("EnableArcaneGuard");
+        var legacy=CombatReforgedRules.Parse(settings.ToJsonString());
+        Check(legacy.Enabled&&legacy.EnableTeamwork&&legacy.EnableArcaneGuard);
+        settings["EnableTeamwork"]=false;
+        settings["EnableArcaneGuard"]=false;
+        var optedOut=CombatReforgedRules.Parse(settings.ToJsonString());
+        Check(optedOut.Enabled&&!optedOut.EnableTeamwork&&!optedOut.EnableArcaneGuard);
         void Reject(string s){bool failed=false;try{CombatReforgedRules.Parse(s);}catch{failed=true;}Check(failed);}
         Reject(json.Replace("\"SchemaVersion\": 1","\"SchemaVersion\": 2"));Reject(json.Replace("\"FocusLimit\": 2","\"FocusLimit\": 0"));Reject(json.Replace("\"RepeatPenalty\": 28","\"RepeatPenalty\": 999"));Reject(json.Replace("boss_ryo","boss_luc1"));Reject(json.Replace("\"Id\": 6","\"Id\": 99"));Reject(json.Replace("\"Enabled\": true","\"Typo\": true"));Reject(json.Replace("\"HpMultiplier\": 1.35","\"HpMultiplier\": 9"));
         Check(audit.Enemies.Length==280);Check(audit.Enemies.Select(x=>x.Id).Distinct().Count()==280);Check(audit.Bosses.Length==4);

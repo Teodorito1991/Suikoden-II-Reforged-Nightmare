@@ -1,10 +1,11 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone** is v1.38, with DLL
-`1.38.0-nightmare-campaign.1`. The recommended Normal profile enables all ten
-Hunts. The Guild sorts contracts by tier and offers optional local reissue
-from eligible native fields. Ordinary enemies give a party already affected
-by area Sleep a better chance to recover.
+**Latest development milestone** is v1.39, with DLL
+`1.39.0-tactical-revolution.1`. Twelve ordinary formations and five Hunts
+coordinate native attacks and target choices on Normal. Defend provides extra
+protection from qualifying magic damage within those battles. The recommended
+Normal profile includes all ten Hunts.
+[Tactical profiles and v1.39 evidence](docs/TACTICAL-REVOLUTION-V139.md).
 The source repository is public. The installable beta remains unpublished.
 [Castle Guild and Total War changes](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).
 [Hunt catalogue and verification](docs/GRAND-GUILD-V137.md).
