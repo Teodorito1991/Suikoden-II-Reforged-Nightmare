@@ -27,7 +27,7 @@ internal static class ContentRuntime
     {
         baseline = ContentRules.Read<ContentBaseline>(Resource("baseline.json"));
         if (Plugin.Options.EnableCharacterBalancing.Value)
-            try { characters = ContentRules.Characters(Load("characters.json"), baseline).Characters.ToDictionary(c => c.Id); }
+            try { characters = ContentRules.Characters(Load("characters.json"), baseline).Characters.ToDictionary(c => c.Id, RpgEvolutionRuntime.Character); }
             catch (Exception ex) { Plugin.Logger.LogError($"Character content disabled: {ex.Message}"); }
         if (Plugin.Options.EnableRuneBalancing.Value)
             try
@@ -57,7 +57,7 @@ internal static class ContentRuntime
     {
         if (data == null || !spells.TryGetValue(id, out var c)) return;
         var b = baseline.Spells.Single(b => b.Id == id);
-        short effective=(short)CombatReforgedRuntime.Spell(id,c.Effect);
+        short effective=(short)RpgEvolutionRuntime.Magic(id,c.Effect,CombatReforgedRuntime.Spell(id,c.Effect));
         var accepted=new SpellProfile {Id=c.Id,Name=c.Name,Effect=effective};
         if (data.info == null || data.status == null || !ContentRules.SpellCompatible(new SpellBaseline { Name = data.name, Text = data.text,
             Attribute = data.atrb, Unite = data.uni_no, UniteMagic = data.uni_magic, Info = data.info.ToArray(), Status = data.status.ToArray(), Effect = data.eff_val }, b, accepted))
@@ -91,7 +91,7 @@ internal static class CharacterGrowthPatch
 [HarmonyPatch(typeof(G2_SYS), nameof(G2_SYS.G2_magi_data))]
 internal static class SpellLookupPatch
 {
-    [HarmonyPostfix] static void Postfix(int magi_no, MAGI_DATA __result) { ContentRuntime.Spell(magi_no, __result); CombatMasteryRuntime.Spell(magi_no,__result); CombatRealityRuntime.Spell(magi_no,__result); }
+    [HarmonyPostfix] static void Postfix(int magi_no, MAGI_DATA __result) { ContentRuntime.Spell(magi_no, __result); CombatMasteryRuntime.Spell(magi_no,__result); CombatRealityRuntime.Spell(magi_no,__result); RpgEvolutionRuntime.Spell(magi_no,__result); }
 }
 [HarmonyPatch(typeof(GAME_WORK), nameof(GAME_WORK.g2_MagiEffVal))]
 internal static class SpellMenuPatch

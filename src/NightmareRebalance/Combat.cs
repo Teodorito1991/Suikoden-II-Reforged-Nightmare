@@ -81,7 +81,8 @@ internal static class Combat
         CombatReforgedRuntime.Ready(s,w,compatible);
         HuntRuntime.Ready(s,w);
         try { CombatEvolutionRuntime.Ready(s,w,compatible);
-        if(compatible&&(s.Allowed||s.StatsAllowed))CombatMasteryRuntime.ApplyUnites(w); } catch(Exception e) { Plugin.Logger.LogWarning("Combat Evolution retained prior plans: "+e.Message); }
+        if(compatible&&(s.Allowed||s.StatsAllowed))CombatMasteryRuntime.ApplyUnites(w);
+        if(compatible&&s.Allowed)RpgEvolutionRuntime.ApplyUnites(w); } catch(Exception e) { Plugin.Logger.LogWarning("Combat Evolution retained prior plans: "+e.Message); }
         BossTacticsRuntime.Ready(w,compatible);
         s.Ready = true;
         try{CombatRealityRuntime.Ready(s,w);}catch(Exception e){CombatRealityRuntime.Event("Diagnostics","InspectionUnavailable","battle",e.Message);}

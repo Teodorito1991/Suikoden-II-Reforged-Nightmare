@@ -52,6 +52,7 @@ distinct from newer boss-tactics JSON. Do not enable every switch indiscriminate
 | combat-mastery.json | Enabled; formations, physical runes, Unites, boss cadence |
 | combat-reality.json | Enabled; formations, physical runes, Pest Rat tactics |
 | boss-tactics.json | Enabled; EnableExistingBosses=true, EnableMajorBosses=false |
+| rpg-evolution.json | Separate character, magic, physical rune, Unite and formation toggles. Custom legacy character and spell values keep priority. |
 | boss-revolution.json | Enabled; six v1.33 policies with individual Enabled switches |
 | war-unit-profiles.json / war-specializations.json | Original commander/branch definitions |
 | native-war-rules.json / total-war-rules.json | Original scenario objectives and AI |

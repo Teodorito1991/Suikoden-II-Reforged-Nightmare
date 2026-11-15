@@ -10,7 +10,7 @@ internal static class HuntLifecycleProbe
  static void Check(bool x,string why){Assertions++;if(!x)throw new InvalidOperationException("Hunt lifecycle: "+why);}
  internal static void Table(BATTLE_DATA table)
  {
-  var audits=CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Where(a=>a.TableId==table.id).ToArray();
+  var audits=CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Concat(RpgEvolutionRuntime.Audit.Formations).Where(a=>a.TableId==table.id).ToArray();
   if(table.id!="vd06_00"&&audits.Length==0)return;
   var oldGame=Framework.Singleton<GAME_WORK>.instance;var oldWork=Framework.Singleton<BATTLE_WORK>.instance;var rng=UnityEngine.Random.state;var state=Combat.State;var last=CombatEvolutionRuntime.LastCopy;var lastFormation=CombatEvolutionRuntime.LastFormation;int apps=CombatEvolutionRuntime.FormationApplications;bool enabled=HuntRuntime.Config.EnableExperimentalHunt;
   int mastery=CombatMasteryRuntime.FormationApplications,reality=CombatRealityRuntime.FormationApplications,hunts=HuntRuntime.Applications,selections=HuntAccess.Selections;bool strict=DifficultyProvenance.StrictProbe;

@@ -28,6 +28,21 @@ internal static class CombatMasteryTests
   Check(audit.Unites.Select(x=>x.Id).SequenceEqual(new[]{24,38,39}),"additional Unite identities");
   for(int damage=0;damage<500;damage++)for(int resistance=0;resistance<4;resistance++)foreach(var r in audit.Runes)
   {int result=CombatMasteryRules.PhysicalRuneDamage(damage,resistance,r.Effect);Check(result>=0,"physical result nonnegative");Check(resistance!=3||result==0,"immunity retained");Check(damage!=0||result==0,"no free damage");}
+  var rpg=JsonNode.Parse(Resource("rpg-evolution-audit.json"))!.AsObject();
+  var rpgContent=ContentRules.Read<MasteryAudit>(rpg.ToJsonString());
+  var reality=ContentRules.Read<MasteryAudit>(Resource("reality-audit.json"));
+  var retained=evolution.Formations.Concat(audit.Formations).Concat(reality.Formations).Select(f=>f.PartyId).ToHashSet();
+  foreach(var f in rpgContent.Formations)
+  {
+   Check(retained.Add(f.PartyId),"RPG remix uses a separate native encounter");
+   Check(f.OldCodes.Select(c=>c>0).SequenceEqual(f.NewCodes.Select(c=>c>0))&&f.Hooks.Skip(1).All(h=>h==0)&&f.Flags==0,"RPG remix retains occupied slots and ordinary callbacks");
+   int Hp(int[] codes)=>codes.Where(c=>c>0).Sum(c=>f.Monsters.Single(m=>m.Index==c).Signature[0]);
+   Check(Hp(f.NewCodes)==f.NewHp&&Hp(f.OldCodes)==f.OldHp&&f.NewHp<=f.OldHp,"RPG remix original HP budget");
+  }
+  Check(!rpgContent.Unites.Select(u=>u.Id).Intersect(evolution.Unites.Concat(audit.Unites).Select(u=>u.Id)).Any(),"RPG Unite table cannot stack old coefficients");
+  Check(!rpgContent.Runes.Select(r=>r.Id).Intersect(audit.Runes.Concat(reality.Runes).Select(r=>r.Id)).Any(),"RPG rune coefficients are disjoint");
+  foreach(var rune in rpgContent.Runes)
+   Check(rune.Effect<=rune.Signature[3]*1.20&&CombatMasteryRules.PhysicalRuneDamage(120,3,rune.Effect)==0,"RPG rune cap and immunity");
   Console.WriteLine($"PASS: Combat Mastery {n} assertions; 20 formation guards/budgets, seven bounded selection cadences, four physical coefficients, three Unite identities and independent strict config.");
  }
 }

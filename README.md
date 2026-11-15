@@ -1,9 +1,10 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone** is v1.33, with DLL
-`1.33.0-boss-revolution.1`. Six additional bosses use guarded native attack
-selection. The source repository is public and the installable beta remains
-unpublished. [Boss Revolution verification](docs/BOSS-REVOLUTION-V133.md).
+**Latest development milestone** is v1.34, with DLL
+`1.34.0-rpg-evolution.1`. RPG Evolution revises fifteen recruits, seven
+spells, four physical techniques, six additional Unites and seven formations.
+The source repository is public. The installable beta remains unpublished.
+[RPG Evolution changes and verification](docs/RPG-EVOLUTION-V134.md).
 
 An unofficial Windows Steam gameplay overhaul and expansion for **Suikoden II HD
 Remaster**, using the original RPG and tactical war engines, artwork, animations,
@@ -15,11 +16,11 @@ hunting rewards preparation and grinding without becoming mandatory.
 ## What changes
 
 - **80 character profiles** and **31 spell adjustments** for more build choices.
-- **280 regular enemy profiles** and **51 remixed formations**, with guarded native
+- **280 regular enemy profiles** and **58 remixed formations**, with guarded native
   action/target selection, damage, healing and encounter changes.
 - Refined Pest Rat/first Harpy decisions; optional Lucia/final Neclord policies
   remain native-only. Luca’s three original encounters have a native selector baseline. Live tactics remain unavailable. [Manager ownership audit](docs/LUCA-MANAGER-OWNERSHIP-V124.md).
-- **Six physical rune** and **eight Unite** improvements.
+- **Ten physical techniques** and **fourteen Unite** improvements.
 - Victory rune regeneration: one missing charge per eligible survivor, starting
   at the lowest depleted spell level by default.
 - A real **Hunt Guild attendant inside Leona's tavern** in the audited castle variant.

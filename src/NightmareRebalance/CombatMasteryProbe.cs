@@ -100,16 +100,17 @@ internal static class CombatMasteryProbe
    w.c_varia_dat[0].mon_eqp[1]=82;Check(player.EquipEmblCheck(82,0)==2,"native equipment counts duplicate emblems");UnityEngine.Random.InitState(seed);Check(player.CalcPlayerDamage(6)==one,"damage branch treats duplicate passive presence as boolean");
   }
   w.c_varia_dat[0].mon_eqp[0]=0;w.c_varia_dat[0].mon_eqp[1]=0;
-  foreach(var a in CombatMasteryRuntime.Audit.Runes)
+  foreach(var a in CombatMasteryRuntime.Audit.Runes.Concat(RpgEvolutionRuntime.Options.PhysicalRunes?RpgEvolutionRuntime.Audit.Runes:Array.Empty<PhysicalRuneAudit>()))
   {
    var x=a.Signature;var magic=new MAGI_DATA{name=x[0],text=x[1],atrb=(byte)x[2],eff_val=(short)x[3],uni_no=(byte)x[4],uni_magic=(byte)x[5],info=new Il2CppStructArray<byte>(x.Skip(6).Take(2).Select(v=>(byte)v).ToArray()),status=new Il2CppStructArray<byte>(x.Skip(8).Select(v=>(byte)v).ToArray())};
-   Check(CombatMasteryRuntime.Spell(a.Id,magic)&&magic.eff_val==a.Effect,"production guarded physical rune");RuneChanges++;Check(!CombatMasteryRuntime.Spell(a.Id,magic),"physical rune idempotence");
+   bool Apply()=>CombatMasteryRuntime.Spell(a.Id,magic)||RpgEvolutionRuntime.Spell(a.Id,magic);
+   Check(Apply()&&magic.eff_val==a.Effect,"production guarded physical rune");RuneChanges++;Check(!Apply(),"physical rune idempotence");
    for(int resistance=0;resistance<4;resistance++)for(int seed=0;seed<16;seed++)
    {d.aisyo[10]=(byte)resistance;UnityEngine.Random.InitState(seed);int physical=player.CalcPlayerDamage(6);UnityEngine.Random.InitState(seed);int actual=player.PlayerCalcSpcDamage(magic,6);Check(actual==CombatMasteryRules.PhysicalRuneDamage(physical,resistance,a.Effect),"actual native physical rune/resistance/rounding");}
-   magic.eff_val=(short)(a.Effect+1);Check(!CombatMasteryRuntime.Spell(a.Id,magic)&&magic.eff_val==a.Effect+1,"custom physical rune value preserved");magic.eff_val=(short)x[3];magic.text++;Check(!CombatMasteryRuntime.Spell(a.Id,magic),"physical rune metadata mismatch");
+   magic.eff_val=(short)(a.Effect+1);Check(!Apply()&&magic.eff_val==a.Effect+1,"custom physical rune value preserved");magic.eff_val=(short)x[3];magic.text++;Check(!Apply(),"physical rune metadata mismatch");
   }
   d.aisyo[10]=0;
-  foreach(var a in CombatMasteryRuntime.Audit.Unites)
+  foreach(var a in CombatMasteryRuntime.Audit.Unites.Concat(RpgEvolutionRuntime.Options.Unites?RpgEvolutionRuntime.Audit.Unites:Array.Empty<UniteAudit>()))
   {
    var x=a.Signature;w.unite_data_table[a.Id]=new(){name=x[0],text=x[1],info=(byte)x[2],atrb=(byte)x[3],player_kazu=(byte)x[4],func_no=(byte)x[5],hosei=a.Effect,m_status=(byte)x[7],m_status_prob=(byte)x[8],p_status=(byte)x[9],p_status_prob=(byte)x[10],player_id=new Il2CppStructArray<byte>(x.Skip(11).Select(n=>(byte)n).ToArray())};
    for(int seed=0;seed<16;seed++)

@@ -78,5 +78,5 @@ internal static class CombatEvolutionRuntime
 [HarmonyPatch(typeof(BattleManager),nameof(BattleManager.BattleDataSetup))]
 internal static class EvolutionFormationPatch
 {
- [HarmonyPostfix]static void Postfix(BattleManager __instance){try{bool compatible=Plugin.CheckCompatibility();var w=__instance.battle_work;var source=w.monster_party_data;CombatRealityRuntime.Reset();bool applied=HuntRuntime.Formation(w,compatible)||CombatEvolutionRuntime.ApplyFormation(w,compatible)||CombatMasteryRuntime.ApplyFormation(w,compatible)||CombatRealityRuntime.ApplyFormation(w,compatible);CombatRealityRuntime.FormationResult(w,source,applied,compatible);}catch(Exception e){Plugin.Logger.LogWarning("Formation remix retained native data: "+e.Message);}}
+ [HarmonyPostfix]static void Postfix(BattleManager __instance){try{bool compatible=Plugin.CheckCompatibility();var w=__instance.battle_work;var source=w.monster_party_data;CombatRealityRuntime.Reset();bool applied=HuntRuntime.Formation(w,compatible)||CombatEvolutionRuntime.ApplyFormation(w,compatible)||CombatMasteryRuntime.ApplyFormation(w,compatible)||CombatRealityRuntime.ApplyFormation(w,compatible)||RpgEvolutionRuntime.ApplyFormation(w,compatible);CombatRealityRuntime.FormationResult(w,source,applied,compatible);}catch(Exception e){Plugin.Logger.LogWarning("Formation remix retained native data: "+e.Message);}}
 }

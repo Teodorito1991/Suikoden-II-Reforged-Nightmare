@@ -1,6 +1,6 @@
 # Known issues and validation limits
 
-The public source repository tracks v1.33 (`1.33.0-boss-revolution.1`). An installable
+The public source repository tracks v1.34 (`1.34.0-rpg-evolution.1`). An installable
 release remains unpublished. [Current Army Training evidence](docs/ARMY-TRAINING-V132.md).
 
 - **Boss Revolution gameplay acceptance is pending.** All six new policies passed

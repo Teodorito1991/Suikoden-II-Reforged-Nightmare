@@ -9,6 +9,17 @@ Binary distribution requires separate owner approval.
 - Updates the README and known issues to reflect v1.32 Army Training and its
   gameplay verification limits.
 
+## v1.34 — RPG Evolution
+
+- Revises 15 existing character profiles with distinct roles and tradeoffs.
+- Tunes seven spell effects and four additional physical techniques.
+- Rebalances six original Unites while preserving their participants and side effects.
+- Adds seven guarded regional remixes with reduced base HP budgets.
+- Native asset, setup and coefficient tests passed. Campaign balance and full
+  action playback await gameplay.
+
+[Exact build, changes and verification](docs/RPG-EVOLUTION-V134.md).
+
 ## v1.33 — Boss Revolution
 
 - Adds guarded attack selection for Celestial Sword, Worm, Abomination,
