@@ -9,6 +9,8 @@ internal sealed class HuntDefinition
  public string Id{get;set;}="";public string Name{get;set;}="";public string Field{get;set;}="";public int PartyCount{get;set;}
  public FormationAudit Audit{get;set;}=new();public HuntUnitRule[] Units{get;set;}=Array.Empty<HuntUnitRule>();
  public double DamageMultiplier{get;set;}=1;public int VictoryBonusPotch{get;set;}
+ public int[] WalkingVariants{get;set;}=Array.Empty<int>();
+ internal string FieldId=>Audit.TableId.Split('_')[0];
  internal string[] Roster=>Audit.NewCodes.Where(x=>x>0).Select(x=>Audit.Monsters.Single(m=>m.Index==x).Id).OrderBy(x=>x).ToArray();
 }
 internal sealed class HuntOverride
@@ -23,7 +25,7 @@ internal sealed class HuntCatalogueFile
 internal static class HuntCatalogueRules
 {
  internal static readonly string[] Behaviors={"Aggressive","Caster","Cautious","Disruptor","Opportunist","Alternating","Attrition"};
- internal static HuntCatalogueFile Parse(string json,HuntDefinition[] definitions)
+ internal static HuntCatalogueFile Parse(string json,HuntDefinition[] definitions,HuntCatalogueFile? defaults=null)
  {
   if(json.Length>32768)throw new JsonException("Hunt catalogue exceeds 32KiB");using var doc=JsonDocument.Parse(json);
   OverhaulRules.Keys(doc.RootElement,"SchemaVersion","SelectedHuntId","Hunts");
@@ -32,6 +34,8 @@ internal static class HuntCatalogueRules
    foreach(var u in x.GetProperty("Units").EnumerateArray())OverhaulRules.Keys(u,"Id","HpMultiplier","Behavior");
   }
   var c=ContentRules.Read<HuntCatalogueFile>(json);
+  if(defaults!=null&&c.Hunts!=null&&c.Hunts.All(x=>x!=null))
+   c.Hunts=c.Hunts.Concat(defaults.Hunts.Where(x=>definitions.Any(d=>d.Id==x.Id&&d.WalkingVariants.Length>0)&&!c.Hunts.Any(u=>u.Id==x.Id))).ToArray();
   if(c.SchemaVersion!=1||c.Hunts==null||c.Hunts.Any(x=>x==null)||!c.Hunts.Select(x=>x.Id).OrderBy(x=>x).SequenceEqual(definitions.Select(x=>x.Id).OrderBy(x=>x))||!definitions.Any(x=>x.Id==c.SelectedHuntId))throw new JsonException("Unknown, missing or duplicate hunt identity");
   foreach(var x in c.Hunts){var d=definitions.Single(d=>d.Id==x.Id);
    if(x.VictoryBonusPotch is <0 or >1000000||x.DamageMultiplier is {} f&&(!double.IsFinite(f)||f<0.5||f>5)||x.Units==null||x.Units.Any(u=>u==null)||x.Units.Select(u=>u.Id).Distinct().Count()!=x.Units.Length)throw new JsonException("Invalid hunt overrides");

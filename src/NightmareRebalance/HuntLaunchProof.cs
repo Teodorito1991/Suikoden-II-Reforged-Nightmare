@@ -13,7 +13,9 @@ internal static class HuntLaunchProof
   bool walking=type==0&&Checking==caller.Pointer;
   var source=Framework.Singleton<GAME_WORK>.instance?.sys_work?.battle_data;
   CastleGuildRuntime.WalkingRequest(caller,source,walking);
-  HuntAccess.Requested(source,walking);
+  var hunt=HuntAccess.Ticket.Armed?HuntAccess.RequestedHunt:null;
+  HuntAccess.Requested(source,walking&&(hunt==null||hunt.WalkingVariants.Length==0||
+      CastleGuildRuntime.WalkingSceneMatches(caller,source,hunt)));
   if(!walking)return;
   if(source!=null)pendingTable=source.Pointer;
  }

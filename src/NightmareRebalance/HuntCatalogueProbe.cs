@@ -63,7 +63,13 @@ internal static class HuntCatalogueProbe
    int Calculate(bool victory){s.SnapshotTaken=victory;CombatReforgedDiagnostics.Outcome=victory?"VictorySignal":"ClosedWithoutVictorySignal";UnityEngine.Random.InitState(rewardSeed);manager.get_monster_okane(w);return w.exit_work.monster_okane;}
    int scaled=Rules.Scale(raw,Plugin.Options.PotchMultiplier.Value,int.MaxValue);Check(Calculate(false)==scaled,"Escape / no victory excludes bonus");int prepared=Calculate(true);Check(prepared==scaled+HuntCatalogueRules.Bonus(definition,setting,HuntRuntime.Config),"Original native calculation plus configured bonus");Check(Calculate(true)==prepared,"Repeated native calculation does not compound");
    Rows.Add(new{definition.Id,definition.Field,Table=table.id,Actors=actors.ToArray(),NativeBasePotch=raw,ConfiguredBasePotch=scaled,PreparedReward=prepared,OriginalSetup=true,CastleAutomaticRequest=true,WalkingRequestSynthetic=true,VictoryInputSynthetic=true,RenderedBattle=false,ActualPayout=false});
-   foreach(int code in roster.Distinct()){var opd=table.monster_data[code].opd_data;Check(opd!=null&&opd.anime_kazu>0&&opd.pattern_kazu>0&&opd.anime_table.Count>0&&opd.pattern_table.Count>0,"Original animation / pattern sources loaded");}
+   foreach(int code in roster.Distinct())
+   {
+    var monster=table.monster_data[code];var opd=monster.opd_data;
+    Check(opd!=null&&opd.anime_kazu>0&&opd.pattern_kazu>0&&opd.anime_table.Count>0&&opd.pattern_table.Count>0,
+        "Original animation / pattern sources loaded");
+    HuntResourceProbe.Record(monster.id,opd!);
+   }
    GuildNativeProbe.Hunt(manager,w,s,rewardSeed);
    var repeat=Setup(false,castle:true);Check(HuntRuntime.Active==definition&&HuntAccess.SelectedWork==repeat.Pointer,"Repeat request without campaign flags or completion cap");
    HuntRuntime.Detach();Check(!HuntRuntime.ActiveRoster&&!HuntDebug.Scope(repeat),"Cleanup removes reward / debug scope");Covered.Add(definition.Id);

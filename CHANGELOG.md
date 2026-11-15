@@ -3,6 +3,19 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.37 — Grand Guild expansion
+
+- Adds seven replayable Hunts, from Bramble Road to The Tenzan Trial, with
+  audited original formations, distinct preparation advice and rewards.
+- The ten-contract list shows four rows per page. Native up/down input keeps
+  the selected contract visible across page boundaries.
+- Original victory handles the new Potch bonuses and conditional consumable,
+  growth stone and rune orb rewards. Existing three-contract files merge the
+  seven new defaults in memory and keep their existing settings.
+- Native checks and a rendered copied-game preview passed. Live travel and
+  complete quests for the new contracts remain unplayed.
+  [Exact build and catalogue](docs/GRAND-GUILD-V137.md).
+
 ## v1.36.1 — Guild preview
 
 - Runs the copied-game graphics preview on a separate Windows desktop. A

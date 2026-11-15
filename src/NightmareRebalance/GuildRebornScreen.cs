@@ -13,6 +13,20 @@ internal static class GuildRebornScreen
     internal static readonly GuildBox List = new(0, 90, 358, 400);
     internal static readonly GuildBox Detail = new(372, 90, 708, 400);
     internal static readonly GuildBox Footer = new(0, 504, 1080, 106);
+    internal const int RowsPerPage = 4;
+
+    internal static GuildMenuView Paginate(GuildMenuView view)
+    {
+        if (view.Rows.Length <= RowsPerPage) return view;
+        int page = view.Focus / RowsPerPage;
+        int pages = (view.Rows.Length + RowsPerPage - 1) / RowsPerPage;
+        return view with
+        {
+            Section = $"{view.Section}    {page + 1}/{pages}",
+            Focus = view.Focus % RowsPerPage,
+            Rows = view.Rows.Skip(page * RowsPerPage).Take(RowsPerPage).ToArray()
+        };
+    }
 
     internal static GuildBox Row(int index) => new(19, 136 + index * 78, 320, 65);
 

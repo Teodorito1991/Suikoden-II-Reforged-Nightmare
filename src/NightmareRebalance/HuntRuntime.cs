@@ -8,7 +8,19 @@ internal static class HuntRuntime
  internal static IntPtr Work,Party;internal static readonly Dictionary<IntPtr,string> Units=new();
  static FlatRewardGate reward=new();internal static int Applications,RewardCalculations;internal static object? LastOutcome;
  internal static readonly List<object> Calculations=new();
- internal static void Initialize(){try{Config=ExpansionRules.Parse(OverhaulRuntime.Load("first-expansion.json"));Audit=ContentRules.Read<FormationAudit>(ContentRuntime.Resource("hunt-audit.json"));Definitions=ContentRules.Read<HuntDefinition[]>(ContentRuntime.Resource("hunt-catalogue-audit.json"));Catalogue=HuntCatalogueRules.Parse(OverhaulRuntime.Load("hunt-catalogue.json"),Definitions);Plugin.Logger.LogInfo("Expansion: three guarded native hunt definitions; prior-build manual entry/victory/payout/field/re-entry verified; current build acceptance pending; enabled="+Config.EnableExperimentalHunt);}catch(Exception e){Definitions=Array.Empty<HuntDefinition>();Catalogue=new();Config.EnableExperimentalHunt=false;Plugin.Logger.LogWarning("Expansion prototype disabled: "+e.Message);}}
+ internal static void Initialize()
+ {
+  try
+  {
+   Config=ExpansionRules.Parse(OverhaulRuntime.Load("first-expansion.json"));
+   Audit=ContentRules.Read<FormationAudit>(ContentRuntime.Resource("hunt-audit.json"));
+   Definitions=ContentRules.Read<HuntDefinition[]>(ContentRuntime.Resource("hunt-catalogue-audit.json"));
+   var defaults=HuntCatalogueRules.Parse(ContentRuntime.Resource("hunt-catalogue.json"),Definitions);
+   Catalogue=HuntCatalogueRules.Parse(OverhaulRuntime.Load("hunt-catalogue.json"),Definitions,defaults);
+   Plugin.Logger.LogInfo($"Expansion: {Definitions.Length} guarded native Hunt contracts; enabled={Config.EnableExperimentalHunt}.");
+  }
+  catch(Exception e){Definitions=Array.Empty<HuntDefinition>();Catalogue=new();Config.EnableExperimentalHunt=false;Plugin.Logger.LogWarning("Hunt catalogue disabled: "+e.Message);}
+ }
  internal static void Detach(){Work=Party=IntPtr.Zero;Units.Clear();Active=null;HuntAccess.SelectedWork=IntPtr.Zero;HuntAccess.Selected=null;}
  internal static void Reset(){GuildItemRuntime.Reset();Work=Party=IntPtr.Zero;Units.Clear();Active=null;reward=new();LastOutcome=null;HuntRewardObservation.Credits.Clear();Calculations.Clear();}
  internal static bool Formation(BATTLE_WORK w,bool compatible)

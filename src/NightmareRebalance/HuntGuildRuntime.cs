@@ -9,6 +9,8 @@ internal static class HuntGuildRuntime
  internal static UIMainMenu? Menu;internal static MACHICON? CommandOwner;internal static IntPtr PartyOwner;internal static int NativeMenuTicks, SuppressedTicks;internal static bool MenuProven,Visible;internal static int Changes;internal static string Message="Select a contract; activation remains separate.";
  internal static bool Preview=>RenderSmoke||(!UnityEngine.Application.isBatchMode&&Environment.GetCommandLineArgs().Contains("--reforged-guild-preview"));
  internal static string? PreviewId;
+ internal static int DeveloperFocus;
+ static int developerInputFrame=-1;
  internal static bool RenderFaulted;internal static int LastRenderFrame=-1,RenderCalls;
  const string CaptureArgument="--reforged-guild-capture=";
  internal static readonly string? CaptureDirectory=GetCaptureDirectory();
@@ -29,7 +31,9 @@ internal static class HuntGuildRuntime
  static string PreferencePath=>Path.Combine(BepInEx.Paths.BepInExRootPath,"ReforgedNightmare","guild","selected-contract.json");
  internal static void Initialize()
  {
-  try{Items=ContentRules.Read<GuildItemAudit[]>(ContentRuntime.Resource("guild-item-audit.json"));Config=HuntGuildRules.Parse(OverhaulRuntime.Load("hunt-guild.json"),HuntRuntime.Definitions,Items);
+  try{Items=ContentRules.Read<GuildItemAudit[]>(ContentRuntime.Resource("guild-item-audit.json"));
+   var defaults=HuntGuildRules.Parse(ContentRuntime.Resource("hunt-guild.json"),HuntRuntime.Definitions,Items);
+   Config=HuntGuildRules.Parse(OverhaulRuntime.Load("hunt-guild.json"),HuntRuntime.Definitions,Items,defaults);
    try{if(!UnityEngine.Application.isBatchMode&&File.Exists(PreferencePath)&&new FileInfo(PreferencePath).Length<=4096)SessionSelection=HuntGuildRules.Preference(File.ReadAllText(PreferencePath),HuntRuntime.Definitions.Where(d=>HuntRuntime.Settings(d).Enabled).Select(d=>d.Id));}catch(Exception e){Plugin.Logger.LogWarning("Ignoring invalid contract preference: "+e.Message);}
   }catch(Exception e){Plugin.Logger.LogWarning("Hunt Guild configuration/preference unavailable: "+e.Message);Config.EnableSelector=false;Config.EnableVictoryItems=false;}
  }
@@ -57,9 +61,20 @@ internal static class HuntGuildRuntime
   if(CastleGuildRuntime.Modal)CastleGuildRuntime.Close(false); // Native party menu takes ownership; never retain a castle modal.
   Observe(mcon);
   if(!Visible||!MenuContext||!RenderReady)return true;
+  if(developerInputFrame!=UnityEngine.Time.frameCount&&GRInputManager.IsInstantiated)
+  {
+   developerInputFrame=UnityEngine.Time.frameCount;
+   bool Press(GRInputManager.Type type)=>GRInputManager.Instance.keys is {} keys&&keys.TryGetValue(type,out var key)&&key?.on==true;
+   var definitions=HuntRuntime.Definitions;
+   DeveloperFocus=GuildMenuNavigation.MoveFocus(DeveloperFocus,definitions.Length,Press(GRInputManager.Type.Up),Press(GRInputManager.Type.Down));
+   if(Press(GRInputManager.Type.Decide)&&DeveloperFocus<definitions.Length)
+    Select(definitions[DeveloperFocus].Id);
+  }
   SuppressedTicks++;result=0;return false;
  }
- internal static void Toggle(){LastRenderFrame=-1;if(RenderFaulted){Visible=false;Message="Guild renderer unavailable; native controls retained.";return;}if(Preview){Visible=!Visible;return;}if(Context){Visible=!Visible;Message="Select a contract. Close this panel and the party menu, then F6 in its field.";}else{Visible=false;Message="Open the Normal-mode field party menu first.";Plugin.Logger.LogInfo("Hunt Guild: "+Message);}}
+ internal static void Toggle(){LastRenderFrame=-1;if(RenderFaulted){Visible=false;Message="Guild renderer unavailable; native controls retained.";return;}
+  if(Preview||Context){Visible=!Visible;if(Visible)DeveloperFocus=Math.Max(0,Array.FindIndex(HuntRuntime.Definitions,d=>d.Id==(Preview?PreviewId:SelectedId)));Message="Select a contract. Close this panel and the party menu, then F6 in its field.";}
+  else{Visible=false;Message="Open the Normal-mode field party menu first.";Plugin.Logger.LogInfo("Hunt Guild: "+Message);}}
  internal static bool Select(string id)
  {
   if(!HuntRuntime.Definitions.Any(d=>d.Id==id&&HuntRuntime.Settings(d).Enabled))return false;

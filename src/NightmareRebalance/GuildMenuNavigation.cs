@@ -17,17 +17,22 @@ internal sealed class GuildMenuNavigation
     internal GuildPage Page { get; private set; }
     internal int Focus { get; private set; }
     internal int Drill { get; private set; }
+    internal int HuntCount { get; private set; }
     internal bool ConfirmReleased { get; private set; }
 
     internal int RowCount => Page switch
     {
         GuildPage.Services or GuildPage.Training => 4,
-        GuildPage.Hunts => 3,
+        GuildPage.Hunts => HuntCount,
         GuildPage.Difficulty => 2,
         _ => 1
     };
 
-    internal void Open(bool awaitingReport) => Enter(awaitingReport ? GuildPage.Status : GuildPage.Services, 0);
+    internal void Open(bool awaitingReport, int hunts)
+    {
+        HuntCount = Math.Max(0, hunts);
+        Enter(awaitingReport ? GuildPage.Status : GuildPage.Services, 0);
+    }
 
     void Enter(GuildPage page, int row)
     {
@@ -38,9 +43,11 @@ internal sealed class GuildMenuNavigation
 
     internal void Move(bool up, bool down)
     {
-        if (up == down) return;
-        Focus = (Focus + (down ? 1 : RowCount - 1)) % RowCount;
+        Focus = MoveFocus(Focus, RowCount, up, down);
     }
+
+    internal static int MoveFocus(int focus, int count, bool up, bool down) =>
+        count <= 0 ? 0 : up == down ? focus : (focus + (down ? 1 : count - 1)) % count;
 
     internal bool Back()
     {
@@ -70,7 +77,7 @@ internal sealed class GuildMenuNavigation
                 if (Focus == 3) return GuildChoice.Leave;
                 Enter(Focus switch { 0 => GuildPage.Hunts, 1 => GuildPage.Training, _ => GuildPage.Status }, 0);
                 return GuildChoice.None;
-            case GuildPage.Hunts: return GuildChoice.Accept;
+            case GuildPage.Hunts when HuntCount>0: return GuildChoice.Accept;
             case GuildPage.Training when drillAvailable:
                 Drill = Focus;
                 Enter(GuildPage.Difficulty, 0);

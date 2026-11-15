@@ -1,7 +1,7 @@
 # Known issues and validation limits
 
-The public source repository tracks v1.36.1 (`1.36.1-guild-preview.1`). An
-installable release remains unpublished. [Current Guild graphics evidence](docs/GUILD-PREVIEW-V1361.md).
+The public source repository tracks v1.37 (`1.37.0-grand-guild.1`). An
+installable release remains unpublished. [Current Guild evidence](docs/GRAND-GUILD-V137.md).
 
 - **Legendary Bosses gameplay acceptance is pending.** Original selectors ran
   with disposable phase states. Transformation playback, cinematic endings and
@@ -37,6 +37,9 @@ installable release remains unpublished. [Current Guild graphics evidence](docs/
 - **Dreamer and Thornwake await full gameplay acceptance.** Both are native-tested
   and opt-in. Thornwake's Greenhill City region is verified. Its exact travel
   route remains unplayed.
+- **Grand Guild routes and battles.** All seven new contracts have verified
+  original field/encounter links, setup, assets and reward preparation. Exact
+  story access windows, complete trips and campaign balance are unplayed.
 - **Guild map coverage.** The attendant is scoped to the exact Suggestion
   Box corridor (`vk07`, event variant 3). The copied game rendered the Guild
   screens in preview. Live field interaction and training return to the corridor

@@ -19,12 +19,13 @@ internal static class GuildPresentation
     };
     internal static string Availability(GuildQuestState state, string id, string? active, bool enabled, bool requests)
     {
-        if (!enabled) return id == "sun-kings-retinue" ? "Unavailable in settings" : "Experimental — disabled";
+        bool legacyExperiment = id is "dreamers-circuit" or "thornwake-patrol";
+        if (!enabled) return legacyExperiment ? "Experimental — disabled" : "Unavailable in settings";
         if (!requests) return "Requests disabled";
         if (state == GuildQuestState.AwaitingReport) return id == active ? "Completed — report to Guild" : "Report your hunt first";
         if (state == GuildQuestState.Accepted) return id == active ? "Accepted — ready to hunt" : "Finish or withdraw first";
         if (state == GuildQuestState.Reported && id == active) return "Reported — available again";
-        return id == "sun-kings-retinue" ? "Available — repeatable" : "Experimental — opted in";
+        return legacyExperiment ? "Experimental — opted in" : "Available — repeatable";
     }
     internal static string Prompt(GuildQuestState state, bool action, bool available) => action
         ? state == GuildQuestState.Accepted ? "Confirm: withdraw" : state == GuildQuestState.AwaitingReport ? "Confirm: report completion" : "Confirm: close"

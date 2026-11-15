@@ -1,7 +1,7 @@
 namespace NightmareRebalance;
 // Shared logical layout: runtime and offline previews use these exact rectangles.
 internal readonly record struct GuildBox(float X,float Y,float W,float H);
-internal sealed record GuildContractCard(string Id,string Name,string Destination,string Danger,string Monsters,string Tactics,string Evidence);
+internal sealed record GuildContractCard(string Id,string Name,string Destination,string Danger,string Monsters,string Tactics,string Evidence,int Tier=2);
 internal sealed record GuildDrawText(GuildBox Box,string Text,int Size,string Tone="body");
 internal sealed class GuildScreenModel
 {
@@ -17,7 +17,14 @@ internal static class GuildScreenRules
  internal static readonly GuildContractCard[] Cards={
   new("sun-kings-retinue","Sun King's Retinue","Cave of the Wind","Elite contract","Sun King / Sorcerer","A sturdy guardian fights beside a dangerous caster. Prepare both physical and magical options.","Optional hunt. Report completion to take the contract again."),
   new("dreamers-circuit","Dreamer's Circuit","Sindar Ruins","Elite / status pressure","Mr. Venus / Nightmare / MegaWatt","Nightmare can inflict sleep. Bring a way to wake allies.","Experimental contract. Disabled by default."),
-  new("thornwake-patrol","Thornwake Patrol","Greenhill City area","Elite / disruption","Melonzoo / two Holly Elves","The Holly Elves can inflict Balloon. Plan to deal with the escorts.","Experimental contract. Disabled by default.")};
+  new("thornwake-patrol","Thornwake Patrol","Greenhill City area","Elite / disruption","Melonzoo / two Holly Elves","The Holly Elves can inflict Balloon. Plan to deal with the escorts.","Experimental contract. Disabled by default.",3),
+  new("bramble-road","Bramble Road","Ryube Forest","Patrol / disruption","Wild Boar / Spider / Woodpecker","Clear the small pests before concentrating on the boar. Bring a way to clear ailments.","Return once the forest is open to ordinary travel.",1),
+  new("trial-road-embers","Trial Road Embers","Trial Road","Patrol / spell pressure","Salamander / Flying Squirrel / Zombie Slug","Bring healing and magic defense. Clear the fragile squirrel, then split your attacks between the two casters.","Take this contract after opening the Trial Road.",1),
+  new("matilda-choir","The Matilda Choir","Path to Matilda","Elite / disruption","Papa Holly / two DoReMi Elves","Remove the singers before fighting Papa Holly. Carry cures for their different status attacks.","Take this contract once the path to Matilda is open.",2),
+  new("twin-head-pack","Twin Head Pack","Twin Head Pass","Elite / predator pack","Air Lizard / two Killer Dogs","Guard fragile allies against the dogs. Use a Unite or a broad spell to thin the pack.","Take this contract when the route toward Tinto is open.",2),
+  new("undying-watch","The Undying Watch","Tinto Mines","Champion / mixed defense","Zombie Unicorn / Skeleton / Zombie / Neclordia","Take out Neclordia's magic and the status-inflicting Zombie first. Save a strong attack for the unicorn.","Use the encounter floors your story has opened in the mines.",3),
+  new("rakutei-vanguard","Rakutei Vanguard","Rakutei Mountain","Grand trial / mixed pressure","Sky Knight / Leathercut / Iron Claw / Pixie","Bring fast attackers and ailment cures. Break up the lighter escorts before committing your strongest runes.","Built for a developed party. Reach Rakutei through ordinary travel.",4),
+  new("tenzan-trial","The Tenzan Trial","Tenzan Pass","Grand trial / layered magic","Minotaurus / Magus / Chimera","Bring magic defense and a dependable healer. Remove Magus before dueling the Chimera.","Late-game route. Travel once the story opens the pass.",4)};
  internal static GuildContractCard Card(string id)=>Cards.FirstOrDefault(x=>x.Id==id)??Cards[0];
  internal static int Move(int focus,bool up,bool down,int contracts){if(contracts<1)return 0;if(up==down)return Math.Clamp(focus,0,contracts);return (Math.Clamp(focus,0,contracts)+(down?1:contracts))%(contracts+1);}
  internal static float Scale(int w,int h)=>Math.Max(.1f,Math.Min((w-32)/Width,(h-32)/Height));

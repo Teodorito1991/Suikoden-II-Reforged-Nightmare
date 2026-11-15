@@ -17,6 +17,41 @@
       "HuntId": "thornwake-patrol",
       "Enabled": true,
       "RewardId": "flowing-orb"
+    },
+    {
+      "HuntId": "bramble-road",
+      "RewardId": "mega-medicine",
+      "Enabled": true
+    },
+    {
+      "HuntId": "trial-road-embers",
+      "RewardId": "earth-orb",
+      "Enabled": true
+    },
+    {
+      "HuntId": "matilda-choir",
+      "RewardId": "stone-of-magic",
+      "Enabled": true
+    },
+    {
+      "HuntId": "twin-head-pack",
+      "RewardId": "stone-of-speed",
+      "Enabled": true
+    },
+    {
+      "HuntId": "undying-watch",
+      "RewardId": "sacrificial-jizo",
+      "Enabled": true
+    },
+    {
+      "HuntId": "rakutei-vanguard",
+      "RewardId": "cyclone-orb",
+      "Enabled": true
+    },
+    {
+      "HuntId": "tenzan-trial",
+      "RewardId": "mother-earth-orb",
+      "Enabled": true
     }
   ]
 }

@@ -12,9 +12,9 @@ internal static class GuildRebornTests
         }
         void Down() => menu.Move(false,true);
 
-        for (int hunt = 0; hunt < 3; hunt++)
+        for (int hunt = 0; hunt < 10; hunt++)
         {
-            menu.Open(false);
+            menu.Open(false,10);
             check(menu.Confirm(true,true,GuildQuestState.NoContract,true) == GuildChoice.None &&
                 menu.Page == GuildPage.Services, "Opening confirm cannot activate a service");
             Confirm();
@@ -22,9 +22,27 @@ internal static class GuildRebornTests
             check(menu.Page == GuildPage.Hunts && menu.Focus == hunt &&
                 Confirm() == GuildChoice.Accept && menu.Back(), "Every hunt reachable");
         }
+        var rows = Enumerable.Range(0, 10).Select(i => new GuildMenuRow("Contract "+i,"")).ToArray();
+        for (int focus = 0; focus < rows.Length; focus++)
+        {
+            var view = new GuildMenuView("HUNT CONTRACTS", rows, focus, "", "", "", "", "", "", "", "", false);
+            var page = GuildRebornScreen.Paginate(view);
+            check(page.Rows.Length <= 4 && page.Rows[page.Focus] == rows[focus] &&
+                page.Section.EndsWith($"{focus / 4 + 1}/3"), "Page boundary keeps selected contract visible");
+        }
+        menu.Open(false,10);
+        Confirm();
+        menu.Move(true,false);
+        check(menu.Focus==9,"Up wraps to final contract");
+        Down();
+        check(menu.Focus==0,"Down wraps to first contract");
+        menu.Open(false,0);
+        Confirm();
+        Down();
+        check(menu.Page==GuildPage.Hunts && Confirm()==GuildChoice.None && menu.Back(),"Empty catalogue remains closable");
         for (int drill = 0; drill < 4; drill++)
         {
-            menu.Open(false);
+            menu.Open(false,10);
             Down();
             Confirm();
             for (int row = 0; row < drill; row++) Down();
@@ -40,9 +58,9 @@ internal static class GuildRebornTests
             check(menu.Back() && menu.Page == GuildPage.Training && menu.Focus == drill &&
                 menu.Back() && !menu.Back(), "Cancel returns through the correct parent");
         }
-        menu.Open(true);
+        menu.Open(true,10);
         check(Confirm(GuildQuestState.AwaitingReport)==GuildChoice.Report, "Completed hunt opens report directly");
-        menu.Open(false);
+        menu.Open(false,10);
         Down(); Down(); Confirm();
         check(Confirm(GuildQuestState.Accepted)==GuildChoice.Withdraw, "Withdraw lives in Guild Status");
         check(GuildApproach.AtCounter(232,240,232,224) && !GuildApproach.AtCounter(208,224,232,224) &&

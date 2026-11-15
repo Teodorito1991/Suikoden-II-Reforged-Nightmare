@@ -4,6 +4,12 @@ Sun King's Retinue has complete gameplay acceptance on **1.12.2-guild-ui.1**.
 v1.19 refines its presentation and feedback; it has no separate user-assisted quest session.
 See [exact-build evidence](docs/ACCEPTANCE.md).
 
+The v1.37 catalogue has ten contracts. Press Up or Down to browse. The next
+page appears automatically when the cursor crosses the end of the current
+page. Tiers describe preparation, and the selected contract gives its
+destination, enemies, reward and route advice. Report or withdraw under
+**Guild Status**. [All seven additions, formations and rewards](docs/GRAND-GUILD-V137.md).
+
 ## Take a contract
 
 1. Reach headquarters through the ordinary story. Visit the Suggestion Box
@@ -45,7 +51,7 @@ through the Guild. **Actual loading/restarting clears session-only contracts**,
 including unreported completion. A remembered selection is not saved quest progress.
 Never accept at castle and load a Cave save as a shortcut.
 
-| Contract | Destination | Public proposal |
+| Original contract | Destination | Availability |
 |---|---|---|
 | Sun King's Retinue |Cave of the Wind, vd06_00| Enabled; accepted exact v1.12.2 quest |
 | Dreamer's Circuit |Audited Sindar Ruins field vc12_00| Disabled; native-only |

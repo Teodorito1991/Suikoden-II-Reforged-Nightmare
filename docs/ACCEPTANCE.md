@@ -1,5 +1,13 @@
 # Exact-build evidence ledger
 
+## 1.37.0-grand-guild.1 — ten contracts and rendered pages
+
+The original engine loaded ten field-linked encounter tables and 29 monster
+atlases. All ten passed guarded battle setup, action selection, reward
+calculation and scratch inventory checks. The copied game rendered ten
+screens, including all three Hunt pages. No campaign was loaded.
+[Exact DLL hash and scope](GRAND-GUILD-V137.md).
+
 ## 1.36.1-guild-preview.1 — rendered Guild and native regression
 
 The copied game's original Guild frame, cursor and font rendered in eight

@@ -7,7 +7,7 @@ using HarmonyLib;
 
 namespace NightmareRebalance;
 
-[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.36.1")]
+[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.37.0")]
 [BepInDependency("d3xMachina.suikoden_fix", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("faospark.pkcore", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("nightmare.suikoden2.rebalance", BepInDependency.DependencyFlags.SoftDependency)]
@@ -82,7 +82,7 @@ public sealed class Plugin : BasePlugin
             CombatRealityProbe.Run();
             if(ProductionAssetAudit.Requested){AddComponent<ProductionAssetAudit>();ProductionAssetAudit.Scheduled=true;}
             if (Options.EnableDeveloperTools.Value) AddComponent<DeveloperOverlay>();
-            Log.LogInfo("Reforged Nightmare 1.36.1-guild-preview.1 loaded.");
+            Log.LogInfo("Reforged Nightmare 1.37.0-grand-guild.1 loaded.");
         }
         catch (Exception ex)
         {

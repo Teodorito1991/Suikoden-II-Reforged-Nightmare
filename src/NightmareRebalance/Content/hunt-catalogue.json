@@ -22,6 +22,55 @@
       "VictoryBonusPotch": null,
       "DamageMultiplier": null,
       "Units": []
+    },
+    {
+      "Id": "bramble-road",
+      "Enabled": true,
+      "VictoryBonusPotch": null,
+      "DamageMultiplier": null,
+      "Units": []
+    },
+    {
+      "Id": "trial-road-embers",
+      "Enabled": true,
+      "VictoryBonusPotch": null,
+      "DamageMultiplier": null,
+      "Units": []
+    },
+    {
+      "Id": "matilda-choir",
+      "Enabled": true,
+      "VictoryBonusPotch": null,
+      "DamageMultiplier": null,
+      "Units": []
+    },
+    {
+      "Id": "twin-head-pack",
+      "Enabled": true,
+      "VictoryBonusPotch": null,
+      "DamageMultiplier": null,
+      "Units": []
+    },
+    {
+      "Id": "undying-watch",
+      "Enabled": true,
+      "VictoryBonusPotch": null,
+      "DamageMultiplier": null,
+      "Units": []
+    },
+    {
+      "Id": "rakutei-vanguard",
+      "Enabled": true,
+      "VictoryBonusPotch": null,
+      "DamageMultiplier": null,
+      "Units": []
+    },
+    {
+      "Id": "tenzan-trial",
+      "Enabled": true,
+      "VictoryBonusPotch": null,
+      "DamageMultiplier": null,
+      "Units": []
     }
   ]
 }

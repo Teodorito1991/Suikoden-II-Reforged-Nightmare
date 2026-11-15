@@ -91,7 +91,7 @@ if (!(Select-String -LiteralPath $log -SimpleMatch 'Guild render smoke PASS') -o
     throw 'The game did not complete its preview and asset cleanup. Inspect the copied-game log.'
 }
 $images=@(Get-ChildItem -LiteralPath $capture -Filter '*.png')
-if ($images.Count -ne 8 -or ($images | Where-Object Length -le 8)) {
-    throw 'Expected eight nonempty screenshots from this preview run.'
+if ($images.Count -ne 10 -or ($images | Where-Object Length -le 8)) {
+    throw 'Expected ten nonempty screenshots from this preview run.'
 }
 [pscustomobject]@{CaptureDirectory=$capture; DllSha256=$hash; Images=$images.Count}

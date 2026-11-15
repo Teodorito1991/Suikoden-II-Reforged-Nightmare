@@ -102,7 +102,16 @@ internal static class CastleGuildNativeProbe
  static T Alloc<T>() where T:Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase{System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(T).TypeHandle);return(T)Activator.CreateInstance(typeof(T),Il2CppInterop.Runtime.IL2CPP.il2cpp_object_new(Il2CppInterop.Runtime.Il2CppClassPointerStore<T>.NativeClassPtr))!;}
  internal static MACHIDAT BindWalkingFixture(EVENTCON e,BATTLE_DATA table){
   if(!UnityEngine.Application.isBatchMode||!Plugin.Options.RunCombatSelfTest.Value)throw new InvalidOperationException("Walking scene fixture is batch-test only");
-  var m=Alloc<MACHICON>();var data=UnityEngine.ScriptableObject.CreateInstance<MACHIDAT>();data.battle_dat=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<BATTLE_DATA>(new[]{table});var location=HuntFieldSourceProbe.FindLocation(table.id.Split('_')[0])??throw new InvalidOperationException("Missing unique native map ID");m.ano=location.Area;m.vno=location.Town;m.mdat=data;m.econ=e;e.mcon=m;e.mdat=data;return data;
+  var m=Alloc<MACHICON>();var data=UnityEngine.ScriptableObject.CreateInstance<MACHIDAT>();
+  data.battle_dat=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<BATTLE_DATA>(2);
+  data.battle_dat[1]=table;
+  var hunt=HuntRuntime.Definitions.Single(d=>d.Audit.TableId==table.id);
+  m.mno=(byte)hunt.WalkingVariants.FirstOrDefault();
+  var events=new EVENTDAT{mapeventdat=new Il2CppSystem.Collections.Generic.List<MAPEVDAT>()};
+  for(int i=0;i<=m.mno;i++)events.mapeventdat.Add(new MAPEVDAT{batlno=1,batltim=1,batlpro=1});
+  data.eventdata=events;
+  var location=HuntFieldSourceProbe.FindLocation(hunt.FieldId)??throw new InvalidOperationException("Missing unique native map ID");
+  m.ano=location.Area;m.vno=location.Town;m.mdat=data;m.econ=e;e.mcon=m;e.mdat=data;return data;
  }
  // Drives the actual request observer, followed by BattleDataSetup in the caller.
  // The walking scope is synthetic and the original EVENTCON methods are not run.
@@ -155,6 +164,13 @@ internal static class CastleGuildNativeProbe
    int area=e.mcon.ano,town=e.mcon.vno;
    Check(MachiLoader.GetMachiID(area,town)==table.id.Split('_')[0],"Exact native map identifier");
    e.mcon.ano=10;e.mcon.vno=6;CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Correct battle table in wrong native field cannot arm quest");e.mcon.ano=area;e.mcon.vno=town;
+   if(hunt.WalkingVariants.Length>0){
+    var variant=e.mcon.mno;e.mcon.mno=(byte)Enumerable.Range(0,32).First(i=>!hunt.WalkingVariants.Contains(i));
+    CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Wrong variant of the right field cannot arm quest");
+    e.mcon.mno=variant;
+    var map=e.mdat.eventdata.mapeventdat[variant];map.batlno=0;
+    CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Right variant with unrelated walking slot cannot arm quest");map.batlno=1;
+   }
    e.mcon.econ=Alloc<EVENTCON>();CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Foreign field owner cannot arm quest");e.mcon.econ=e;
    var data=e.mdat;e.mdat=Alloc<MACHIDAT>();CastleGuildRuntime.WalkingRequest(e,table,true);Check(!HuntAccess.Ticket.Armed,"Detached field data cannot arm quest");e.mdat=data;
    CastleGuildRuntime.WalkingRequest(e,table,false);Check(!HuntAccess.Ticket.Armed,"Scripted/non-walking request cannot auto-arm");

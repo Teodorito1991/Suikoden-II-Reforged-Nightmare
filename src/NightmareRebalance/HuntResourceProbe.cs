@@ -7,12 +7,23 @@ namespace NightmareRebalance;
 // Exact keys verified in this installation's original Addressables catalog.
 internal static class HuntResourceProbe
 {
- static readonly string[] keys={"gsd2-classic-opd-battle-monster-vd06_00_02_atlas","gsd2-classic-opd-battle-monster-vd06_00_03_atlas","gsd2-classic-opd-battle-monster-vc12_00_00_atlas","gsd2-classic-opd-battle-monster-vc12_00_01_atlas","gsd2-classic-opd-battle-monster-vc12_00_02_atlas","gsd2-classic-opd-battle-monster-ve03_00_02_atlas","gsd2-classic-opd-battle-monster-ve03_00_03_atlas"};
+ static string[]? keys;
+ static readonly Dictionary<string,string> atlases=new();
  static readonly List<AsyncOperationHandle<SpriteAtlas>> retained=new();
  static AsyncOperationHandle<SpriteAtlas>? pending;static int index;
  internal static int Assertions;internal static bool Passed;internal static readonly List<object> Rows=new();
+ internal static void Record(string monster,OPD_DATA opd)
+ {
+  if(opd.path is not ("battle/monster" or "battle/monster_t")||string.IsNullOrWhiteSpace(opd.id))
+   throw new InvalidOperationException("Missing original monster OPD identity: "+monster);
+  string key="gsd2-classic-opd-battle-monster-"+opd.id+"_atlas";
+  if(atlases.TryGetValue(monster,out var other)&&other!=key)
+   throw new InvalidOperationException("Conflicting original atlas identities: "+monster);
+  atlases[monster]=key;
+ }
  internal static bool Step()
  {
+  keys??=HuntRuntime.Definitions.SelectMany(h=>h.Roster).Distinct().Select(id=>atlases[id]).Distinct().ToArray();
   if(index==keys.Length){Passed=true;return true;}
   if(pending==null){pending=Addressables.LoadAssetAsync<SpriteAtlas>((Il2CppSystem.String)keys[index]);return false;}
   if(!pending.IsDone)return false;

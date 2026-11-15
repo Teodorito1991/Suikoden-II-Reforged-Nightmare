@@ -103,7 +103,7 @@ internal static class CastleGuildRuntime
   // native window invalidates Idle and keeps the Guild closed.
   if(Modal||ReleaseFence||Field?.Pointer!=e.Pointer||!Idle||!Near||!FacingClerk||HuntGuildRuntime.RenderFaulted)return;
   Modal=true;
-  Menu.Open(Quest.State==GuildQuestState.AwaitingReport);
+  Menu.Open(Quest.State==GuildQuestState.AwaitingReport,HuntRuntime.Definitions.Length);
   HuntGuildRuntime.Visible=true;
   HuntGuildRuntime.LastRenderFrame=-1;
   Opens++;
@@ -175,7 +175,17 @@ internal static class CastleGuildRuntime
  }
  internal static void ObserveQuestOwner(IntPtr now){if(ContractParty!=IntPtr.Zero&&now!=IntPtr.Zero&&now!=ContractParty)ClearContract("A different party session was loaded");}
  internal static bool HuntEntryCompatible=>new[]{AccessTools.Method(typeof(EVENTCON),nameof(EVENTCON.EventBatlleCheck)),AccessTools.Method(typeof(EVENTCON),nameof(EVENTCON.EventBatlleSet))}.All(m=>Harmony.GetPatchInfo(m)?.Owners.All(o=>o==Plugin.Id)!=false);
- internal static bool WalkingSceneMatches(EVENTCON e,BATTLE_DATA? table,HuntDefinition hunt)=>table!=null&&e?.mcon is {} m&&m.econ?.Pointer==e.Pointer&&e.mdat!=null&&m.mdat?.Pointer==e.mdat.Pointer&&e.mdat.battle_dat!=null&&e.mdat.battle_dat.Any(t=>t?.Pointer==table.Pointer)&&MachiLoader.GetMachiID(m.ano,m.vno)==hunt.Audit.TableId.Split('_')[0];
+ internal static bool WalkingSceneMatches(EVENTCON e,BATTLE_DATA? table,HuntDefinition hunt)
+ {
+  if(table==null||e?.mcon is not {} m||m.econ?.Pointer!=e.Pointer||e.mdat is not {} field||
+      m.mdat?.Pointer!=field.Pointer||field.battle_dat is not {} tables||MachiLoader.GetMachiID(m.ano,m.vno)!=hunt.FieldId)
+   return false;
+  if(hunt.WalkingVariants.Length==0)return tables.Any(t=>t?.Pointer==table.Pointer);
+  if(!hunt.WalkingVariants.Contains(m.mno)||field.eventdata?.mapeventdat is not {} maps||m.mno>=maps.Count)
+   return false;
+  return maps[m.mno] is {} map&&map.batltim>0&&map.batlpro>0&&map.batlno>0&&
+      map.batlno<tables.Length&&tables[map.batlno]?.Pointer==table.Pointer;
+ }
  internal static int WalkingChecks;internal static object? LastWalkingEvidence;
  internal static void WalkingRequest(EVENTCON e,BATTLE_DATA? table,bool walking)
  {

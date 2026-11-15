@@ -73,5 +73,178 @@
       ],
       "botch": 2200
     }
+  },
+  {
+    "Id": "mega-medicine",
+    "Name": "Mega Medicine",
+    "Kind": 0,
+    "Number": 2,
+    "UseCount": 3,
+    "Template": {
+      "name": 2041,
+      "text": 1305,
+      "dummyname": "",
+      "dummytext": "",
+      "info": [
+        19,
+        48
+      ],
+      "cnt": 3,
+      "eff_val": 500,
+      "atrb": 0,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "botch": 50
+    }
+  },
+  {
+    "Id": "earth-orb",
+    "Name": "Earth Orb",
+    "Kind": 2,
+    "Number": 7,
+    "UseCount": 32,
+    "Template": {
+      "name": 2547,
+      "text": 2548,
+      "info": [
+        112,
+        5
+      ],
+      "bonus": 0,
+      "magic_no": [
+        16,
+        17,
+        18,
+        19
+      ],
+      "botch": 400
+    }
+  },
+  {
+    "Id": "stone-of-magic",
+    "Name": "Stone of Magic",
+    "Kind": 0,
+    "Number": 22,
+    "UseCount": 1,
+    "Template": {
+      "name": 2066,
+      "text": 2067,
+      "dummyname": "",
+      "dummytext": "",
+      "info": [
+        17,
+        20
+      ],
+      "cnt": 1,
+      "eff_val": 3,
+      "atrb": 0,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "botch": 200
+    }
+  },
+  {
+    "Id": "stone-of-speed",
+    "Name": "Stone of Speed",
+    "Kind": 0,
+    "Number": 26,
+    "UseCount": 1,
+    "Template": {
+      "name": 2074,
+      "text": 2075,
+      "dummyname": "",
+      "dummytext": "",
+      "info": [
+        17,
+        20
+      ],
+      "cnt": 1,
+      "eff_val": 3,
+      "atrb": 0,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "botch": 200
+    }
+  },
+  {
+    "Id": "sacrificial-jizo",
+    "Name": "Sacrificial Jizo",
+    "Kind": 0,
+    "Number": 30,
+    "UseCount": 1,
+    "Template": {
+      "name": 2082,
+      "text": 2083,
+      "dummyname": "",
+      "dummytext": "",
+      "info": [
+        18,
+        56
+      ],
+      "cnt": 1,
+      "eff_val": 50,
+      "atrb": 0,
+      "status": [
+        0,
+        0,
+        0
+      ],
+      "botch": 500
+    }
+  },
+  {
+    "Id": "cyclone-orb",
+    "Name": "Cyclone Orb",
+    "Kind": 2,
+    "Number": 6,
+    "UseCount": 32,
+    "Template": {
+      "name": 2545,
+      "text": 2546,
+      "info": [
+        112,
+        5
+      ],
+      "bonus": 0,
+      "magic_no": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "botch": 1800
+    }
+  },
+  {
+    "Id": "mother-earth-orb",
+    "Name": "Mother Earth Orb",
+    "Kind": 2,
+    "Number": 8,
+    "UseCount": 32,
+    "Template": {
+      "name": 2549,
+      "text": 2550,
+      "info": [
+        112,
+        5
+      ],
+      "bonus": 0,
+      "magic_no": [
+        17,
+        18,
+        19,
+        20
+      ],
+      "botch": 1600
+    }
   }
 ]

@@ -8,8 +8,18 @@ internal static class HuntCatalogueTests
   string Resource(string name){using var s=typeof(HuntCatalogueTests).Assembly.GetManifestResourceStream("ReforgedContent."+name)!;using var r=new StreamReader(s);return r.ReadToEnd();}
   var definitions=ContentRules.Read<HuntDefinition[]>(Resource("hunt-catalogue-audit.json"));var config=HuntCatalogueRules.Parse(Resource("hunt-catalogue.json"),definitions);var legacy=ExpansionRules.Parse(Resource("first-expansion.json"));
   void Invalid(Action<HuntCatalogueFile> edit){var c=HuntCatalogueRules.Parse(Resource("hunt-catalogue.json"),definitions);edit(c);bool bad=false;try{HuntCatalogueRules.Parse(JsonSerializer.Serialize(c),definitions);}catch(JsonException){bad=true;}Check(bad,"Invalid configuration rejected");}
-  Check(definitions.Length==3&&definitions.Select(x=>x.Audit.TableId).Distinct().Count()==3,"Three distinct native tables");Check(config.SelectedHuntId=="sun-kings-retinue"&&!legacy.EnableExperimentalHunt,"Preserved Sun selection and distributed global opt-in");
-  Check(config.Hunts[0].Enabled&&config.Hunts.Skip(1).All(x=>!x.Enabled),"Unplayed contracts disabled on fresh installs");
+  Check(definitions.Length==10&&definitions.Select(x=>x.Audit.TableId).Distinct().Count()==10,"Ten distinct native tables");Check(config.SelectedHuntId=="sun-kings-retinue"&&!legacy.EnableExperimentalHunt,"Preserved Sun selection and distributed global opt-in");
+  Check(config.Hunts[0].Enabled&&config.Hunts.Skip(1).Take(2).All(x=>!x.Enabled)&&config.Hunts.Skip(3).All(x=>x.Enabled),"Legacy opt-ins preserved and seven new contracts available within the hunt module");
+  var oldConfig=HuntCatalogueRules.Parse(Resource("hunt-catalogue.json"),definitions);
+  oldConfig.SelectedHuntId="dreamers-circuit";oldConfig.Hunts=oldConfig.Hunts.Take(3).ToArray();
+  oldConfig.Hunts[1].Enabled=true;
+  oldConfig.Hunts[1].VictoryBonusPotch=2222;
+  var upgraded=HuntCatalogueRules.Parse(JsonSerializer.Serialize(oldConfig),definitions,config);
+  Check(upgraded.Hunts.Length==10&&upgraded.SelectedHuntId=="dreamers-circuit"&&upgraded.Hunts[1].Enabled&&upgraded.Hunts[1].VictoryBonusPotch==2222,"Legacy override merged in memory");
+  oldConfig.Hunts=oldConfig.Hunts.Take(2).ToArray();
+  bool malformedLegacy=false;try{HuntCatalogueRules.Parse(JsonSerializer.Serialize(oldConfig),definitions,config);}catch(JsonException){malformedLegacy=true;}
+  Check(malformedLegacy,"Missing legacy identities remain rejected");
+  Check(definitions.Skip(3).All(h=>h.WalkingVariants.Length>0&&h.WalkingVariants.Length==h.WalkingVariants.Distinct().Count()&&h.DamageMultiplier==1&&h.Units.All(u=>u.HpMultiplier==1)),"New hunts use audited variants and original HP/damage factors");
   var previous=ContentRules.Read<FormationAudit>(Resource("hunt-audit.json"));Check(JsonSerializer.Serialize(previous)==JsonSerializer.Serialize(definitions[0].Audit),"Sun source audit byte-equivalent serialized values");
   foreach(var d in definitions){var a=d.Audit;var c=config.Hunts.Single(x=>x.Id==d.Id);
    Check(a.Indices.Length==1&&a.Indices[0]<d.PartyCount,"Exact source index");Check(a.NewCodes.Count(x=>x>0)==a.OldCodes.Count(x=>x>0)&&a.NewCodes.Select(x=>x>0).SequenceEqual(a.OldCodes.Select(x=>x>0)),"Occupied slots and count preserved");

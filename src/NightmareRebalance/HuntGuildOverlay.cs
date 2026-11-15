@@ -5,7 +5,7 @@ namespace NightmareRebalance;
 // Existing explicit-rectangle renderer used by the native-talk castle Guild.
 public sealed class HuntGuildOverlay:MonoBehaviour
 {
- readonly StableHotkeyEdge[] select={new(),new(),new()};readonly Stopwatch timer=Stopwatch.StartNew();
+ readonly Stopwatch timer=Stopwatch.StartNew();
  Font? fallbackFont;readonly Dictionary<int,GUIStyle> styles=new();bool faulted;readonly StableHotkeyEdge request=new();
  bool smokeExitRequested;
  int smokeScreen,smokePaints;
@@ -16,6 +16,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   (GuildPage.Hunts,0,0,"02-hunt-sun-king.png"),
   (GuildPage.Hunts,1,0,"03-hunt-dreamer.png"),
   (GuildPage.Hunts,2,0,"04-hunt-thornwake.png"),
+  (GuildPage.Hunts,4,0,"09-patrol-contracts.png"),
+  (GuildPage.Hunts,9,0,"10-grand-trials.png"),
   (GuildPage.Training,2,0,"05-army-training.png"),
   (GuildPage.Difficulty,0,2,"06-standard.png"),
   (GuildPage.Difficulty,1,2,"07-veteran.png"),
@@ -41,7 +43,6 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    if(CastleGuildRuntime.Modal)return;
    GetWindowThreadProcessId(GetForegroundWindow(),out uint foreground);bool focused=foreground==(uint)Environment.ProcessId;
    short rv=GetAsyncKeyState(0x34);if(request.Poll(focused&&HuntGuildRuntime.Visible,(rv&0x8000)!=0,(rv&1)!=0,timer.ElapsedMilliseconds))HuntGuildRuntime.Requests(!HuntRuntime.Config.EnableExperimentalHunt);
-   for(int i=0;i<select.Length;i++){short v=GetAsyncKeyState(0x31+i);if(select[i].Poll(focused&&HuntGuildRuntime.Visible,(v&0x8000)!=0,(v&1)!=0,timer.ElapsedMilliseconds)&&i<HuntRuntime.Definitions.Length)HuntGuildRuntime.Select(HuntRuntime.Definitions[i].Id);}
   }catch(Exception e){faulted=true;HuntGuildRuntime.RenderFailed(e);}
  }
 
@@ -111,7 +112,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   var state = CastleGuildRuntime.Quest.State;
   string status = preview ? "Presentation preview" : CastleGuildRuntime.Status;
   string back = developer ? "F10 closes" : page == GuildPage.Services ? "Close" : "Back";
-  if (developer) status = "1–3 Browse     F10 Close     4 Toggle requests";
+  if (developer) status = HuntGuildRuntime.Message;
 
   if (page == GuildPage.Services)
   {
@@ -138,30 +139,37 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   if (page == GuildPage.Hunts)
   {
    var defs = HuntRuntime.Definitions;
-   if(defs.Length!=GuildScreenRules.Cards.Length)
-    return new("HUNT CONTRACTS",GuildScreenRules.Cards.Select(card=>new GuildMenuRow(card.Name,"Unavailable")).ToArray(),
-        focus,"Contracts unavailable","","The Guild could not load its contract definitions.","","",status,"Unavailable",back,preview);
+   if(defs.Length==0)
+    return new("HUNT CONTRACTS",new[]{new GuildMenuRow("Unavailable","")},0,
+        "Contracts unavailable","","The Guild could not load its contract definitions.","","",status,"Unavailable",back,preview);
+   focus=Math.Clamp(focus,0,defs.Length-1);
    var definition = defs[focus];
    var card = GuildScreenRules.Card(definition.Id);
    var setting = HuntRuntime.Settings(definition);
    bool enabled = HuntRuntime.Config.EnableExperimentalHunt && CombatReforgedRuntime.Config.Enabled;
    bool normal = preview || DifficultyProvenance.Difficulty(out int mode, out _) && mode == 0;
-   var rows = defs.Select(d => new GuildMenuRow(d.Name, GuildPresentation.Availability(state, d.Id,
+   var rows = defs.Select(d => new GuildMenuRow(d.Name, $"Tier {GuildScreenRules.Card(d.Id).Tier} · "+GuildPresentation.Availability(state, d.Id,
        CastleGuildRuntime.Contract ?? CastleGuildRuntime.Quest.LastReportedId,
        HuntRuntime.Settings(d).Enabled, enabled && normal))).ToArray();
    var rule = HuntGuildRuntime.Config.Rewards.FirstOrDefault(x => x.HuntId == definition.Id && x.Enabled);
-   string? item = HuntGuildRuntime.Config.EnableVictoryItems && rule != null ?
-       HuntGuildRuntime.Items.FirstOrDefault(x => x.Id == rule.RewardId)?.Name : null;
+   var item = HuntGuildRuntime.Config.EnableVictoryItems && rule != null ?
+       HuntGuildRuntime.Items.FirstOrDefault(x => x.Id == rule.RewardId) : null;
+   string? itemLabel = item?.Name;
+   if(item is {Kind:0,UseCount:>1})itemLabel += $" ({item.UseCount} uses)";
    string bonus = HuntCatalogueRules.Bonus(definition, setting, HuntRuntime.Config).ToString("N0");
+   string rewardCondition = item == null ? "" : " Only if native loot is empty and your bag has room.";
    string reason = !normal ? "Available on Normal difficulty." : !enabled ? "Hunt requests are disabled." :
-       !setting.Enabled ? card.Evidence : state == GuildQuestState.AwaitingReport ? "Report the completed hunt under Guild Status." :
+       !setting.Enabled ? (definition.WalkingVariants.Length>0 ? "Disabled in Guild settings." : card.Evidence) :
+       state == GuildQuestState.AwaitingReport ? "Report the completed hunt under Guild Status." :
        state == GuildQuestState.Accepted ? "Finish or withdraw your active contract first." :
-       item == null ? "Original battle loot and purse limits apply." : "The item depends on original loot and available bag space.";
+       definition.WalkingVariants.Length>0 ? card.Evidence+rewardCondition :
+       item == null ? "Original battle loot and purse limits apply." : "Only if native loot is empty and your bag has room.";
    string confirm = normal && enabled && setting.Enabled && state is not (GuildQuestState.Accepted or GuildQuestState.AwaitingReport)
        ? "Accept" : "Unavailable";
-   return new("HUNT CONTRACTS", rows, focus, card.Name, $"{card.Destination}  ·  {card.Danger}",
+   if(developer&&confirm!="Unavailable")confirm="Select";
+   return GuildRebornScreen.Paginate(new("HUNT CONTRACTS", rows, focus, card.Name, $"{card.Destination}  ·  {card.Danger}",
        $"{card.Monsters}\n{card.Tactics}", $"Battle Potch + {bonus} bonus" +
-           (item == null ? "" : $"\nPossible item  {item}"), reason, status, confirm, back, preview);
+           (itemLabel == null ? "" : $"\nPossible item  {itemLabel}"), reason, status, confirm, back, preview));
   }
 
   var drill = (TrainingWar.Drill)(page == GuildPage.Difficulty ? drillIndex : focus);
@@ -237,8 +245,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     var menu=CastleGuildRuntime.Menu;
     bool developer=!CastleGuildRuntime.Modal&&!previewSmoke;
     var page=developer ? GuildPage.Hunts : menu.Page;
-    int focus=developer ? Math.Max(0,Array.FindIndex(HuntRuntime.Definitions,
-        d=>d.Id==(HuntGuildRuntime.Preview?HuntGuildRuntime.PreviewId:HuntGuildRuntime.SelectedId))) : menu.Focus;
+    int focus=developer ? HuntGuildRuntime.DeveloperFocus : menu.Focus;
     int drill=menu.Drill;
     if(previewSmoke)
     {

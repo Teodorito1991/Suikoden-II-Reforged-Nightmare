@@ -20,7 +20,7 @@ internal static class PublicationDefaultsTests
         var items=ContentRules.Read<GuildItemAudit[]>(Resource("guild-item-audit.json"));
         var catalogue=HuntCatalogueRules.Parse(Read("hunt-catalogue.json"),definitions);
         Check(catalogue.Hunts.Single(x=>x.Id=="sun-kings-retinue").Enabled,"Sun enabled");
-        Check(catalogue.Hunts.Where(x=>x.Id!="sun-kings-retinue").All(x=>!x.Enabled),"Unplayed contracts off");
+        Check(catalogue.Hunts.Count(x=>x.Enabled)==8&&catalogue.Hunts.Where(x=>x.Id is "dreamers-circuit" or "thornwake-patrol").All(x=>!x.Enabled),"New contracts enabled and legacy experimental switches off");
         var guild=HuntGuildRules.Parse(Read("hunt-guild.json"),definitions,items);
         Check(guild.EnableSelector&&guild.EnableVictoryItems,"Native Guild and item fallback enabled");
         Check(ExpansionRules.Parse(Read("first-expansion.json")).EnableExperimentalHunt,"Hunt access enabled");
