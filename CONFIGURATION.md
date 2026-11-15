@@ -27,6 +27,7 @@ fallbacks and the user's existing settings. No local user configuration changed.
 | Native War / EnableNativeWarRemix |true| Guarded story-war objectives |
 | Native War / EnableNativeWarAI |true| Legal native war evaluation |
 | Native War / EnableWarSpecializations, EnableWarTactics |true| Additional original-war layers |
+| Native War / EnableWarManeuvers |true| Additional legal-candidate scoring in audited wars and Veteran drills |
 | Native War / EnableTrainingVeteran, EnableTrainingRewards |true| Independent options for Veteran tactics and earned training Potch in the copied runtime |
 | Developer / EnableDeveloperTools |false| Optional diagnostics/shortcuts; not needed for Guild |
 | Developer / EnableHuntDebugTools |false| Keep hunt protection unavailable in ordinary play |
@@ -82,7 +83,10 @@ attendant separately with castle-guild.json's Enabled=false. Disable custom fall
 item preparation with EnableVictoryItems=false. Native drops still belong to the
 game. Reporting pays nothing again. Contracts are session-only; selector preference
 persistence is not campaign quest persistence. Castle Army Training has its own
-opt-in and does not award commander XP. [Training settings](docs/ARMY-TRAINING-V132.md).
+opt-in and does not award commander XP. Its copied-runtime requirement uses the
+stock transition trace marker and the active disposable save-root redirect.
+The Guild menu lists campaign prerequisites for the four drills.
+[Current training controls](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).
 
 ## Development-only war bridge
 

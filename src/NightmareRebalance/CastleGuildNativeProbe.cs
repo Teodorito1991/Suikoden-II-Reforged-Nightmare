@@ -5,7 +5,7 @@ namespace NightmareRebalance;
 // Read-only assets and private ScriptableObject clones; never EventInit/EventMain/flags/save.
 internal static class CastleGuildNativeProbe
 {
- static AsyncOperationHandle<MACHIDAT>? pending;static readonly List<AsyncOperationHandle<MACHIDAT>> retained=new();static readonly string[] maps={"vk01","vk31","vk04","vk08"};static int index;static AsyncOperationHandle<UnityEngine.U2D.SpriteAtlas>? atlas;
+ static AsyncOperationHandle<MACHIDAT>? pending;static readonly List<AsyncOperationHandle<MACHIDAT>> retained=new();static readonly string[] maps={"vk08","vk35","vk07"};static int index;static AsyncOperationHandle<UnityEngine.U2D.SpriteAtlas>? atlas;
  internal static bool Passed;internal static int Assertions;internal static readonly List<object> Rows=new();
  static void Check(bool x,string why){Assertions++;if(!x)throw new InvalidOperationException("Castle Guild native: "+why);}
  internal static bool Step()
@@ -19,8 +19,18 @@ internal static class CastleGuildNativeProbe
   if(!pending.IsDone)return false;Check(pending.Status==AsyncOperationStatus.Succeeded&&pending.Result!=null,"Original castle asset loads");var source=pending.Result!;
   Check(source.eventdata?.mapeventdat!=null&&source.epersondat!=null,"Original event/person tables exist");
   Rows.Add(new{Map=maps[index],Name=source.name,Variants=source.eventdata!.mapeventdat.Count,Persons=source.epersondat!.Length,NativeFieldEntered=false});
+  if(maps[index]!=CastleGuildRuntime.Audit.MapId)Check(!CastleGuildRuntime.Matches(source),"Tavern and alternate room are excluded");
   if(maps[index]==CastleGuildRuntime.Audit.MapId){
    Check(CastleGuildRuntime.Matches(source),"Full original target-room source fingerprint");
+   var location=HuntFieldSourceProbe.FindLocation(CastleGuildRuntime.Audit.MapId);
+   Check(location!=null,"Original Guild map is present in native field routing");
+   Rows.Add(new{CastleMap=CastleGuildRuntime.Audit.MapId,Area=location?.Area,Town=location?.Town,EventVariant=3,Background=1});
+   var roomSource=source.eventdata.mapeventdat[3];
+   Check(roomSource.mapno==1&&roomSource.eventobj[15] is {x:26,y:26,otyp:3,ano:19}&&
+       roomSource.eventobj[17] is {x:26,y:26,otyp:3,ano:20},"Original box and alternate object state");
+   Check(roomSource.eventdat[214].eventCom.Take(4).SequenceEqual(new byte[]{31,1,13,18})&&
+       f_data.ovl_yomi_prg_function[18].Name=="meyasu","Original Suggestion Box read route");
+   CheckCollision(source.map[roomSource.mapno]);
    var opd=source.epersondat.Single(x=>x.fp_no==CastleGuildRuntime.Audit.Sprite).hito_opd_table;
    Check(opd!=null&&opd.anime_table!=null&&opd.anime_table.Count>0&&opd.pattern_table!=null&&opd.pattern_table.Count>0,"Existing attendant OPD has native animation/pattern records");
    Rows.Add(new{Sprite=CastleGuildRuntime.Audit.Sprite,opd!.id,opd.path,opd.anime_kazu,opd.pattern_kazu,ActorConstructed=false,SpriteRendered=false});
@@ -58,14 +68,36 @@ internal static class CastleGuildNativeProbe
      }
      var room=copy.eventdata.mapeventdat[target];var actor=room.eventobj[room.eventobj.Length-1];Check(actor.fpno==CastleGuildRuntime.Audit.Sprite&&actor.otyp==1&&actor.disp==1&&actor.spd==4&&actor.wt==255&&actor.ozok==0,"Stationary non-blocking actor definition");
      Check(copy.epersondat.Single(x=>x.fp_no==actor.fpno).hito_opd_table.Pointer==opd.Pointer,"Original loaded sprite resource reused");
-     copy.eventdata.mapeventdat[0].eventobj[0].x++;copy.eventdata.mapeventdat[0].eventdat[0].eventCom[0]++;
+     room.eventobj[0].x++;room.eventdat[0].eventCom[0]++;
      Check(CastleGuildRuntime.Matches(source),"Cloned object/script mutations cannot change original asset");Check(!CastleGuildRuntime.Matches(copy),"Unexplained source mutation rejected");
      Check(UnityEngine.Random.state.Equals(rng),"Source preparation preserves native RNG");
     }finally{UnityEngine.Object.Destroy(copy);}
    }
-   foreach(int excluded in new[]{-1,0,2,3,4,5}){bool rejected=false;try{var c=CastleGuildRuntime.Prepare(source,excluded);UnityEngine.Object.Destroy(c);}catch(InvalidOperationException){rejected=true;}Check(rejected,"Unsupported castle variants rejected");}
+   foreach(int excluded in Enumerable.Range(-1,source.eventdata.mapeventdat.Count+2).Except(CastleGuildRuntime.Audit.SupportedIndices)){bool rejected=false;try{var c=CastleGuildRuntime.Prepare(source,excluded);UnityEngine.Object.Destroy(c);}catch(InvalidOperationException){rejected=true;}Check(rejected,"Unsupported castle variants rejected");}
   }
   retained.Add(pending);pending=null;index++;return false;
+ }
+ static void CheckCollision(MAP map)
+ {
+  // Supply only the original read-only data used by the native collision query.
+  // No background renderer, coroutine or EVENTCON is initialized by this fixture.
+  var bg=Alloc<BGCON>();
+  bg.map=map;
+  bg.index=map.index;
+  bg.srn=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<TSRN>(
+      Enumerable.Range(0,map.srn_type.Count).Select(i=>new TSRN
+          {sw=map.srn_type[i].w,sh=map.srn_type[i].h}).ToArray());
+  int x=CastleGuildRuntime.Audit.ObjectX*8,y=CastleGuildRuntime.Audit.ObjectY*8;
+  int Collision(int px,int py)=>Enumerable.Range(0,map.srn_kazu).Sum(i=>bg.EventMapAtariCheckF1(0,i,px,py));
+  int[] values={Collision(x,y),Collision(x,y+16),Collision(x-7,y+16),Collision(x+7,y+16)};
+  Check(values.All(value=>value==0),"Original native tile collision admits the clerk and south approach: "+string.Join(",",values));
+  for(int i=0;i<map.tokusyu_atari.Count;i++)
+  {
+   var area=map.tokusyu_atari[i];
+   Check(area.x>x+7||area.x+area.w<x-7||area.y>y+22||area.y+area.h<y,
+       "Clerk and approach clear original map triggers");
+  }
+  Rows.Add(new{CastleCollisionFixture=true,ClerkX=x,ClerkY=y,SouthApproach=y+16,Collision=values,RenderedNpc=false});
  }
  static T Alloc<T>() where T:Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase{System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(T).TypeHandle);return(T)Activator.CreateInstance(typeof(T),Il2CppInterop.Runtime.IL2CPP.il2cpp_object_new(Il2CppInterop.Runtime.Il2CppClassPointerStore<T>.NativeClassPtr))!;}
  internal static MACHIDAT BindWalkingFixture(EVENTCON e,BATTLE_DATA table){

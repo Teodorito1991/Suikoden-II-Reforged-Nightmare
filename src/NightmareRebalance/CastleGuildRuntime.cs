@@ -12,7 +12,7 @@ internal static class CastleGuildRuntime
 {
  internal static CastleGuildOptions Config=new();internal static CastleGuildAudit Audit=null!;
  internal static MACHICON? Owner;internal static MACHIDAT? Source,Copy;internal static EVENTCON? Field;internal static EVENT_HUMAN? Clerk;
- internal static IntPtr Party;internal static int ObjectIndex=-1,Focus,Insertions,Opens,Accepts,Closes,AutoRequests;internal static bool Modal,ReleaseFence;static bool confirmReleased;static int releaseFrames;static int inputFrame=-1;
+ internal static IntPtr Party;internal static int ObjectIndex=-1,Insertions,Opens,Accepts,Closes,AutoRequests;internal static bool Modal,ReleaseFence;internal static readonly GuildMenuNavigation Menu=new();static int releaseFrames;static int inputFrame=-1;
  internal static string Status="Castle Guild not visited";internal static string ObservedMap="";internal static int ObservedVariant=-1,ObservedCtyp=-1,RoomInitCalls,EventInitCalls;internal static bool LastSourceMatched;
  internal static void ObserveMap(MACHICON m){if(!Config.Enabled||UnityEngine.Application.isBatchMode)return;ObservedMap=m.GetMapName();ObservedVariant=m.mno;ObservedCtyp=m.ctyp;RoomInitCalls++;}internal static GuildQuest Quest=new();internal static string? Contract=>Quest.ContractId;internal static IntPtr ContractParty;internal static string? RunningReceipt=>Quest.RunningReceipt;internal static long Completions=>Quest.Completions;
  internal static void Initialize(){Audit=ContentRules.Read<CastleGuildAudit>(ContentRuntime.Resource("castle-guild-audit.json"));try{Config=System.Text.Json.JsonSerializer.Deserialize<CastleGuildOptions>(OverhaulRuntime.Load("castle-guild.json"))??new();}catch(Exception e){Config=new();Plugin.Logger.LogWarning("Castle Guild disabled: "+e.Message);}}
@@ -60,7 +60,8 @@ internal static class CastleGuildRuntime
   if(Combat.State!=null||WarRuntime.Active){Status="Combat or war owner active; insertion skipped";return;}
   if(!InteractionDifficultySupported){Status="Native difficulty provenance unavailable at EventInit";return;}
   if(Owner!=null){Status="Previous native Guild owner has not ended; new insertion skipped";return;}
-  if(m?.mdat is not {} source||!m.GetMapName().StartsWith(Audit.MapId+" ",StringComparison.Ordinal)){Status="Outside audited castle tavern";return;}
+  if(m?.mdat is not {} source||MachiLoader.GetMachiID(m.ano,m.vno)!=Audit.MapId||
+      !m.GetMapName().StartsWith(Audit.MapId+" ",StringComparison.Ordinal)){Status="Outside the audited Suggestion Box corridor";return;}
   var candidates=new[]{MemoryInfo.GetInfo(ADDRESSTYPE.TOWN_1_ADDRESS),MemoryInfo.GetInfo(ADDRESSTYPE.TOWN_2_ADDRESS)};
   var info=FindRuntimeInfo(m,candidates);
   LastSourceMatched=RuntimeMatches(m,info);
@@ -76,7 +77,7 @@ internal static class CastleGuildRuntime
   Field=e;if(e?.mdat?.Pointer!=Copy.Pointer||e.mcon?.Pointer!=m.Pointer||e.ehuman==null||ObjectIndex+8>=e.ehuman.Count){Status="Native actor construction not observed; retain clone until EventEnd";return;}
   var h=e.ehuman[ObjectIndex+8];var sprite=Copy.epersondat.Single(x=>x.fp_no==Audit.Sprite).hito_opd_table;
   if(h==null||h.fpno!=Audit.Sprite||h.opd?.Pointer!=sprite.Pointer||h.otyp!=1||h.x.ss.inte!=Audit.ObjectX*8||h.y.ss.inte!=Audit.ObjectY*8){if(h!=null){h.disp=0;h.forceDisable=true;}Status="Native Guild actor signature rejected; retain clone until EventEnd";return;}
-  Field=e;Clerk=h;h.disp=1;h.forceHDDisable=false;Insertions++;Status="Guild attendant prepared in castle tavern; rendered visibility unverified";
+  Field=e;Clerk=h;h.disp=1;h.forceHDDisable=false;Insertions++;Status=QuestSummary;
  }
  internal static bool Owned=>Owner!=null&&Copy!=null&&Field!=null&&Clerk!=null&&Owner.mdat?.Pointer==Copy.Pointer&&Owner.econ?.Pointer==Field.Pointer&&Field.mdat?.Pointer==Copy.Pointer&&Field.mcon?.Pointer==Owner.Pointer&&Framework.Singleton<GAME_WORK>.instance?.party_data?.Pointer==Party;
  internal static bool Idle=>Owned&&Config.Enabled&&Compatible&&HuntFieldContext.Active&&Combat.State==null&&!WarRuntime.Active&&Field!.mstep==2&&Owner!.ctyp==0&&!EVENTCON.noScriptRunning&&Field.coml!=null&&Field.coml.All(c=>c==null||c.flg==0)&&!HuntGuildRuntime.PartyMenuOpen&&InteractionDifficultySupported&&WindowManager.instance!=null&&!WindowManager.instance.IsUseMessageWindow&&!WindowManager.instance.IsOpenCommonDialogWindow();
@@ -84,33 +85,29 @@ internal static class CastleGuildRuntime
  {
   get{
    if(!Owned||Field!.ehuman.Count==0||Field.ehuman[0] is not {} p||Clerk!.disp!=1)return false;
-   int x=p.x.ss.inte,y=p.y.ss.inte;if(Math.Abs(x-Clerk.x.ss.inte)>20||Math.Abs(y-Clerk.y.ss.inte)>20)return false;
+   int x=p.x.ss.inte,y=p.y.ss.inte;if(!GuildApproach.AtCounter(x,y,Clerk.x.ss.inte,Clerk.y.ss.inte))return false;
    // Do not claim confirm beside another original NPC or native world device.
    for(int i=8;i<Field.ehuman.Count;i++){var h=Field.ehuman[i];if(h==null||h.Pointer==Clerk.Pointer||h.disp!=1||h.forceDisable||(h.otyp!=1&&h.otyp!=3))continue;if(Math.Abs(x-h.x.ss.inte)<=24&&Math.Abs(y-h.y.ss.inte)<=24)return false;}
    return true;
   }
  }
  internal static bool Context=>Modal&&Idle&&Near&&!HuntGuildRuntime.RenderFaulted;
+ static bool FacingClerk=>Field?.ehuman is {Count:>0} actors&&actors[0] is {} player&&GuildApproach.FacingClerk(player.ano);
  static bool Press(GRInputManager.Type t)=>GRInputManager.IsInstantiated&&GRInputManager.Instance.keys!=null&&GRInputManager.Instance.keys.TryGetValue(t,out var k)&&k!=null&&k.on;
- static TrainingWar.Drill trainingDrill;
- static bool trainingVeteran;
- internal static bool TrainingVeteran => trainingVeteran && TrainingWar.VeteranAvailable(SelectedTraining);
- internal static string TrainingName => SelectedTraining switch
- {
-  TrainingWar.Drill.FortDefense => "Fort Defense",
-  TrainingWar.Drill.War3 => "War 3",
-  TrainingWar.Drill.CommanderRout => "Commander Rout",
-  _ => "War 1"
- };
- internal static bool TrainingSelected => Focus==HuntRuntime.Definitions.Length&&Quest.State is not (GuildQuestState.Accepted or GuildQuestState.AwaitingReport)&&TrainingWar.Available;
- internal static TrainingWar.Drill SelectedTraining => trainingDrill switch
- {
-  TrainingWar.Drill.FortDefense when TrainingWar.FortDefenseAvailable => trainingDrill,
-  TrainingWar.Drill.War3 when TrainingWar.War3Available => trainingDrill,
-  TrainingWar.Drill.CommanderRout when TrainingWar.ChallengeAvailable => trainingDrill,
-  _ => TrainingWar.Drill.Standard
- };
  static bool Held(GRInputManager.Type t)=>GRInputManager.IsInstantiated&&GRInputManager.Instance.keys!=null&&GRInputManager.Instance.keys.TryGetValue(t,out var k)&&k!=null&&k.press;
+ internal static bool CanTalk(EVENTCON e)=>!Modal&&!ReleaseFence&&Field?.Pointer==e.Pointer&&Idle&&Near&&
+     FacingClerk&&!HuntGuildRuntime.RenderFaulted&&Press(GRInputManager.Type.Decide);
+ internal static void OpenAfterNative(EVENTCON e)
+ {
+  // Native event dispatch sees Confirm first. A started script or opened
+  // native window invalidates Idle and keeps the Guild closed.
+  if(Modal||ReleaseFence||Field?.Pointer!=e.Pointer||!Idle||!Near||!FacingClerk||HuntGuildRuntime.RenderFaulted)return;
+  Modal=true;
+  Menu.Open(Quest.State==GuildQuestState.AwaitingReport);
+  HuntGuildRuntime.Visible=true;
+  HuntGuildRuntime.LastRenderFrame=-1;
+  Opens++;
+ }
  internal static bool Tick(EVENTCON e)
  {
   if(Field?.Pointer!=e.Pointer)return true;
@@ -118,27 +115,29 @@ internal static class CastleGuildRuntime
   if(inputFrame==Time.frameCount&&Modal&&HuntGuildRuntime.RenderReady){e.EventPlayerDisp(false);return false;}inputFrame=Time.frameCount;
   bool decide=Press(GRInputManager.Type.Decide),cancel=Press(GRInputManager.Type.Cancel);
   if(ReleaseFence){if(++releaseFrames>120||(!Held(GRInputManager.Type.Decide)&&!Held(GRInputManager.Type.Cancel))){ReleaseFence=false;return true;}e.EventPlayerDisp(false);return false;}
-  if(!Modal){if(!decide)return true;Modal=true;trainingDrill=TrainingWar.Drill.Standard;trainingVeteran=false;Focus=Quest.State==GuildQuestState.AwaitingReport?HuntRuntime.Definitions.Length:0;confirmReleased=false;HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;Opens++;Status="Welcome to the Guild. Which quarry will you pursue?";}
+  if(!Modal)return true;
   if(!HuntGuildRuntime.Visible||HuntGuildRuntime.RenderFaulted){Close(false);return true;}
-  if(!Held(GRInputManager.Type.Decide))confirmReleased=true;
-  Focus=GuildScreenRules.Move(Focus,Press(GRInputManager.Type.Up),Press(GRInputManager.Type.Down),HuntRuntime.Definitions.Length);
-  if(TrainingSelected)
+  if(!HuntGuildRuntime.RenderReady)return true;
+  Menu.Move(Press(GRInputManager.Type.Up),Press(GRInputManager.Type.Down));
+  if(cancel)
   {
-   bool left=Press(GRInputManager.Type.Left),right=Press(GRInputManager.Type.Right);
-   if(left!=right)
-    (trainingDrill,trainingVeteran)=TrainingWar.Cycle(SelectedTraining,TrainingVeteran,right);
+   if(!Menu.Back())Close(true);
+   e.EventPlayerDisp(false);
+   return false;
   }
-  if(cancel){Close(true);e.EventPlayerDisp(false);return false;}
-  if(decide&&confirmReleased&&HuntGuildRuntime.RenderReady){
-   if(Focus==HuntRuntime.Definitions.Length){
-    if(Quest.State==GuildQuestState.AwaitingReport)ReportContract();
-    else if(Quest.State==GuildQuestState.Accepted)WithdrawContract();
-    else if(TrainingSelected)TrainingWar.Request(SelectedTraining,TrainingVeteran);
-    Close(true);e.EventPlayerDisp(false);return false;
-   }
-   if(AcceptContract(HuntRuntime.Definitions[Focus].Id)){Close(true);e.EventPlayerDisp(false);return false;}
-  }
-  if(!HuntGuildRuntime.RenderReady)return true; // never invisible input capture
+  string restriction=Menu.Page==GuildPage.Training?TrainingWar.Unavailable((TrainingWar.Drill)Menu.Focus):"";
+  if(decide&&Menu.ConfirmReleased&&restriction.Length!=0)Status=restriction;
+  var choice=Menu.Confirm(decide,Held(GRInputManager.Type.Decide),Quest.State,restriction.Length==0);
+  bool leave=choice switch
+  {
+   GuildChoice.Accept when Menu.Focus<HuntRuntime.Definitions.Length => AcceptContract(HuntRuntime.Definitions[Menu.Focus].Id),
+   GuildChoice.Start => TrainingWar.Request((TrainingWar.Drill)Menu.Drill,Menu.Focus==1),
+   GuildChoice.Report => ReportContract(),
+   GuildChoice.Withdraw => WithdrawContract(),
+   GuildChoice.Leave => true,
+   _ => false
+  };
+  if(leave)Close(true);
   e.EventPlayerDisp(false);return false;
  }
  internal static void Close(bool fence){if(Modal){Closes++;HuntGuildRuntime.Visible=false;HuntGuildRuntime.LastRenderFrame=-1;}Modal=false;ReleaseFence=fence;releaseFrames=0;}
@@ -159,7 +158,6 @@ internal static class CastleGuildRuntime
   GuildQuestState.Reported=>"Well hunted! Your report is recorded. You may take another contract.",
   _=>"No active contract. Choose one to begin."};
  internal static string ContractName=>HuntRuntime.Definitions.FirstOrDefault(x=>x.Id==Contract)?.Name??Contract??"";
- internal static string ActionLabel=>Quest.State==GuildQuestState.AwaitingReport?"Report completion":Quest.State==GuildQuestState.Accepted?"Withdraw contract":TrainingWar.Available?"Train: "+TrainingName:"Close";
  internal static bool AcceptContract(string id){
   if(!Context)return false;
   if(Quest.State is GuildQuestState.Accepted or GuildQuestState.AwaitingReport){Status=Quest.State==GuildQuestState.AwaitingReport?"Report the completed hunt first.":"Finish or withdraw your active contract first.";return false;}
@@ -208,7 +206,7 @@ internal static class CastleGuildRuntime
   try{string dir=Path.Combine(BepInEx.Paths.BepInExRootPath,"ReforgedNightmare","guild");Directory.CreateDirectory(dir);var row=new{Version="1.13.0-native-war-foundation.1",Utc=DateTime.UtcNow,Stage=stage,State=Quest.State.ToString(),Contract,Quest.RunningReceipt,Quest.CompletedReceipt,Quest.Completions,Quest.Reports,Quest.FieldReturnObserved,AutoRequests,LastWalkingEvidence,Status,DiagnosticsOnly=true,Hydrated=false,CampaignIdentityImplemented=false,RewardsGrantedByReporting=0};DiagnosticHistoryStore.Append(Path.Combine(dir,"castle-quest-history.json"),System.Text.Json.JsonSerializer.Serialize(row));Plugin.Logger.LogInfo("Castle quest: "+stage+"; "+Quest.State+"; "+Contract);}
   catch(Exception e){Plugin.Logger.LogWarning("Castle quest diagnostic unavailable: "+e.Message);}
  }
- internal static object Snapshot()=>new{Config.Enabled,Compatible,HuntEntryCompatible,WalkingChecks,LastWalkingEvidence,NativeDifficulty=Framework.Singleton<GAME_WORK>.instance?.game_data?.difficulty,DifficultyProven=DifficultyProvenance.Difficulty(out _,out _),BattleOwnerPresent=Combat.State!=null,BatchMode=Application.isBatchMode,ObservedMap,ObservedVariant,ObservedCtyp,RoomInitCalls,EventInitCalls,LastSourceMatched,LastSourceEvidence,FieldStep=Field?.mstep,ActorCount=Field?.ehuman?.Count,NativeScriptDispatchDisabled=EVENTCON.noScriptRunning,NativeScriptsIdle=!EVENTCON.noScriptRunning&&Field?.coml!=null&&Field.coml.All(c=>c==null||c.flg==0),ActiveCommands=Field?.coml?.Count(c=>c!=null&&c.flg!=0),Config.AutoRequestAcceptedContract,Owned,Idle,Near,Modal,ReleaseFence,Status,Insertions,Opens,Accepts,Closes,Focus,AutoRequests,QuestState=Quest.State.ToString(),QuestSummary,Contract,RunningReceipt,Quest.CompletedReceipt,Completions,Quest.Reports,Quest.FieldReturnObserved,ObjectIndex,SourceMap=Source?.name,Attendant=Clerk==null?null:new{Clerk.disp,Clerk.forceDisable,Clerk.forceHDDisable,X=Clerk.x.ss.inte,Y=Clerk.y.ss.inte,Sprite=Clerk.fpno},Player=Owned&&Field!.ehuman.Count>0?new{X=Field.ehuman[0].x.ss.inte,Y=Field.ehuman[0].y.ss.inte}:null,NativeObjectConstructionObserved=Clerk!=null,RenderedNpcAccepted=false,FullQuestAccepted=false,QuestPersistence="Session only; actual native load/restart clears contract; saving does not persist it; no per-save identity store",RewardsGrantedByCastleModule=0};
+ internal static object Snapshot()=>new{Config.Enabled,Compatible,HuntEntryCompatible,WalkingChecks,LastWalkingEvidence,NativeDifficulty=Framework.Singleton<GAME_WORK>.instance?.game_data?.difficulty,DifficultyProven=DifficultyProvenance.Difficulty(out _,out _),BattleOwnerPresent=Combat.State!=null,BatchMode=Application.isBatchMode,ObservedMap,ObservedVariant,ObservedCtyp,RoomInitCalls,EventInitCalls,LastSourceMatched,LastSourceEvidence,FieldStep=Field?.mstep,ActorCount=Field?.ehuman?.Count,NativeScriptDispatchDisabled=EVENTCON.noScriptRunning,NativeScriptsIdle=!EVENTCON.noScriptRunning&&Field?.coml!=null&&Field.coml.All(c=>c==null||c.flg==0),ActiveCommands=Field?.coml?.Count(c=>c!=null&&c.flg!=0),Config.AutoRequestAcceptedContract,Owned,Idle,Near,Modal,ReleaseFence,Status,Insertions,Opens,Accepts,Closes,Page=Menu.Page.ToString(),Menu.Focus,AutoRequests,QuestState=Quest.State.ToString(),QuestSummary,Contract,RunningReceipt,Quest.CompletedReceipt,Completions,Quest.Reports,Quest.FieldReturnObserved,ObjectIndex,SourceMap=Source?.name,Attendant=Clerk==null?null:new{Clerk.disp,Clerk.forceDisable,Clerk.forceHDDisable,X=Clerk.x.ss.inte,Y=Clerk.y.ss.inte,Sprite=Clerk.fpno},Player=Owned&&Field!.ehuman.Count>0?new{X=Field.ehuman[0].x.ss.inte,Y=Field.ehuman[0].y.ss.inte}:null,NativeObjectConstructionObserved=Clerk!=null,RenderedNpcAccepted=false,FullQuestAccepted=false,QuestPersistence="Session only; actual native load/restart clears contract; saving does not persist it; no per-save identity store",RewardsGrantedByCastleModule=0};
 }
 [HarmonyPatch(typeof(MACHICON),nameof(MACHICON.EventInit))]
 internal static class CastleGuildInit
@@ -220,7 +218,18 @@ internal static class CastleGuildInit
 [HarmonyPatch(typeof(EVENTCON),nameof(EVENTCON.EventMain))]
 internal static class CastleGuildFieldInput
 {
- [HarmonyPrefix]static bool Prefix(EVENTCON __instance){try{return CastleGuildRuntime.Tick(__instance);}catch(Exception e){CastleGuildRuntime.Close(false);Plugin.Logger.LogWarning("Castle Guild released field input: "+e);return true;}}
+ [HarmonyPrefix]static bool Prefix(EVENTCON __instance,out bool __state)
+ {
+  __state=false;
+  try{__state=CastleGuildRuntime.CanTalk(__instance);return CastleGuildRuntime.Tick(__instance);}
+  catch(Exception e){__state=false;CastleGuildRuntime.Close(false);Plugin.Logger.LogWarning("Castle Guild released field input: "+e);return true;}
+ }
+ [HarmonyPostfix]static void Postfix(EVENTCON __instance,bool __state)
+ {
+  if(!__state)return;
+  try{CastleGuildRuntime.OpenAfterNative(__instance);}
+  catch(Exception e){CastleGuildRuntime.Close(false);Plugin.Logger.LogWarning("Castle Guild interaction skipped: "+e.Message);}
+ }
 }
 [HarmonyPatch(typeof(EVENTCON),nameof(EVENTCON.EventEnd))]
 internal static class CastleGuildFieldEnd{[HarmonyPostfix]static void Postfix(EVENTCON __instance){if(CastleGuildRuntime.Field?.Pointer==__instance.Pointer)CastleGuildRuntime.Detach();}}

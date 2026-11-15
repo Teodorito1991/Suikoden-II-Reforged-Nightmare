@@ -88,7 +88,7 @@ internal static class War2OutcomePatch{[HarmonyPrefix]static bool Prefix(ref int
 internal static class WarAiRuntime
 {
     internal sealed record Scope(int Force,int Unit)
-    { internal readonly List<CandidateEvidence> Candidates=new(),TacticalCandidates=new(); internal bool Overflow; internal NativeTacticsBoard? Board; }
+    { internal readonly List<CandidateEvidence> Candidates=new(),TacticalCandidates=new(); internal bool Overflow; internal NativeTacticsBoard? Board; internal int ManeuverChanges; }
     [ThreadStatic]internal static Scope? Current;
 }
 [HarmonyPatch(typeof(w_tact),nameof(w_tact.AssessTactics))]

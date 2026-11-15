@@ -14,7 +14,7 @@ internal static class WarTacticsProbe
         if(war_h.g_w_war_no!=0||WarTacticsRuntime.Armed)throw new InvalidOperationException("Tactics probe is startup-only.");
         var savedUnits=w_unit.unit;int savedWar=war_h.g_w_war_no,savedMap=war_h.g_w_map_no;long savedTurn=war_sys.turn;byte savedEnd=war_sys.end_event_no;sbyte savedOver=war_sys.game_over_flag;
         var savedSelected=w_tact.selected_result;var savedResult=w_tact.result;var rng=UnityEngine.Random.state;
-        int[] wars={3,6,10,13,15};
+        int[] wars={1,2,3,6,10,13,15};
         var props=wars.Select(n=>typeof(w_dat_2).Assembly.GetType("w_dat_"+n)!.GetProperty("chara_"+n)!).ToArray();var chars=props.Select(p=>p.GetValue(null)).ToArray();
         bool enabled=WarTacticsRuntime.Config.Enabled;var quotas=WarTacticsRuntime.Config.Objectives.Select(o=>(o,o.Enabled,o.RequiredRouts)).ToArray();
         var savedEvidence=WarTacticsRuntime.Evidence;
@@ -51,13 +51,15 @@ internal static class WarTacticsProbe
                 WarTacticsRuntime.Config.Enabled=false;WarAiRuntime.Current=new(1,actor);
                 foreach(var c in free)c.hyouka=(short)w_tach.Hyouka(1,actor,weights,c);
                 var beforeRandom=UnityEngine.Random.state;var baseline=w_tach.SelectResult(1,actor,free[0]);
-                WarTacticsRuntime.Config.Enabled=true;WarAiRuntime.Current=new(1,actor);
+                WarTacticsRuntime.Config.Enabled=true;var scope=new WarAiRuntime.Scope(1,actor);WarAiRuntime.Current=scope;
                 foreach(var c in free)c.hyouka=(short)w_tach.Hyouka(1,actor,weights,c);
                 UnityEngine.Random.state=beforeRandom;var selected=w_tach.SelectResult(1,actor,free[0]);
                 Check(free.Any(c=>c.Pointer==selected.Pointer));Check(moves[selected.ty*16+selected.tx]==1);Check(selected.act==1);
                 Check(!WarTacticsRuntime.AiFaulted);
                 bool changed=selected.Pointer!=baseline.Pointer;if(changed)SelectionDifferences++;
-                Maps.Add(new{War=n,Unit=actor,Map=war_h.g_w_map_no,LegalMoveCandidates=free.Count,SelectedChanged=changed,Selected=new{X=selected.tx,Y=selected.ty},Original=new{X=baseline.tx,Y=baseline.ty},FixtureOnly=true,StoryEventsExecuted=false});
+                Maps.Add(new{War=n,Unit=actor,Map=war_h.g_w_map_no,LegalMoveCandidates=free.Count,
+                    ManeuverScoreChanges=scope.ManeuverChanges,SelectedChanged=changed,
+                    Selected=new{X=selected.tx,Y=selected.ty},Original=new{X=baseline.tx,Y=baseline.ty},FixtureOnly=true,StoryEventsExecuted=false});
                 WarAiRuntime.Current=null;
                 }
                 if(n is 10 or 15)

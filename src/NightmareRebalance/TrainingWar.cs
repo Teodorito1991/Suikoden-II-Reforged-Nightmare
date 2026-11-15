@@ -16,6 +16,7 @@ internal static class TrainingWar
         internal readonly EVENTCON Events = events;
         internal readonly long Epoch = NativeWarBoundary.Epoch;
         internal readonly int Area = field.ano, Town = field.vno, Map = field.mno, Memory = field.memtyp;
+        internal readonly string MapId = CastleGuildRuntime.Audit.MapId;
         internal readonly int X = player.x.ss.inte, Y = player.y.ss.inte;
         internal readonly byte[][] Flags = ReadFlags(game).Select(a => a.ToArray()).ToArray();
         internal readonly string[] Data = Serialize(game);
@@ -38,7 +39,8 @@ internal static class TrainingWar
     internal static bool Active => current is { Committed: true };
     internal static bool Enabled => Plugin.Options?.EnableTrainingWar.Value == true &&
         StockWarTransitionTrace.Enabled && !Application.isBatchMode &&
-        BepInEx.Paths.GameRootPath.EndsWith(Path.Combine("github-private-staging", "isolated-game"), StringComparison.OrdinalIgnoreCase);
+        Harmony.GetPatchInfo(AccessTools.Method(typeof(SteamService), nameof(SteamService.GetAppInstallDir)))?
+            .Prefixes.Any(p => p.owner == "private.reforged.stocktrace.root") == true;
     internal static bool Available => Enabled && !faulted && current == null && !requested &&
         Framework.Singleton<GAME_WORK>.instance?.eventFlgCHK(0xA9, 0x40) == true;
 
@@ -60,34 +62,40 @@ internal static class TrainingWar
 
     internal static bool FortDefenseActive => current is { Committed: true, SelectedDrill: Drill.FortDefense };
 
-    internal static (Drill Drill, bool Veteran) Cycle(Drill selection, bool veteran, bool forward)
+    internal static string Unavailable(Drill drill)
     {
-        var available = new List<Drill> { Drill.Standard };
-        if (FortDefenseAvailable) available.Add(Drill.FortDefense);
-        if (ChallengeAvailable) available.Add(Drill.CommanderRout);
-        if (War3Available) available.Add(Drill.War3);
-        var choices = new List<(Drill Drill, bool Veteran)>();
-        foreach (var drill in available)
+        if (!Enabled) return "Army Training is disabled for this game.";
+        if (faulted || current != null || requested) return "A drill cannot start right now.";
+        if (CastleGuildRuntime.Quest.State is GuildQuestState.Accepted or GuildQuestState.AwaitingReport)
+            return "Settle your Hunt contract first.";
+        if (!Available) return "Complete the original War 1 first.";
+        return drill switch
         {
-            choices.Add((drill, false));
-            if (VeteranAvailable(drill)) choices.Add((drill, true));
-        }
-
-        int index = Math.Max(0, choices.IndexOf((selection, veteran)));
-        return choices[(index + (forward ? 1 : choices.Count - 1)) % choices.Count];
+            Drill.Standard => "",
+            Drill.FortDefense when !Plugin.Options.EnableTrainingWar2.Value => "Fort Defense is disabled.",
+            Drill.FortDefense when !FortDefenseAvailable => "Requires completed War 2 and its original battlefield.",
+            Drill.CommanderRout when !ChallengeAvailable => "Requires an enabled drill and verified War 1 formations.",
+            Drill.War3 when !Plugin.Options.EnableTrainingWar3.Value => "War 3 Training is disabled.",
+            Drill.War3 when !War3Available => "Requires completed War 3 and its original battlefield.",
+            Drill.FortDefense or Drill.CommanderRout or Drill.War3 => "",
+            _ => "This drill is unavailable."
+        };
     }
 
-    internal static void Request(Drill drill, bool veteran)
+    internal static bool Request(Drill drill, bool veteran)
     {
-        requested = drill switch
+        string reason = Unavailable(drill);
+        if (reason.Length == 0 && veteran && !VeteranAvailable(drill)) reason = "Veteran tactics are unavailable.";
+        if (reason.Length != 0)
         {
-            Drill.FortDefense => FortDefenseAvailable,
-            Drill.CommanderRout => ChallengeAvailable,
-            Drill.War3 => War3Available,
-            _ => Available
-        };
+            CastleGuildRuntime.Status = reason;
+            return false;
+        }
+        requested = true;
         requestedDrill = drill;
-        requestedVeteran = veteran && VeteranAvailable(drill);
+        requestedVeteran = veteran;
+        CastleGuildRuntime.TrainingFeedback("Assembling the training squads.");
+        return true;
     }
 
     static Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte>[] ReadFlags(GAME_WORK game) =>
@@ -111,7 +119,7 @@ internal static class TrainingWar
     static void Reject(string reason)
     {
         Plugin.Logger.LogWarning("Training war stopped. " + reason);
-        CastleGuildRuntime.Status = reason;
+        CastleGuildRuntime.TrainingFeedback(reason);
         requested = false;
         faulted |= current is { Committed: true };
         current = null;
@@ -119,7 +127,7 @@ internal static class TrainingWar
 
     internal static void FieldTick(MACHICON field)
     {
-        if (!Enabled || (!requested && current == null)) return;
+        if ((!requested && current == null) || !Enabled) return;
         try
         {
             if (requested)
@@ -137,7 +145,8 @@ internal static class TrainingWar
                 var system = game?.sys_work;
                 var events = field.econ;
                 if (game == null || system == null || events == null || system.mcon?.Pointer != field.Pointer ||
-                    Player(events) is not {} player || system.game_mode != 1 || system.game_step?[1] != 1 || system.filter_timer != 0 ||
+                    Player(events) is not {} player || !CastleGuildRuntime.Near ||
+                    system.game_mode != 1 || system.game_step?[1] != 1 || system.filter_timer != 0 ||
                     !game.eventFlgCHK(0xA9, 0x40))
                 {
                     Reject("Castle field did not match the training prerequisites.");
@@ -232,7 +241,9 @@ internal static class TrainingWar
             Plugin.Logger.LogInfo($"Training War {session.WarNumber} return prefix. Flags equal={equal}, save calls={session.SaveCalls}.");
             Plugin.Logger.LogInfo($"Training War {session.WarNumber} data differences: " + JsonSerializer.Serialize(diff));
             var destination = session.Game.game_data.deru_pos;
-            bool destinationMatches = destination is { Length: >= 2 } &&
+            bool destinationMatches = MachiLoader.GetMachiID(session.Area, session.Town)==session.MapId &&
+                CastleGuildRuntime.Audit.SupportedIndices.Contains(session.Map) &&
+                destination is { Length: >= 2 } &&
                 destination[0] == session.X && destination[1] == session.Y;
             faulted = !equal || !destinationMatches || diff.Count >= 256 ||
                 diff.Any(path => !ExpectedDifference(path)) || session.Game.party_data.Pointer != session.PartyOwner;

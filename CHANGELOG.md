@@ -3,6 +3,21 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.36 — Total War Revolution and Castle Guild Reborn
+
+- Adds native enemy preferences for protecting commanders and ranged squads,
+  avoiding bad trades, advancing through reachable terrain and finishing an
+  exposed squad. Wars 10 and 15 receive smaller adjustments.
+- Moves the Castle Guild from the tavern to the original Suggestion Box
+  corridor. Confirm gives original events first priority.
+- Rebuilds the Guild's service menu with separate Hunt, Training difficulty
+  and Guild Status screens. Training captures the player's corridor position.
+- Native fixtures cover war decisions and the new corridor. Launcher and
+  Guild asset loading passed. The graphical preview produced no frames. Live
+  interaction, story-war battles and training returns await campaign play.
+
+[Exact build and evidence](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).
+
 ## v1.35 — Legendary Bosses
 
 - Mist Shade reserves its stronger spell for the transformed phase and a

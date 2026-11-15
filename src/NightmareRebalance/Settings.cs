@@ -15,7 +15,7 @@ internal sealed class Settings
     internal readonly ConfigEntry<bool> EnableBossProfileDiagnostics, FallbackToGlobalNightmare;
     internal readonly ConfigEntry<bool> EnableTrainingWar, EnableTrainingChallenge, EnableTrainingDefeatReturn, EnableTrainingWar2, EnableTrainingWar3;
     internal readonly ConfigEntry<bool> EnableTrainingVeteran, EnableTrainingRewards;
-    internal readonly ConfigEntry<bool> EnableNativeWarRemix,RunNativeWarSelfTest,ExportNativeWarResearch,EnableNativeWarAI,EnableWarSpecializations,EnableWarTactics;
+    internal readonly ConfigEntry<bool> EnableNativeWarRemix,RunNativeWarSelfTest,ExportNativeWarResearch,EnableNativeWarAI,EnableWarSpecializations,EnableWarTactics,EnableWarManeuvers;
 
     internal readonly ConfigEntry<bool> EnableCombatReforgedAi, RunCombatSelfTest, EnableHuntDebugTools;
 
@@ -25,6 +25,7 @@ internal sealed class Settings
         EnableCombatReforgedAi = config.Bind("Combat Reforged", nameof(EnableCombatReforgedAi), true, "Audited native enemy action/target choices; config in combat-reforged.json. Restart required.");
         RunCombatSelfTest = config.Bind("Combat Reforged", nameof(RunCombatSelfTest), false, "Startup-only disposable native combat probes; no scene, story or save. Leave false for normal play.");
         EnableWarTactics = config.Bind("Native War", nameof(EnableWarTactics), true, "Native terrain/reachability-aware tactical scoring and audited alternate objectives. Independent war-tactics.json settings; no campaign flag or command injection.");
+        EnableWarManeuvers = config.Bind("Native War", nameof(EnableWarManeuvers), true, "Additional legal-candidate scoring for original wars and Veteran drills.");
         ConfigEntry<double> Mult(string key, double value) => config.Bind("Difficulty", key, value,
             new ConfigDescription("Suikoden II standard combat only. Restart after editing. Rounded away from zero at midpoint; capped to field capacity.", new AcceptableValueRange<double>(0, 20)));
         EnemyHpMultiplier = Mult(nameof(EnemyHpMultiplier), 1.60);

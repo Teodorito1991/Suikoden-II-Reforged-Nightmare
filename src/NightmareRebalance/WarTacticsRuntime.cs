@@ -102,6 +102,13 @@ internal static class WarTacticsRuntime
         int after=WarTacticsRules.Score(before,Config,b.Actor,c.act,chance,facts);
         int from=b.GoalCosts[b.Actor.Y*16+b.Actor.X],to=b.GoalCosts[c.ty*16+c.tx];
         if(c.act==1&&from<10000&&to<10000)after=(int)Math.Clamp((long)after+Math.Clamp(from-to,-3,3)*Config.FocusWeight,-30000,30000);
+        if(Plugin.Options.EnableWarManeuvers.Value && NativeTacticsBoard.Cell(b.Actor.X,b.Actor.Y) &&
+            b.Actor.Slot==slot && b.Actor.Hp>0)
+        {
+            int revised=WarTacticsRules.Maneuver(after,War,b.Actor,c.act,chance,facts,b.Maneuver(c));
+            if(revised!=after)scope.ManeuverChanges++;
+            after=revised;
+        }
         var evidence=new CandidateEvidence(c.Pointer.ToInt64(),c.act,c.tx,c.ty,c.target,before,after);
         if(scope.TacticalCandidates.Count<2048)scope.TacticalCandidates.Add(evidence);else scope.Overflow=true;
         int existing=scope.Candidates.FindIndex(e=>e.Pointer==evidence.Pointer);

@@ -1,7 +1,7 @@
 # Known issues and validation limits
 
-The public source repository tracks v1.35 (`1.35.0-legendary-bosses.1`). An installable
-release remains unpublished. [Current Army Training evidence](docs/ARMY-TRAINING-V132.md).
+The public source repository tracks v1.36 (`1.36.0-total-war-guild.1`). An
+installable release remains unpublished. [Current Guild and war evidence](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).
 
 - **Legendary Bosses gameplay acceptance is pending.** Original selectors ran
   with disposable phase states. Transformation playback, cinematic endings and
@@ -29,16 +29,18 @@ release remains unpublished. [Current Army Training evidence](docs/ARMY-TRAINING
   Potch at the purse cap. Below-cap credit, War 3 defeat return and a second
   consecutive War 3 run remain unverified. Commander XP and persistent army
   progression are deferred. [Exact-build training evidence](docs/ARMY-TRAINING-V132.md).
-- **Story-war transitions incompletely played.** Audited wars 1,2,3,6,13 retain
-  original story handlers, but most full ending/return routes remain unplayed.
+- **Story-war transitions incompletely played.** v1.36 checks native decisions
+  in wars 1, 2, 3, 6, 10, 13 and 15. Full battles and their returns await gameplay.
 - **Legacy major bosses opt-in.** Earlier Lucia/final Neclord policies have not completed rendered
   multi-party/phase/story validation. Public EnableMajorBosses=false. Seven earlier
   admissions also do not certify every move or transition.
 - **Dreamer and Thornwake await full gameplay acceptance.** Both are native-tested
   and opt-in. Thornwake's Greenhill City region is verified. Its exact travel
   route remains unplayed.
-- **Guild map coverage.** Only the exact audited headquarters tavern variant is
-  admitted. Other castle stages may not show the attendant.
+- **Guild map coverage.** The v1.36 attendant is scoped to the exact Suggestion
+  Box corridor (`vk07`, event variant 3). The copied game loaded the original
+  menu assets, but its hidden preview produced no GUI frames. Live field
+  interaction and training return to the corridor still need verification.
 - **Session-only contracts.** Actual loading/restart clears accepted/unreported
   state. Selector preference is separate from quest progression.
 - **Reward limits remain native.** Rolled loot takes priority over the fallback;

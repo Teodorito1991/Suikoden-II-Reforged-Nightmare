@@ -16,8 +16,9 @@ not yet been certified.
 | Rune recovery |One missing charge per eligible survivor| On; genuine recovery observed; Escape exclusion on an earlier hash |
 | Sun King's Retinue |Castle contract, Cave encounter, native rewards, report/repeat| On publicly; complete exact v1.12.2 quest accepted |
 | Dreamer / Thornwake |Two additional native-table contracts| Off; native-only prototypes |
-| Story wars |Original-engine unit/AI/objective changes for wars 1,2,3,6,13| On; native evaluators and historical War2 evidence, not all transitions played |
-| Castle Army Training |Three original war scenarios and optional Veteran tactics| Opt-in copied-runtime feature with live tavern returns. Commander XP remains deferred. [Training evidence](docs/ARMY-TRAINING-V132.md). |
+| Story wars |Original-engine unit and objective changes for wars 1, 2, 3, 6 and 13, plus native enemy maneuver scoring for 1, 2, 3, 6, 10, 13 and 15| On; native evaluator fixtures. Full story battles await gameplay. |
+| Castle Guild |Suggestion Box attendant with dedicated Hunt, Training and status pages| Original map and resource checks plus graphical preview. The moved attendant awaits live field acceptance. |
+| Castle Army Training |Three original war scenarios, four drills and optional Veteran tactics| Opt-in in the copied runtime. Historical tavern returns and v1.36 corridor routing are separate evidence. [Current evidence](docs/CASTLE-GUILD-TOTAL-WAR-V136.md). |
 
 ## Difficulty and builds
 

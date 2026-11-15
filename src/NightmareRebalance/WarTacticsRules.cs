@@ -21,6 +21,8 @@ internal sealed class TacticalObjective
 }
 internal readonly record struct TacticalUnit(int Slot,int X,int Y,int Damage,int Hp,int Range,bool Support);
 internal readonly record struct TacticalFacts(int Threat,int ImmediateThreat,int NearbyAllies,int CoveredSupport,int Focus,int CommanderExposure,int Utility,int Victims,int FriendlyVictims,bool RepeatedMove,bool Progress,int NeededHits=2);
+internal readonly record struct WarManeuver(int CurrentThreat, int CurrentImmediate, int ScreenGain,
+    int CommanderGuardGain, int Approach, int HostilesInRange, bool TargetCounters);
 internal static class WarTacticsRules
 {
     internal static readonly int[] Supported={1,2,3,6,10,13,15};
@@ -62,5 +64,38 @@ internal static class WarTacticsRules
         }
         if(action==1&&f.RepeatedMove&&!f.Progress)delta-=p.StallPenalty*3;
         return delta==0?original:(int)Math.Clamp((long)original+delta,-30000,30000);
+    }
+
+    // Add a bounded preference to candidates supplied by the native evaluator.
+    // Staged wars use local positioning only and gain no outcome or roster rules.
+    internal static int Maneuver(int score, int war, TacticalUnit actor, int action,
+        int chance, TacticalFacts facts, WarManeuver move)
+    {
+        if (!Supported.Contains(war) || action is <0 or >2 || actor.Hp <= actor.Damage ||
+            actor.Damage < 0 || chance is <0 or >100) return score;
+
+        bool staged = war is 10 or 15;
+        bool ranged = actor.Range > 1;
+        bool vulnerable = actor.Hp - actor.Damage <= 1;
+        int exposure = facts.ImmediateThreat - move.CurrentImmediate;
+        int delta = action switch
+        {
+            0 => (chance >= 45 && facts.Focus < facts.NeededHits ? 3 : 0)
+                + (chance >= 55 && facts.NeededHits == 1 && facts.Focus == 0 ? 7 : 0)
+                - (move.TargetCounters && (vulnerable || chance < 35) ? 10 : 0)
+                - (facts.Focus >= facts.NeededHits ? 5 : 0),
+            1 => Math.Clamp(move.Approach, -2, 2) * (war is 2 or 3 or 13 ? 4 : 2)
+                + Math.Clamp(move.ScreenGain, -2, 2) * (war is 6 or 13 ? 5 : 3)
+                + Math.Clamp(move.CommanderGuardGain, -1, 1) * (war is 6 or 13 or 15 ? 6 : 3)
+                + (ranged && facts.ImmediateThreat == 0 && move.HostilesInRange > 0 ? 5 : 0)
+                - (facts.RepeatedMove && !facts.Progress && exposure >= 0 ? 6 : 0),
+            _ => facts.FriendlyVictims == 0 && facts.Utility > 0 && facts.Victims >= 2 ? 6 : 0
+        };
+        delta -= Math.Clamp(exposure, -2, 3) * (vulnerable ? 6 : ranged ? 4 : 2);
+        if (facts.Threat >= 3 && facts.Threat > move.CurrentThreat)
+            delta -= vulnerable || actor.Slot == 0 ? 8 : 4;
+        if (staged) delta /= 2;
+        int limit = staged ? 10 : 23;
+        return (int)Math.Clamp((long)score + Math.Clamp(delta, -limit, limit), -30000, 30000);
     }
 }

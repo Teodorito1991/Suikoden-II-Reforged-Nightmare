@@ -1,11 +1,11 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone** is v1.35, with DLL
-`1.35.0-legendary-bosses.1`. Legendary Bosses adds guarded attack choices
-for Mist Shade, Gorudo, the transforming Worm and Moth, and three later
-Lucia encounters.
+**Latest development milestone** is v1.36, with DLL
+`1.36.0-total-war-guild.1`. The Castle Guild moves beside the Suggestion Box,
+with separate Hunt, Training and Guild Status screens. Native enemy war AI
+gains new positioning and attack preferences.
 The source repository is public. The installable beta remains unpublished.
-[Legendary Bosses changes and verification](docs/LEGENDARY-BOSSES-V135.md).
+[Castle Guild and Total War changes](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).
 
 An unofficial Windows Steam gameplay overhaul and expansion for **Suikoden II HD
 Remaster**, using the original RPG and tactical war engines, artwork, animations,
@@ -25,20 +25,24 @@ hunting rewards preparation and grinding without becoming mandatory.
 - **Ten physical techniques** and **fourteen Unite** improvements.
 - Victory rune regeneration: one missing charge per eligible survivor, starting
   at the lowest depleted spell level by default.
-- A real **Hunt Guild attendant inside Leona's tavern** in the audited castle variant.
+- The **Castle Guild attendant beside the Suggestion Box** in the audited
+  headquarters variant.
 - Voluntary contracts, original-engine battles, repeatable Potch and guarded item
   rewards. Accept, travel, hunt, return and report without developer hotkeys.
 - Original-engine story-war unit, AI and objective modifications.
 
 ## Castle Army Training
 
-The opt-in training system replays three original war scenarios from Leona's
-tavern in a copied test runtime. Each scenario has completed at least one
-live tavern return across v1.29–v1.32. On v1.32, Veteran War 3 returned after
+The opt-in training system uses three original scenarios and offers four
+drills through the Guild. Choose a drill and then Standard or Veteran.
+Historical tests in the copied runtime returned to Leona's tavern. On v1.32,
+Veteran War 3 returned after
 its timer and Veteran Commander Rout returned after an earned victory.
 Commander Rout earned 1,500 Potch at the purse cap. A below-cap payout,
 War 3 defeat return, and a second consecutive War 3 entry remain unverified.
-Commander experience remains deferred. [Training controls, build hash and evidence](docs/ARMY-TRAINING-V132.md).
+Commander experience remains deferred. v1.36 captures the player's real
+standing point at the new Guild corridor. A live training return there has yet
+to be observed. [Current controls and evidence](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).
 
 ## Working from source
 

@@ -79,4 +79,32 @@ internal sealed class NativeTacticsBoard
         var target=Enemies.FirstOrDefault(u=>u.Slot==c.target);
         return new(Threat[at],Immediate[at],close,covered,focus,exposure,utility,c.tokusyu_ct,Math.Max(0,(int)c.tokusyu_victim_ct),repeated,GoalCosts[at]<GoalCosts[Actor.Y*16+Actor.X],Math.Max(1,target.Hp-target.Damage));
     }
+
+    internal WarManeuver Maneuver(TACTICS_RESULT_TYPE candidate)
+    {
+        int start = Actor.Y * 16 + Actor.X;
+        int end = candidate.ty * 16 + candidate.tx;
+        int Distance(int x, int y, TacticalUnit unit) => TotalWarRules.Distance(x, y, unit.X, unit.Y);
+        int Screen(int x, int y) => Actor.Range > 1 || Enemies.Count == 0 ? 0 : Friends.Count(friend =>
+        {
+            if(friend.Slot == Actor.Slot || friend.Range <= 1 || Distance(x,y,friend) != 1 ||
+                Immediate[friend.Y * 16 + friend.X] == 0 || Immediate[y * 16 + x] > 2)return false;
+            var opponent=Enemies.MinBy(u=>Distance(friend.X,friend.Y,u));
+            return Distance(x,y,opponent)<Distance(friend.X,friend.Y,opponent);
+        });
+        int Guard(int x, int y) => Actor.Slot != 0 && Friends.Any(friend => friend.Slot == 0 &&
+            Distance(x, y, friend) == 1 && Threat[friend.Y * 16 + friend.X] > 0) ? 1 : 0;
+        // Native movement costs include terrain and occupancy. An unreachable
+        // objective supplies no progress preference.
+        int approach = GoalCosts[start] < 10000 && GoalCosts[end] < 10000 ?
+            GoalCosts[start] - GoalCosts[end] : 0;
+        int inRange = Enemies.Count(enemy => Distance(candidate.tx, candidate.ty, enemy) <= Actor.Range);
+        var target = Enemies.FirstOrDefault(enemy => enemy.Slot == candidate.target);
+        // A conservative range estimate only influences scores. Counterattack
+        // legality and terrain modifiers still belong to original resolution.
+        bool counter = candidate.act == 0 && target.Hp > 0 &&
+            Distance(candidate.tx, candidate.ty, target) <= target.Range;
+        return new(Threat[start], Immediate[start], Screen(candidate.tx, candidate.ty) - Screen(Actor.X, Actor.Y),
+            Guard(candidate.tx, candidate.ty) - Guard(Actor.X, Actor.Y), approach, inRange, counter);
+    }
 }

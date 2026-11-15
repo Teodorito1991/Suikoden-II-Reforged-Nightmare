@@ -6,9 +6,9 @@ internal sealed record GuildDrawText(GuildBox Box,string Text,int Size,string To
 internal sealed class GuildScreenModel
 {
  internal string[] Names=Array.Empty<string>(),Availability=Array.Empty<string>();
- internal int Focus;internal string Selected="",State="No contract",Active="None",Objective="Choose a contract to begin.",Action="Close",Status="",Bonus="",Item="Original loot",Prompt="Confirm: accept contract";
+ internal int Focus=0;internal string Selected="",State="No contract",Active="None",Objective="Choose a contract to begin.",Action="Close",Status="",Bonus="",Item="Original loot",Prompt="Confirm: accept contract";
  internal string TrainingName="";
- internal bool Castle=true,Preview;
+ internal bool Castle=true,Preview=false;
 }
 internal static class GuildScreenRules
 {

@@ -13,7 +13,7 @@ then close. No proprietary reference is provided in this repository.
 |---|---|
 | GAME/BepInEx/core |BepInEx.Core.dll, BepInEx.Unity.IL2CPP.dll, 0Harmony.dll, Il2CppInterop.Runtime.dll|
 | GAME/BepInEx/interop |GSD2.dll, GSDShare.dll, FrameWork.dll, ShareUI.dll, Il2Cppmscorlib.dll|
-| GAME/BepInEx/interop |UnityEngine.CoreModule.dll, UnityEngine.IMGUIModule.dll, UnityEngine.TextRenderingModule.dll, UnityEngine.UI.dll|
+| GAME/BepInEx/interop |UnityEngine.CoreModule.dll, UnityEngine.IMGUIModule.dll, UnityEngine.TextRenderingModule.dll, UnityEngine.UI.dll, UnityEngine.ScreenCaptureModule.dll|
 | GAME/BepInEx/interop |Unity.Addressables.dll, Unity.ResourceManager.dll, Unity.InputSystem.dll|
 
 Supported native/metadata hashes are in INSTALL.md and Plugin.SupportedBuild.

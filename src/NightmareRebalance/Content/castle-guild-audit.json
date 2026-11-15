@@ -1,84 +1,96 @@
 {
-  "MapId": "vk08",
-  "SourceBundle": "0cd04c7fa5506b3499b0428f11224d78.bundle",
-  "SourcePathId": -8947742051568032997,
+  "MapId": "vk07",
   "Sprite": 65105,
-  "ObjectX": 112,
-  "ObjectY": 48,
+  "ObjectX": 29,
+  "ObjectY": 28,
   "SupportedIndices": [
-    1
+    3
   ],
   "Submaps": [
     {
       "Index": 0,
       "MapNo": 0,
-      "Objects": 25,
-      "Scripts": 55,
-      "Fingerprint": "3A4F84D22CAA24A5245CE1AD98041E06E6403ABD3DBA3432A7361C46F58914AF"
+      "Objects": 0,
+      "Scripts": 0,
+      "Fingerprint": "673BD3EF5AEB54F72584714396209274563422F978E62B2E3AD350A6A07A64D5"
     },
     {
       "Index": 1,
       "MapNo": 0,
-      "Objects": 47,
-      "Scripts": 91,
-      "Fingerprint": "92148692EC9303165CC05846C0F1C7D04AB9A817620FD648B6E4A710ECAA8BCA"
+      "Objects": 0,
+      "Scripts": 0,
+      "Fingerprint": "673BD3EF5AEB54F72584714396209274563422F978E62B2E3AD350A6A07A64D5"
     },
     {
       "Index": 2,
       "MapNo": 0,
-      "Objects": 23,
-      "Scripts": 45,
-      "Fingerprint": "47BB899E6461D5AC5415D757F613CD851832A81A3F05E546D77A3B8CACF3D5C0"
+      "Objects": 0,
+      "Scripts": 0,
+      "Fingerprint": "673BD3EF5AEB54F72584714396209274563422F978E62B2E3AD350A6A07A64D5"
+    },
+    {
+      "Index": 3,
+      "MapNo": 1,
+      "Objects": 52,
+      "Scripts": 263,
+      "Fingerprint": "8D95048ED0C46D499167C64FB5C5DF321AB9BC26D29633CACBD78F41EF589763"
+    },
+    {
+      "Index": 4,
+      "MapNo": 1,
+      "Objects": 2,
+      "Scripts": 13,
+      "Fingerprint": "53B4C82B9AE83511BE8A7123ACCE79B046122E6A7051A6BCF60387C85ADD9E62"
+    },
+    {
+      "Index": 5,
+      "MapNo": 1,
+      "Objects": 0,
+      "Scripts": 5,
+      "Fingerprint": "F18B259085C4E38C2400C013780B27C7679BD3F428657C33EF821FD5AB8FC3D7"
+    },
+    {
+      "Index": 6,
+      "MapNo": 0,
+      "Objects": 1,
+      "Scripts": 11,
+      "Fingerprint": "5064C08215FB67E826DE18B6CC248DDEC163F0F2B1B74D646CFC6963A77D1CF2"
+    },
+    {
+      "Index": 7,
+      "MapNo": 0,
+      "Objects": 2,
+      "Scripts": 13,
+      "Fingerprint": "413B88F7FB7BBC578F9683FBAAAE75EFDD118C921343E2D95C8B8796819E969F"
     }
   ],
   "Persons": [
-    98,
-    41,
-    120,
-    22,
-    92,
-    99,
-    33379,
-    103,
-    88,
-    121,
-    57,
-    65105,
-    65085,
-    65048,
-    65178,
-    65205,
-    65163,
-    91,
-    64826,
-    58,
-    53306,
-    60,
-    53308,
-    59,
-    12,
-    53287,
-    39,
+    54,
+    89,
+    53337,
+    18,
+    118,
+    117,
+    122,
+    87,
+    52,
+    45,
+    85,
+    5,
+    124,
+    19,
+    159,
     3,
-    53251,
     2,
-    53250,
-    55,
+    35,
     20,
-    53268,
-    37,
-    53285,
-    16,
-    53264,
-    10,
-    37650,
-    64545,
-    64551,
-    64548,
-    94,
-    95,
-    64815,
-    44,
-    65083
+    21,
+    65105,
+    42241,
+    33109,
+    65059,
+    65086,
+    65074,
+    65153
   ]
 }

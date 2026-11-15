@@ -1,0 +1,85 @@
+namespace NightmareRebalance;
+
+internal enum GuildPage { Services, Hunts, Training, Difficulty, Status }
+internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave }
+
+internal static class GuildApproach
+{
+    // Native field coordinates use eight units per EVENT_OBJ coordinate.
+    internal static bool AtCounter(int playerX, int playerY, int clerkX, int clerkY) =>
+        Math.Abs(playerX - clerkX) <= 7 && playerY - clerkY is >= 12 and <= 22;
+
+    internal static bool FacingClerk(int animation) => animation is 1 or 5 or 9;
+}
+
+internal sealed class GuildMenuNavigation
+{
+    internal GuildPage Page { get; private set; }
+    internal int Focus { get; private set; }
+    internal int Drill { get; private set; }
+    internal bool ConfirmReleased { get; private set; }
+
+    internal int RowCount => Page switch
+    {
+        GuildPage.Services or GuildPage.Training => 4,
+        GuildPage.Hunts => 3,
+        GuildPage.Difficulty => 2,
+        _ => 1
+    };
+
+    internal void Open(bool awaitingReport) => Enter(awaitingReport ? GuildPage.Status : GuildPage.Services, 0);
+
+    void Enter(GuildPage page, int row)
+    {
+        Page = page;
+        Focus = row;
+        ConfirmReleased = false;
+    }
+
+    internal void Move(bool up, bool down)
+    {
+        if (up == down) return;
+        Focus = (Focus + (down ? 1 : RowCount - 1)) % RowCount;
+    }
+
+    internal bool Back()
+    {
+        switch (Page)
+        {
+            case GuildPage.Services: return false;
+            case GuildPage.Difficulty: Enter(GuildPage.Training, Drill); break;
+            case GuildPage.Hunts: Enter(GuildPage.Services, 0); break;
+            case GuildPage.Training: Enter(GuildPage.Services, 1); break;
+            case GuildPage.Status: Enter(GuildPage.Services, 2); break;
+        }
+        return true;
+    }
+
+    internal GuildChoice Confirm(bool pressed, bool held, GuildQuestState state, bool drillAvailable)
+    {
+        if (!pressed)
+        {
+            if (!held) ConfirmReleased = true;
+            return GuildChoice.None;
+        }
+        if (!ConfirmReleased) return GuildChoice.None;
+        ConfirmReleased = false;
+        switch (Page)
+        {
+            case GuildPage.Services:
+                if (Focus == 3) return GuildChoice.Leave;
+                Enter(Focus switch { 0 => GuildPage.Hunts, 1 => GuildPage.Training, _ => GuildPage.Status }, 0);
+                return GuildChoice.None;
+            case GuildPage.Hunts: return GuildChoice.Accept;
+            case GuildPage.Training when drillAvailable:
+                Drill = Focus;
+                Enter(GuildPage.Difficulty, 0);
+                return GuildChoice.None;
+            case GuildPage.Difficulty: return GuildChoice.Start;
+            case GuildPage.Status when state == GuildQuestState.Accepted: return GuildChoice.Withdraw;
+            case GuildPage.Status when state == GuildQuestState.AwaitingReport: return GuildChoice.Report;
+            case GuildPage.Status: Back(); break;
+        }
+        return GuildChoice.None;
+    }
+}

@@ -6,19 +6,22 @@ See [exact-build evidence](docs/ACCEPTANCE.md).
 
 ## Take a contract
 
-1. Reach headquarters through the ordinary story. Visit Leona's tavern in the
-   audited castle variant and find the extra stationary Guild attendant.
+1. Reach headquarters through the ordinary story. Visit the Suggestion Box
+   corridor outside the second-floor meeting hall. Approach the attendant from
+   below and face up.
 2. Form a healthy party through **Leona before accepting**. Bring healing,
    physical/magical options and inventory space. No precise minimum party level
    has been calibrated for this elite encounter.
-3. Talk using the game's normal confirm control. Navigate/confirm/cancel through
-   the game's bound controls. Accept **Sun King's Retinue** and close the panel.
+3. Talk using the game's normal confirm control. Open **Hunt Contracts** and
+   accept **Sun King's Retinue**. The menu uses the game's navigation,
+   confirm and cancel bindings.
 4. Travel normally to **Cave of the Wind**, without loading another save.
 5. Walk in the eligible Cave field. The contract automatically requests the next
    eligible legitimate walking encounter. **No F6/F10/Ctrl is needed.**
 6. Fight Sun King and Sorcerer in the original RPG engine, finish native victory
    rewards, and return to the field.
-7. Return to the attendant, **report completion**, then accept again if desired.
+7. Return to the attendant. **Guild Status** opens at **Report completion**
+   when a hunt is ready to report. Report, then accept again if desired.
 
 ## State, rewards and retries
 
@@ -48,9 +51,10 @@ Never accept at castle and load a Cave save as a shortcut.
 | Dreamer's Circuit |Audited Sindar Ruins field vc12_00| Disabled; native-only |
 | Thornwake Patrol |Greenhill City area, ve03_00; precise route unplayed| Disabled; native-only |
 
-The attendant is limited to **vk08 tavern, event variant1**. Other castle stages
-may have no attendant. No persistent Guild rank, training XP or war skirmish board
-is implemented. No campaign flag or original save field stores contract state.
+The v1.36 attendant is limited to **vk07, event variant 3**. The original
+Suggestion Box interaction takes priority. Unsupported castle layouts may have
+no attendant. **Army Training** has its own Guild page and opt-in in the copied
+runtime. Contracts remain session-only. [Current relocation and menu evidence](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).
 
 ## v1.19 presentation
 

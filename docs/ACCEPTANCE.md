@@ -1,5 +1,13 @@
 # Exact-build evidence ledger
 
+## 1.36.0-total-war-guild.1 — native decisions, castle assets and launcher
+
+The copied-game build passed native decision checks for seven original wars
+and verified the Suggestion Box source and attendant approach. The launcher
+opened and the native UI assets loaded. The hidden menu preview produced no
+draws. A live conversation, training return and story-war play remain pending.
+[DLL hash and evidence](CASTLE-GUILD-TOTAL-WAR-V136.md).
+
 ## 1.35.0-legendary-bosses.1 — native selectors and launcher
 
 Six scripted policies passed exact-build native selector fixtures. Solo Luca
