@@ -25,7 +25,7 @@ internal static class CombatReforgedRuntime
         try{Config=CombatReforgedRules.Parse(OverhaulRuntime.Load("combat-reforged.json"));Audit=ContentRules.Read<CombatAudit>(ContentRuntime.Resource("combat-audit.json"));Plugin.Logger.LogInfo($"Combat Reforged: {Audit.Enemies.Length} audited enemies; {Audit.Bosses.Length} encounter-specific bosses; native actions only.");}
         catch(Exception e){Config.Enabled=false;Plugin.Logger.LogWarning("Combat Reforged disabled; previous modules retained: "+e.Message);}
     }
-    internal static void Clear(){BossTacticsRuntime.Clear();CombatMasteryRuntime.Recovery.Clear();Work=IntPtr.Zero;Plans.Clear();Previous.Clear();Focus.Clear();Faulted.Clear();Trace.Clear();LastNativeTargets=Array.Empty<int>();ModeChanges=TargetChanges=0;Phase=-1;Current=null;}
+    internal static void Clear(){BossTacticsRuntime.Clear();LegendaryBossRuntime.Clear();CombatMasteryRuntime.Recovery.Clear();Work=IntPtr.Zero;Plans.Clear();Previous.Clear();Focus.Clear();Faulted.Clear();Trace.Clear();LastNativeTargets=Array.Empty<int>();ModeChanges=TargetChanges=0;Phase=-1;Current=null;}
     internal static int[] Signature(MONSTER_DATA d)
     {
         var values=new List<int>{d.hp,d.level,d.name_id};
@@ -158,7 +158,16 @@ internal static class CombatReforgedRuntime
     {var s=Config.SpellEffects.FirstOrDefault(s=>s.Id==id);return Config.Enabled&&Config.EnableHealingBalance&&s!=null&&effect==s.Expected?s.Effect:effect;}
 }
 [HarmonyPatch(typeof(BattleMonsterCharacter),nameof(BattleMonsterCharacter.SelectAttackMode))]
-internal static class CombatModePatch{[HarmonyPostfix]static void Postfix(BattleMonsterCharacter __instance,ref int __result){CombatReforgedRuntime.Select(__instance,ref __result);BossTacticsProbe.ObserveDispatchSelection(__instance,ref __result);}}
+internal static class CombatModePatch
+{
+    [HarmonyPostfix]
+    static void Postfix(BattleMonsterCharacter __instance, ref int __result)
+    {
+        CombatReforgedRuntime.Select(__instance, ref __result);
+        LegendaryBossRuntime.Select(__instance, ref __result);
+        BossTacticsProbe.ObserveDispatchSelection(__instance, ref __result);
+    }
+}
 [HarmonyPatch(typeof(BattleMonsterCharacter),nameof(BattleMonsterCharacter.AttackDataMakeNormal))]
 internal static class CombatActionScope
 {

@@ -3,6 +3,21 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.35 — Legendary Bosses
+
+- Mist Shade reserves its stronger spell for the transformed phase and a
+  pressure window. Gorudo alternates physical pressure with spells against
+  parties built to absorb weapon attacks.
+- The transforming Worm and Moth favor different attacks, including status
+  pressure when enough targets can still receive the effect. Three later Lucia
+  records hold their one-use group spell for a suitable opening.
+- Scoped the changes to discretionary native attack selection on Normal.
+  Original targeting, use accounting and scripted callbacks stay native.
+- Solo Luca's scoped selector committed a native row attack in a disposable
+  fixture. Campaign Luca tactics remain disabled.
+
+[Exact build, settings and verification](docs/LEGENDARY-BOSSES-V135.md).
+
 ## Documentation maintenance
 
 - Records the owner's decision to keep the source repository public.

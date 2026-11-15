@@ -7,7 +7,7 @@ using HarmonyLib;
 
 namespace NightmareRebalance;
 
-[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.34.0")]
+[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.35.0")]
 [BepInDependency("d3xMachina.suikoden_fix", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("faospark.pkcore", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("nightmare.suikoden2.rebalance", BepInDependency.DependencyFlags.SoftDependency)]
@@ -48,6 +48,7 @@ public sealed class Plugin : BasePlugin
             HuntGuildRuntime.Initialize();
             CastleGuildRuntime.Initialize();
             BossTacticsRuntime.Initialize();
+            LegendaryBossRuntime.Initialize();
             NativeWarWitness.Initialize();
             if(NativeFieldObserver.Requested)AddComponent<NativeFieldObserver>();
             if((HuntGuildRuntime.Config.EnableSelector&&Options.EnableDeveloperTools.Value)||CastleGuildRuntime.Config.Enabled)AddComponent<HuntGuildOverlay>();
@@ -81,7 +82,7 @@ public sealed class Plugin : BasePlugin
             CombatRealityProbe.Run();
             if(ProductionAssetAudit.Requested){AddComponent<ProductionAssetAudit>();ProductionAssetAudit.Scheduled=true;}
             if (Options.EnableDeveloperTools.Value) AddComponent<DeveloperOverlay>();
-            Log.LogInfo("Reforged Nightmare 1.34.0-rpg-evolution.1 experimental content installed. Combat Reality; native war modules retained; custom arena excluded.");
+            Log.LogInfo("Reforged Nightmare 1.35.0-legendary-bosses.1 loaded.");
         }
         catch (Exception ex)
         {

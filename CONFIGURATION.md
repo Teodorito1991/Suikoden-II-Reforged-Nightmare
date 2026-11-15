@@ -54,6 +54,7 @@ distinct from newer boss-tactics JSON. Do not enable every switch indiscriminate
 | boss-tactics.json | Enabled; EnableExistingBosses=true, EnableMajorBosses=false |
 | rpg-evolution.json | Separate character, magic, physical rune, Unite and formation toggles. Custom legacy character and spell values keep priority. |
 | boss-revolution.json | Enabled; six v1.33 policies with individual Enabled switches |
+| legendary-bosses.json | `EnableMistShade`, `EnableGorudo`, `EnableWormMoth`, `EnableLaterLucia`; each defaults to true |
 | war-unit-profiles.json / war-specializations.json | Original commander/branch definitions |
 | native-war-rules.json / total-war-rules.json | Original scenario objectives and AI |
 | war-tactics.json | Enabled, EnabledWars, tactical weights/objectives |
@@ -70,14 +71,18 @@ vanilla toggle. Restart after edits. Copy only missing files when updating.
 ## Optional content
 
 Unplayed contracts require an explicit Enabled opt-in for that catalogue entry.
-Major Lucia/Neclord policies require EnableMajorBosses=true. Both have native-only
-coverage and are not recommended for the first public campaign.
+The earlier Lucia and final Neclord policies require `EnableMajorBosses=true`.
+The v1.35 later Lucia records have their own `EnableLaterLucia` switch. All
+v1.35 policies also require Normal and the existing combat AI and boss encounter
+controls. Set the relevant family switch to false and restart to use the original
+selector for that family. Campaign Luca tactics are unavailable.
 
 Disable hunting with first-expansion.json's EnableExperimentalHunt=false; hide the
 attendant separately with castle-guild.json's Enabled=false. Disable custom fallback
 item preparation with EnableVictoryItems=false. Native drops still belong to the
 game. Reporting pays nothing again. Contracts are session-only; selector preference
-persistence is not campaign quest persistence. No setting enables skirmishes or XP.
+persistence is not campaign quest persistence. Castle Army Training has its own
+opt-in and does not award commander XP. [Training settings](docs/ARMY-TRAINING-V132.md).
 
 ## Development-only war bridge
 

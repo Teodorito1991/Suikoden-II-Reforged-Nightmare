@@ -1,8 +1,12 @@
 # Known issues and validation limits
 
-The public source repository tracks v1.34 (`1.34.0-rpg-evolution.1`). An installable
+The public source repository tracks v1.35 (`1.35.0-legendary-bosses.1`). An installable
 release remains unpublished. [Current Army Training evidence](docs/ARMY-TRAINING-V132.md).
 
+- **Legendary Bosses gameplay acceptance is pending.** Original selectors ran
+  with disposable phase states. Transformation playback, cinematic endings and
+  campaign balance await play. All three Luca fights remain native in campaign
+  play. [v1.35 evidence](docs/LEGENDARY-BOSSES-V135.md).
 - **Boss Revolution gameplay acceptance is pending.** All six new policies passed
   native selection fixtures. Rendered battles, the story endings and campaign
   balance still need gameplay. [v1.33 checks](docs/BOSS-REVOLUTION-V133.md).
@@ -27,7 +31,7 @@ release remains unpublished. [Current Army Training evidence](docs/ARMY-TRAINING
   progression are deferred. [Exact-build training evidence](docs/ARMY-TRAINING-V132.md).
 - **Story-war transitions incompletely played.** Audited wars 1,2,3,6,13 retain
   original story handlers, but most full ending/return routes remain unplayed.
-- **Major bosses opt-in.** Lucia/Neclord policies have not completed rendered
+- **Legacy major bosses opt-in.** Earlier Lucia/final Neclord policies have not completed rendered
   multi-party/phase/story validation. Public EnableMajorBosses=false. Seven earlier
   admissions also do not certify every move or transition.
 - **Dreamer and Thornwake await full gameplay acceptance.** Both are native-tested

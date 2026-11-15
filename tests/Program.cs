@@ -2,6 +2,7 @@ using NightmareRebalance;
 
 int assertions = 0;
 void Check(bool ok, string message) { assertions++; if (!ok) throw new Exception(message); }
+LegendaryBossTests.Run(Check);
 byte Pack(int current, int max) => (byte)((current << 4) | max);
 byte[] example = { Pack(3,7), Pack(2,5), Pack(1,3), Pack(0,1) };
 Check(Rules.Recover(example, 1, RecoveryPriority.LowestDepletedLevel) == 1, "Example budget");

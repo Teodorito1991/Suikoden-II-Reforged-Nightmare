@@ -9,9 +9,9 @@ internal static class BossTacticsProbe
  static T Alloc<T>() where T:Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase{RuntimeHelpers.RunClassConstructor(typeof(T).TypeHandle);return(T)Activator.CreateInstance(typeof(T),IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<T>.NativeClassPtr))!;}
  static void Check(bool x,string message){Assertions++;if(!x)throw new InvalidOperationException("Boss tactics: "+message);}
  static bool Same(UnityEngine.Random.State a,UnityEngine.Random.State b)=>a.s0==b.s0&&a.s1==b.s1&&a.s2==b.s2&&a.s3==b.s3;
- internal static void Table(BATTLE_DATA table, FormationAudit? luca = null)
+ internal static void Table(BATTLE_DATA table, FormationAudit? luca = null, FormationAudit? legendary = null)
  {
-  var a=luca??BossTacticsRuntime.Audit.Concat(BossTacticsRuntime.RevolutionAudit).FirstOrDefault(x=>x.TableId==table.id);if(a==null)return;
+  var a=luca??legendary??BossTacticsRuntime.Audit.Concat(BossTacticsRuntime.RevolutionAudit).FirstOrDefault(x=>x.TableId==table.id);if(a==null)return;
   var game=Framework.Singleton<GAME_WORK>.instance;var work=Framework.Singleton<BATTLE_WORK>.instance;var state=Combat.State;var rng=UnityEngine.Random.state;bool quality=BossTacticsRuntime.Config.EnableCombatQuality;bool strict=DifficultyProvenance.StrictProbe,ai=CombatReforgedRuntime.Config.EnableEnemyAi,suppress=BossTacticsRuntime.Suppress;
   var copies=new List<MONSTER_DATA>();
   try{
@@ -23,7 +23,7 @@ internal static class BossTacticsProbe
    w.pm_data=new Il2CppReferenceArray<PM_DATA>(12);w.b_chara=new Il2CppReferenceArray<BATTLE_CHARA>(12);w.pm_attack_data=new Il2CppReferenceArray<PM_ATTACK_DATA>(12);w.c_varia_dat=new Il2CppReferenceArray<C_VARIA_DAT>(12);w.MokuhyoKaisu=new Il2CppStructArray<byte>(12);w.b_magic_status=new();
    manager.parties=new Il2CppReferenceArray<BattleParty>(new[]{new BattleParty(0,native),new BattleParty(1,native)});
    for(int i=0;i<w.pm_kazu;i++){
-    PM_DATA u=i<6?Alloc<BattlePlayerCharacter>():Alloc<BattleMonsterCharacter>();u.manager=native;u.chara_no=i;u.chara_id=(byte)(i<6?0:roster[i-6]);u.position=(byte)(i<6?i:luca==null?Array.IndexOf(a.OldCodes,roster[i-6]):Enumerable.Range(0,a.OldCodes.Length).Where(slot=>a.OldCodes[slot]>0).ElementAt(i-6));u.hp=600;u.max_hp=600;u.calc_para=new Il2CppStructArray<int>(new[]{120,70,60,50,80,75,60,100});
+    PM_DATA u=i<6?Alloc<BattlePlayerCharacter>():Alloc<BattleMonsterCharacter>();u.manager=native;u.chara_no=i;u.chara_id=(byte)(i<6?0:roster[i-6]);u.position=(byte)(i<6?i:luca==null&&legendary==null?Array.IndexOf(a.OldCodes,roster[i-6]):Enumerable.Range(0,a.OldCodes.Length).Where(slot=>a.OldCodes[slot]>0).ElementAt(i-6));u.hp=600;u.max_hp=600;u.calc_para=new Il2CppStructArray<int>(new[]{120,70,60,50,80,75,60,100});
     if(i>=6){u.hp=(short)w.monster_data[u.chara_id].hp;u.max_hp=(ushort)u.hp;for(int k=0;k<7;k++)u.calc_para[k]=w.monster_data[u.chara_id].para[k];}
     w.pm_data[i]=u;w.b_chara[i]=Alloc<BATTLE_CHARA>();w.b_chara[i].chara_id=u.chara_id;w.pm_attack_data[i]=new(){curent_use_cnt=new Il2CppStructArray<byte>(new byte[]{255,255,255,255})};w.c_varia_dat[i]=new(){mon_eqp=new Il2CppStructArray<byte>(3),bogu_eqp=new Il2CppStructArray<byte>(5),mp=new Il2CppStructArray<byte>(4),item_eqp=new Il2CppReferenceArray<PARTY_ITEM>(3)};for(int j=0;j<3;j++)w.c_varia_dat[i].item_eqp[j]=new();
    }
@@ -35,6 +35,11 @@ internal static class BossTacticsProbe
    CombatReforgedRuntime.Probe=true;CombatReforgedRuntime.ProbeWork=w;var s=new BattleState(manager){Ready=true};Combat.State=s;
    CombatReforgedRuntime.Ready(s,w,true);CombatEvolutionRuntime.Ready(s,w,true);CombatReforgedRuntime.Config.EnableEnemyAi=true;
    BossTacticsRuntime.Suppress=false;BossTacticsRuntime.Ready(w,true);
+   if (legendary != null)
+   {
+    ObserveLegendary(w, s, legendary);
+    return;
+   }
    if (luca != null)
    {
     ObserveLuca(manager, w, luca);
@@ -97,6 +102,99 @@ internal static class BossTacticsProbe
   }finally{BossTacticsRuntime.Config.EnableCombatQuality=quality;DifficultyProvenance.StrictProbe=strict;CombatReforgedRuntime.Config.EnableEnemyAi=ai;BossTacticsRuntime.Suppress=suppress;CombatReforgedRuntime.Probe=false;CombatReforgedRuntime.ProbeWork=null;CombatReforgedRuntime.Clear();Combat.State=state;Framework.Singleton<GAME_WORK>.instance=game;Framework.Singleton<BATTLE_WORK>.instance=work;UnityEngine.Random.state=rng;foreach(var copy in copies)UnityEngine.Object.Destroy(copy);}
  }
  internal static readonly List<object> LucaRows = new();
+ internal static readonly List<object> LegendaryRows = new();
+
+ static void UseOriginalBindings(BATTLE_WORK work, FormationAudit source)
+ {
+  BattleOverlayDelegate? At(int i) => source.Hooks[i] == 0 ? null : area_func.GetBattleOverlayFunction(source.Hooks[i]);
+  work.monster_single_func = At(0);
+  work.monster_ps_func = At(1);
+  work.monster_pe_func = At(2);
+  work.monster_be_func = At(3);
+  work.monster_cm_func = At(4);
+  work.monster_bm_func = At(5);
+ }
+
+ static void ObserveLegendary(BATTLE_WORK work, BattleState state, FormationAudit source)
+ {
+  UseOriginalBindings(work, source);
+  var ending = work.monster_be_func;
+  var command = work.monster_cm_func;
+  var phaseEnd = work.monster_pe_func;
+  Check(LegendaryBossRuntime.Ready(state, work, true), "Legendary original-source admission " + source.TableId);
+  var actor = work.pm_data.First(u => u != null && !u.IsPlayer &&
+      u.chara_id == LegendaryBossRules.ActorIndex(source.TableId)).Cast<BattleMonsterCharacter>();
+  foreach (var player in work.pm_data.Take(work.player_kazu))
+  {
+   player.calc_para[2] = 100;
+   player.calc_para[3] = 45;
+  }
+  actor.action_kaisu = 0;
+  actor.position = 2;
+  int changes = 0;
+  var phases = new Dictionary<string,int>();
+  foreach (var phase in source.Monsters.Where(m => LegendaryBossRules.AcceptsPhase(source.TableId, m.Index)))
+  {
+   // The scratch actor presents the exact alternate native template. This does
+   // not execute the original animation or the phase-transition callbacks.
+   actor.chara_id = (byte)phase.Index;
+   work.b_chara[actor.chara_no].chara_id = actor.chara_id;
+   actor.InitMonsterAttackCnt();
+   var uses = work.pm_attack_data[actor.chara_no].curent_use_cnt;
+   var beforeUses = uses.ToArray();
+   int phaseChanges = 0;
+   foreach (byte round in new byte[] { 0, 1, 2, 3, 4, 5 })
+   for (int seed = 0; seed < 12; seed++)
+   {
+    work.battle_kaisuu = round;
+    UnityEngine.Random.InitState(seed);
+    int original = actor.SelectAttackMode();
+    var rng = UnityEngine.Random.state;
+    UnityEngine.Random.InitState(seed);
+    LegendaryBossDispatchPatch.Prefix(actor, out var prior);
+    try
+    {
+     Check(LegendaryBossRuntime.Current != null, "Legendary dispatcher scope admitted");
+     int selected = actor.SelectAttackMode();
+     Check(selected == original || selected is >= 0 and < 4 && actor.CheckMonsterAttackCnt(selected) &&
+         actor.AttackModeKyoriCheck(selected), "Legendary substitution stays native-legal");
+     Check(Same(rng, UnityEngine.Random.state), "Legendary selection adds no RNG draws");
+     if (selected != original) phaseChanges++;
+    }
+    finally { LegendaryBossDispatchPatch.Finalizer(prior, null); }
+   }
+   Check(uses.SequenceEqual(beforeUses), "Legendary selector never advances uses");
+   phases.Add(phase.Id, phaseChanges);
+   changes += phaseChanges;
+   foreach (int i in Enumerable.Range(0, 4).Where(i => actor.monster_data.attack_data[i].kaisu > 0))
+    uses[i] = 0;
+   LegendaryBossDispatchPatch.Prefix(actor, out var saved);
+   try
+   {
+    work.battle_kaisuu = 1;
+    int depleted = actor.SelectAttackMode();
+    Check(depleted < 0 || actor.CheckMonsterAttackCnt(depleted), "Legendary depleted moves stay depleted");
+   }
+   finally { LegendaryBossDispatchPatch.Finalizer(saved, null); }
+  }
+  Check(changes > 0, "Legendary policy changes an original decision " + source.TableId);
+  Check(work.monster_be_func?.Pointer == ending?.Pointer &&
+      work.monster_cm_func?.Pointer == command?.Pointer &&
+      work.monster_pe_func?.Pointer == phaseEnd?.Pointer && !state.StatsAllowed,
+      "Legendary selector does not touch phase, command, ending or stat eligibility");
+  work.monster_be_func = null;
+  LegendaryBossDispatchPatch.Prefix(actor, out var mismatch);
+  try
+  {
+   int before = LegendaryBossRuntime.Changes;
+   actor.SelectAttackMode();
+   Check(LegendaryBossRuntime.Changes == before, "Legendary missing callback rejects selection");
+  }
+  finally { LegendaryBossDispatchPatch.Finalizer(mismatch, null); }
+  work.monster_be_func = ending;
+  LegendaryRows.Add(new { source.TableId, PhaseSelectorChanges = phases,
+      SelectorChanges = changes, NativeSelectors = true, NativeDispatcher = false, RenderedBattle = false });
+ }
 
  // Baseline only. Counter and HP inputs belong to scratch state, not a story battle.
  static void ObserveLuca(BattleManager manager, BATTLE_WORK work, FormationAudit source)
@@ -145,7 +243,7 @@ internal static class BossTacticsProbe
   Check(work.monster_be_func.Pointer == end && work.monster_cm_func?.Pointer == command,
       "Luca callback bindings left untouched");
   LucaRows.Add(new { source.TableId, Actor = actor.monster_data.id, EnemyCount = work.monster_kazu,
-      Sequences = sequences, AreaTargets = source.TableId == "boss_luc3" ? ObserveLucaArea(manager, work, actor) : null, ManagerPrerequisite = source.TableId == "boss_luc3" ? ObserveManagerQueue(manager, work, actor) : null, Dispatcher = source.TableId == "boss_luc3" ? ObserveLucaCommitment(work, actor) : null, ExistingAiChanges = 0, StoryCallbacksInvoked = false, TacticalTurnsExecuted = false });
+      Sequences = sequences, AreaTargets = source.TableId == "boss_luc3" ? ObserveLucaArea(manager, work, actor) : null, ManagerPrerequisite = source.TableId == "boss_luc3" ? ObserveManagerQueue(manager, work, actor) : null, Dispatcher = source.TableId == "boss_luc3" ? ObserveLucaCommitment(work, actor, source) : null, ExistingAiChanges = 0, StoryCallbacksInvoked = false, TacticalTurnsExecuted = false });
  }
 
  // Verify the native reader and queue ownership without entering the camera tail of BattleMakeData.
@@ -236,7 +334,7 @@ internal static class BossTacticsProbe
   probe.Selections.Add((original, selected));
  }
 
- static List<object> ObserveLucaCommitment(BATTLE_WORK work, BattleMonsterCharacter actor)
+ static List<object> ObserveLucaCommitment(BATTLE_WORK work, BattleMonsterCharacter actor, FormationAudit source)
  {
   var rows = new List<object>();
   work.p_status_data = new Il2CppReferenceArray<PLAYER_STATUS_DATA>(12);
@@ -246,13 +344,14 @@ internal static class BossTacticsProbe
   scratch.chara_data.c_kotei_dat = new Il2CppReferenceArray<C_KOTEI_DAT>(new[] { new C_KOTEI_DAT() });
   var game = scratch.game_data;
   game.luka_hp = 4321;
+  UseOriginalBindings(work, source);
   var ending = work.monster_be_func.Pointer;
   actor.position = 2;
   foreach (var (condition, alternate) in new[]
   {
    ("Full", -1), ("Full", 0), ("Full", 2),
    ("Wounded", 0), ("Wounded", 2), ("Defensive", 2),
-   ("Silenced", 2), ("NoTargets", 2)
+   ("Silenced", 2), ("NoTargets", 2), ("Scoped", -1)
   })
   {
    for (int slot = 0; slot < work.player_kazu; slot++)
@@ -271,6 +370,43 @@ internal static class BossTacticsProbe
    actor.finished_flg = 0;
    actor.c_koudou = 0;
    actor.InitMonsterAttackCnt();
+   bool scoped = condition == "Scoped";
+   if (scoped)
+   {
+    work.battle_kaisuu = 1;
+    Check(!LegendaryBossRuntime.Ready(Combat.State!, work, true), "Solo Luca has no production opt-in");
+    Check(LegendaryBossRuntime.Ready(Combat.State!, work, true, source), "Solo Luca exact scratch binding");
+    foreach (sbyte excluded in new sbyte[] { 11, 7 })
+    {
+     actor.c_koudou = excluded;
+     LegendaryBossDispatchPatch.Prefix(actor, out var prior);
+     try
+     {
+      // Simulate fallthrough with command 0 at selection. Admission must
+      // still consult the immutable entry-time classification.
+      actor.c_koudou = 0;
+      int selected = 1;
+      LegendaryBossRuntime.Select(actor, ref selected);
+      Check(selected == 1, "Luca entry command excludes entire invocation");
+     }
+     finally { LegendaryBossDispatchPatch.Finalizer(prior, null); }
+    }
+    LegendaryBossDispatchPatch.Prefix(actor, out var outer);
+    try
+    {
+     var originalScope = LegendaryBossRuntime.Current;
+     LegendaryBossDispatchPatch.Prefix(actor, out var inner);
+     try
+     {
+      LegendaryBossDispatchPatch.Prefix(actor, out var third);
+      try { Check(LegendaryBossRuntime.Current == null, "Nested Luca dispatch cannot reacquire scope"); }
+      finally { LegendaryBossDispatchPatch.Finalizer(third, null); }
+     }
+     finally { LegendaryBossDispatchPatch.Finalizer(inner, null); }
+     Check(ReferenceEquals(LegendaryBossRuntime.Current, originalScope), "Nested dispatcher restores outer scope");
+    }
+    finally { LegendaryBossDispatchPatch.Finalizer(outer, null); }
+   }
    var counts = work.pm_attack_data[actor.chara_no].curent_use_cnt;
    var usesBefore = counts.ToArray();
    byte counter = work.battle_kaisuu;
@@ -308,6 +444,13 @@ internal static class BossTacticsProbe
         "Silence blocks the requested special and preserves the native basic attack");
    else if (alternate >= 0)
     Check(actor.c_mode == alternate, "Controlled legal choice survived native action construction");
+   if (scoped)
+   {
+    var baseline = System.Text.Json.JsonSerializer.SerializeToElement(rows[0]);
+    Check(baseline.GetProperty("FinalMode").GetInt32() == 1 && actor.c_mode == 2 &&
+        LegendaryBossRuntime.Changes == 1 && LegendaryBossRuntime.Current == null,
+        "Scoped selector replaces the original column choice, commits row, and clears scope");
+   }
    var data = action!.data.Select(x => (int)x).ToArray();
    if (actor.c_mode is 1 or 2)
     Check(data[0] == actor.c_mode && action.action_type == 10, "Native special action encodes selected move");

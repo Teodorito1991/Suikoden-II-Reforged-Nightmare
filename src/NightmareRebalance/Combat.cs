@@ -85,6 +85,7 @@ internal static class Combat
         if(compatible&&s.Allowed)RpgEvolutionRuntime.ApplyUnites(w); } catch(Exception e) { Plugin.Logger.LogWarning("Combat Evolution retained prior plans: "+e.Message); }
         BossTacticsRuntime.Ready(w,compatible);
         s.Ready = true;
+        LegendaryBossRuntime.Ready(s,w,compatible);
         try{CombatRealityRuntime.Ready(s,w);}catch(Exception e){CombatRealityRuntime.Event("Diagnostics","InspectionUnavailable","battle",e.Message);}
         CombatReforgedDiagnostics.Begin(s,w);
         if ((Plugin.Options.EnableBossProfiles.Value || Plugin.Options.EnableBossProfileDiagnostics.Value) && w.pm_data != null)

@@ -1,5 +1,12 @@
 # Exact-build evidence ledger
 
+## 1.35.0-legendary-bosses.1 — native selectors and launcher
+
+Six scripted policies passed exact-build native selector fixtures. Solo Luca
+committed an original row attack through the scoped dispatcher in scratch
+state and remains disabled in campaign play. The copied game reached the
+original launcher. [DLL hash and evidence](LEGENDARY-BOSSES-V135.md).
+
 ## 1.12.2-guild-ui.1 — complete Sun quest
 
 SHA256 `0B520FDD9182B6C024FE96376D0F284BE249DF93AF2E748DC331D21324910F46`.
