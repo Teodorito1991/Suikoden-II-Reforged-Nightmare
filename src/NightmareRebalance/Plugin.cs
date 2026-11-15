@@ -7,7 +7,7 @@ using HarmonyLib;
 
 namespace NightmareRebalance;
 
-[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.36.0")]
+[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.36.1")]
 [BepInDependency("d3xMachina.suikoden_fix", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("faospark.pkcore", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("nightmare.suikoden2.rebalance", BepInDependency.DependencyFlags.SoftDependency)]
@@ -51,7 +51,7 @@ public sealed class Plugin : BasePlugin
             LegendaryBossRuntime.Initialize();
             NativeWarWitness.Initialize();
             if(NativeFieldObserver.Requested)AddComponent<NativeFieldObserver>();
-            if((HuntGuildRuntime.Config.EnableSelector&&Options.EnableDeveloperTools.Value)||CastleGuildRuntime.Config.Enabled)AddComponent<HuntGuildOverlay>();
+            if(HuntGuildRuntime.RenderSmoke||(HuntGuildRuntime.Config.EnableSelector&&Options.EnableDeveloperTools.Value)||CastleGuildRuntime.Config.Enabled)AddComponent<HuntGuildOverlay>();
             if(HuntRuntime.Config.EnableExperimentalHunt||HuntGuildRuntime.Config.EnableSelector) AddComponent<HuntAccessControl>();
             HuntDebug.Initialize(this);
             harmony.PatchAll(typeof(Plugin).Assembly);
@@ -82,7 +82,7 @@ public sealed class Plugin : BasePlugin
             CombatRealityProbe.Run();
             if(ProductionAssetAudit.Requested){AddComponent<ProductionAssetAudit>();ProductionAssetAudit.Scheduled=true;}
             if (Options.EnableDeveloperTools.Value) AddComponent<DeveloperOverlay>();
-            Log.LogInfo("Reforged Nightmare 1.36.0-total-war-guild.1 loaded.");
+            Log.LogInfo("Reforged Nightmare 1.36.1-guild-preview.1 loaded.");
         }
         catch (Exception ex)
         {

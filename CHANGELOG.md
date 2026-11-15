@@ -3,6 +3,15 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.36.1 — Guild preview
+
+- Runs the copied-game graphics preview on a separate Windows desktop. A
+  hidden launch loaded the UI resources but did not dispatch GUI repaint.
+- Captures and verifies eight native-rendered screens, including both Army
+  Training difficulties, using the existing Guild renderer.
+- Live Castle Guild interaction and training return remain unverified on this
+  build. [Exact build and evidence](docs/GUILD-PREVIEW-V1361.md).
+
 ## v1.36 — Total War Revolution and Castle Guild Reborn
 
 - Adds native enemy preferences for protecting commanders and ranged squads,

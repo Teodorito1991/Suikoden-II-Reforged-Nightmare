@@ -1,11 +1,13 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone** is v1.36, with DLL
-`1.36.0-total-war-guild.1`. The Castle Guild moves beside the Suggestion Box,
+**Latest development milestone** is v1.36.1, with DLL
+`1.36.1-guild-preview.1`. The copied game rendered and captured all eight
+Guild screens. The v1.36 Castle Guild sits beside the Suggestion Box,
 with separate Hunt, Training and Guild Status screens. Native enemy war AI
 gains new positioning and attack preferences.
 The source repository is public. The installable beta remains unpublished.
 [Castle Guild and Total War changes](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).
+[Guild graphical verification](docs/GUILD-PREVIEW-V1361.md).
 
 An unofficial Windows Steam gameplay overhaul and expansion for **Suikoden II HD
 Remaster**, using the original RPG and tactical war engines, artwork, animations,

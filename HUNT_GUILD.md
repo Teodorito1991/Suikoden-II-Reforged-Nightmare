@@ -73,6 +73,14 @@ The historical v1.19 presentation DLL was `0EF0B648CC897C2119ED6919DA250FD1FDFFD
 exercised in an unloaded preview. Offline previews are not gameplay screenshots,
 and no current-hash field, controller or complete-quest acceptance is claimed.
 
+## v1.36.1 graphical verification
+
+The existing Guild renderer produced eight in-engine screens in the copied game
+at 1920×1080 and 3200×1800. Captures cover all contract cards, both Training
+difficulties and Guild Status. The preview runs at the launcher and leaves
+live attendant interaction and training return unverified on this build.
+[Graphics and reproduction notes](docs/GUILD-PREVIEW-V1361.md).
+
 ## v1.25 catalogue integration
 
 Development build `1.25.0-hunt-catalogue.1` with SHA256 `AA27445761E1E7581FF2D32DCF5FA608E47A072F06A5B307B809A46557EA09B0`.

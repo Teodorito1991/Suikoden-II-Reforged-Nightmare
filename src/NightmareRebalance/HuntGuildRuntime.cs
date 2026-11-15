@@ -7,10 +7,21 @@ internal static class HuntGuildRuntime
  internal static HuntGuildFile Config=new(){EnableSelector=false,EnableVictoryItems=false};internal static GuildItemAudit[] Items=Array.Empty<GuildItemAudit>();
  internal static string? SessionSelection;internal static string SelectedId=>SessionSelection??HuntRuntime.Catalogue.SelectedHuntId;
  internal static UIMainMenu? Menu;internal static MACHICON? CommandOwner;internal static IntPtr PartyOwner;internal static int NativeMenuTicks, SuppressedTicks;internal static bool MenuProven,Visible;internal static int Changes;internal static string Message="Select a contract; activation remains separate.";
- internal static bool Preview=>!UnityEngine.Application.isBatchMode&&Environment.GetCommandLineArgs().Contains("--reforged-guild-preview")||(!UnityEngine.Application.isBatchMode&&RenderSmoke);
+ internal static bool Preview=>RenderSmoke||(!UnityEngine.Application.isBatchMode&&Environment.GetCommandLineArgs().Contains("--reforged-guild-preview"));
  internal static string? PreviewId;
  internal static bool RenderFaulted;internal static int LastRenderFrame=-1,RenderCalls;
- internal static bool RenderSmoke=>Environment.GetCommandLineArgs().Contains("--reforged-guild-render-smoke");
+ const string CaptureArgument="--reforged-guild-capture=";
+ internal static readonly string? CaptureDirectory=GetCaptureDirectory();
+ internal static bool RenderSmoke=>CaptureDirectory!=null&&!UnityEngine.Application.isBatchMode;
+ static string? GetCaptureDirectory()
+ {
+  var args=Environment.GetCommandLineArgs();
+  if(!args.Contains("--reforged-guild-render-smoke")||!args.Contains("--reforged-private-startup-smoke")||
+      !File.Exists(Path.Combine(BepInEx.Paths.GameRootPath,"PRIVATE_DO_NOT_UPLOAD.txt")))return null;
+  var capture=args.FirstOrDefault(a=>a.StartsWith(CaptureArgument,StringComparison.Ordinal));
+  return capture!=null&&Guid.TryParseExact(capture[CaptureArgument.Length..],"N",out var id)
+      ? Path.Combine(BepInEx.Paths.GameRootPath,"guild-previews",id.ToString("N")) : null;
+ }
  internal static bool RenderReady=>!RenderFaulted&&LastRenderFrame>=0&&UnityEngine.Time.frameCount>=LastRenderFrame&&(long)UnityEngine.Time.frameCount-LastRenderFrame<=2;
  internal static void Drawn(){LastRenderFrame=UnityEngine.Time.frameCount;RenderCalls++;}
  internal static void RenderFailed(Exception e){RenderFaulted=true;Visible=false;LastRenderFrame=-1;Plugin.Logger.LogError("Guild rendering disabled; native input released: "+e);}

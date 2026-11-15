@@ -1,5 +1,12 @@
 # Exact-build evidence ledger
 
+## 1.36.1-guild-preview.1 — rendered Guild and native regression
+
+The copied game's original Guild frame, cursor and font rendered in eight
+screens at two actual display sizes. Release build, managed regressions and
+native startup subtests passed. The preview used an unloaded launcher.
+[DLL hash, control runs and limits](GUILD-PREVIEW-V1361.md).
+
 ## 1.36.0-total-war-guild.1 — native decisions, castle assets and launcher
 
 The copied-game build passed native decision checks for seven original wars

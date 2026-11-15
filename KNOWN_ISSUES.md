@@ -1,7 +1,7 @@
 # Known issues and validation limits
 
-The public source repository tracks v1.36 (`1.36.0-total-war-guild.1`). An
-installable release remains unpublished. [Current Guild and war evidence](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).
+The public source repository tracks v1.36.1 (`1.36.1-guild-preview.1`). An
+installable release remains unpublished. [Current Guild graphics evidence](docs/GUILD-PREVIEW-V1361.md).
 
 - **Legendary Bosses gameplay acceptance is pending.** Original selectors ran
   with disposable phase states. Transformation playback, cinematic endings and
@@ -37,10 +37,10 @@ installable release remains unpublished. [Current Guild and war evidence](docs/C
 - **Dreamer and Thornwake await full gameplay acceptance.** Both are native-tested
   and opt-in. Thornwake's Greenhill City region is verified. Its exact travel
   route remains unplayed.
-- **Guild map coverage.** The v1.36 attendant is scoped to the exact Suggestion
-  Box corridor (`vk07`, event variant 3). The copied game loaded the original
-  menu assets, but its hidden preview produced no GUI frames. Live field
-  interaction and training return to the corridor still need verification.
+- **Guild map coverage.** The attendant is scoped to the exact Suggestion
+  Box corridor (`vk07`, event variant 3). The copied game rendered the Guild
+  screens in preview. Live field interaction and training return to the corridor
+  still need verification.
 - **Session-only contracts.** Actual loading/restart clears accepted/unreported
   state. Selector preference is separate from quest progression.
 - **Reward limits remain native.** Rolled loot takes priority over the fallback;

@@ -6,25 +6,36 @@ namespace NightmareRebalance;
 public sealed class HuntGuildOverlay:MonoBehaviour
 {
  readonly StableHotkeyEdge[] select={new(),new(),new()};readonly Stopwatch timer=Stopwatch.StartNew();
- Font? fallbackFont;readonly Dictionary<int,GUIStyle> styles=new();readonly HashSet<int> smokeScenarios=new();bool faulted;readonly StableHotkeyEdge request=new();bool smokeStarted,smokeExitRequested;long smokeReadyAt=-1;
+ Font? fallbackFont;readonly Dictionary<int,GUIStyle> styles=new();bool faulted;readonly StableHotkeyEdge request=new();
+ bool smokeExitRequested;
+ int smokeScreen,smokePaints;
+ long nextCaptureAt=-1;
+ static readonly (GuildPage Page,int Focus,int Drill,string File)[] SmokeScreens =
+ {
+  (GuildPage.Services,0,0,"01-services.png"),
+  (GuildPage.Hunts,0,0,"02-hunt-sun-king.png"),
+  (GuildPage.Hunts,1,0,"03-hunt-dreamer.png"),
+  (GuildPage.Hunts,2,0,"04-hunt-thornwake.png"),
+  (GuildPage.Training,2,0,"05-army-training.png"),
+  (GuildPage.Difficulty,0,2,"06-standard.png"),
+  (GuildPage.Difficulty,1,2,"07-veteran.png"),
+  (GuildPage.Status,0,0,"08-guild-status.png")
+ };
  [DllImport("user32.dll")]static extern short GetAsyncKeyState(int key);
  [DllImport("user32.dll")]static extern IntPtr GetForegroundWindow();
  [DllImport("user32.dll")]static extern uint GetWindowThreadProcessId(IntPtr window,out uint process);
  public HuntGuildOverlay(IntPtr p):base(p){}
  public void Update()
  {
-  if(HuntGuildRuntime.Visible||CastleGuildRuntime.FeedbackVisible||
-      (HuntGuildRuntime.RenderSmoke&&UnityEngine.SceneManagement.SceneManager.GetActiveScene().name=="Main"&&timer.ElapsedMilliseconds>=3000))
-      GuildVisualResources.Poll();
-  if(faulted&&HuntGuildRuntime.RenderSmoke){UnityEngine.Application.Quit();return;}
-  if(faulted||(!HuntGuildRuntime.RenderSmoke&&!CastleGuildRuntime.Modal&&
+  if(HuntGuildRuntime.RenderSmoke)
+  {
+   UpdateRenderSmoke();
+   return;
+  }
+  if(HuntGuildRuntime.Visible||CastleGuildRuntime.FeedbackVisible)GuildVisualResources.Poll();
+  if(faulted||(!CastleGuildRuntime.Modal&&
       (!HuntGuildRuntime.Config.EnableSelector||!Plugin.Options.EnableDeveloperTools.Value)))return;
   try{
-   if(HuntGuildRuntime.RenderSmoke){
-    if(!smokeStarted&&GuildVisualResources.Ready){smokeStarted=true;smokeReadyAt=timer.ElapsedMilliseconds;}
-    if(timer.ElapsedMilliseconds>35000&&!smokeExitRequested){smokeExitRequested=true;Plugin.Logger.LogError("Guild render smoke FAILED: "+System.Text.Json.JsonSerializer.Serialize(GuildVisualResources.Snapshot())+"; draws="+HuntGuildRuntime.RenderCalls+"; presentations="+smokeScenarios.Count+"; normal exit requested.");UnityEngine.Application.Quit();return;}
-    if(!smokeExitRequested&&smokeReadyAt>=0&&timer.ElapsedMilliseconds-smokeReadyAt>=10000&&smokeScenarios.Count==7){smokeExitRequested=true;Plugin.Logger.LogInfo("Guild render resources: "+System.Text.Json.JsonSerializer.Serialize(GuildVisualResources.Snapshot())+"; presentation scenarios="+string.Join(",",smokeScenarios.OrderBy(x=>x)));Plugin.Logger.LogInfo("Guild render smoke PASS: native-looking OnGUI Label/DrawTexture calls="+HuntGuildRuntime.RenderCalls+"; preview only, no save loaded.");OnDestroy();Plugin.Logger.LogInfo("Guild render cleanup: "+System.Text.Json.JsonSerializer.Serialize(GuildVisualResources.Snapshot()));UnityEngine.Application.Quit();return;}
-   }
    if(CastleGuildRuntime.Modal&&!CastleGuildRuntime.Context)CastleGuildRuntime.Close(false);
    if(HuntGuildRuntime.Visible&&!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview)HuntGuildRuntime.Visible=false;
    if(CastleGuildRuntime.Modal)return;
@@ -33,7 +44,30 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    for(int i=0;i<select.Length;i++){short v=GetAsyncKeyState(0x31+i);if(select[i].Poll(focused&&HuntGuildRuntime.Visible,(v&0x8000)!=0,(v&1)!=0,timer.ElapsedMilliseconds)&&i<HuntRuntime.Definitions.Length)HuntGuildRuntime.Select(HuntRuntime.Definitions[i].Id);}
   }catch(Exception e){faulted=true;HuntGuildRuntime.RenderFailed(e);}
  }
- public void OnDestroy(){if(frameStyle!=null){frameStyle.normal.background=null;frameStyle=null;}foreach(var style in styles.Values)style.font=null;styles.Clear();GuildVisualResources.Release();if(fallbackFont!=null)UnityEngine.Object.Destroy(fallbackFont);fallbackFont=null;}
+
+ void UpdateRenderSmoke()
+ {
+  if(smokeExitRequested)return;
+  try
+  {
+   if(faulted||GuildVisualResources.Failed||timer.ElapsedMilliseconds>35000)
+    throw new InvalidOperationException($"Preview incomplete: {smokePaints} repaint passes, {smokeScreen}/{SmokeScreens.Length} screenshots queued. Run on a separate Windows desktop with a visible game surface.");
+   if(nextCaptureAt<0&&timer.ElapsedMilliseconds>=3000&&
+       UnityEngine.SceneManagement.SceneManager.GetActiveScene().name=="Main"&&
+       GuildVisualResources.Poll()&&GuildVisualResources.Ready)
+   {
+    Directory.CreateDirectory(HuntGuildRuntime.CaptureDirectory!);
+    nextCaptureAt=timer.ElapsedMilliseconds+2000;
+   }
+   if(smokeScreen!=SmokeScreens.Length||timer.ElapsedMilliseconds<nextCaptureAt||
+       !SmokeScreens.All(s=>new FileInfo(Path.Combine(HuntGuildRuntime.CaptureDirectory!,s.File)) is {Exists:true,Length:>0}))return;
+   Plugin.Logger.LogInfo($"Guild render smoke PASS: {smokePaints} repaint passes; {smokeScreen} PNGs at {Screen.width}x{Screen.height}; original frame, cursor and font loaded.");
+  }
+  catch(Exception e){Plugin.Logger.LogError("Guild render smoke FAILED: "+e.Message);}
+  smokeExitRequested=true;
+  UnityEngine.Application.Quit();
+ }
+ public void OnDestroy(){if(frameStyle!=null){frameStyle.normal.background=null;frameStyle=null;}foreach(var style in styles.Values)style.font=null;styles.Clear();GuildVisualResources.Release();if(fallbackFont!=null)UnityEngine.Object.Destroy(fallbackFont);fallbackFont=null;if(HuntGuildRuntime.RenderSmoke)Plugin.Logger.LogInfo($"Guild render cleanup: original asset loads={GuildVisualResources.Loads}, releases={GuildVisualResources.Releases}.");}
  GUIStyle Style(int size)
  {
   if(!styles.TryGetValue(size,out var style)){style=new GUIStyle{fontSize=size,wordWrap=false,alignment=TextAnchor.UpperLeft,richText=false};style.normal.textColor=Color.white;styles[size]=style;}
@@ -179,7 +213,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
 
  public void OnGUI()
  {
-  bool previewSmoke=HuntGuildRuntime.RenderSmoke&&smokeStarted&&!Application.isBatchMode;
+  bool previewSmoke=HuntGuildRuntime.RenderSmoke;
+  if(previewSmoke&&(nextCaptureAt<0||smokeScreen>=SmokeScreens.Length||Event.current?.type!=EventType.Repaint))return;
   bool prompt=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.Idle&&CastleGuildRuntime.Near;
   bool feedback=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.FeedbackVisible;
   if(smokeExitRequested||faulted||(!previewSmoke&&!prompt&&!feedback&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
@@ -200,24 +235,15 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     }
 
     var menu=CastleGuildRuntime.Menu;
-    bool developer=!CastleGuildRuntime.Modal&&!HuntGuildRuntime.RenderSmoke;
+    bool developer=!CastleGuildRuntime.Modal&&!previewSmoke;
     var page=developer ? GuildPage.Hunts : menu.Page;
     int focus=developer ? Math.Max(0,Array.FindIndex(HuntRuntime.Definitions,
         d=>d.Id==(HuntGuildRuntime.Preview?HuntGuildRuntime.PreviewId:HuntGuildRuntime.SelectedId))) : menu.Focus;
     int drill=menu.Drill;
-    int previewFrame=-1;
-    if(HuntGuildRuntime.RenderSmoke)
+    if(previewSmoke)
     {
-     int preview=smokeReadyAt<0?0:Math.Min(6,(int)((timer.ElapsedMilliseconds-smokeReadyAt)/1400));
-     (page,focus,drill)=preview switch
-     {
-      0 => (GuildPage.Services,0,0),
-      1 or 2 or 3 => (GuildPage.Hunts,preview-1,0),
-      4 => (GuildPage.Training,2,0),
-      5 => (GuildPage.Difficulty,1,2),
-      _ => (GuildPage.Status,0,0)
-     };
-     previewFrame=preview;
+     var screen=SmokeScreens[smokeScreen];
+     (page,focus,drill)=(screen.Page,screen.Focus,screen.Drill);
     }
     var view=Model(page,focus,drill,HuntGuildRuntime.Preview||HuntGuildRuntime.RenderSmoke,developer);
     float scale=GuildRebornScreen.Scale(Screen.width,Screen.height);
@@ -233,14 +259,16 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     else Label(new(new(row.X+7,row.Y+8,20,24),">",20,"gold"),x,y,scale);
     foreach(var line in GuildRebornScreen.Text(view))Label(line,x,y,scale);
     HuntGuildRuntime.Drawn();
-    if(previewFrame>=0&&GuildVisualResources.Ready&&Event.current.type==EventType.Repaint&&
-        smokeScenarios.Add(previewFrame))
+    if(previewSmoke)
     {
-     Plugin.Logger.LogInfo($"Guild presentation {previewFrame} drawn at {Screen.width}x{Screen.height}.");
-     if(Environment.GetCommandLineArgs().Contains("--reforged-private-startup-smoke")&&
-         File.Exists(Path.Combine(BepInEx.Paths.GameRootPath,"PRIVATE_DO_NOT_UPLOAD.txt")))
-      ScreenCapture.CaptureScreenshot(Path.Combine(BepInEx.Paths.GameRootPath,
-          $"guild-preview-{Screen.width}x{Screen.height}-{previewFrame}.png"));
+     smokePaints++;
+     if(timer.ElapsedMilliseconds>=nextCaptureAt)
+     {
+      var file=SmokeScreens[smokeScreen++].File;
+      ScreenCapture.CaptureScreenshot(Path.Combine(HuntGuildRuntime.CaptureDirectory!,file));
+      Plugin.Logger.LogInfo($"Guild preview painted {file} at {Screen.width}x{Screen.height}.");
+      nextCaptureAt=timer.ElapsedMilliseconds+700;
+     }
     }
    }
    finally{GUI.matrix=matrix;GUI.color=color;}
