@@ -109,7 +109,9 @@ internal static class CombatReforgedRuntime
                 bool ordinary=!c.Plan.Boss&&!(HuntRuntime.Active!=null&&HuntRuntime.Work==w.Pointer);
                 int score=CombatReforgedRules.ActionScore(c.Plan.Behavior,option,enemies,allies,u.calc_para is {Length:>1}?u.calc_para[1]:0,Previous.GetValueOrDefault(u.Pointer,-1),Config.RepeatPenalty,Config.HealingThreshold,ordinary:ordinary);
                 int baseScore=score;
-                if(score!=int.MinValue){if(BossTacticsRuntime.Bound(u))score=BossTacticsRuntime.Score(w,u,option,enemies,score);
+                if(score!=int.MinValue){if(ordinary&&Config.EnablePacing&&PM_DATA.status_henkan_table is {Length:>10} masks&&masks[10]==b_game_h.STATUS_SLEEP)
+                    score-=CombatReforgedRules.OrdinarySleepPenalty(option,enemies);
+                if(BossTacticsRuntime.Bound(u))score=BossTacticsRuntime.Score(w,u,option,enemies,score);
                 else{score+=CombatEvolutionRuntime.Bonus(u,i)+CombatMasteryRuntime.Bonus(u,i);int extra=CombatRealityRuntime.Bonus(u,i);CombatRealityRuntime.Score(u,i,score,extra);score+=extra;}}
                 MaintenanceRuntime.Ai("ActionEvaluated",u.chara_no,new{Mode=i,BaseScore=baseScore,FinalScore=score,ScoreModified=score!=baseScore,NativeLegalityChecked=true});
                 if(score>bestScore){bestScore=score;best=i;}

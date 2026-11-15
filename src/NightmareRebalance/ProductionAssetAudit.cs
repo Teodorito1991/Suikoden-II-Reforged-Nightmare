@@ -44,6 +44,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
  static void Inspect(BATTLE_DATA table)
  {
   if(table==null||table.monster_data==null||table.monster_party==null)throw new InvalidOperationException("Native battle table arrays");
+  if(table.id=="vb07_00")GuildNativeProbe.ReissueTable=table;
   CastleGuildNativeProbe.HuntTable(table);
   BossTacticsProbe.Table(table);
   var legendary=LegendaryBossRuntime.Audit.Where(x=>x.Data.TableId==table.id).ToArray();

@@ -101,5 +101,13 @@ internal static class CombatReforgedRules
         if(a.Mode==previous&&a.Mode!=0)score-=repeatPenalty;
         return score;
     }
+    internal static int OrdinarySleepPenalty(CombatAction action,IReadOnlyList<CombatTarget> enemies)
+    {
+        // Native status 10 is Sleep. Preserve its opening threat and soften
+        // broad follow-ups only once half the eligible party is already asleep.
+        if(!action.Multi||action.Status!=10||enemies.Count<2)return 0;
+        int asleep=enemies.Count(target=>!target.StatusUseful);
+        return asleep*2>=enemies.Count ? 36 : 0;
+    }
     internal static bool BossMatches(CombatBossAudit a,EncounterIdentity id)=>id.HasParty&&id.Players>0&&id.Enemies==1&&id.PartyIndex==0&&id.TableId==a.TableId&&id.PartyId==a.PartyId&&id.PartyFlags==a.Flags&&id.ScriptCommandCount==0&&id.HasEndHandler&&id.HasMainHandler==(a.Hooks[5]!=0)&&id.HookIndices.SequenceEqual(a.Hooks)&&id.HookNames.SequenceEqual(a.HookNames)&&id.EnemyIds.SequenceEqual(new[]{a.EnemyId})&&id.EnemyMaxHp.SequenceEqual(new[]{a.Signature[0]})&&id.MonsterIds.SequenceEqual(new[]{1,0,0,0,0,0})&&id.MonsterCodes.SequenceEqual(new[]{0,1,0,0,0,0});
 }

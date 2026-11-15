@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 namespace NightmareRebalance;
-internal sealed class CastleGuildOptions { public bool Enabled {get;set;}=false;public bool AutoRequestAcceptedContract {get;set;}=true; }
+internal sealed class CastleGuildOptions { public bool Enabled {get;set;}=false;public bool AutoRequestAcceptedContract {get;set;}=true;public bool EnableFieldReissue {get;set;} }
 internal sealed class CastleGuildAudit {public string MapId{get;set;}="";public int Sprite{get;set;} public int ObjectX{get;set;} public int ObjectY{get;set;} public int[] SupportedIndices{get;set;}=Array.Empty<int>();public int[] Persons{get;set;}=Array.Empty<int>();public CastleSubmapAudit[] Submaps{get;set;}=Array.Empty<CastleSubmapAudit>();}
 internal sealed class CastleSubmapAudit {public int Index{get;set;} public int MapNo{get;set;} public int Objects{get;set;} public int Scripts{get;set;} public string Fingerprint{get;set;}="";}
 // Runtime-owned source clone and modal; no native event bytecode, resident, save or flag edits.
@@ -103,7 +103,7 @@ internal static class CastleGuildRuntime
   // native window invalidates Idle and keeps the Guild closed.
   if(Modal||ReleaseFence||Field?.Pointer!=e.Pointer||!Idle||!Near||!FacingClerk||HuntGuildRuntime.RenderFaulted)return;
   Modal=true;
-  Menu.Open(Quest.State==GuildQuestState.AwaitingReport,HuntRuntime.Definitions.Length);
+  Menu.Open(Quest.State==GuildQuestState.AwaitingReport,HuntRuntime.BrowseOrder.Length);
   HuntGuildRuntime.Visible=true;
   HuntGuildRuntime.LastRenderFrame=-1;
   Opens++;
@@ -130,7 +130,7 @@ internal static class CastleGuildRuntime
   var choice=Menu.Confirm(decide,Held(GRInputManager.Type.Decide),Quest.State,restriction.Length==0);
   bool leave=choice switch
   {
-   GuildChoice.Accept when Menu.Focus<HuntRuntime.Definitions.Length => AcceptContract(HuntRuntime.Definitions[Menu.Focus].Id),
+   GuildChoice.Accept when Menu.Focus<HuntRuntime.BrowseOrder.Length => AcceptContract(HuntRuntime.BrowseOrder[Menu.Focus].Id),
    GuildChoice.Start => TrainingWar.Request((TrainingWar.Drill)Menu.Drill,Menu.Focus==1),
    GuildChoice.Report => ReportContract(),
    GuildChoice.Withdraw => WithdrawContract(),
@@ -181,10 +181,40 @@ internal static class CastleGuildRuntime
       m.mdat?.Pointer!=field.Pointer||field.battle_dat is not {} tables||MachiLoader.GetMachiID(m.ano,m.vno)!=hunt.FieldId)
    return false;
   if(hunt.WalkingVariants.Length==0)return tables.Any(t=>t?.Pointer==table.Pointer);
-  if(!hunt.WalkingVariants.Contains(m.mno)||field.eventdata?.mapeventdat is not {} maps||m.mno>=maps.Count)
-   return false;
-  return maps[m.mno] is {} map&&map.batltim>0&&map.batlpro>0&&map.batlno>0&&
-      map.batlno<tables.Length&&tables[map.batlno]?.Pointer==table.Pointer;
+  return WalkingTable(m,hunt)?.Pointer==table.Pointer;
+ }
+ internal static BATTLE_DATA? WalkingTable(MACHICON m,HuntDefinition hunt)
+ {
+  if(m.econ is not {} events||events.mcon?.Pointer!=m.Pointer||m.mdat is not {} field||
+      events.mdat?.Pointer!=field.Pointer||field.battle_dat is not {} tables||
+      (hunt.WalkingVariants.Length>0&&!hunt.WalkingVariants.Contains(m.mno))||
+      field.eventdata?.mapeventdat is not {} maps||m.mno>=maps.Count)return null;
+  if(maps[m.mno] is not {} map||map.batltim==0||map.batlpro==0||map.batlno==0||map.batlno>=tables.Length)
+   return null;
+  return tables[map.batlno] is {} table&&table.id==hunt.Audit.TableId?table:null;
+ }
+
+ internal static HuntDefinition? LocalOffer(MACHICON? m)
+ {
+  if(m==null||!Config.Enabled||!Config.EnableFieldReissue||!Config.AutoRequestAcceptedContract||
+      !HuntRuntime.Config.EnableExperimentalHunt||!CombatReforgedRuntime.Config.Enabled||
+      Quest.State is not (GuildQuestState.NoContract or GuildQuestState.Reported)||
+      !DifficultyProvenance.Difficulty(out int mode,out float rate)||mode!=0||rate!=1f)return null;
+  string field=MachiLoader.GetMachiID(m.ano,m.vno);
+  var hunt=HuntRuntime.Definitions.FirstOrDefault(d=>d.FieldId==field&&HuntRuntime.Settings(d).Enabled);
+  return hunt!=null&&WalkingTable(m,hunt)!=null?hunt:null;
+ }
+ internal static bool ReissueAtField(MACHICON? m)
+ {
+  var game=Framework.Singleton<GAME_WORK>.instance;
+  if(m==null||!HuntGuildRuntime.NativeMainContext||HuntGuildRuntime.CommandOwner?.Pointer!=m.Pointer||
+      game?.sys_work?.mcon?.Pointer!=m.Pointer||game.party_data is not {} party||
+      LocalOffer(m) is not {} hunt||!HuntEntryCompatible||
+      !HuntAccess.SourceMatches(WalkingTable(m,hunt),hunt)||!Quest.Accept(hunt.Id))return false;
+  // Fresh contract for this live party. A preference, save or journal cannot supply a receipt.
+  ContractParty=party.Pointer;HuntGuildRuntime.SessionSelection=hunt.Id;HuntAccess.Ticket.Cancel();
+  Accepts++;Status="Accepted: "+hunt.Name+". Close the menu and seek your quarry.";
+  Notify(Status);Journal("AcceptedAtNativeField");return true;
  }
  internal static int WalkingChecks;internal static object? LastWalkingEvidence;
  internal static void WalkingRequest(EVENTCON e,BATTLE_DATA? table,bool walking)

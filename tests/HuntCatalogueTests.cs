@@ -9,13 +9,13 @@ internal static class HuntCatalogueTests
   var definitions=ContentRules.Read<HuntDefinition[]>(Resource("hunt-catalogue-audit.json"));var config=HuntCatalogueRules.Parse(Resource("hunt-catalogue.json"),definitions);var legacy=ExpansionRules.Parse(Resource("first-expansion.json"));
   void Invalid(Action<HuntCatalogueFile> edit){var c=HuntCatalogueRules.Parse(Resource("hunt-catalogue.json"),definitions);edit(c);bool bad=false;try{HuntCatalogueRules.Parse(JsonSerializer.Serialize(c),definitions);}catch(JsonException){bad=true;}Check(bad,"Invalid configuration rejected");}
   Check(definitions.Length==10&&definitions.Select(x=>x.Audit.TableId).Distinct().Count()==10,"Ten distinct native tables");Check(config.SelectedHuntId=="sun-kings-retinue"&&!legacy.EnableExperimentalHunt,"Preserved Sun selection and distributed global opt-in");
-  Check(config.Hunts[0].Enabled&&config.Hunts.Skip(1).Take(2).All(x=>!x.Enabled)&&config.Hunts.Skip(3).All(x=>x.Enabled),"Legacy opt-ins preserved and seven new contracts available within the hunt module");
+  Check(config.Hunts.All(x=>x.Enabled),"All contracts available when the hunt module is enabled");
   var oldConfig=HuntCatalogueRules.Parse(Resource("hunt-catalogue.json"),definitions);
   oldConfig.SelectedHuntId="dreamers-circuit";oldConfig.Hunts=oldConfig.Hunts.Take(3).ToArray();
-  oldConfig.Hunts[1].Enabled=true;
+  oldConfig.Hunts[1].Enabled=false;
   oldConfig.Hunts[1].VictoryBonusPotch=2222;
   var upgraded=HuntCatalogueRules.Parse(JsonSerializer.Serialize(oldConfig),definitions,config);
-  Check(upgraded.Hunts.Length==10&&upgraded.SelectedHuntId=="dreamers-circuit"&&upgraded.Hunts[1].Enabled&&upgraded.Hunts[1].VictoryBonusPotch==2222,"Legacy override merged in memory");
+  Check(upgraded.Hunts.Length==10&&upgraded.SelectedHuntId=="dreamers-circuit"&&!upgraded.Hunts[1].Enabled&&upgraded.Hunts[1].VictoryBonusPotch==2222,"Legacy override merged in memory");
   oldConfig.Hunts=oldConfig.Hunts.Take(2).ToArray();
   bool malformedLegacy=false;try{HuntCatalogueRules.Parse(JsonSerializer.Serialize(oldConfig),definitions,config);}catch(JsonException){malformedLegacy=true;}
   Check(malformedLegacy,"Missing legacy identities remain rejected");

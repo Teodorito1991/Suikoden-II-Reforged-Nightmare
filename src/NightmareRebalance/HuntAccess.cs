@@ -72,7 +72,11 @@ public sealed class HuntAccessControl:UnityEngine.MonoBehaviour
    bool control=(GetAsyncKeyState(0x11)&0x8000)!=0;bool focused=foreground==(uint)Environment.ProcessId;
    short guildValue=GetAsyncKeyState(0x79);
    if(guildKey.Poll(focused&&HuntGuildRuntime.Config.EnableSelector&&Plugin.Options.EnableDeveloperTools.Value,(guildValue&0x8000)!=0,(guildValue&1)!=0,timer.ElapsedMilliseconds))HuntGuildRuntime.Toggle();
-   if(key.Poll(focused&&!control&&!HuntGuildRuntime.Visible&&HuntRuntime.Config.EnableExperimentalHunt,(value&0x8000)!=0,(value&1)!=0,timer.ElapsedMilliseconds))HuntAccess.Toggle();
+   if(key.Poll(focused&&!control&&!HuntGuildRuntime.Visible&&HuntRuntime.Config.EnableExperimentalHunt,(value&0x8000)!=0,(value&1)!=0,timer.ElapsedMilliseconds))
+   {
+    if(HuntGuildRuntime.PartyMenuOpen)CastleGuildRuntime.ReissueAtField(HuntGuildRuntime.CommandOwner);
+    else HuntAccess.Toggle();
+   }
   }catch(Exception e){HuntAccess.Ticket.Cancel();Plugin.Debug("Hunt request unavailable: "+e.Message);}
  }
 }

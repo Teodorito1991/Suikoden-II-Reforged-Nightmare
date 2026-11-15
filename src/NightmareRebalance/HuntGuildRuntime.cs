@@ -43,8 +43,9 @@ internal static class HuntGuildRuntime
  internal static bool Owned=>Menu is {} m&&WindowManager.instance?.menuWindow?.Pointer==m.Pointer&&PartyOwner!=IntPtr.Zero&&Framework.Singleton<GAME_WORK>.instance?.party_data?.Pointer==PartyOwner;
  internal static bool PartyMenuOpen=>Owned&&Menu?.menuCommon?.windowList is {} w&&(w.IsOpen||w.IsOpening);
  internal static bool Context=>CastleGuildRuntime.Context||MenuContext;
- internal static bool MenuContext=>Owned&&Menu?.menuCommon?.windowList is {} w&&CommandOwner?.comcon?.TryCast<fcommand.COMCON>() is {} c&&
-  HuntGuildRules.CanSelect(Config.EnableSelector&&Plugin.Options.EnableDeveloperTools.Value,MenuProven,w.IsOpen,w.IsOpening||w.IsClosing,c.stp==2,DifficultyProvenance.Difficulty(out int d,out _)&&d==0,Combat.State!=null,WarRuntime.Active);
+ internal static bool NativeMainContext=>Owned&&Menu?.menuCommon?.windowList is {} w&&CommandOwner?.comcon?.TryCast<fcommand.COMCON>() is {} c&&
+  HuntGuildRules.CanSelect(true,MenuProven,w.IsOpen,w.IsOpening||w.IsClosing,c.stp==2,DifficultyProvenance.Difficulty(out int d,out _)&&d==0,Combat.State!=null,WarRuntime.Active);
+ internal static bool MenuContext=>Config.EnableSelector&&Plugin.Options.EnableDeveloperTools.Value&&NativeMainContext;
  internal static void Observe(MACHICON mcon)
  {
   NativeMenuTicks++;
@@ -60,12 +61,16 @@ internal static class HuntGuildRuntime
  {
   if(CastleGuildRuntime.Modal)CastleGuildRuntime.Close(false); // Native party menu takes ownership; never retain a castle modal.
   Observe(mcon);
+  if(!Visible&&CastleGuildRuntime.Config.EnableFieldReissue&&NativeMainContext&&GRInputManager.IsInstantiated&&
+      GRInputManager.Instance.keys is {} bindings&&bindings.TryGetValue(GRInputManager.Type.L1,out var left)&&left?.press==true&&
+      bindings.TryGetValue(GRInputManager.Type.R1,out var right)&&right?.on==true&&CastleGuildRuntime.ReissueAtField(mcon))
+  {result=0;return false;}
   if(!Visible||!MenuContext||!RenderReady)return true;
   if(developerInputFrame!=UnityEngine.Time.frameCount&&GRInputManager.IsInstantiated)
   {
    developerInputFrame=UnityEngine.Time.frameCount;
    bool Press(GRInputManager.Type type)=>GRInputManager.Instance.keys is {} keys&&keys.TryGetValue(type,out var key)&&key?.on==true;
-   var definitions=HuntRuntime.Definitions;
+   var definitions=HuntRuntime.BrowseOrder;
    DeveloperFocus=GuildMenuNavigation.MoveFocus(DeveloperFocus,definitions.Length,Press(GRInputManager.Type.Up),Press(GRInputManager.Type.Down));
    if(Press(GRInputManager.Type.Decide)&&DeveloperFocus<definitions.Length)
     Select(definitions[DeveloperFocus].Id);
@@ -73,7 +78,7 @@ internal static class HuntGuildRuntime
   SuppressedTicks++;result=0;return false;
  }
  internal static void Toggle(){LastRenderFrame=-1;if(RenderFaulted){Visible=false;Message="Guild renderer unavailable; native controls retained.";return;}
-  if(Preview||Context){Visible=!Visible;if(Visible)DeveloperFocus=Math.Max(0,Array.FindIndex(HuntRuntime.Definitions,d=>d.Id==(Preview?PreviewId:SelectedId)));Message="Select a contract. Close this panel and the party menu, then F6 in its field.";}
+  if(Preview||Context){Visible=!Visible;if(Visible)DeveloperFocus=Math.Max(0,Array.FindIndex(HuntRuntime.BrowseOrder,d=>d.Id==(Preview?PreviewId:SelectedId)));Message="Select a contract. Close this panel and the party menu, then F6 in its field.";}
   else{Visible=false;Message="Open the Normal-mode field party menu first.";Plugin.Logger.LogInfo("Hunt Guild: "+Message);}}
  internal static bool Select(string id)
  {

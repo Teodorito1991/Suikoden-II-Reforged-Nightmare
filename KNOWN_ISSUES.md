@@ -1,7 +1,7 @@
 # Known issues and validation limits
 
-The public source repository tracks v1.37 (`1.37.0-grand-guild.1`). An
-installable release remains unpublished. [Current Guild evidence](docs/GRAND-GUILD-V137.md).
+The public source repository tracks v1.38 (`1.38.0-nightmare-campaign.1`). An
+installable release remains unpublished. [Campaign settings and evidence](docs/NIGHTMARE-CAMPAIGN-V138.md).
 
 - **Legendary Bosses gameplay acceptance is pending.** Original selectors ran
   with disposable phase states. Transformation playback, cinematic endings and
@@ -35,7 +35,7 @@ installable release remains unpublished. [Current Guild evidence](docs/GRAND-GUI
   multi-party/phase/story validation. Public EnableMajorBosses=false. Seven earlier
   admissions also do not certify every move or transition.
 - **Dreamer and Thornwake await full gameplay acceptance.** Both are native-tested
-  and opt-in. Thornwake's Greenhill City region is verified. Its exact travel
+  and enabled in fresh v1.38 settings. Thornwake's Greenhill City region is verified. Its exact travel
   route remains unplayed.
 - **Grand Guild routes and battles.** All seven new contracts have verified
   original field/encounter links, setup, assets and reward preparation. Exact
@@ -45,7 +45,8 @@ installable release remains unpublished. [Current Guild evidence](docs/GRAND-GUI
   screens in preview. Live field interaction and training return to the corridor
   still need verification.
 - **Session-only contracts.** Actual loading/restart clears accepted/unreported
-  state. Selector preference is separate from quest progression.
+  state. Optional field reissue can start a fresh local contract. It cannot
+  restore a completed report.
 - **Reward limits remain native.** Rolled loot takes priority over the fallback;
   inventory capacity, decline and money cap apply. Offers are not inventory receipt.
 - **Historical UI labels.** Unchanged binaries may still call Sun experimental or

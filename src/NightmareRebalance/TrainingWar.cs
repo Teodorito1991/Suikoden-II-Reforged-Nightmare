@@ -37,10 +37,10 @@ internal static class TrainingWar
     static Drill requestedDrill;
     static bool requestedVeteran;
     internal static bool Active => current is { Committed: true };
-    internal static bool Enabled => Plugin.Options?.EnableTrainingWar.Value == true &&
-        StockWarTransitionTrace.Enabled && !Application.isBatchMode &&
+    internal static bool HasTransitionHarness => StockWarTransitionTrace.Enabled && !Application.isBatchMode &&
         Harmony.GetPatchInfo(AccessTools.Method(typeof(SteamService), nameof(SteamService.GetAppInstallDir)))?
             .Prefixes.Any(p => p.owner == "private.reforged.stocktrace.root") == true;
+    internal static bool Enabled => Plugin.Options?.EnableTrainingWar.Value == true && HasTransitionHarness;
     internal static bool Available => Enabled && !faulted && current == null && !requested &&
         Framework.Singleton<GAME_WORK>.instance?.eventFlgCHK(0xA9, 0x40) == true;
 
@@ -64,7 +64,8 @@ internal static class TrainingWar
 
     internal static string Unavailable(Drill drill)
     {
-        if (!Enabled) return "Army Training is disabled for this game.";
+        if (Plugin.Options?.EnableTrainingWar.Value!=true) return "Army Training is disabled in settings.";
+        if (!HasTransitionHarness) return "Drills currently require the protected training copy. Story wars remain available.";
         if (faulted || current != null || requested) return "A drill cannot start right now.";
         if (CastleGuildRuntime.Quest.State is GuildQuestState.Accepted or GuildQuestState.AwaitingReport)
             return "Settle your Hunt contract first.";
@@ -127,7 +128,15 @@ internal static class TrainingWar
 
     internal static void FieldTick(MACHICON field)
     {
-        if ((!requested && current == null) || !Enabled) return;
+        if (!requested && current == null) return;
+        // Eligibility guards admission. Once committed, teardown must still
+        // restore the field even if the option or external guard changes.
+        if (current is not {Committed:true} && !Enabled)
+        {
+            if (current!=null) G2_BACK.FilterBlackIn(2,15);
+            Reject("Training prerequisites changed before the battle.");
+            return;
+        }
         try
         {
             if (requested)

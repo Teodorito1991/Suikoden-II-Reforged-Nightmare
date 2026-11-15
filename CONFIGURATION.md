@@ -60,9 +60,9 @@ distinct from newer boss-tactics JSON. Do not enable every switch indiscriminate
 | native-war-rules.json / total-war-rules.json | Original scenario objectives and AI |
 | war-tactics.json | Enabled, EnabledWars, tactical weights/objectives |
 | native-war-witness.json | Enabled=false; read-only diagnostics, never launches |
-| castle-guild.json | Enabled=true, AutoRequestAcceptedContract=true |
+| castle-guild.json | Enabled=true, AutoRequestAcceptedContract=true, EnableFieldReissue=true in the recommended example |
 | first-expansion.json | EnableExperimentalHunt=true; Sun HP/damage and VictoryBonusPotch=2500 |
-| hunt-catalogue.json | Sun and the seven v1.37 additions enabled; Dreamer/Thornwake disabled; independent Enabled and Potch, damage and unit overrides |
+| hunt-catalogue.json | All ten enabled in the recommended v1.38 example; independent Enabled and Potch, damage and unit overrides |
 | hunt-guild.json | EnableSelector=true, EnableVictoryItems=true; fallback reward rules |
 
 Other legacy boss definitions are under `BepInEx/config/NightmareRebalance`.
@@ -71,13 +71,19 @@ vanilla toggle. Restart after edits. Copy only missing files when updating.
 
 ## Optional content
 
-Dreamer's Circuit and Thornwake Patrol still require an explicit per-contract
-opt-in. The seven Grand Guild contracts are available when the Hunt module is
-enabled. Set any contract's `Enabled` to false to hide its acceptance. In an
+Dreamer's Circuit and Thornwake Patrol are enabled in fresh v1.38 defaults.
+Keep or explicitly change their `Enabled` values in any existing file. Set any
+contract's `Enabled` to false to hide its acceptance. In an
 older three-contract file the new rows take their bundled defaults in memory.
 Existing selections, flags, overrides and fallback-item choices retain priority.
 The loader does not rewrite the existing JSON. To customize a new entry, copy
 that entry from the current configuration example.
+
+Add `"EnableFieldReissue": true` to an older `castle-guild.json` to use the
+local contract option. The setting is off when omitted. Open the original
+party menu at an eligible hunting ground and use the on-screen prompt. It
+takes a fresh contract for the current party. Contract completions still clear
+on load. [Recommended Normal profile](docs/NIGHTMARE-CAMPAIGN-V138.md).
 The earlier Lucia and final Neclord policies require `EnableMajorBosses=true`.
 The v1.35 later Lucia records have their own `EnableLaterLucia` switch. All
 v1.35 policies also require Normal and the existing combat AI and boss encounter

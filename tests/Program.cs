@@ -76,6 +76,7 @@ TotalWarTests.Run();
 WarTacticsTests.Run();
 
 CombatReforgedTests.Run();
+CampaignPacingScenarios.Run();
 
 CombatFairnessTests.Run();
 CombatEvolutionTests.Run();

@@ -1,5 +1,13 @@
 # Exact-build evidence ledger
 
+## 1.38.0-nightmare-campaign.1 — campaign integration
+
+Passed the managed pressure projections, native source and reward checks for
+ten Hunts, native party-menu/field reissue fixtures and the copied launcher
+graphics preview. Full travel, save/reload interaction and deployment of
+Army Training to a normal campaign remain unverified.
+[Settings and exact-build evidence](NIGHTMARE-CAMPAIGN-V138.md).
+
 ## 1.37.0-grand-guild.1 — ten contracts and rendered pages
 
 The original engine loaded ten field-linked encounter tables and 29 monster

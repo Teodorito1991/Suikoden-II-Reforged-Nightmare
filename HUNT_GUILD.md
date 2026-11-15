@@ -10,6 +10,13 @@ page. Tiers describe preparation, and the selected contract gives its
 destination, enemies, reward and route advice. Report or withdraw under
 **Guild Status**. [All seven additions, formations and rewards](docs/GRAND-GUILD-V137.md).
 
+In v1.38 tier order is used in the list. Open means the Guild will accept the
+contract, and the original story still controls travel. If field reissue is
+enabled, open the normal party menu in an eligible hunting field and follow
+its prompt. Press F6, or hold L1 and press R1. This takes a fresh contract and
+removes the trip to headquarters to accept it again after a reload. The
+outstanding report from the prior session still clears.
+
 ## Take a contract
 
 1. Reach headquarters through the ordinary story. Visit the Suggestion Box
@@ -54,8 +61,8 @@ Never accept at castle and load a Cave save as a shortcut.
 | Original contract | Destination | Availability |
 |---|---|---|
 | Sun King's Retinue |Cave of the Wind, vd06_00| Enabled; accepted exact v1.12.2 quest |
-| Dreamer's Circuit |Audited Sindar Ruins field vc12_00| Disabled; native-only |
-| Thornwake Patrol |Greenhill City area, ve03_00; precise route unplayed| Disabled; native-only |
+| Dreamer's Circuit |Audited Sindar Ruins field vc12_00| Enabled in fresh v1.38; native-tested |
+| Thornwake Patrol |Greenhill City area, ve03_00; precise route unplayed| Enabled in fresh v1.38; native-tested |
 
 The v1.36 attendant is limited to **vk07, event variant 3**. The original
 Suggestion Box interaction takes priority. Unsupported castle layouts may have

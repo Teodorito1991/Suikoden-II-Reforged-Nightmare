@@ -8,20 +8,22 @@ public sealed class HuntGuildOverlay:MonoBehaviour
  readonly Stopwatch timer=Stopwatch.StartNew();
  Font? fallbackFont;readonly Dictionary<int,GUIStyle> styles=new();bool faulted;readonly StableHotkeyEdge request=new();
  bool smokeExitRequested;
+ HuntDefinition? fieldOffer;
  int smokeScreen,smokePaints;
  long nextCaptureAt=-1;
  static readonly (GuildPage Page,int Focus,int Drill,string File)[] SmokeScreens =
  {
   (GuildPage.Services,0,0,"01-services.png"),
-  (GuildPage.Hunts,0,0,"02-hunt-sun-king.png"),
-  (GuildPage.Hunts,1,0,"03-hunt-dreamer.png"),
-  (GuildPage.Hunts,2,0,"04-hunt-thornwake.png"),
-  (GuildPage.Hunts,4,0,"09-patrol-contracts.png"),
+  (GuildPage.Hunts,2,0,"02-hunt-sun-king.png"),
+  (GuildPage.Hunts,3,0,"03-hunt-dreamer.png"),
+  (GuildPage.Hunts,6,0,"04-hunt-thornwake.png"),
+  (GuildPage.Hunts,0,0,"09-patrol-contracts.png"),
   (GuildPage.Hunts,9,0,"10-grand-trials.png"),
   (GuildPage.Training,2,0,"05-army-training.png"),
   (GuildPage.Difficulty,0,2,"06-standard.png"),
   (GuildPage.Difficulty,1,2,"07-veteran.png"),
-  (GuildPage.Status,0,0,"08-guild-status.png")
+  (GuildPage.Status,0,0,"08-guild-status.png"),
+  (GuildPage.Services,0,0,"11-field-contract.png")
  };
  [DllImport("user32.dll")]static extern short GetAsyncKeyState(int key);
  [DllImport("user32.dll")]static extern IntPtr GetForegroundWindow();
@@ -34,7 +36,16 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    UpdateRenderSmoke();
    return;
   }
-  if(HuntGuildRuntime.Visible||CastleGuildRuntime.FeedbackVisible)GuildVisualResources.Poll();
+  fieldOffer=null;
+  if(!faulted&&CastleGuildRuntime.Config.EnableFieldReissue&&!HuntGuildRuntime.Visible)
+  {
+   try
+   {
+    if(HuntGuildRuntime.NativeMainContext)fieldOffer=CastleGuildRuntime.LocalOffer(HuntGuildRuntime.CommandOwner);
+   }
+   catch(Exception e){Plugin.Debug("Local contract prompt unavailable: "+e.GetType().Name);}
+  }
+  if(HuntGuildRuntime.Visible||CastleGuildRuntime.FeedbackVisible||fieldOffer!=null)GuildVisualResources.Poll();
   if(faulted||(!CastleGuildRuntime.Modal&&
       (!HuntGuildRuntime.Config.EnableSelector||!Plugin.Options.EnableDeveloperTools.Value)))return;
   try{
@@ -138,7 +149,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
 
   if (page == GuildPage.Hunts)
   {
-   var defs = HuntRuntime.Definitions;
+   var defs = HuntRuntime.BrowseOrder;
    if(defs.Length==0)
     return new("HUNT CONTRACTS",new[]{new GuildMenuRow("Unavailable","")},0,
         "Contracts unavailable","","The Guild could not load its contract definitions.","","",status,"Unavailable",back,preview);
@@ -223,22 +234,25 @@ public sealed class HuntGuildOverlay:MonoBehaviour
  {
   bool previewSmoke=HuntGuildRuntime.RenderSmoke;
   if(previewSmoke&&(nextCaptureAt<0||smokeScreen>=SmokeScreens.Length||Event.current?.type!=EventType.Repaint))return;
+  var offer=previewSmoke&&smokeScreen==SmokeScreens.Length-1
+      ? HuntRuntime.BrowseOrder.FirstOrDefault() :fieldOffer;
   bool prompt=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.Idle&&CastleGuildRuntime.Near;
   bool feedback=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.FeedbackVisible;
-  if(smokeExitRequested||faulted||(!previewSmoke&&!prompt&&!feedback&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
+  if(smokeExitRequested||faulted||(!previewSmoke&&!prompt&&!feedback&&offer==null&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
   try
   {
    var matrix=GUI.matrix;var color=GUI.color;
    try
    {
     GUI.matrix=Matrix4x4.identity;GUI.color=Color.white;
-    if(prompt||feedback)
+    if(prompt||feedback||offer!=null)
     {
      float width=Math.Min(820,Screen.width-48);
      var box=new Rect((Screen.width-width)/2,Screen.height-110,width,84);
      Window(box);
-     Label(new(new(26,18,width-52,51),feedback?CastleGuildRuntime.FeedbackText:
+     Label(new(new(26,18,width-52,51),offer!=null?$"Local contract: {offer.Name}\nF6 or hold L1 and press R1 to accept":feedback?CastleGuildRuntime.FeedbackText:
          CastleGuildRuntime.QuestPrompt+"\nConfirm to speak",20),box.x,box.y,1);
+     if(previewSmoke)CapturePreview();
      return;
     }
 
@@ -266,20 +280,19 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     else Label(new(new(row.X+7,row.Y+8,20,24),">",20,"gold"),x,y,scale);
     foreach(var line in GuildRebornScreen.Text(view))Label(line,x,y,scale);
     HuntGuildRuntime.Drawn();
-    if(previewSmoke)
-    {
-     smokePaints++;
-     if(timer.ElapsedMilliseconds>=nextCaptureAt)
-     {
-      var file=SmokeScreens[smokeScreen++].File;
-      ScreenCapture.CaptureScreenshot(Path.Combine(HuntGuildRuntime.CaptureDirectory!,file));
-      Plugin.Logger.LogInfo($"Guild preview painted {file} at {Screen.width}x{Screen.height}.");
-      nextCaptureAt=timer.ElapsedMilliseconds+700;
-     }
-    }
+    if(previewSmoke)CapturePreview();
    }
    finally{GUI.matrix=matrix;GUI.color=color;}
   }
   catch(Exception e){faulted=true;HuntGuildRuntime.RenderFailed(e);}
+ }
+ void CapturePreview()
+ {
+  smokePaints++;
+  if(timer.ElapsedMilliseconds<nextCaptureAt)return;
+  var file=SmokeScreens[smokeScreen++].File;
+  ScreenCapture.CaptureScreenshot(Path.Combine(HuntGuildRuntime.CaptureDirectory!,file));
+  Plugin.Logger.LogInfo($"Guild preview painted {file} at {Screen.width}x{Screen.height}.");
+  nextCaptureAt=timer.ElapsedMilliseconds+700;
  }
 }

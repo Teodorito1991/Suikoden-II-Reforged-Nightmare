@@ -7,6 +7,7 @@ namespace NightmareRebalance;
 internal static class GuildNativeProbe
 {
  static AsyncOperationHandle<IMPORT_GAME_DATA>? handle;internal static IMPORT_GAME_DATA? Data;
+ internal static BATTLE_DATA? ReissueTable;
  internal static int Assertions,Inventories;internal static readonly List<object> Rows=new();internal static readonly HashSet<string> Hunts=new();
  static void Check(bool x,string label){Assertions++;if(!x)throw new InvalidOperationException("Guild native: "+label);}
  static T Alloc<T>() where T:Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase{RuntimeHelpers.RunClassConstructor(typeof(T).TypeHandle);return(T)Activator.CreateInstance(typeof(T),IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<T>.NativeClassPtr))!;}
@@ -85,7 +86,46 @@ internal static class GuildNativeProbe
    HuntGuildRuntime.Visible=false;result=42;Check(HuntGuildRuntime.NativeInput(mcon,ref result)&&result==42,"Closed overlay restores original command dispatch");
    HuntGuildRuntime.Visible=true;HuntGuildRuntime.Closed(menu);Check(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Visible,"Native close clears context");
    foreach(var method in new[]{HarmonyLib.AccessTools.Method(typeof(ShareUI.Menu.UIMainMenu),nameof(ShareUI.Menu.UIMainMenu.Close)),HarmonyLib.AccessTools.Method(typeof(ShareUI.Menu.UIMainMenu),nameof(ShareUI.Menu.UIMainMenu.OnDestroy)),HarmonyLib.AccessTools.Method(typeof(fcommand),nameof(fcommand.MCommandMain)),HarmonyLib.AccessTools.Method(typeof(BattleManager),nameof(BattleManager.BattleItemGet)),HarmonyLib.AccessTools.Method(typeof(G2_SYS),nameof(G2_SYS.G2_min_item_move))})Check(HarmonyLib.Harmony.GetPatchInfo(method)?.Owners.Contains(Plugin.Id)==true,"Production patch owner "+method.Name);
+   LocalReissue(game,command,ReissueTable??throw new InvalidOperationException("Missing local reissue source"));
   }finally{HuntAccess.Ticket.Cancel();HuntGuildRuntime.Menu=oldMenu;HuntGuildRuntime.CommandOwner=oldCommand;HuntGuildRuntime.PartyOwner=oldParty;HuntGuildRuntime.MenuProven=proven;HuntGuildRuntime.Visible=visible;HuntGuildRuntime.LastRenderFrame=renderFrame;HuntGuildRuntime.RenderFaulted=renderFault;HuntGuildRuntime.NativeMenuTicks=ticks;HuntGuildRuntime.SuppressedTicks=suppressed;HuntGuildRuntime.SessionSelection=selected;HuntGuildRuntime.Config.EnableSelector=enabled;Combat.State=state;Framework.Singleton<GAME_WORK>.instance=oldGame;WindowManager.instance=oldManager;HuntFieldContext.Window.Clear();}
  }
- internal static object Snapshot()=>new{Assertions,Inventories,Hunts=Hunts.ToArray(),Rows=Rows.ToArray(),OriginalGameDataLoaded=Data!=null,RenderedMenuInField=false,ActualPlayerItemAward=false};
+ static void LocalReissue(GAME_WORK game,fcommand.COMCON command,BATTLE_DATA table)
+ {
+  var original=CastleGuildRuntime.Config;var quest=CastleGuildRuntime.Quest;var owner=CastleGuildRuntime.ContractParty;
+  long gold=game.party_data.gold;var events=Alloc<EVENTCON>();var field=CastleGuildNativeProbe.BindWalkingFixture(events,table);
+  var m=events.mcon;
+  bool hunting=HuntRuntime.Config.EnableExperimentalHunt;
+  var definition=HuntRuntime.Definitions.Single(h=>h.Audit.TableId==table.id);
+  var setting=HuntRuntime.Settings(definition);bool enabled=setting.Enabled;
+  try
+  {
+   game.sys_work=Alloc<SYS_WORK>();game.sys_work.mcon=m;m.comcon=command;
+   HuntGuildRuntime.Observe(m);
+   HuntRuntime.Config.EnableExperimentalHunt=true;setting.Enabled=true;
+   CastleGuildRuntime.Config=new(){Enabled=true,AutoRequestAcceptedContract=true};CastleGuildRuntime.Quest=new();
+   Check(!CastleGuildRuntime.ReissueAtField(m),"Field reissue stays opt-in");
+   CastleGuildRuntime.Config.EnableFieldReissue=true;
+   game.game_data.difficulty=2;Check(!CastleGuildRuntime.ReissueAtField(m),"Hard admission denied");game.game_data.difficulty=0;
+   command.stp=3;Check(!CastleGuildRuntime.ReissueAtField(m),"Native submenu denied");command.stp=2;
+   var map=field.eventdata.mapeventdat[m.mno];map.batlno=0;
+   Check(!CastleGuildRuntime.ReissueAtField(m),"Missing native walking table denied");map.batlno=1;
+   Check(CastleGuildRuntime.ReissueAtField(m)&&CastleGuildRuntime.Contract==definition.Id&&
+       CastleGuildRuntime.ContractParty==game.party_data.Pointer&&HuntGuildRuntime.SelectedId==definition.Id&&
+       !HuntAccess.Ticket.Armed&&game.party_data.gold==gold,"Explicit accept binds fresh local contract without spawning or paying");
+   Check(!CastleGuildRuntime.ReissueAtField(m),"Local reissue cannot overwrite an active contract");
+   CastleGuildRuntime.WalkingRequest(events,table,true);
+   Check(HuntAccess.Ticket.Armed,"Normal walking observer can request reissued contract");
+   CastleGuildRuntime.ClearContract();
+   Check(CastleGuildRuntime.Quest.State==GuildQuestState.NoContract&&!HuntAccess.Ticket.Armed,"Local reissue still clears on load path");
+   LocalReissuePassed=true;
+  }
+  finally
+  {
+   setting.Enabled=enabled;HuntRuntime.Config.EnableExperimentalHunt=hunting;
+   CastleGuildRuntime.Config=original;CastleGuildRuntime.Quest=quest;CastleGuildRuntime.ContractParty=owner;
+   UnityEngine.Object.Destroy(field);
+  }
+ }
+ internal static bool LocalReissuePassed;
+ internal static object Snapshot()=>new{Assertions,Inventories,Hunts=Hunts.ToArray(),Rows=Rows.ToArray(),OriginalGameDataLoaded=Data!=null,LocalReissuePassed,RenderedMenuInField=false,ActualPlayerItemAward=false};
 }

@@ -20,12 +20,12 @@ internal static class PublicationDefaultsTests
         var items=ContentRules.Read<GuildItemAudit[]>(Resource("guild-item-audit.json"));
         var catalogue=HuntCatalogueRules.Parse(Read("hunt-catalogue.json"),definitions);
         Check(catalogue.Hunts.Single(x=>x.Id=="sun-kings-retinue").Enabled,"Sun enabled");
-        Check(catalogue.Hunts.Count(x=>x.Enabled)==8&&catalogue.Hunts.Where(x=>x.Id is "dreamers-circuit" or "thornwake-patrol").All(x=>!x.Enabled),"New contracts enabled and legacy experimental switches off");
+        Check(catalogue.Hunts.Length==10&&catalogue.Hunts.All(x=>x.Enabled),"All native-tested contracts enabled in recommended profile");
         var guild=HuntGuildRules.Parse(Read("hunt-guild.json"),definitions,items);
         Check(guild.EnableSelector&&guild.EnableVictoryItems,"Native Guild and item fallback enabled");
         Check(ExpansionRules.Parse(Read("first-expansion.json")).EnableExperimentalHunt,"Hunt access enabled");
         using var castle=JsonDocument.Parse(Read("castle-guild.json"));
-        Check(castle.RootElement.GetProperty("Enabled").GetBoolean()&&castle.RootElement.GetProperty("AutoRequestAcceptedContract").GetBoolean(),"Castle automatic route enabled");
+        Check(castle.RootElement.GetProperty("Enabled").GetBoolean()&&castle.RootElement.GetProperty("AutoRequestAcceptedContract").GetBoolean()&&castle.RootElement.GetProperty("EnableFieldReissue").GetBoolean(),"Castle automatic route enabled");
         using var boss=JsonDocument.Parse(Read("boss-tactics.json"));
         Check(!boss.RootElement.GetProperty("EnableMajorBosses").GetBoolean(),"Major boss opt-in off");
         var cfg=File.ReadAllText(Path.Combine(root.FullName,"config.example.cfg"));

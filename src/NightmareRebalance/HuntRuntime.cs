@@ -3,6 +3,7 @@ internal static class HuntRuntime
 {
  internal static ExpansionFile Config=new();internal static FormationAudit Audit=new();
  internal static HuntDefinition[] Definitions=Array.Empty<HuntDefinition>();internal static HuntCatalogueFile Catalogue=new();internal static HuntDefinition? Active;
+ internal static HuntDefinition[] BrowseOrder=Array.Empty<HuntDefinition>();
  internal static HuntOverride Settings(HuntDefinition d)=>Catalogue.Hunts.Single(x=>x.Id==d.Id);
  internal static bool ActiveRoster=>Active is {} a&&HuntCatalogueRules.RosterMatches(a,Units.Values);
  internal static IntPtr Work,Party;internal static readonly Dictionary<IntPtr,string> Units=new();
@@ -17,9 +18,10 @@ internal static class HuntRuntime
    Definitions=ContentRules.Read<HuntDefinition[]>(ContentRuntime.Resource("hunt-catalogue-audit.json"));
    var defaults=HuntCatalogueRules.Parse(ContentRuntime.Resource("hunt-catalogue.json"),Definitions);
    Catalogue=HuntCatalogueRules.Parse(OverhaulRuntime.Load("hunt-catalogue.json"),Definitions,defaults);
+   BrowseOrder=Definitions.OrderBy(d=>GuildScreenRules.Card(d.Id).Tier).ToArray();
    Plugin.Logger.LogInfo($"Expansion: {Definitions.Length} guarded native Hunt contracts; enabled={Config.EnableExperimentalHunt}.");
   }
-  catch(Exception e){Definitions=Array.Empty<HuntDefinition>();Catalogue=new();Config.EnableExperimentalHunt=false;Plugin.Logger.LogWarning("Hunt catalogue disabled: "+e.Message);}
+  catch(Exception e){Definitions=BrowseOrder=Array.Empty<HuntDefinition>();Catalogue=new();Config.EnableExperimentalHunt=false;Plugin.Logger.LogWarning("Hunt catalogue disabled: "+e.Message);}
  }
  internal static void Detach(){Work=Party=IntPtr.Zero;Units.Clear();Active=null;HuntAccess.SelectedWork=IntPtr.Zero;HuntAccess.Selected=null;}
  internal static void Reset(){GuildItemRuntime.Reset();Work=Party=IntPtr.Zero;Units.Clear();Active=null;reward=new();LastOutcome=null;HuntRewardObservation.Credits.Clear();Calculations.Clear();}

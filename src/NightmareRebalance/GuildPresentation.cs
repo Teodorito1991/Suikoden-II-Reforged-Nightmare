@@ -25,7 +25,7 @@ internal static class GuildPresentation
         if (state == GuildQuestState.AwaitingReport) return id == active ? "Completed — report to Guild" : "Report your hunt first";
         if (state == GuildQuestState.Accepted) return id == active ? "Accepted — ready to hunt" : "Finish or withdraw first";
         if (state == GuildQuestState.Reported && id == active) return "Reported — available again";
-        return legacyExperiment ? "Experimental — opted in" : "Available — repeatable";
+        return "Open — check travel";
     }
     internal static string Prompt(GuildQuestState state, bool action, bool available) => action
         ? state == GuildQuestState.Accepted ? "Confirm: withdraw" : state == GuildQuestState.AwaitingReport ? "Confirm: report completion" : "Confirm: close"

@@ -11,14 +11,14 @@
     },
     {
       "Id": "dreamers-circuit",
-      "Enabled": false,
+      "Enabled": true,
       "VictoryBonusPotch": null,
       "DamageMultiplier": null,
       "Units": []
     },
     {
       "Id": "thornwake-patrol",
-      "Enabled": false,
+      "Enabled": true,
       "VictoryBonusPotch": null,
       "DamageMultiplier": null,
       "Units": []

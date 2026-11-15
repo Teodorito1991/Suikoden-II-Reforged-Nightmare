@@ -3,6 +3,22 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.38 — Nightmare Campaign
+
+- Enables all ten native-tested Hunts in the fresh Normal campaign
+  configuration and orders the catalogue by tier.
+- Adds optional local contract reissue through the original party menu.
+  A new request binds only to the current party and its audited walking field.
+- Reduces ordinary enemies' preference for area Sleep when at least half
+  the eligible players are already asleep. The existing pacing toggle
+  controls the adjustment. Hunt and boss AI retain their previous rules.
+- Shows the Army Training configuration and copied-runtime restrictions
+  separately. A committed drill still receives its guarded teardown if
+  admission settings change before return.
+- Added three-stage pressure projections and verified the local acceptance
+  path with native component fixtures. Full campaign play remains untested.
+  [Campaign settings and evidence](docs/NIGHTMARE-CAMPAIGN-V138.md).
+
 ## v1.37 — Grand Guild expansion
 
 - Adds seven replayable Hunts, from Bramble Road to The Tenzan Trial, with
