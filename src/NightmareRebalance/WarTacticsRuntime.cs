@@ -50,7 +50,7 @@ internal static class WarTacticsRuntime
         var units=(Il2CppReferenceArray<Il2CppReferenceArray<Il2CppStructArray<sbyte>>>)type.GetProperty("unit_init_data_"+war)!.GetValue(null)!;
         return units.Length==2&&units.All(s=>s.Length==15)&&Convert.ToHexString(SHA256.HashData(units.SelectMany(s=>s.SelectMany(u=>u.Select(v=>unchecked((byte)v)))).ToArray()))==row.GetProperty("Roster").GetString();
     }
-    internal static void Arm(){Clear();if(TrainingWar.Active)return;Armed=true;}
+    internal static void Arm(){Clear();if(TrainingWar.Active&&!TrainingWar.VeteranActive)return;Armed=true;}
     internal static void Begin()
     {
         Ready=false;AiFaulted=false;War=war_h.g_w_war_no;Generation++;Routed.Clear();Focus.Clear();Commitments.Clear();History.Clear();PhaseTurn=-1;ScoreChanges=SelectedChanges=0;ScoreTrace.Clear();CommandTrace.Clear();
@@ -63,7 +63,7 @@ internal static class WarTacticsRuntime
         Ready=true;Evidence=new(){War=War};
         if(!Probe)Plugin.Logger.LogInfo($"War Tactics {War} READY: native map {war_h.g_w_map_no}; tactical AI={AiAllowed(War)}; no launch/story edits.");
     }
-    internal static bool AiAllowed(int war)=>Ready&&Armed&&!AiFaulted&&War==war&&Config.Enabled&&Config.EnabledWars.Contains(war)&&Plugin.Options.EnableWarTactics.Value&&Plugin.Options.EnableNativeWarAI.Value&&(war==2?War2Runtime.Policy is {EnemyAi:true}:war is 3 or 6 or 13?TotalWarRuntime.Rules.Scenarios.Any(p=>p.WarNumber==war&&p.EnemyAi):true);
+    internal static bool AiAllowed(int war)=>Ready&&Armed&&!AiFaulted&&War==war&&Config.Enabled&&Config.EnabledWars.Contains(war)&&Plugin.Options.EnableWarTactics.Value&&Plugin.Options.EnableNativeWarAI.Value&&(TrainingWar.VeteranActive||(war==2?War2Runtime.Policy is {EnemyAi:true}:war is 3 or 6 or 13?TotalWarRuntime.Rules.Scenarios.Any(p=>p.WarNumber==war&&p.EnemyAi):true));
     internal static void Clear(){if(Armed)Evidence.ChapterDestroyed=true;Armed=Ready=false;Routed.Clear();Focus.Clear();Commitments.Clear();History.Clear();PhaseTurn=-1;}
     internal static void Capture()
     {

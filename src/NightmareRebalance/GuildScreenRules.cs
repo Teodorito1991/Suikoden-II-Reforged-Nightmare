@@ -7,6 +7,7 @@ internal sealed class GuildScreenModel
 {
  internal string[] Names=Array.Empty<string>(),Availability=Array.Empty<string>();
  internal int Focus;internal string Selected="",State="No contract",Active="None",Objective="Choose a contract to begin.",Action="Close",Status="",Bonus="",Item="Original loot",Prompt="Confirm: accept contract";
+ internal string TrainingName="";
  internal bool Castle=true,Preview;
 }
 internal static class GuildScreenRules
@@ -43,6 +44,21 @@ internal static class GuildScreenRules
    T(48,177+i*76,278,26,Fit(m.Availability.ElementAtOrDefault(i)??"Unavailable",32,1),17,"muted");
   }
   T(48,399,274,40,Fit(m.Action,28,2),20,m.Focus==3?"gold":"body");
+  if(m.TrainingName.Length>0)
+  {
+   T(392,100,680,38,Fit(m.TrainingName,45,1),28,"title");
+   T(392,148,680,28,m.State+" difficulty",22,"gold");
+   T(392,186,680,27,m.State=="Veteran"?"Enemy squads coordinate and use terrain.":"Original enemy tactics.",18,"muted");
+   T(392,224,680,76,Fit(m.Objective,64,3),20);
+   T(392,325,680,24,"Training reward",20,"gold");
+   T(392,355,680,28,m.Bonus.Length==0?"Rewards disabled":m.Bonus+" Potch for routing the enemy commander",22);
+   T(392,390,680,27,"Defeat or withdrawal pays no Potch.",20);
+   T(24,486,1052,27,"Castle Army Training",23,"gold");
+   T(24,526,1052,52,"Replay a completed campaign battle with its original army and battlefield.",20);
+   T(24,610,1052,24,Fit(m.Status,104,1),18);
+   T(24,637,1052,23,Fit(m.Prompt+"     Cancel: close",108,1),18,"gold");
+   return a;
+  }
   var card=Card(m.Selected);  T(392,100,680,38,Fit(card.Name,45,1),28,"title");
   T(392,148,680,28,Fit("Destination: "+card.Destination,55,1),22,"gold");
   T(392,186,680,24,card.Danger+"  /  Normal difficulty",18,"muted");

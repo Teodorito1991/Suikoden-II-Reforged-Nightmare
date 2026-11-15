@@ -27,6 +27,7 @@ fallbacks and the user's existing settings. No local user configuration changed.
 | Native War / EnableNativeWarRemix |true| Guarded story-war objectives |
 | Native War / EnableNativeWarAI |true| Legal native war evaluation |
 | Native War / EnableWarSpecializations, EnableWarTactics |true| Additional original-war layers |
+| Native War / EnableTrainingVeteran, EnableTrainingRewards |true| Independent options for Veteran tactics and earned training Potch in the copied runtime |
 | Developer / EnableDeveloperTools |false| Optional diagnostics/shortcuts; not needed for Guild |
 | Developer / EnableHuntDebugTools |false| Keep hunt protection unavailable in ordinary play |
 | Developer / ExportNativeWarResearch |false| Developer static export only |

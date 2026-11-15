@@ -2,6 +2,17 @@
 
 These are private development milestones, not previous public releases.
 
+## v1.32 — Castle Army Training candidate
+
+- Adds an optional Veteran tier using the existing native enemy tactics.
+- Adds 750 Potch on Standard or 1,500 on Veteran for a qualifying commander rout.
+- Separates training difficulty, objectives and rewards from the hunt cards.
+- Verified Veteran War 3 timed return and Veteran Commander Rout victory in play.
+- Commander Rout earned 1,500 Potch at the purse cap. A below-cap payout and the guarded War 3 defeat return remain unverified.
+- Defers commander experience until campaign ownership can be verified.
+
+See [Army Training testing and configuration](docs/ARMY-TRAINING-V132.md).
+
 ## v1.31 — Commander Rout controls and defeat return
 
 - Adds opt-in War 3 training on a distinct original battlefield. The owner completed one run and returned to the tavern with a clean return audit.

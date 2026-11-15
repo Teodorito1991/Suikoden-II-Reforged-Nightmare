@@ -41,6 +41,10 @@ controlled test copy. Standard War 1 was played twice on v1.29 and Fort Defense
 for opt-ins and verification. Commander XP, persistent army training and the
 retired Unity arena are unavailable. The beta does not include Castle War Training.
 
+The v1.32 development candidate adds Veteran tactics and Potch for earned
+commander routs. See [Army Training](docs/ARMY-TRAINING-V132.md) for controls,
+configuration and verification status.
+
 ## Start here
 
 1. Read [INSTALL.md](INSTALL.md) for the exact supported game and loader.

@@ -8,7 +8,7 @@ internal static class TrainingWar
 {
     internal enum Drill { Standard, FortDefense, CommanderRout, War3 }
 
-    sealed class Session(GAME_WORK game, SYS_WORK system, MACHICON field, EVENTCON events, EVENT_HUMAN player, Drill drill)
+    sealed class Session(GAME_WORK game, SYS_WORK system, MACHICON field, EVENTCON events, EVENT_HUMAN player, Drill drill, bool veteran)
     {
         internal readonly GAME_WORK Game = game;
         internal readonly SYS_WORK System = system;
@@ -20,7 +20,11 @@ internal static class TrainingWar
         internal readonly byte[][] Flags = ReadFlags(game).Select(a => a.ToArray()).ToArray();
         internal readonly string[] Data = Serialize(game);
         internal readonly int FadeFrame = Time.frameCount;
+        internal readonly IntPtr PartyOwner = game.party_data.Pointer;
+        internal readonly bool Veteran = veteran;
         internal WarChapter? War;
+        internal int NativeResult, Ending, GameOver;
+        internal bool CommanderRouted, AlliesRemain, FortVictory;
         internal readonly Drill SelectedDrill = drill;
         internal readonly byte WarNumber = drill switch { Drill.FortDefense => 2, Drill.War3 => 3, _ => 1 };
         internal bool Committed, Destroyed;
@@ -30,6 +34,7 @@ internal static class TrainingWar
     static Session? current;
     static bool requested, faulted;
     static Drill requestedDrill;
+    static bool requestedVeteran;
     internal static bool Active => current is { Committed: true };
     internal static bool Enabled => Plugin.Options?.EnableTrainingWar.Value == true &&
         StockWarTransitionTrace.Enabled && !Application.isBatchMode &&
@@ -44,19 +49,35 @@ internal static class TrainingWar
     internal static bool War3Available => Available && Plugin.Options.EnableTrainingWar3.Value &&
         TotalWarRuntime.Verified.Contains(3) && Framework.Singleton<GAME_WORK>.instance?.eventFlgCHK(0x0C, 0x80) == true;
     internal static bool ChallengeActive => current is { Committed: true, SelectedDrill: Drill.CommanderRout };
+    internal static bool VeteranActive => current is { Committed: true, Veteran: true };
+    internal static bool VeteranAvailable(Drill drill)
+    {
+        int war = drill switch { Drill.FortDefense => 2, Drill.War3 => 3, _ => 1 };
+        return Plugin.Options.EnableTrainingVeteran.Value && Plugin.Options.EnableNativeWarAI.Value &&
+            Plugin.Options.EnableWarTactics.Value && WarTacticsRuntime.Config.Enabled &&
+            WarTacticsRuntime.Config.EnabledWars.Contains(war) && WarTacticsRuntime.Verified.Contains(war);
+    }
+
     internal static bool FortDefenseActive => current is { Committed: true, SelectedDrill: Drill.FortDefense };
 
-    internal static Drill Cycle(Drill selection, bool forward)
+    internal static (Drill Drill, bool Veteran) Cycle(Drill selection, bool veteran, bool forward)
     {
         var available = new List<Drill> { Drill.Standard };
         if (FortDefenseAvailable) available.Add(Drill.FortDefense);
         if (ChallengeAvailable) available.Add(Drill.CommanderRout);
         if (War3Available) available.Add(Drill.War3);
-        int index = Math.Max(0, available.IndexOf(selection));
-        return available[(index + (forward ? 1 : available.Count - 1)) % available.Count];
+        var choices = new List<(Drill Drill, bool Veteran)>();
+        foreach (var drill in available)
+        {
+            choices.Add((drill, false));
+            if (VeteranAvailable(drill)) choices.Add((drill, true));
+        }
+
+        int index = Math.Max(0, choices.IndexOf((selection, veteran)));
+        return choices[(index + (forward ? 1 : choices.Count - 1)) % choices.Count];
     }
 
-    internal static void Request(Drill drill)
+    internal static void Request(Drill drill, bool veteran)
     {
         requested = drill switch
         {
@@ -66,6 +87,7 @@ internal static class TrainingWar
             _ => Available
         };
         requestedDrill = drill;
+        requestedVeteran = veteran && VeteranAvailable(drill);
     }
 
     static Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte>[] ReadFlags(GAME_WORK game) =>
@@ -91,7 +113,7 @@ internal static class TrainingWar
         Plugin.Logger.LogWarning("Training war stopped. " + reason);
         CastleGuildRuntime.Status = reason;
         requested = false;
-        faulted = current is { Committed: true };
+        faulted |= current is { Committed: true };
         current = null;
     }
 
@@ -136,7 +158,14 @@ internal static class TrainingWar
                     return;
                 }
 
-                current = new Session(game, system, field, events, player, requestedDrill);
+                if (requestedVeteran && !WarTacticsRuntime.Audit(requestedDrill switch
+                    { Drill.FortDefense => 2, Drill.War3 => 3, _ => 1 }))
+                {
+                    Reject("Veteran requires the original army and battlefield definitions.");
+                    return;
+                }
+
+                current = new Session(game, system, field, events, player, requestedDrill, requestedVeteran);
                 G2_BACK.FilterSetRGB(255, 0);
                 G2_BACK.FilterBlackOut(2, 15, false);
                 return;
@@ -169,7 +198,7 @@ internal static class TrainingWar
                 field.py = session.Y;
                 session.Events.EventGameWorkSet(field);
                 OldSrcBase.SD_call(15, null);
-                Plugin.Logger.LogInfo($"Training War {session.WarNumber} handed to MachiMain step 45. Return position {session.X},{session.Y}. Drill={session.SelectedDrill}.");
+                Plugin.Logger.LogInfo($"Training War {session.WarNumber} handed to MachiMain step 45. Return position {session.X},{session.Y}. Drill={session.SelectedDrill}, veteran={session.Veteran}.");
                 return;
             }
 
@@ -205,11 +234,63 @@ internal static class TrainingWar
             var destination = session.Game.game_data.deru_pos;
             bool destinationMatches = destination is { Length: >= 2 } &&
                 destination[0] == session.X && destination[1] == session.Y;
-            faulted = !equal || !destinationMatches || diff.Any(path => !ExpectedDifference(path));
+            faulted = !equal || !destinationMatches || diff.Count >= 256 ||
+                diff.Any(path => !ExpectedDifference(path)) || session.Game.party_data.Pointer != session.PartyOwner;
             Plugin.Logger.LogInfo($"Training War {session.WarNumber} destination matches={destinationMatches}, repeat available={!faulted}.");
+            // Consume before crediting, so a repeated field tick can never pay twice.
             current = null;
+            if (!faulted)
+            {
+                try { Finish(session); }
+                catch (Exception exception)
+                {
+                    faulted = true;
+                    Plugin.Logger.LogWarning("Training reward status could not be confirmed. " + exception.Message);
+                }
+            }
         }
         catch (Exception exception) { Reject(exception.Message); }
+    }
+
+    static void Finish(Session session)
+    {
+        int reward = TrainingResultRules.VictoryPotch(session.WarNumber, session.Veteran,
+            session.NativeResult, session.Ending, session.GameOver, session.CommanderRouted,
+            session.AlliesRemain, session.FortVictory);
+        uint before = session.Game.party_data.gold;
+        if (reward > 0 && Plugin.Options.EnableTrainingRewards.Value)
+            G2_SYS.G2_party_gold(1, reward);
+        long credited = (long)session.Game.party_data.gold - before;
+
+        string message = session.NativeResult == 2 || session.GameOver != 0
+            ? "Training defeat. Your troops have returned to the castle."
+            : reward == 0 ? "Drill complete. Route the enemy commander to earn Potch."
+            : credited > 0 ? $"Training victory. You earned {credited:N0} Potch."
+            : Plugin.Options.EnableTrainingRewards.Value ? "Training victory. Your purse is full."
+            : "Training victory.";
+        CastleGuildRuntime.TrainingFeedback(message);
+        Plugin.Logger.LogInfo($"Training War {session.WarNumber} receipt: ending={session.Ending}, gameOver={session.GameOver}, commanderRouted={session.CommanderRouted}, alliesRemain={session.AlliesRemain}, fortVictory={session.FortVictory}, earned={reward}, credited={credited}.");
+    }
+
+    // Read the original outcome at the decision point, before ending scripts can clear the roster.
+    [HarmonyPatch(typeof(w_syouha), nameof(w_syouha.CheckSyouhai))]
+    static class OutcomeWitness
+    {
+        [HarmonyPostfix, HarmonyPriority(Priority.Last)]
+        static void Postfix(int __result)
+        {
+            if (__result != -1 || current is not { Committed: true, War: not null } session ||
+                session.System.game_mode != 5 || war_h.g_w_war_no != session.WarNumber ||
+                w_unit.unit is not { Length: 2 } units || units[0] is not { Length: 15 } allies ||
+                units[1] is not { Length: 15 } enemies)
+                return;
+
+            session.CommanderRouted = enemies[0]?.flag == 2;
+            session.AlliesRemain = allies.Any(unit => unit?.flag == 1);
+            session.FortVictory = War2Runtime.Outcome == War2Outcome.TacticalVictory;
+            session.Ending = war_sys.end_event_no;
+            session.GameOver = war_sys.game_over_flag;
+        }
     }
 
     static bool ExpectedDifference(string path) =>
@@ -269,9 +350,11 @@ internal static class TrainingWar
             if (__result == 0 || current is not {} session || session.War?.Pointer != __instance.Pointer) return;
 
             int nativeResult = __result;
-            if (nativeResult == 2 && session.WarNumber == 1 && Plugin.Options.EnableTrainingDefeatReturn.Value &&
+            session.NativeResult = nativeResult;
+            if (Plugin.Options.EnableTrainingDefeatReturn.Value &&
+                TrainingResultRules.CanRedirectDefeat(session.WarNumber, nativeResult, session.Ending, session.GameOver) &&
                 Owns(session, session.Field) && session.System.game_mode == 5 &&
-                session.System.war_no == 1 && session.Field._mstep == 48 &&
+                session.System.war_no == session.WarNumber && session.Field._mstep == 48 &&
                 session.Field.econ == null && session.SaveCalls == 0)
                 __result = 1;
 

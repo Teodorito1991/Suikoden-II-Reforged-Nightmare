@@ -17,7 +17,7 @@ internal static class TotalWarRuntime
     internal static object? LastBattle;
     internal static readonly List<object> AiTrace=new();
     internal static CampaignWarPolicy? Policy=>Rules.Scenarios.FirstOrDefault(r=>r.WarNumber==war_h.g_w_war_no);
-    internal static bool AiAllowed(int war)=>war==2?War2Runtime.Ready&&War2Runtime.Policy is {EnemyAi:true}:Ready&&ActiveWar==war&&Policy is {EnemyAi:true};
+    internal static bool AiAllowed(int war)=>war==2?!TrainingWar.Active&&War2Runtime.Ready&&War2Runtime.Policy is {EnemyAi:true}:Ready&&ActiveWar==war&&Policy is {EnemyAi:true};
     internal static void Initialize()
     {
         try

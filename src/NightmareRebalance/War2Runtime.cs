@@ -45,7 +45,7 @@ internal static class War2Runtime
         Ready=true;
         if(TrainingWar.FortDefenseActive||(Active&&Policy.PlayerCommands))
             for(int i=0;i<4;i++){w_unit.SetUnitControl(0,i,war_h.CONTROL_PLAYER);PlayerUnits++;}
-        if(!Probe)Plugin.Logger.LogInfo($"War 2 READY: remix={Active}, player squads={PlayerUnits}, native AI scoring={Plugin.Options.EnableNativeWarAI.Value&&Policy.EnemyAi}; fallback turn={Policy.MaximumTurn}. Native fort-breach/ending callbacks retained.");
+        if(!Probe)Plugin.Logger.LogInfo($"War 2 READY: remix={Active}, player squads={PlayerUnits}, native AI scoring={!TrainingWar.Active&&Plugin.Options.EnableNativeWarAI.Value&&Policy.EnemyAi}; fallback turn={Policy.MaximumTurn}. Native fort-breach/ending callbacks retained.");
     }
     internal static List<WarUnitState> States()
     {
@@ -57,9 +57,11 @@ internal static class War2Runtime
     }
     internal static bool Check(ref int result)
     {
-        if(!(Active||Probe)||Policy==null||war_h.g_w_war_no!=2)return true;
+        bool training = Ready && TrainingWar.FortDefenseActive;
+        if (!(Active || Probe || training) || Policy == null || war_h.g_w_war_no != 2)
+            return true;
         var decision=WarPolicyRules.Decide(Policy,true,true,war_h.g_w_war_no,war_sys.turn,States());
-        if(decision==War2Outcome.Vanilla)return true;
+        if (decision == War2Outcome.Vanilla || (training && decision != War2Outcome.TacticalVictory)) return true;
         if(Outcome is War2Outcome.TacticalVictory or War2Outcome.ProtectedAreaBreached or War2Outcome.AlliedDefeat or War2Outcome.OrderlyWithdrawal)
         {result=-1;return false;}
         Outcome=decision;

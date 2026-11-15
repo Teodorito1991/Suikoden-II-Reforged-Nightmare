@@ -66,12 +66,26 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   var availability=defs.Select(d=>GuildPresentation.Availability(state,d.Id,CastleGuildRuntime.Contract??CastleGuildRuntime.Quest.LastReportedId,HuntRuntime.Settings(d).Enabled,HuntRuntime.Config.EnableExperimentalHunt)).ToArray();
   string prompt=castle&&CastleGuildRuntime.TrainingSelected?(TrainingWar.FortDefenseAvailable||TrainingWar.ChallengeAvailable||TrainingWar.War3Available?"Left / Right: choose drill    Confirm: train":"Confirm: train"):GuildPresentation.Prompt(state,focus==defs.Length,setting.Enabled&&HuntRuntime.Config.EnableExperimentalHunt);
   if(castle&&CastleGuildRuntime.TrainingSelected)
-   objective=CastleGuildRuntime.SelectedTraining switch {
-    TrainingWar.Drill.FortDefense => "War 2. Command four squads and defend the fort against the Highland advance. No reward.",
-    TrainingWar.Drill.War3 => "War 3. Fight on a different battlefield with the original units and objectives. No reward.",
-    TrainingWar.Drill.CommanderRout => "War 1 challenge. Fight past turn three and rout the enemy commander. No reward.",
-    _ => "War 1 standard drill. Play the original battle and its timed ending. No reward."
+  {
+   bool veteran=CastleGuildRuntime.TrainingVeteran;
+   if(TrainingWar.VeteranAvailable(CastleGuildRuntime.SelectedTraining)||TrainingWar.VeteranAvailable(TrainingWar.Drill.Standard))
+    prompt="Left / Right: choose drill and difficulty    Confirm: train";
+   objective=CastleGuildRuntime.SelectedTraining switch
+   {
+    TrainingWar.Drill.FortDefense => "Defend the fort with four squads. Rout the enemy commander before a breach.",
+    TrainingWar.Drill.War3 => "Face the enemy on the original War 3 battlefield. A timed ending grants no reward.",
+    TrainingWar.Drill.CommanderRout => "Command the allied squads and fight past turn three until one army is routed.",
+    _ => "Train on the original War 1 battlefield. A timed ending grants no reward."
    };
+   return new()
+   {
+    Names=defs.Select(d=>d.Name).ToArray(),Availability=availability,Focus=focus,
+    TrainingName=CastleGuildRuntime.TrainingName,State=veteran?"Veteran":"Standard",
+    Objective=objective,Action=CastleGuildRuntime.ActionLabel,Status=CastleGuildRuntime.Status,
+    Bonus=Plugin.Options.EnableTrainingRewards.Value?TrainingResultRules.Potch(veteran).ToString("N0"):"",
+    Prompt=prompt,Castle=true
+   };
+  }
   if(!castle)prompt="Developer:1/2/3 browse    F10 close    4 requests";
   return new(){Names=defs.Select(d=>d.Name).ToArray(),Availability=availability,Focus=focus,Selected=def.Id,State=stateName,Active=CastleGuildRuntime.ContractName.Length>0?CastleGuildRuntime.ContractName:state==GuildQuestState.Reported?defs.FirstOrDefault(d=>d.Id==CastleGuildRuntime.Quest.LastReportedId)?.Name??"None":"None",Objective=objective,Action=castle?CastleGuildRuntime.ActionLabel:"Close",Status=castle?CastleGuildRuntime.Status:"Developer preview — no live contract changed",Bonus=HuntCatalogueRules.Bonus(def,setting,HuntRuntime.Config).ToString("N0"),Item=itemText,Prompt=prompt,Castle=castle,Preview=HuntGuildRuntime.Preview};
  }

@@ -6,6 +6,7 @@
  <Compile Include="../src/NightmareRebalance/FieldContinuationRules.cs" Link="FieldContinuationRules.cs" />
  <Compile Include="../src/NightmareRebalance/WarResourceOwnership.cs" Link="WarResourceOwnership.cs" />
  <Compile Include="../src/NightmareRebalance/WarBoundaryRules.cs" Link="WarBoundaryRules.cs" />
+ <Compile Include="../src/NightmareRebalance/TrainingResultRules.cs" Link="TrainingResultRules.cs" />
  <Compile Include="../src/NightmareRebalance/GuildScreenRules.cs" Link="GuildScreenRules.cs" />
  <Compile Include="../src/NightmareRebalance/GuildQuestRules.cs" Link="GuildQuestRules.cs" />
  <Compile Include="../src/NightmareRebalance/NativeWarEvidence.cs" Link="NativeWarEvidence.cs" />

@@ -128,6 +128,7 @@ Console.WriteLine("PASS: Integration experimental defaults 3 assertions; missing
 GuildQuestTests.Run();
 
 GuildScreenTests.Run();
+TrainingTests.Run();
 
 PublicationDefaultsTests.Run();
 WarResourceOwnershipTests.Run();
