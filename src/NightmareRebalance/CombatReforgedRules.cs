@@ -80,7 +80,7 @@ internal static class CombatReforgedRules
         {int n=TargetScore(role,t,limit);if(n>score){score=n;best=t.Slot;}}
         return best;
     }
-    internal static int ActionScore(string role,CombatAction a,IReadOnlyList<CombatTarget> enemies,IReadOnlyList<CombatTarget> allies,int ownMagic,int previous,int repeatPenalty,double healThreshold)
+    internal static int ActionScore(string role,CombatAction a,IReadOnlyList<CombatTarget> enemies,IReadOnlyList<CombatTarget> allies,int ownMagic,int previous,int repeatPenalty,double healThreshold,bool ordinary=false)
     {
         if(!a.Legal||a.Mode is <0 or >3||a.Type is not(1 or 2 or 5)||a.Probability<=0||a.Remaining==0)return int.MinValue;
         if(a.Type==5)
@@ -91,7 +91,11 @@ internal static class CombatReforgedRules
         if(enemies.Count==0)return int.MinValue;
         int score=enemies.Max(t=>Math.Min(t.Hp,BaseDamage(a.Power,ownMagic,t.Defense,t.MagicDefense,a.Physical,4)))*100/Math.Max(1,(int)enemies.Average(t=>t.MaxHp));
         if(a.Multi)score+=Math.Min(4,enemies.Count)*8;
-        if(a.Status!=0)score+=enemies.Any(t=>t.StatusUseful)?22:-35;
+        if(a.Status!=0)
+        {
+            int useful=enemies.Count(t=>t.StatusUseful);
+            score+=useful==0?-35:ordinary&&a.Multi?22*useful/enemies.Count:22;
+        }
         if(role is "Caster" or "Disruptor" && !a.Physical)score+=12;
         if(role=="Cautious"&&!a.Physical)score+=10;
         if(a.Mode==previous&&a.Mode!=0)score-=repeatPenalty;

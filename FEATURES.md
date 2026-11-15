@@ -11,13 +11,13 @@ not yet been certified.
 | Magic |31 spell edits plus healing/sleep layers| On; historical ordinary healing observed, wider interactions unplayed |
 | Regular enemies |280 guarded profiles| On; Normal/Hard production-copy checks, selected historical actual encounters |
 | Formations |51 remixes in original locations| On; native asset/setup coverage, not 51 rendered battles |
-| Boss tactics |10 policies across eligible encounters/phases| Earlier policies on; Lucia/Neclord major policies off pending rendered phase/story validation |
+| Boss tactics |16 policies across eligible encounters| Six v1.33 policies are independently configurable and native selector-tested. Optional Lucia and final Neclord retain their existing opt-in. [Boss Revolution](docs/BOSS-REVOLUTION-V133.md). |
 | Physical runes / Unites |Six rune and eight Unite options| On; guarded native-tested coefficients, wider balance uncalibrated |
 | Rune recovery |One missing charge per eligible survivor| On; genuine recovery observed; Escape exclusion on an earlier hash |
 | Sun King's Retinue |Castle contract, Cave encounter, native rewards, report/repeat| On publicly; complete exact v1.12.2 quest accepted |
 | Dreamer / Thornwake |Two additional native-table contracts| Off; native-only prototypes |
 | Story wars |Original-engine unit/AI/objective changes for wars 1,2,3,6,13| On; native evaluators and historical War2 evidence, not all transitions played |
-| Independent war foundation/bridge |Flag rehearsal, field prerequisites, original OPD async/cache lifecycle and owned cleanup| v1.15 development only; no battle/return, launcher unavailable, no XP/persistence |
+| Castle Army Training |Three original war scenarios and optional Veteran tactics| Opt-in copied-runtime feature with live tavern returns. Commander XP remains deferred. [Training evidence](docs/ARMY-TRAINING-V132.md). |
 
 ## Difficulty and builds
 
@@ -46,7 +46,8 @@ patch or unverified inn feedback is added.
 ## War boundaries
 
 Story-war changes use original maps, units, animations, combat and interpreter.
-There is no selectable repeatable war, earned commander XP or army training.
+Castle Army Training uses the original engine in the copied runtime. Commander
+experience remains deferred.
 The retired custom arena is absent from the plugin; archived pure test inputs
 preserve regression coverage only.
 

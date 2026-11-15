@@ -106,7 +106,8 @@ internal static class CombatReforgedRuntime
                 var enemies=Targets(w,true,a.status);var allies=Targets(w,false);
                 bool multi=(a.attack_seishitsu&0xf00) is 0x200 or 0x400 or 0x800;
                 var option=new CombatAction(i,a.attack_type,a.attack,(a.attack_zokusei&0x10)!=0,multi,a.status,a.attack_prob,w.pm_attack_data[u.chara_no].curent_use_cnt[i],true);
-                int score=CombatReforgedRules.ActionScore(c.Plan.Behavior,option,enemies,allies,u.calc_para is {Length:>1}?u.calc_para[1]:0,Previous.GetValueOrDefault(u.Pointer,-1),Config.RepeatPenalty,Config.HealingThreshold);
+                bool ordinary=!c.Plan.Boss&&!(HuntRuntime.Active!=null&&HuntRuntime.Work==w.Pointer);
+                int score=CombatReforgedRules.ActionScore(c.Plan.Behavior,option,enemies,allies,u.calc_para is {Length:>1}?u.calc_para[1]:0,Previous.GetValueOrDefault(u.Pointer,-1),Config.RepeatPenalty,Config.HealingThreshold,ordinary:ordinary);
                 int baseScore=score;
                 if(score!=int.MinValue){if(BossTacticsRuntime.Bound(u))score=BossTacticsRuntime.Score(w,u,option,enemies,score);
                 else{score+=CombatEvolutionRuntime.Bonus(u,i)+CombatMasteryRuntime.Bonus(u,i);int extra=CombatRealityRuntime.Bonus(u,i);CombatRealityRuntime.Score(u,i,score,extra);score+=extra;}}
@@ -123,6 +124,7 @@ internal static class CombatReforgedRuntime
     {
         if(Sampling||result<0)return;
         var w=ActiveWork;var c=For(w,attacker);
+        if(c!=null&&BossTacticsRuntime.UsesOriginalTargets(c.Attacker))return;
         bool legacy=c==null&&Plugin.Options.EnableEnemyTargeting.Value&&Combat.Matches(w)&&w!.pm_data is {} units&&attacker>=0&&attacker<units.Length&&units[attacker] is {} enemy&&TargetingRuntime.Raiders.Contains(enemy.monster_data?.id??"");
         if(c==null&&!legacy)return;
         var saved=UnityEngine.Random.state;var choices=new HashSet<int>{result};

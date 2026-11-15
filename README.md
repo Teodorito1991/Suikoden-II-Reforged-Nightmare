@@ -1,8 +1,9 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone: v1.32** (`v1.32.0-dev.2`, DLL
-`1.32.0-army-training.2`). This is the public source repository. The installable
-beta and GitHub Release remain unpublished. [Army Training verification](docs/ARMY-TRAINING-V132.md).
+**Latest development milestone** is v1.33, with DLL
+`1.33.0-boss-revolution.1`. Six additional bosses use guarded native attack
+selection. The source repository is public and the installable beta remains
+unpublished. [Boss Revolution verification](docs/BOSS-REVOLUTION-V133.md).
 
 An unofficial Windows Steam gameplay overhaul and expansion for **Suikoden II HD
 Remaster**, using the original RPG and tactical war engines, artwork, animations,

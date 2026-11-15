@@ -1,8 +1,11 @@
 # Known issues and validation limits
 
-The public source repository tracks v1.32 (`v1.32.0-dev.2`). An installable
+The public source repository tracks v1.33 (`1.33.0-boss-revolution.1`). An installable
 release remains unpublished. [Current Army Training evidence](docs/ARMY-TRAINING-V132.md).
 
+- **Boss Revolution gameplay acceptance is pending.** All six new policies passed
+  native selection fixtures. Rendered battles, the story endings and campaign
+  balance still need gameplay. [v1.33 checks](docs/BOSS-REVOLUTION-V133.md).
 - **Whole campaign unverified.** Native fixtures cover more than actual gameplay.
   Fairness projections are not a guarantee for every party, boss or story phase.
 - **Public-hash verification is limited.** A passed its own isolated startup smoke

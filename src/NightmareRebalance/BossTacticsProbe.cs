@@ -11,7 +11,7 @@ internal static class BossTacticsProbe
  static bool Same(UnityEngine.Random.State a,UnityEngine.Random.State b)=>a.s0==b.s0&&a.s1==b.s1&&a.s2==b.s2&&a.s3==b.s3;
  internal static void Table(BATTLE_DATA table, FormationAudit? luca = null)
  {
-  var a=luca??BossTacticsRuntime.Audit.FirstOrDefault(x=>x.TableId==table.id);if(a==null)return;
+  var a=luca??BossTacticsRuntime.Audit.Concat(BossTacticsRuntime.RevolutionAudit).FirstOrDefault(x=>x.TableId==table.id);if(a==null)return;
   var game=Framework.Singleton<GAME_WORK>.instance;var work=Framework.Singleton<BATTLE_WORK>.instance;var state=Combat.State;var rng=UnityEngine.Random.state;bool quality=BossTacticsRuntime.Config.EnableCombatQuality;bool strict=DifficultyProvenance.StrictProbe,ai=CombatReforgedRuntime.Config.EnableEnemyAi,suppress=BossTacticsRuntime.Suppress;
   var copies=new List<MONSTER_DATA>();
   try{
@@ -40,7 +40,7 @@ internal static class BossTacticsProbe
     ObserveLuca(manager, w, luca);
     return;
    }
-   var pattern=BossTacticsRuntime.Config.Patterns.Single(x=>x.TableId==table.id);var actor=w.pm_data.First(x=>x!=null&&!x.IsPlayer&&x.monster_data?.id==pattern.EnemyId).Cast<BattleMonsterCharacter>();
+   var pattern=BossTacticsRuntime.Config.Patterns.Concat(BossTacticsRuntime.RevolutionConfig.Patterns).Single(x=>x.TableId==table.id);var actor=w.pm_data.First(x=>x!=null&&!x.IsPlayer&&x.monster_data?.id==pattern.EnemyId).Cast<BattleMonsterCharacter>();
    Check(BossTacticsRuntime.Bound(actor),"Production admission "+table.id);Covered.Add(table.id);bool stat=s.StatsAllowed;int max=actor.max_hp;var hooks=CombatEvolutionRuntime.Hooks(w.monster_party_data.data);var ending=w.monster_be_func.Pointer;var main=w.monster_bm_func?.Pointer;
    Check(BossTacticsRuntime.Source(w,a),"Source and observed ShallowCopy provenance");actor.monster_data.hp++;Check(!BossTacticsRuntime.Source(w,a)&&!BossTacticsRuntime.Bound(actor),"Unexplained or post-admission data mutation rejected");actor.monster_data.hp--;
    var endCallback=w.monster_be_func;w.monster_be_func=null;Check(!BossTacticsRuntime.Source(w,a),"Missing resolved ending excluded");w.monster_be_func=endCallback;
@@ -48,12 +48,37 @@ internal static class BossTacticsProbe
    int localIndex=actor.chara_id;var observed=w.monster_data[localIndex];var unobserved=table.monster_data[localIndex].ShallowCopy();copies.Add(unobserved);w.monster_data[localIndex]=unobserved;Check(!BossTacticsRuntime.Source(w,a),"Unobserved identical copy rejected");w.monster_data[localIndex]=observed;
    BossTacticsRuntime.Ready(w,false);Check(!BossTacticsRuntime.Bound(actor),"Compatibility exclusion");g.game_data.difficulty=2;BossTacticsRuntime.Ready(w,true);Check(!BossTacticsRuntime.Bound(actor),"Hard major/tactics excluded without weakening regular admission");g.game_data.difficulty=0;
    bool on=pattern.Enabled;pattern.Enabled=false;BossTacticsRuntime.Ready(w,true);Check(!BossTacticsRuntime.Bound(actor),"Per-boss opt-out");pattern.Enabled=on;BossTacticsRuntime.Ready(w,true);
+   bool revolution=BossRevolutionRules.Supports(table.id);
+   if(revolution)
+   {
+    var uses=w.pm_attack_data[actor.chara_no].curent_use_cnt;
+    for(int i=0;i<4;i++)uses[i]=actor.monster_data.attack_data[i].kaisu>0
+        ? (byte)actor.monster_data.attack_data[i].kaisu : byte.MaxValue;
+    var beforeUses=uses.ToArray();
+    Check(BossTacticsRuntime.UsesOriginalTargets(actor),"Original targets bypass resampling");
+    BossTacticsRuntime.Suppress=true;UnityEngine.Random.InitState(301);
+    int baseline=manager.parties[1].MonsterFindKojinMokuhyo(actor.chara_no);
+    var baselineRng=UnityEngine.Random.state;
+    BossTacticsRuntime.Suppress=false;UnityEngine.Random.InitState(301);
+    int actual=manager.parties[1].MonsterFindKojinMokuhyo(actor.chara_no);
+    Check(actual>=0&&actual<w.player_kazu&&actual==baseline&&Same(baselineRng,UnityEngine.Random.state),"Original legal target and RNG preserved");
+    Check(beforeUses.SequenceEqual(uses.ToArray()),"Target selection preserves native limited uses");
+   }
    int changed=0;var windows=new Dictionary<string,int>();
-   foreach(int hp in new[]{max,Math.Max(1,max/2)})foreach(byte counter in new byte[]{0,1,2,3,4,5})for(int seed=0;seed<12;seed++){
+   foreach(int hp in new[]{max,Math.Max(1,max/2)})foreach(byte counter in new byte[]{0,1,2,3,4,5})for(int seed=0;seed<(revolution?3:12);seed++){
     actor.hp=(short)hp;w.battle_kaisuu=counter;CombatReforgedRuntime.Previous.Clear();CombatMasteryRuntime.Recovery.Clear();BossTacticsRuntime.Suppress=true;UnityEngine.Random.InitState(seed);int before=actor.SelectAttackMode();var afterNative=UnityEngine.Random.state;
     CombatReforgedRuntime.Previous.Clear();CombatMasteryRuntime.Recovery.Clear();BossTacticsRuntime.Suppress=false;UnityEngine.Random.InitState(seed);int after=actor.SelectAttackMode();
     Check(Same(afterNative,UnityEngine.Random.state),"Native RNG unchanged");Check(after==before||after is >=0 and <4&&actor.monster_data.attack_data[after].attack_prob>0&&actor.CheckMonsterAttackCnt(after)&&actor.AttackModeKyoriCheck(after),"Changed choice is native legal");
     Check(w.battle_kaisuu==counter,"Selectors never advance native counter");Selections++;if(before!=after){changed++;Differences++;}string win=BossTacticsRules.Window(pattern,counter,hp,max);windows[win+"/"+after]=windows.GetValueOrDefault(win+"/"+after)+1;
+   }
+   if(revolution)
+   {
+    Check(changed>0,"New policy changes an original selection");
+    Check(!CombatReforgedRuntime.Plans.ContainsKey(actor.Pointer),"No new stat plan");
+    var marker=(BattleOverlayDelegate)(Func<BATTLE_WORK,int>)(_=>throw new Exception("Forbidden scripted command"));
+    w.monster_cm_func=marker;
+    Check(!BossTacticsRuntime.Bound(actor),"New scripted command excluded");
+    w.monster_cm_func=null;
    }
    Check(actor.max_hp==max&&s.StatsAllowed==stat,"AI adds no stats or eligibility");Check(CombatEvolutionRuntime.Hooks(w.monster_party_data.data).SequenceEqual(hooks)&&w.monster_be_func.Pointer==ending&&w.monster_bm_func?.Pointer==main,"Callbacks unchanged");
    w.battle_kaisuu=2;actor.hp=(short)max;var builds=new List<int>();
@@ -68,7 +93,7 @@ internal static class BossTacticsProbe
     budgets.Add(new{Mode=mode,attack.attack,attack.attack_prob,attack.kaisu,attack.status,Physical=(attack.attack_zokusei&16)!=0,Defense=w.pm_data[0].calc_para[2],MagicDefense=w.pm_data[0].calc_para[3],MeanRaw=values.Average(),MaxRaw=values.Max(),DamageFactorAddedByThisModule=1,ExecutedAction=false});
    }s.StatsAllowed=statScope;
    foreach(var m in a.Monsters)Check(CombatReforgedRuntime.Signature(table.monster_data[m.Index]).SequenceEqual(m.Signature),"Source asset untouched");
-   Rows.Add(new{a.TableId,NativeSelectorDifferences=changed,Selections=144,Windows=windows,ArmoredSelection=builds[0],WardedSelection=builds[1],BuildChangedSelection=builds[0]!=builds[1],ExhaustedSelection=depleted,NativeRawDamageBudgets=budgets,AdmissionProductionPath=true,StoryCallbacksInvoked=false,RenderedBossPlayed=false});
+   Rows.Add(new{a.TableId,NativeSelectorDifferences=changed,Selections=windows.Values.Sum(),Windows=windows,ArmoredSelection=builds[0],WardedSelection=builds[1],BuildChangedSelection=builds[0]!=builds[1],ExhaustedSelection=depleted,NativeRawDamageBudgets=budgets,AdmissionProductionPath=true,StoryCallbacksInvoked=false,RenderedBossPlayed=false});
   }finally{BossTacticsRuntime.Config.EnableCombatQuality=quality;DifficultyProvenance.StrictProbe=strict;CombatReforgedRuntime.Config.EnableEnemyAi=ai;BossTacticsRuntime.Suppress=suppress;CombatReforgedRuntime.Probe=false;CombatReforgedRuntime.ProbeWork=null;CombatReforgedRuntime.Clear();Combat.State=state;Framework.Singleton<GAME_WORK>.instance=game;Framework.Singleton<BATTLE_WORK>.instance=work;UnityEngine.Random.state=rng;foreach(var copy in copies)UnityEngine.Object.Destroy(copy);}
  }
  internal static readonly List<object> LucaRows = new();

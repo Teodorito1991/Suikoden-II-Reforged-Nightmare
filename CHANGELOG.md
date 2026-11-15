@@ -9,6 +9,17 @@ Binary distribution requires separate owner approval.
 - Updates the README and known issues to reflect v1.32 Army Training and its
   gameplay verification limits.
 
+## v1.33 — Boss Revolution
+
+- Adds guarded attack selection for Celestial Sword, Worm, Abomination,
+  Stone Golem, Bone Dragon and Seed.
+- Improves ordinary-enemy group status scoring when few targets can still
+  receive the effect.
+- Compiled and verified native selectors, retained regression and startup
+  on the exact candidate. Rendered boss and story acceptance remain open.
+
+[Build hash, controls and evidence](docs/BOSS-REVOLUTION-V133.md).
+
 ## v1.32 — Castle Army Training (`v1.32.0-dev.2`)
 
 - Adds an optional Veteran tier using the existing native enemy tactics.

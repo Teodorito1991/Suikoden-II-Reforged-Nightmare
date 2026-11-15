@@ -1,0 +1,70 @@
+{
+  "SchemaVersion": 1,
+  "Enabled": true,
+  "EnableMajorBosses": false,
+  "EnableExistingBosses": true,
+  "EnableCombatQuality": true,
+  "Preference": 105,
+  "Patterns": [
+    {
+      "TableId": "boss_sei",
+      "EnemyId": "boss_sei_00",
+      "Enabled": true,
+      "ThresholdPercent": 55,
+      "Period": 3,
+      "PressureMode": 2,
+      "RecoveryMode": 1,
+      "AdaptiveMode": 0
+    },
+    {
+      "TableId": "boss_imo1",
+      "EnemyId": "boss_imo1_00",
+      "Enabled": true,
+      "ThresholdPercent": 55,
+      "Period": 4,
+      "PressureMode": 1,
+      "RecoveryMode": 0,
+      "AdaptiveMode": 0
+    },
+    {
+      "TableId": "boss_nik",
+      "EnemyId": "boss_nik_00",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "Period": 3,
+      "PressureMode": 0,
+      "RecoveryMode": 2,
+      "AdaptiveMode": 1
+    },
+    {
+      "TableId": "boss_gol",
+      "EnemyId": "boss_gol_00",
+      "Enabled": true,
+      "ThresholdPercent": 60,
+      "Period": 4,
+      "PressureMode": 1,
+      "RecoveryMode": 2,
+      "AdaptiveMode": 0
+    },
+    {
+      "TableId": "boss_dor",
+      "EnemyId": "boss_dor_00",
+      "Enabled": true,
+      "ThresholdPercent": 55,
+      "Period": 4,
+      "PressureMode": 2,
+      "RecoveryMode": 1,
+      "AdaptiveMode": 0
+    },
+    {
+      "TableId": "boss_kul_sid",
+      "EnemyId": "boss_kul_sid_00",
+      "Enabled": true,
+      "ThresholdPercent": 55,
+      "Period": 3,
+      "PressureMode": 3,
+      "RecoveryMode": 0,
+      "AdaptiveMode": 0
+    }
+  ]
+}

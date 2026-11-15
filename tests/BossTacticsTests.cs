@@ -12,6 +12,21 @@ internal static class BossTacticsTests
   }
   void Invalid(Action<BossTacticsFile> change){var q=BossTacticsRules.Parse(Read("boss-tactics.json"),audit);change(q);bool bad=false;try{BossTacticsRules.Parse(JsonSerializer.Serialize(q),audit);}catch(JsonException){bad=true;}Check(bad,"Invalid configuration rejected");}
   Invalid(x=>x.Preference=121);Invalid(x=>x.Patterns[0].PressureMode=3);Invalid(x=>x.Patterns[7].AdaptiveMode=1);Invalid(x=>x.Patterns[0].Period=1);Invalid(x=>x.Patterns[0].TableId="boss_nec1");
+  var revolutionAudit=ContentRules.Read<FormationAudit[]>(Read("boss-revolution-audit.json"));
+  var revolution=BossTacticsRules.Parse(Read("boss-revolution.json"),revolutionAudit);
+  Check(revolution.Patterns.Length==6&&revolution.Patterns.All(p=>BossRevolutionRules.Supports(p.TableId)),"Separate six-boss allowlist");
+  Check(revolutionAudit.All(a=>a.Hooks[1]==0&&a.Hooks[2]==0&&a.Hooks[4]==0),"No phase or command hooks in the new admissions");
+  Check(!revolution.Patterns.Any(p=>audit.Any(a=>a.TableId==p.TableId)),"Legacy config stays independent");
+  var crowded=Enumerable.Range(0,4).Select(i=>new CombatTarget(i,600,600,150,35,80,120,0,i==0)).ToArray();
+  var area=new CombatAction(0,2,100,false,true,4,50,255,true);
+  int Base(bool ordinary)=>CombatReforgedRules.ActionScore("Disruptor",area,crowded,crowded,80,-1,0,.5,ordinary);
+  Check(Base(false)-Base(true)==17,"Ordinary group status bonus scales with eligible targets");
+  foreach(var p in revolution.Patterns)
+  {
+   var pressure=area with{Mode=p.PressureMode};
+   Check(BossRevolutionRules.Score(p,0,100,100,pressure,crowded,100)<100,"Opening area pressure restrained");
+   Check(BossRevolutionRules.Score(p,0,100,100,pressure with{Legal=false},crowded,int.MinValue)==int.MinValue,"Illegal choice preserved");
+  }
   Console.WriteLine($"PASS: Boss Reforged {count} assertions; native-counter cadence, original positive-weight moves, opt-out bounds. No boss gameplay claim.");
  }
 }
