@@ -24,7 +24,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   (GuildPage.Difficulty,1,2,"07-veteran.png",false),
   (GuildPage.Status,0,0,"08-guild-status.png",false),
   (GuildPage.Services,0,0,"11-field-contract.png",true),
-  (GuildPage.Strategy,0,0,"12-party-strategy.png",false)
+  (GuildPage.Strategy,0,0,"12-party-strategy.png",false),
+  (GuildPage.Echoes,0,0,"13-hall-of-echoes.png",false)
  };
  [DllImport("user32.dll")]static extern short GetAsyncKeyState(int key);
  [DllImport("user32.dll")]static extern IntPtr GetForegroundWindow();
@@ -108,6 +109,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   new("Army Training", "Replay an original battle"),
   new("Guild Status", "Review your contract"),
   new("Party Strategy", "Review Star Bonds"),
+  new("Hall of Echoes", "Unavailable in development"),
   new("Leave", "Return to the castle")
  };
 
@@ -131,8 +133,14 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   {
    var row = Services[focus];
    return GuildRebornScreen.Paginate(new("SERVICES", Services, focus, row.Title, "", row.Note,
-       "", "", status, focus == Services.Length-1 ? "Leave" : "Open", back, preview), pageSize:5);
+       "", "", status, focus == Services.Length-1 ? "Leave" : "Open", back, preview), pageSize:6);
   }
+
+  if (page == GuildPage.Echoes)
+   return new("HALL OF ECHOES", new[]{new GuildMenuRow("Boss rematches","Unavailable")}, 0,
+       "Hall of Echoes","Development preview",
+       "Boss rematches and battle guests are unavailable.\nYou can return to the other Guild services.",
+       "", "", status, "Back", back, preview);
 
   if (page == GuildPage.Strategy)
   {
@@ -289,7 +297,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     foreach(var box in new[]{GuildRebornScreen.Heading,GuildRebornScreen.List,GuildRebornScreen.Detail,GuildRebornScreen.Footer})
      Window(ToRect(box,x,y,scale));
 
-    var row=GuildRebornScreen.Row(view.Focus,view.Rows.Length>GuildRebornScreen.RowsPerPage);
+    var row=GuildRebornScreen.Row(view.Focus,view.Rows.Length);
     Fill(ToRect(row,x,y,scale),new Color(.19f,.24f,.37f,.94f));
     Fill(ToRect(new(row.X+7,row.Y+row.H-1,row.W-14,1),x,y,scale),new Color(.80f,.67f,.39f,.64f));
     var cursor=GuildVisualResources.Cursor;

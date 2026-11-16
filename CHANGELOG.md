@@ -3,6 +3,13 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## Hall of Echoes investigation (untagged)
+
+- Rehearses a native RPG request and detached Pest Rat setup on disposable owners.
+- Adds an unavailable Hall information page to the development Guild source.
+- Documents blockers for live chapter entry, return and battle-only guests.
+  [Engineering handoff](docs/HALL-OF-ECHOES-ENGINEERING-HANDOFF-V141.md).
+
 ## v1.40 — 108 Stars: Party Revolution
 
 - Trades growth tiers for fourteen battle characters and opens four existing

@@ -120,6 +120,7 @@ internal static class RpgEvolutionProbe
             }
             Check(RpgEvolutionRuntime.ApplyUnites(work) == 0, "no duplicate Unite rewrite");
             StarBondProbe.Run(assets,unites,game,work);
+            HallEchoesProbe.InspectGuests(assets,game);
             Plugin.Logger.LogInfo("RPG Evolution native lookups passed for all revised characters, spells, physical runes and Unites.");
         }
         finally

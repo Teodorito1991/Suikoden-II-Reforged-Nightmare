@@ -5,6 +5,8 @@
 Star Bonds give Normal parties new ways to prepare and fight. The Castle Guild's
 Party Strategy page shows combinations, their triggers and their effects.
 [Party Revolution profiles and verification](docs/PARTY-REVOLUTION-V140.md).
+[Hall of Echoes engineering handoff](docs/HALL-OF-ECHOES-ENGINEERING-HANDOFF-V141.md)
+records an untagged native fixture investigation. Boss rematches and battle guests remain unavailable.
 [Tactical profiles and v1.39 evidence](docs/TACTICAL-REVOLUTION-V139.md).
 The source repository is public. The installable beta remains unpublished.
 [Castle Guild and Total War changes](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).

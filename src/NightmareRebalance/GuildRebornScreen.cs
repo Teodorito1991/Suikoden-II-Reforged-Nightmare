@@ -28,8 +28,12 @@ internal static class GuildRebornScreen
         };
     }
 
-    internal static GuildBox Row(int index, bool compact = false) =>
-        compact ? new(19, 136 + index * 66, 320, 62) : new(19, 136 + index * 78, 320, 65);
+    internal static GuildBox Row(int index, int count) => count switch
+    {
+        > 5 => new(19, 136 + index * 55, 320, 52),
+        5 => new(19, 136 + index * 66, 320, 62),
+        _ => new(19, 136 + index * 78, 320, 65)
+    };
 
     internal static float Scale(int width, int height) =>
         Math.Max(.1f, Math.Min((width - 48) / Width, (height - 48) / Height));
@@ -46,10 +50,11 @@ internal static class GuildRebornScreen
         Add(29, 103, 300, 30, view.Section, 19, "gold");
         for (int i = 0; i < view.Rows.Length; i++)
         {
-            var row = Row(i, view.Rows.Length > RowsPerPage);
+            var row = Row(i, view.Rows.Length);
+            bool dense = view.Rows.Length > 5;
             string tone = i == view.Focus ? "gold" : "body";
-            Add(51, row.Y + 4, 274, 31, view.Rows[i].Title, 23, tone);
-            Add(51, row.Y + 34, 274, 27, view.Rows[i].Note, 16, "muted");
+            Add(51, row.Y + 4, 274, dense ? 26 : 31, view.Rows[i].Title, dense ? 21 : 23, tone);
+            Add(51, row.Y + (dense ? 30 : 34), 274, dense ? 22 : 27, view.Rows[i].Note, dense ? 15 : 16, "muted");
         }
         Add(400, 115, 646, 46, view.Title, 31);
         Add(401, 166, 639, 37, view.Area, 21, "gold");

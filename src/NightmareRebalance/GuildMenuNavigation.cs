@@ -1,6 +1,6 @@
 namespace NightmareRebalance;
 
-internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy }
+internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy, Echoes }
 internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave }
 
 internal static class GuildApproach
@@ -20,7 +20,7 @@ internal sealed class GuildMenuNavigation
     internal int HuntCount { get; private set; }
     internal bool ConfirmReleased { get; private set; }
 
-    internal static readonly GuildPage[] Services = { GuildPage.Hunts, GuildPage.Training, GuildPage.Status, GuildPage.Strategy };
+    internal static readonly GuildPage[] Services = { GuildPage.Hunts, GuildPage.Training, GuildPage.Status, GuildPage.Strategy, GuildPage.Echoes };
 
     internal int RowCount => Page switch
     {
@@ -63,6 +63,7 @@ internal sealed class GuildMenuNavigation
             case GuildPage.Training: Enter(GuildPage.Services, 1); break;
             case GuildPage.Status: Enter(GuildPage.Services, 2); break;
             case GuildPage.Strategy: Enter(GuildPage.Services, 3); break;
+            case GuildPage.Echoes: Enter(GuildPage.Services, 4); break;
         }
         return true;
     }
@@ -91,7 +92,8 @@ internal sealed class GuildMenuNavigation
             case GuildPage.Status when state == GuildQuestState.Accepted: return GuildChoice.Withdraw;
             case GuildPage.Status when state == GuildQuestState.AwaitingReport: return GuildChoice.Report;
             case GuildPage.Status:
-            case GuildPage.Strategy: Back(); break;
+            case GuildPage.Strategy:
+            case GuildPage.Echoes: Back(); break;
         }
         return GuildChoice.None;
     }

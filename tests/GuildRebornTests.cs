@@ -69,11 +69,14 @@ internal static class GuildRebornTests
         Down(); Down(); Down();
         check(menu.Focus==3 && Confirm()==GuildChoice.None && menu.Page==GuildPage.Services,"Strategy confirm returns");
         Down();
-        check(Confirm()==GuildChoice.Leave,"Leave is reachable from the fifth service");
-        var serviceRows=Enumerable.Range(0,5).Select(i=>new GuildMenuRow("Service "+i,"")).ToArray();
-        var services=GuildRebornScreen.Paginate(new GuildMenuView("SERVICES",serviceRows,4,"","","","","","","","",false),5);
-        var last=GuildRebornScreen.Row(services.Focus,services.Rows.Length>GuildRebornScreen.RowsPerPage);
-        check(services.Rows.Length==5 && last.Y+last.H < GuildRebornScreen.Footer.Y,"All service rows fit on one page");
+        check(Confirm()==GuildChoice.None && menu.Page==GuildPage.Echoes,"Hall provides information only");
+        check(Confirm()==GuildChoice.None && menu.Page==GuildPage.Services && menu.Focus==4,"Hall has no launch action");
+        Down();
+        check(Confirm()==GuildChoice.Leave,"Leave follows Hall of Echoes");
+        var serviceRows=Enumerable.Range(0,6).Select(i=>new GuildMenuRow("Service "+i,"")).ToArray();
+        var services=GuildRebornScreen.Paginate(new GuildMenuView("SERVICES",serviceRows,5,"","","","","","","","",false),6);
+        var last=GuildRebornScreen.Row(services.Focus,services.Rows.Length);
+        check(services.Rows.Length==6 && last.Y+last.H < GuildRebornScreen.List.Y+GuildRebornScreen.List.H,"All service rows fit on one page");
         foreach (var bond in StarBondRules.Catalogue)
         {
             check(StarBondRules.Includes(bond,bond.Members),"Exact Star Bond roster");
