@@ -8,6 +8,7 @@ internal sealed class BattleState
     internal bool Ready, Allowed, StatsAllowed, SnapshotTaken, ReportWritten;
     internal TeamworkBinding? Teamwork;
     internal string? TeamworkProfile;
+    internal bool Bonds;
     internal CoverageReport? Report;
     internal EncounterIdentity? Identity;
     internal readonly Dictionary<IntPtr, BossResolution> BossPlans = new();
@@ -87,6 +88,7 @@ internal static class Combat
         if(compatible&&s.Allowed)RpgEvolutionRuntime.ApplyUnites(w); } catch(Exception e) { Plugin.Logger.LogWarning("Combat Evolution retained prior plans: "+e.Message); }
         BossTacticsRuntime.Ready(w,compatible);
         s.Ready = true;
+        s.Bonds = s.Allowed && StarBondRuntime.Eligible(w);
         LegendaryBossRuntime.Ready(s,w,compatible);
         TeamworkRuntime.Ready(s,w);
         try{CombatRealityRuntime.Ready(s,w);}catch(Exception e){CombatRealityRuntime.Event("Diagnostics","InspectionUnavailable","battle",e.Message);}
@@ -128,6 +130,7 @@ internal static class Combat
         if (State is not {Ready:true,ReportWritten:false} s || s.Manager!=manager.Pointer ||
             manager.battle_work?.Pointer!=s.Work || !s.Victory.TryMarkVictory()) return;
         s.Teamwork=null;
+        s.Bonds=false;
         MaintenanceRuntime.Charges("VictoryBeforeRewards",manager.battle_work);
         CombatReforgedDiagnostics.Outcome="VictorySignal";
         var report = Observe(nameof(BattleManager.WinEnd), manager.battle_work);
@@ -157,6 +160,7 @@ internal static class Combat
         if (State is not {Ready:true,ReportWritten:false} s || s.Manager!=manager.Pointer ||
             manager.battle_work?.Pointer!=s.Work) return;
         s.Teamwork=null;
+        s.Bonds=false;
         s.Victory.MarkNonVictory();
         CombatReforgedDiagnostics.Outcome="NonVictorySignal";
         var report=Observe(nameof(BattleManager.NotWinEnd),manager.battle_work);

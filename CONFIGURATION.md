@@ -74,6 +74,16 @@ either to false independently to opt out. Both apply only to
 [the audited Normal formations and Hunts](docs/TACTICAL-REVOLUTION-V139.md).
 Formation teamwork also requires existing Combat Reforged enemy AI.
 
+## Party Revolution
+
+The BepInEx **Party Revolution** section contains `EnablePartyIdentity` and
+`EnableStarBonds`. Both default to true and can be disabled independently.
+Identity revisions apply at startup only to bundled character rows and respect
+the existing character-module toggles. They use native growth and slot
+progression. Star Bonds apply only in eligible Normal battles and can be
+reviewed through **Party Strategy** at the Castle Guild.
+[Profiles, requirements and caps](docs/PARTY-REVOLUTION-V140.md).
+
 ## Optional content
 
 Dreamer's Circuit and Thornwake Patrol are enabled in fresh v1.38 defaults.

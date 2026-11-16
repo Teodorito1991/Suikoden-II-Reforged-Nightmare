@@ -11,19 +11,20 @@ public sealed class HuntGuildOverlay:MonoBehaviour
  HuntDefinition? fieldOffer;
  int smokeScreen,smokePaints;
  long nextCaptureAt=-1;
- static readonly (GuildPage Page,int Focus,int Drill,string File)[] SmokeScreens =
+ static readonly (GuildPage Page,int Focus,int Drill,string File,bool FieldOffer)[] SmokeScreens =
  {
-  (GuildPage.Services,0,0,"01-services.png"),
-  (GuildPage.Hunts,2,0,"02-hunt-sun-king.png"),
-  (GuildPage.Hunts,3,0,"03-hunt-dreamer.png"),
-  (GuildPage.Hunts,6,0,"04-hunt-thornwake.png"),
-  (GuildPage.Hunts,0,0,"09-patrol-contracts.png"),
-  (GuildPage.Hunts,9,0,"10-grand-trials.png"),
-  (GuildPage.Training,2,0,"05-army-training.png"),
-  (GuildPage.Difficulty,0,2,"06-standard.png"),
-  (GuildPage.Difficulty,1,2,"07-veteran.png"),
-  (GuildPage.Status,0,0,"08-guild-status.png"),
-  (GuildPage.Services,0,0,"11-field-contract.png")
+  (GuildPage.Services,0,0,"01-services.png",false),
+  (GuildPage.Hunts,2,0,"02-hunt-sun-king.png",false),
+  (GuildPage.Hunts,3,0,"03-hunt-dreamer.png",false),
+  (GuildPage.Hunts,6,0,"04-hunt-thornwake.png",false),
+  (GuildPage.Hunts,0,0,"09-patrol-contracts.png",false),
+  (GuildPage.Hunts,9,0,"10-grand-trials.png",false),
+  (GuildPage.Training,2,0,"05-army-training.png",false),
+  (GuildPage.Difficulty,0,2,"06-standard.png",false),
+  (GuildPage.Difficulty,1,2,"07-veteran.png",false),
+  (GuildPage.Status,0,0,"08-guild-status.png",false),
+  (GuildPage.Services,0,0,"11-field-contract.png",true),
+  (GuildPage.Strategy,0,0,"12-party-strategy.png",false)
  };
  [DllImport("user32.dll")]static extern short GetAsyncKeyState(int key);
  [DllImport("user32.dll")]static extern IntPtr GetForegroundWindow();
@@ -106,6 +107,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   new("Hunt Contracts", "Choose a quarry"),
   new("Army Training", "Replay an original battle"),
   new("Guild Status", "Review your contract"),
+  new("Party Strategy", "Review Star Bonds"),
   new("Leave", "Return to the castle")
  };
 
@@ -128,8 +130,23 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   if (page == GuildPage.Services)
   {
    var row = Services[focus];
-   return new("SERVICES", Services, focus, row.Title, "", row.Note,
-       "", "", status, focus == 3 ? "Leave" : "Open", back, preview);
+   return GuildRebornScreen.Paginate(new("SERVICES", Services, focus, row.Title, "", row.Note,
+       "", "", status, focus == Services.Length-1 ? "Leave" : "Open", back, preview), pageSize:5);
+  }
+
+  if (page == GuildPage.Strategy)
+  {
+   var bonds = StarBondRules.Catalogue;
+   int[] party = preview ? new[]{7,8,30,26,33,32} : StarBondRuntime.FieldParty();
+   bool enabled = preview || Plugin.Options.EnableStarBonds.Value &&
+       DifficultyProvenance.Difficulty(out int difficulty, out _) && difficulty == 0;
+   string Availability(StarBond bond) => !enabled ? "Unavailable" :
+       StarBondRules.Includes(bond,party) ? "In your party" : "Other combination";
+   var rows = bonds.Select(bond => new GuildMenuRow(bond.Title, Availability(bond))).ToArray();
+   var selected = bonds[focus];
+   return GuildRebornScreen.Paginate(new("PARTY STRATEGY", rows, focus, selected.Title, selected.Partners,
+       selected.Trigger, selected.Effect, "Normal battles without scripted commands.\nAll partners must be able to act.",
+       enabled ? status : "Star Bonds are disabled or unavailable at this difficulty.", "Back", back, preview));
   }
 
   if (page == GuildPage.Status)
@@ -234,7 +251,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
  {
   bool previewSmoke=HuntGuildRuntime.RenderSmoke;
   if(previewSmoke&&(nextCaptureAt<0||smokeScreen>=SmokeScreens.Length||Event.current?.type!=EventType.Repaint))return;
-  var offer=previewSmoke&&smokeScreen==SmokeScreens.Length-1
+  var offer=previewSmoke&&SmokeScreens[smokeScreen].FieldOffer
       ? HuntRuntime.BrowseOrder.FirstOrDefault() :fieldOffer;
   bool prompt=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.Idle&&CastleGuildRuntime.Near;
   bool feedback=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.FeedbackVisible;
@@ -272,7 +289,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     foreach(var box in new[]{GuildRebornScreen.Heading,GuildRebornScreen.List,GuildRebornScreen.Detail,GuildRebornScreen.Footer})
      Window(ToRect(box,x,y,scale));
 
-    var row=GuildRebornScreen.Row(view.Focus);
+    var row=GuildRebornScreen.Row(view.Focus,view.Rows.Length>GuildRebornScreen.RowsPerPage);
     Fill(ToRect(row,x,y,scale),new Color(.19f,.24f,.37f,.94f));
     Fill(ToRect(new(row.X+7,row.Y+row.H-1,row.W-14,1),x,y,scale),new Color(.80f,.67f,.39f,.64f));
     var cursor=GuildVisualResources.Cursor;

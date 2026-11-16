@@ -22,6 +22,7 @@
     <Compile Include="../src/NightmareRebalance/CombatMasteryRules.cs" Link="CombatMasteryRules.cs" />
     <Compile Include="../src/NightmareRebalance/CombatEvolutionRules.cs" Link="CombatEvolutionRules.cs" />
     <Compile Include="../src/NightmareRebalance/CombatFairnessRules.cs" Link="CombatFairnessRules.cs" />
+    <Compile Include="../src/NightmareRebalance/StarBondRules.cs" Link="StarBondRules.cs" />
     <Compile Include="../src/NightmareRebalance/CombatReforgedRules.cs" Link="CombatReforgedRules.cs" />
     <Compile Include="../src/NightmareRebalance/ExpansionRules.cs" Link="ExpansionRules.cs" />
     <Compile Include="../src/NightmareRebalance/MaintenanceRules.cs" Link="MaintenanceRules.cs" />

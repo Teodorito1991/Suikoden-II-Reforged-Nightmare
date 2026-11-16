@@ -38,6 +38,10 @@ internal static class EnemyDamagePatch
         MaintenanceRuntime.Raw(__instance.chara_no,mokuhyo,__result,__originalMethod.Name);
         bool eligible=w!=null&&Combat.EnemyToPlayer(w,__instance.chara_no,mokuhyo);
         DamageScope.Apply(__state,eligible,w,__instance.chara_no,mokuhyo,ref __result);
+        if (__state && eligible && __result > 0 && w!.pm_data[mokuhyo] is {} defender &&
+            __instance.monster_data?.attack_data is {} moves && attack_mode >= 0 && attack_mode < moves.Length &&
+            moves[attack_mode] is {} move)
+            StarBondRuntime.Guard(w,defender,move,ref __result);
         if (__state && eligible && __result >= 10 && CombatReforgedRuntime.Config.Enabled &&
             CombatReforgedRuntime.Config.EnableArcaneGuard && w!.pm_data[mokuhyo] is { hp: > 0, IsDead: false } player &&
             (player.status & b_game_h.STATUS_GUARD) != 0 && (player.status & b_game_h.STATUS_NO_GUARD) == 0 &&

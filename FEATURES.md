@@ -7,7 +7,8 @@ not yet been certified.
 
 | Module | Implemented content | Evidence and proposed defaults |
 |---|---|---|
-| Characters |80 growth/affinity/rune-slot profiles, 15 revised in v1.34| On; native/component coverage, not all characters played |
+| Characters |80 growth/affinity/rune-slot profiles, 14 traded growth tiers in v1.40| On; native/component coverage, not all characters played |
+| Star Bonds |Four optional conditional effects using original Attack, Defend, Fire Wall and Bandit Attack| Original-engine damage fixtures and rendered Guild preview. Full fights await gameplay. [Party Revolution](docs/PARTY-REVOLUTION-V140.md). |
 | Magic |31 spell edits, seven revised in v1.34, plus healing/sleep layers| On; historical ordinary healing observed, wider interactions unplayed |
 | Regular enemies |280 guarded profiles| On; Normal/Hard production-copy checks, selected historical actual encounters |
 | Formations |58 remixes in original locations| On; native asset/setup coverage, full campaign unplayed |

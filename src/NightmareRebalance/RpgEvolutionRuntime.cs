@@ -26,6 +26,7 @@ internal static class RpgEvolutionRuntime
 {
     internal static RpgEvolutionContent Audit = new();
     internal static RpgEvolutionOptions Options = new();
+    internal static CharacterFile PartyIdentity = new();
     static CharacterFile originalCharacters = new();
     static MagicFile originalMagic = new();
     static EvolutionSwitch[] formationSwitches = [];
@@ -37,6 +38,7 @@ internal static class RpgEvolutionRuntime
             var baseline = ContentRules.Read<ContentBaseline>(ContentRuntime.Resource("baseline.json"));
             originalCharacters = ContentRules.Characters(ContentRuntime.Resource("characters.json"), baseline);
             originalMagic = ContentRules.Magic(ContentRuntime.Resource("magic.json"), baseline);
+            PartyIdentity = ContentRules.Characters(ContentRuntime.Resource("party-revolution-audit.json"), baseline);
             var audit = ContentRules.Read<RpgEvolutionContent>(ContentRuntime.Resource("rpg-evolution-audit.json"));
             ContentRules.Characters(JsonSerializer.Serialize(new CharacterFile
                 { SchemaVersion = 1, Characters = audit.Characters }, ContentRules.JsonOptions), baseline);
@@ -61,12 +63,14 @@ internal static class RpgEvolutionRuntime
 
     internal static CharacterProfile Character(CharacterProfile current)
     {
-        if (!Options.Characters || Array.Find(Audit.Characters, c => c.Id == current.Id) is not {} next)
-            return current;
+        if (!Options.Characters) return current;
         var prior = originalCharacters.Characters.Single(c => c.Id == current.Id);
         // A customized row keeps its full prior build. Missing rows are never reinserted.
-        return current.Growth.SequenceEqual(prior.Growth) && current.Affinity.SequenceEqual(prior.Affinity) &&
-            current.Slots.SequenceEqual(prior.Slots) ? next : current;
+        if (!current.Growth.SequenceEqual(prior.Growth) || !current.Affinity.SequenceEqual(prior.Affinity) ||
+            !current.Slots.SequenceEqual(prior.Slots)) return current;
+        if (Plugin.Options.EnablePartyIdentity.Value &&
+            Array.Find(PartyIdentity.Characters, c => c.Id == current.Id) is {} revision) return revision;
+        return Array.Find(Audit.Characters, c => c.Id == current.Id) ?? current;
     }
 
     internal static int Magic(int id, int configured, int effective)

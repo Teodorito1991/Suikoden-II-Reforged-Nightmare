@@ -1,10 +1,10 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone** is v1.39, with DLL
-`1.39.0-tactical-revolution.1`. Twelve ordinary formations and five Hunts
-coordinate native attacks and target choices on Normal. Defend provides extra
-protection from qualifying magic damage within those battles. The recommended
-Normal profile includes all ten Hunts.
+**Latest development milestone** is v1.40, with DLL
+`1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional
+Star Bonds give Normal parties new ways to prepare and fight. The Castle Guild's
+Party Strategy page shows combinations, their triggers and their effects.
+[Party Revolution profiles and verification](docs/PARTY-REVOLUTION-V140.md).
 [Tactical profiles and v1.39 evidence](docs/TACTICAL-REVOLUTION-V139.md).
 The source repository is public. The installable beta remains unpublished.
 [Castle Guild and Total War changes](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).

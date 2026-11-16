@@ -15,20 +15,21 @@ internal static class GuildRebornScreen
     internal static readonly GuildBox Footer = new(0, 504, 1080, 106);
     internal const int RowsPerPage = 4;
 
-    internal static GuildMenuView Paginate(GuildMenuView view)
+    internal static GuildMenuView Paginate(GuildMenuView view, int pageSize = RowsPerPage)
     {
-        if (view.Rows.Length <= RowsPerPage) return view;
-        int page = view.Focus / RowsPerPage;
-        int pages = (view.Rows.Length + RowsPerPage - 1) / RowsPerPage;
+        if (view.Rows.Length <= pageSize) return view;
+        int page = view.Focus / pageSize;
+        int pages = (view.Rows.Length + pageSize - 1) / pageSize;
         return view with
         {
             Section = $"{view.Section}    {page + 1}/{pages}",
-            Focus = view.Focus % RowsPerPage,
-            Rows = view.Rows.Skip(page * RowsPerPage).Take(RowsPerPage).ToArray()
+            Focus = view.Focus % pageSize,
+            Rows = view.Rows.Skip(page * pageSize).Take(pageSize).ToArray()
         };
     }
 
-    internal static GuildBox Row(int index) => new(19, 136 + index * 78, 320, 65);
+    internal static GuildBox Row(int index, bool compact = false) =>
+        compact ? new(19, 136 + index * 66, 320, 62) : new(19, 136 + index * 78, 320, 65);
 
     internal static float Scale(int width, int height) =>
         Math.Max(.1f, Math.Min((width - 48) / Width, (height - 48) / Height));
@@ -45,7 +46,7 @@ internal static class GuildRebornScreen
         Add(29, 103, 300, 30, view.Section, 19, "gold");
         for (int i = 0; i < view.Rows.Length; i++)
         {
-            var row = Row(i);
+            var row = Row(i, view.Rows.Length > RowsPerPage);
             string tone = i == view.Focus ? "gold" : "body";
             Add(51, row.Y + 4, 274, 31, view.Rows[i].Title, 23, tone);
             Add(51, row.Y + 34, 274, 27, view.Rows[i].Note, 16, "muted");

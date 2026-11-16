@@ -57,7 +57,10 @@ internal static class RpgEvolutionProbe
             game.chara_data = Allocate<CHARA_DATA>();
             game.chara_data.c_kotei_dat = new Il2CppReferenceArray<C_KOTEI_DAT>(85);
             game.magi_data = new Il2CppReferenceArray<MAGI_DATA>(assets.magi_data_table.Length);
-            foreach (var profile in audit.Characters)
+            var profiles = audit.Characters
+                .Concat(Plugin.Options.EnablePartyIdentity.Value ? RpgEvolutionRuntime.PartyIdentity.Characters : [])
+                .GroupBy(x=>x.Id).Select(group=>group.Last());
+            foreach (var profile in profiles)
             {
                 var source = assets.all_data_table.c_kotei_dat[profile.Id];
                 var growth = source.seicyo_type.ToArray();
@@ -72,7 +75,12 @@ internal static class RpgEvolutionProbe
                 game.chara_data.c_kotei_dat[profile.Id] = copy;
                 var native = G2_SYS.G2_kotei_dat(profile.Id);
                 Check(native.Pointer == copy.Pointer && native.seicyo_type.SequenceEqual(profile.Growth) &&
-                    native.mon_kosu_type.SequenceEqual(profile.Slots), "patched lookup uses revised profile " + profile.Id);
+                    native.mon_kosu_type.SequenceEqual(profile.Slots) && native.mon_zoku_aisyo.SequenceEqual(profile.Affinity), "patched lookup uses revised profile " + profile.Id);
+                foreach (int level in new[]{12,30,55})
+                    for (int stat=0;stat<8;stat++)
+                        Check(G2_LEVEL.GetParaSeicyoIndex(level,G2_LEVEL.g2_seicyo_type(profile.Id,stat)) ==
+                            G2_LEVEL.GetParaSeicyoIndex(level,ContentRules.Nibble(profile.Growth,stat)),
+                            "original growth tier lookup at representative level");
                 Check(source.seicyo_type.SequenceEqual(growth) && native.monsyo_seigen.SequenceEqual(source.monsyo_seigen)
                     && native.soubi_henkou == source.soubi_henkou && native.soubi_kanou == source.soubi_kanou,
                     "source and restrictions preserved");
@@ -111,6 +119,7 @@ internal static class RpgEvolutionProbe
                     CombatEvolutionRuntime.UniteSignature(source).SequenceEqual(entry.Signature), "battle-local Unite " + entry.Id);
             }
             Check(RpgEvolutionRuntime.ApplyUnites(work) == 0, "no duplicate Unite rewrite");
+            StarBondProbe.Run(assets,unites,game,work);
             Plugin.Logger.LogInfo("RPG Evolution native lookups passed for all revised characters, spells, physical runes and Unites.");
         }
         finally

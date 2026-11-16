@@ -17,11 +17,14 @@ internal sealed class Settings
     internal readonly ConfigEntry<bool> EnableTrainingVeteran, EnableTrainingRewards;
     internal readonly ConfigEntry<bool> EnableNativeWarRemix,RunNativeWarSelfTest,ExportNativeWarResearch,EnableNativeWarAI,EnableWarSpecializations,EnableWarTactics,EnableWarManeuvers;
 
+    internal readonly ConfigEntry<bool> EnableStarBonds, EnablePartyIdentity;
     internal readonly ConfigEntry<bool> EnableCombatReforgedAi, RunCombatSelfTest, EnableHuntDebugTools;
 
     internal Settings(ConfigFile config)
     {
         EnableHuntDebugTools = config.Bind("Developer", nameof(EnableHuntDebugTools), false, "Explicit hunt-test damage protection hotkey F7. Disabled by default; restart required. Never changes levels or saves.");
+        EnableStarBonds = config.Bind("Party Revolution", nameof(EnableStarBonds), true, "Conditional Star Bonds in eligible Normal battles.");
+        EnablePartyIdentity = config.Bind("Party Revolution", nameof(EnablePartyIdentity), true, "Revised native growth and existing rune slot thresholds. Restart required.");
         EnableCombatReforgedAi = config.Bind("Combat Reforged", nameof(EnableCombatReforgedAi), true, "Audited native enemy action/target choices; config in combat-reforged.json. Restart required.");
         RunCombatSelfTest = config.Bind("Combat Reforged", nameof(RunCombatSelfTest), false, "Startup-only disposable native combat probes; no scene, story or save. Leave false for normal play.");
         EnableWarTactics = config.Bind("Native War", nameof(EnableWarTactics), true, "Native terrain/reachability-aware tactical scoring and audited alternate objectives. Independent war-tactics.json settings; no campaign flag or command injection.");

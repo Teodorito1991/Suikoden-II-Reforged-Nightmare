@@ -63,6 +63,24 @@ internal static class GuildRebornTests
         menu.Open(false,10);
         Down(); Down(); Confirm();
         check(Confirm(GuildQuestState.Accepted)==GuildChoice.Withdraw, "Withdraw lives in Guild Status");
+        menu.Open(false,10);
+        Down(); Down(); Down(); Confirm();
+        check(menu.Page==GuildPage.Strategy && menu.RowCount==StarBondRules.Catalogue.Length,"Strategy follows existing services");
+        Down(); Down(); Down();
+        check(menu.Focus==3 && Confirm()==GuildChoice.None && menu.Page==GuildPage.Services,"Strategy confirm returns");
+        Down();
+        check(Confirm()==GuildChoice.Leave,"Leave is reachable from the fifth service");
+        var serviceRows=Enumerable.Range(0,5).Select(i=>new GuildMenuRow("Service "+i,"")).ToArray();
+        var services=GuildRebornScreen.Paginate(new GuildMenuView("SERVICES",serviceRows,4,"","","","","","","","",false),5);
+        var last=GuildRebornScreen.Row(services.Focus,services.Rows.Length>GuildRebornScreen.RowsPerPage);
+        check(services.Rows.Length==5 && last.Y+last.H < GuildRebornScreen.Footer.Y,"All service rows fit on one page");
+        foreach (var bond in StarBondRules.Catalogue)
+        {
+            check(StarBondRules.Includes(bond,bond.Members),"Exact Star Bond roster");
+            check(!StarBondRules.Includes(bond,bond.Members.Skip(1).ToArray()),"Missing partner excluded");
+        }
+        check(StarBondRules.DamageBonus(20000,8,24)==24 && StarBondRules.DamageBonus(0,8,24)==0 &&
+            StarBondRules.Wounded(50,100) && !StarBondRules.Wounded(0,100),"Conditional bonus bounds");
         check(GuildApproach.AtCounter(232,240,232,224) && !GuildApproach.AtCounter(208,224,232,224) &&
             !GuildApproach.AtCounter(252,224,232,224), "Approach excludes the original box and door side");
         check(GuildApproach.FacingClerk(1) && GuildApproach.FacingClerk(5) &&

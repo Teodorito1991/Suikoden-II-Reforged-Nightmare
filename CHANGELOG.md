@@ -3,6 +3,17 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.40 — 108 Stars: Party Revolution
+
+- Trades growth tiers for fourteen battle characters and opens four existing
+  rune slots slightly earlier. Preserves custom character rows.
+- Adds four optional Star Bonds tied to Defend, Attack on a poisoned target,
+  Fire Wall against armor, and Bandit Attack on a wounded target.
+- Adds Party Strategy to the original-style Castle Guild services menu.
+- Native damage and growth lookup comparisons, managed tests and copied-game
+  graphical preview passed. Full battle and campaign acceptance remain pending.
+  [Party Revolution evidence](docs/PARTY-REVOLUTION-V140.md).
+
 ## v1.39 — Tactical Revolution
 
 - Adds coordinated targeting and native move selection to twelve ordinary
