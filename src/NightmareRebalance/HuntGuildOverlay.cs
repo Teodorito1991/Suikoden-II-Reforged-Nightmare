@@ -148,7 +148,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   if (page == GuildPage.Echoes && !preview && !developer && HallFirstContact.Available)
    return new("HALL OF ECHOES", new[]{new GuildMenuRow("Pest Rat", "Normal")}, 0,
        "Pest Rat", "Development trial", "Challenge Pest Rat at its original HP.",
-       "", "Native battle spoils", status, "Confirm challenge", back, false);
+       "", "Native Potch · Possible Poison Orb", status, "Confirm challenge", back, false);
 #endif
   if (page == GuildPage.Echoes)
    return new("HALL OF ECHOES", new[]{new GuildMenuRow("Boss rematches","Unavailable")}, 0,

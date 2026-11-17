@@ -1,9 +1,9 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development experiment** is v1.41 First Contact. A protected copied
-runtime completed a native Pest Rat rematch and returned to the Castle Guild.
-Hall trials remain unavailable in normal builds.
-[First Contact evidence and limits](docs/HALL-FIRST-CONTACT-V141.md).
+**Latest development experiment** is v1.42 Hall Safe Return. Two consecutive
+player-earned Pest Rat victories paid native rewards and returned to the Castle
+Guild. Hall trials remain unavailable in normal builds.
+[Safe Return evidence and limits](docs/HALL-SAFE-RETURN-V142.md).
 
 **Campaign development baseline** is v1.40, with DLL
 `1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional

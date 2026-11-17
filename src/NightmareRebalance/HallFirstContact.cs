@@ -76,6 +76,8 @@ internal static class HallFirstContact
         internal MONSTER_PARTY_DATA? Formation;
         internal bool Abort, Committed, Setup, ActorBound, Win, Loss, Released, HpChanged, RatLookup, OutcomeRecorded;
         internal int ActorHp;
+        internal int TerminalResult;
+        internal bool NativeFieldReturn, AtGuildPosition;
         internal BATTLE_WORK? Work;
         internal readonly HashSet<(string, bool, bool, bool)> PackLookups = new();
         internal int Destroyed = -1;
@@ -83,6 +85,8 @@ internal static class HallFirstContact
         internal string? War;
         internal string? Progress;
         internal uint Potch;
+        internal byte[] RewardIds = Array.Empty<byte>();
+        internal int[] RewardCounts = Array.Empty<int>();
         internal Trial(GAME_WORK game, SYS_WORK sys, MACHICON field, EVENTCON events, MACHIDAT map)
         {
             Game = game; Sys = sys; Field = field; Events = events; Map = map;
@@ -107,6 +111,9 @@ internal static class HallFirstContact
             EventItems = g.party_data.event_item?.ToArray()
         });
     }
+
+    static int[] CountRewardItems(Trial t) => t.RewardIds.Select(id =>
+        t.Game.party_data.party_item.Count(item => item?.item_no == id)).ToArray();
 
     static bool SameCampaign(Trial t) =>
         Framework.Singleton<GAME_WORK>.instance?.Pointer == t.Game.Pointer &&
@@ -148,6 +155,12 @@ internal static class HallFirstContact
         t.Table.monster_party_num = 1;
         t.Table.monster_party = new Il2CppReferenceArray<MONSTER_PARTY_DATA>(new[] { t.Formation });
         t.Table.monster_data = original.monster_data;
+        // Keep the original coin value and ordinary monster-drop table.
+        // The rematch grants neither a separate Hall payout nor story loot.
+        var rat = original.monster_data[audit.Monsters.Single().Index];
+        t.RewardIds = rat.item_data.Where(item => item != null && item.item_no != 0)
+            .Select(item => item.item_no).Distinct().ToArray();
+        Plugin.Logger.LogInfo($"HallFirstContact: native loot policy; Potch={rat.mochi_kin}, item IDs={string.Join(",", t.RewardIds)}.");
     }
 
     static void RequestNative(Trial t)
@@ -167,6 +180,7 @@ internal static class HallFirstContact
         t.War = LitJson.JsonMapper.ToJson(t.Game.war_data);
         t.Progress = Progress(t.Game);
         t.Potch = t.Game.party_data.gold;
+        t.RewardCounts = CountRewardItems(t);
         if (t.SceneSlot >= 0)
         {
             if (t.Scenes!.activeMem != t.FieldSlot || t.SceneResource == null ||
@@ -221,24 +235,36 @@ internal static class HallFirstContact
                 Framework.Singleton<BATTLE_WORK>.instance != null ||
                 GRChapterManager.GRInstance?.activeChapter is BattleChapter)
                 return;
-            bool victoryReturn = t.Win && !t.Loss && GRChapterManager.GRInstance?.activeChapter is MapChapter &&
-                t.Sys.game_mode == 1 && t.Sys.mcon?.Pointer == t.Field.Pointer &&
-                t.Field._mstep == 20 && t.Field.econ?.ehuman?[0] is {} player &&
-                player.x.ss.inte == t.X && player.y.ss.inte == t.Y;
+            bool fieldReturn = t.TerminalResult == 1 && !t.Loss && t.NativeFieldReturn &&
+                t.Sys.game_mode == 1 && GRChapterManager.GRInstance?.activeChapter is MapChapter;
+            bool victoryReturn = fieldReturn && t.Win;
+            bool nonVictoryReturn = fieldReturn && !t.Win;
             bool defeat = t.Loss && GRChapterManager.GRInstance?.activeChapter is GameOverChapter;
-            if (!victoryReturn && !defeat) return;
+            if (!fieldReturn && !defeat) return;
             bool flags = SameCampaign(t) && t.Flags!.Zip(Flags(t.Game), (a,b) => a.SequenceEqual(b)).All(x => x);
             bool war = SameCampaign(t) && t.War == LitJson.JsonMapper.ToJson(t.Game.war_data);
             bool progress = SameCampaign(t) && t.Progress == Progress(t.Game);
             if (!t.OutcomeRecorded)
             {
                 t.OutcomeRecorded = true;
-                Plugin.Logger.LogInfo($"HallFirstContact: outcome victoryReturn={victoryReturn} gameOver={defeat} flagsUnchanged={flags} warUnchanged={war} progressionUnchanged={progress} potchDelta={(long)t.Game.party_data.gold-t.Potch}.");
+                var itemDeltas = CountRewardItems(t).Select((after, i) => $"{t.RewardIds[i]}:{after - t.RewardCounts[i]}");
+                Plugin.Logger.LogInfo($"HallFirstContact: outcome victoryReturn={victoryReturn} nonVictoryReturn={nonVictoryReturn} gameOver={defeat} guildPosition={t.AtGuildPosition} flagsUnchanged={flags} warUnchanged={war} progressionUnchanged={progress} potchDelta={(long)t.Game.party_data.gold-t.Potch} itemSlotDeltas={string.Join(",",itemDeltas)}.");
             }
             Finish(t);
-            if (trial == null && defeat && CastleGuildRuntime.Owner?.Pointer == t.Field.Pointer)
-                CastleGuildRuntime.Detach();
-            if (!flags || !war || !progress || !t.ActorBound || !t.Setup) faulted = true;
+            if (trial == null && defeat)
+            {
+                // Stock Game Over can bypass BattleEndWait. Retire only the
+                // combat state associated with this released Hall work owner.
+                if (t.Work != null && Combat.State?.Work == t.Work.Pointer)
+                {
+                    Combat.Clear();
+                    Plugin.Logger.LogInfo("HallFirstContact: retired the defeated trial's combat state before Retry.");
+                }
+                if (CastleGuildRuntime.Owner?.Pointer == t.Field.Pointer)
+                    CastleGuildRuntime.Detach();
+            }
+            if (!flags || !war || !progress || !t.ActorBound || !t.Setup ||
+                (fieldReturn && !t.AtGuildPosition)) faulted = true;
         }
         catch (Exception e)
         {
@@ -362,14 +388,31 @@ internal static class HallFirstContact
 
     internal static void BattleTick(int result)
     {
-        if (trial is not {ActorBound:true} t || !Owns(t.Work) || t.Released) return;
+        if (trial is not {ActorBound:true} t || !t.Setup) return;
+        if (result != 0)
+        {
+            t.TerminalResult = result;
+            Plugin.Logger.LogInfo($"HallFirstContact: BattleChapter.Update terminal result={result}.");
+        }
+        if (t.Released || !Owns(t.Work)) return;
         var actor = t.Work!.pm_data?.FirstOrDefault(a => a != null && !a.IsPlayer);
         if (!t.HpChanged && actor != null && actor.hp != t.ActorHp)
         {
             t.HpChanged = true;
             Plugin.Logger.LogInfo($"HallFirstContact: living battle tick changed monster HP from {t.ActorHp} to {actor.hp}.");
         }
-        if (result != 0) Plugin.Logger.LogInfo($"HallFirstContact: BattleChapter.Update terminal result={result}.");
+    }
+
+    internal static void FieldReturned(MACHICON field)
+    {
+        if (trial is not {Committed:true, Released:true, TerminalResult:1} t ||
+            t.Destroyed < 0 || field.Pointer != t.Field.Pointer ||
+            t.Sys.mcon?.Pointer != field.Pointer || t.Sys.game_mode != 1 ||
+            Framework.Singleton<BATTLE_WORK>.instance != null ||
+            field.econ?.Pointer != t.Events.Pointer ||
+            field.econ.ehuman?[0] is not {} player) return;
+        t.NativeFieldReturn = true;
+        t.AtGuildPosition = player.x.ss.inte == t.X && player.y.ss.inte == t.Y;
     }
 
     internal static void Outcome(BATTLE_WORK work, bool win)
@@ -415,6 +458,12 @@ internal static class HallFirstContactField
 internal static class HallFirstContactScene
 {
     static void Postfix(BATTLE_WORK work) => HallFirstContact.Scene(work);
+}
+
+[HarmonyPatch(typeof(MACHICON), "OnEndBattle")]
+internal static class HallFirstContactFieldReturn
+{
+    static void Postfix(MACHICON __instance) => HallFirstContact.FieldReturned(__instance);
 }
 
 [HarmonyPatch(typeof(BattleManager), nameof(BattleManager.Release))]

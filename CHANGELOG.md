@@ -3,6 +3,18 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.42 — Hall of Echoes Safe Return (development only)
+
+- Retires the Hall's exact combat state after native defeat so a reloaded
+  Castle Guild can attach to the new field owner.
+- Handles original returns without a victory and waits for native teardown
+  before releasing the trial's resources.
+- Two consecutive player-earned wins each delivered 17,000 Potch and one
+  Poison Orb on the tested settings. Both returned to the same Guild spot.
+- Traced the earlier copied save write to map initialization after Retry.
+  Hall access remains disabled in normal builds.
+  [Exact build and verification](docs/HALL-SAFE-RETURN-V142.md).
+
 ## v1.41 — Hall of Echoes First Contact (development only)
 
 - Opens a Pest Rat rematch through the Castle Guild in a protected copied

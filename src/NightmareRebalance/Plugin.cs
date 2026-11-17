@@ -8,7 +8,7 @@ using HarmonyLib;
 namespace NightmareRebalance;
 
 #if HALL_FIRST_CONTACT
-[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.41.0")]
+[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.42.0")]
 #else
 [BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.40.0")]
 #endif
@@ -90,7 +90,7 @@ public sealed class Plugin : BasePlugin
             if (HallFirstContact.CopyLaunch) AddComponent<HallFirstContactDriver>();
 #endif
 #if HALL_FIRST_CONTACT
-            Log.LogInfo("Reforged Nightmare 1.41.0-first-contact.1 loaded.");
+            Log.LogInfo("Reforged Nightmare 1.42.0-hall-recovery.2 loaded.");
 #else
             Log.LogInfo("Reforged Nightmare 1.40.0-party-revolution.1 loaded.");
 #endif

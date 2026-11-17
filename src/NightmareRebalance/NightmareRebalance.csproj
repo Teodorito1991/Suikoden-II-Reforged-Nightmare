@@ -12,7 +12,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(HallFirstContact)' == 'true'">
     <DefineConstants>$(DefineConstants);HALL_FIRST_CONTACT</DefineConstants>
-    <Version>1.41.0-first-contact.1</Version>
+    <Version>1.42.0-hall-recovery.2</Version>
     <OutputPath>bin/$(Configuration)/$(Version)/</OutputPath>
   </PropertyGroup>
   <ItemGroup>
