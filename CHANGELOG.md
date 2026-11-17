@@ -16,6 +16,9 @@ Binary distribution requires separate owner approval.
 - Adds a default-off configuration gate for the Pest Rat rematch in a
   normal source build. The feature checks compatibility before installing
   its hooks. No player package was published.
+- Final acceptance on the exact normal DLL passed native victory and
+  defeat → Retry → Guild → rematch. Produced a separate reproducible local
+  rebuild without private debug paths.
   [Exact build and verification](docs/HALL-SAFE-RETURN-V142.md).
 
 ## v1.41 — Hall of Echoes First Contact (development only)

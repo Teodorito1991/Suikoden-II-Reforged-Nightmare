@@ -90,13 +90,38 @@ in. A conflicting Hall-only target disables Hall access at startup.
 The live feature has no dependency on private paths, markers or observer
 assemblies. The test observer remains separate and disposable.
 
-The normal-build DLL passed the managed suite and the exact-build
-5,046-check native production audit with the gate off. With the
-configuration enabled in the protected copy, the Guild launched native
-Pest Rat at battle index `-1`. A rendered flee returned to the same
-position, awarded nothing, preserved the checked campaign state, and
-released both owned resources. The full victory and Retry tests above
-belong to the protected recovery DLL. The normal-build gate ships off in
-source and the experimental trial requires explicit opt-in.
+### Final acceptance of the frozen normal DLL
+
+Source commit `17a571bd1abdd597ba6f83d00df8c0a663d9dfdc` produced the exact
+normal DLL identified above. No gameplay code changed for this acceptance.
+The disposable game used the original menus and combat controls.
+
+| Check | Result |
+|---|---|
+| Earned victory | Native Auto-Battle defeated Pest Rat. The test wallet started at 100,000 Potch and received exactly 17,000. Native loot inserted one Poison Orb in this run. Riou returned to the same spot and opened the Guild again. No save write was recorded. |
+| Native defeat and Retry | A separate test started with one character at 1 HP. Native damage triggered stock Game Over. It awarded nothing. Retry restored Headquarters and one attendant. The rematch ended through native flee, paid nothing and returned to the Guild, which reopened normally. |
+| Campaign and resources | All checked flag arrays, war data and progression fields matched. The rendered encounters used battle index `-1` and released their owned HD scene and Pest Rat pack after native teardown. |
+| Retry autosave | One native autosave followed loading the same Headquarters checkpoint as the matched ordinary-battle control. The decoded files differed only in timestamp and play/event timers. |
+| Startup dependencies | A separate graphical startup enabled Hall through configuration with no private observer, markers or launch arguments. Gameplay tests kept the isolation observer in the copied runtime to protect saves. |
+| Disabled behavior | With Hall off, the Guild showed the trial as unavailable and opened Hunt Contracts normally. The native audit found zero of 11 Hall hook targets carrying a Hall patch. Ordinary encounter fixtures passed. |
+
+The normal-build DLL also passed the managed suite and its 5,046-check
+native production audit with the gate off. Pest Rat remains an explicit
+opt-in for the supported Windows Steam build. Native item rolls and
+inventory rules apply. Full-bag Hall gameplay remains unobserved.
+
+### Sanitized local rebuild
+
+Two clean local Release builds from the same source produced identical
+DLLs with SHA256
+`8B64C5A88B3A06F262ECF46035ACECAA059E7E17E037672E276DC0E893514A61`.
+Use `-t:Rebuild -p:DebugType=None -p:DebugSymbols=false -p:Deterministic=true`
+and a separate output directory. The PE has no CodeView record and the
+binary scan found no personal Windows path pattern. This reproducibility
+check covered the same source, machine and toolchain. The sanitized hash
+is distinct from the gameplay-accepted DLL. It separately passed
+startup and the 5,046-check native production audit with Hall off and
+zero Hall hooks installed. Rendered gameplay acceptance applies to the
+frozen normal DLL.
 
 No player package was published. Pest Rat is the only trial.
