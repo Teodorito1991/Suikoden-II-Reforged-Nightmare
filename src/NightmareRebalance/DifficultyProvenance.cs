@@ -31,9 +31,7 @@ internal static class DifficultyProvenance
 internal static class DifficultySetupScope
 {
     [HarmonyPrefix]static void Prefix(BattleManager __instance,out (BATTLE_WORK? Provenance,BATTLE_WORK? Selection) __state){HuntAccess.BeginSetup();HuntLaunchProof.Setup(__instance.battle_work);__state=(DifficultyProvenance.Start(__instance.battle_work),HuntAccess.SetupWork);HuntAccess.SetupWork=__instance.battle_work;}
-#if HALL_FIRST_CONTACT
     [HarmonyPostfix]static void Postfix(BattleManager __instance)=>HallFirstContact.Setup(__instance.battle_work);
-#endif
     [HarmonyFinalizer]static Exception? Finalizer(BattleManager __instance,(BATTLE_WORK? Provenance,BATTLE_WORK? Selection) __state,Exception? __exception){HuntAccess.EndSetup(__instance.battle_work,__exception);HuntAccess.SetupWork=__state.Selection;DifficultyProvenance.End(__state.Provenance);return __exception;}
 }
 [HarmonyPatch(typeof(MONSTER_DATA),nameof(MONSTER_DATA.ShallowCopy))]

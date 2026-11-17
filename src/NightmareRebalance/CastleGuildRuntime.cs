@@ -128,17 +128,13 @@ internal static class CastleGuildRuntime
   string restriction=Menu.Page==GuildPage.Training?TrainingWar.Unavailable((TrainingWar.Drill)Menu.Focus):"";
   if(decide&&Menu.ConfirmReleased&&restriction.Length!=0)Status=restriction;
   var choice=Menu.Confirm(decide,Held(GRInputManager.Type.Decide),Quest.State,restriction.Length==0
-#if HALL_FIRST_CONTACT
       ,HallFirstContact.Available
-#endif
   );
   bool leave=choice switch
   {
    GuildChoice.Accept when Menu.Focus<HuntRuntime.BrowseOrder.Length => AcceptContract(HuntRuntime.BrowseOrder[Menu.Focus].Id),
    GuildChoice.Start => TrainingWar.Request((TrainingWar.Drill)Menu.Drill,Menu.Focus==1),
-#if HALL_FIRST_CONTACT
    GuildChoice.StartEcho => HallFirstContact.Request(),
-#endif
    GuildChoice.Report => ReportContract(),
    GuildChoice.Withdraw => WithdrawContract(),
    GuildChoice.Leave => true,

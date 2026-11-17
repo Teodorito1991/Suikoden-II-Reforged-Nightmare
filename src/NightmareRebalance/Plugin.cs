@@ -7,11 +7,7 @@ using HarmonyLib;
 
 namespace NightmareRebalance;
 
-#if HALL_FIRST_CONTACT
 [BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.42.0")]
-#else
-[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.40.0")]
-#endif
 [BepInDependency("d3xMachina.suikoden_fix", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("faospark.pkcore", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("nightmare.suikoden2.rebalance", BepInDependency.DependencyFlags.SoftDependency)]
@@ -32,6 +28,8 @@ public sealed class Plugin : BasePlugin
         harmony = new Harmony(Id);
         try
         {
+            HallFirstContact.EnabledAtStartup = Options.EnableHallOfEchoes.Value && !UnityEngine.Application.isBatchMode &&
+                CheckPatchTargets(PatchTargets(DeclaredPatchTypes.Where(IsHallPatch)), hallOnly: true);
             if (!CheckCompatibility()) return;
             RpgEvolutionRuntime.Initialize();
             ContentRuntime.Initialize();
@@ -58,7 +56,7 @@ public sealed class Plugin : BasePlugin
             if(HuntGuildRuntime.RenderSmoke||(HuntGuildRuntime.Config.EnableSelector&&Options.EnableDeveloperTools.Value)||CastleGuildRuntime.Config.Enabled)AddComponent<HuntGuildOverlay>();
             if(HuntRuntime.Config.EnableExperimentalHunt||HuntGuildRuntime.Config.EnableSelector) AddComponent<HuntAccessControl>();
             HuntDebug.Initialize(this);
-            harmony.PatchAll(typeof(Plugin).Assembly);
+            foreach (var type in ActivePatchTypes()) harmony.CreateClassProcessor(type).Patch();
             WarBoundaryRules.CanLaunch = TrainingWar.Enabled;
             if (WarBoundaryRules.CanLaunch) Log.LogInfo("Disposable native war training enabled.");
             if(UnityEngine.Application.isBatchMode&&Environment.GetCommandLineArgs().Contains("--reforged-hunt-debug-selftest")){HuntDebugProbe.Run();AddComponent<HuntDebugExit>();}
@@ -86,14 +84,8 @@ public sealed class Plugin : BasePlugin
             CombatRealityProbe.Run();
             if(ProductionAssetAudit.Requested){AddComponent<ProductionAssetAudit>();ProductionAssetAudit.Scheduled=true;}
             if (Options.EnableDeveloperTools.Value) AddComponent<DeveloperOverlay>();
-#if HALL_FIRST_CONTACT
-            if (HallFirstContact.CopyLaunch) AddComponent<HallFirstContactDriver>();
-#endif
-#if HALL_FIRST_CONTACT
-            Log.LogInfo("Reforged Nightmare 1.42.0-hall-recovery.2 loaded.");
-#else
-            Log.LogInfo("Reforged Nightmare 1.40.0-party-revolution.1 loaded.");
-#endif
+            if (HallFirstContact.EnabledAtStartup) AddComponent<HallFirstContactDriver>();
+            Log.LogInfo($"Reforged Nightmare 1.42.0-hall-opt-in.1 loaded. Hall of Echoes enabled={HallFirstContact.EnabledAtStartup}.");
         }
         catch (Exception ex)
         {
@@ -124,21 +116,39 @@ public sealed class Plugin : BasePlugin
         catch (Exception ex) { Logger.LogError(ex.Message); return false; }
     }
 
-    internal static bool CheckCompatibility()
-    {
-        // Also protect nearby template/recovery hooks used by the reference mod.
-        var targets = typeof(Plugin).Assembly.GetTypes()
-            .Where(t => t.GetCustomAttributes(typeof(HarmonyPatch), false).Length != 0)
-            .SelectMany(t => t.GetCustomAttributes<HarmonyPatch>().Select(p => p.info))
+    static readonly Type[] DeclaredPatchTypes = typeof(Plugin).Assembly.GetTypes()
+        .Where(t => t.IsDefined(typeof(HarmonyPatch), false)).ToArray();
+
+    static bool IsHallPatch(Type type) => type.IsDefined(typeof(HallTrialPatchAttribute), false);
+
+    static IEnumerable<Type> ActivePatchTypes() =>
+        DeclaredPatchTypes.Where(t => HallFirstContact.EnabledAtStartup || !IsHallPatch(t));
+
+    static IEnumerable<MethodBase?> PatchTargets(IEnumerable<Type> types) =>
+        types.SelectMany(t => t.GetCustomAttributes<HarmonyPatch>().Select(p => p.info))
             .Where(p => p.declaringType != null && p.methodName != null)
-            .Select(p => AccessTools.Method(p.declaringType, p.methodName))
-            .Concat(new[] { AccessTools.Method(typeof(BattleManager), nameof(BattleManager.BattleEnd)) });
+            .Select(p => AccessTools.Method(p.declaringType, p.methodName));
+
+    // Also protect nearby template/recovery hooks used by the reference mod.
+    internal static bool CheckCompatibility() => CheckPatchTargets(
+        PatchTargets(ActivePatchTypes()).Append(AccessTools.Method(typeof(BattleManager), nameof(BattleManager.BattleEnd))),
+        hallOnly: false);
+
+    static bool CheckPatchTargets(IEnumerable<MethodBase?> targets, bool hallOnly)
+    {
         foreach (MethodBase? target in targets)
         {
-            if (target == null) throw new MissingMethodException("A required verified patch target is unavailable.");
+            if (target == null)
+            {
+                if (!hallOnly) throw new MissingMethodException("A required verified patch target is unavailable.");
+                Logger.LogWarning("Hall of Echoes disabled: a verified trial patch target is unavailable.");
+                return false;
+            }
             var owners = Harmony.GetPatchInfo(target)?.Owners.Where(o => o != Id).ToArray();
             if (owners is not { Length: > 0 }) continue;
-            Logger.LogError($"Nightmare disabled: overlapping Harmony patch on {target.DeclaringType?.Name}.{target.Name}: {string.Join(", ", owners)}. Disable overlapping gameplay features and restart.");
+            var message = $"overlapping Harmony patch on {target.DeclaringType?.Name}.{target.Name}: {string.Join(", ", owners)}.";
+            if (hallOnly) Logger.LogWarning($"Hall of Echoes disabled: {message}");
+            else Logger.LogError($"Nightmare disabled: {message} Disable overlapping gameplay features and restart.");
             return false;
         }
         return true;

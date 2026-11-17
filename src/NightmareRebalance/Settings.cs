@@ -19,9 +19,12 @@ internal sealed class Settings
 
     internal readonly ConfigEntry<bool> EnableStarBonds, EnablePartyIdentity;
     internal readonly ConfigEntry<bool> EnableCombatReforgedAi, RunCombatSelfTest, EnableHuntDebugTools;
+    internal readonly ConfigEntry<bool> EnableHallOfEchoes;
 
     internal Settings(ConfigFile config)
     {
+        EnableHallOfEchoes = config.Bind("Hall of Echoes", nameof(EnableHallOfEchoes), false,
+            "Enable the experimental Pest Rat rematch in the Castle Guild. Requires a restart.");
         EnableHuntDebugTools = config.Bind("Developer", nameof(EnableHuntDebugTools), false, "Explicit hunt-test damage protection hotkey F7. Disabled by default; restart required. Never changes levels or saves.");
         EnableStarBonds = config.Bind("Party Revolution", nameof(EnableStarBonds), true, "Conditional Star Bonds in eligible Normal battles.");
         EnablePartyIdentity = config.Bind("Party Revolution", nameof(EnablePartyIdentity), true, "Revised native growth and existing rune slot thresholds. Restart required.");

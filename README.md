@@ -1,8 +1,9 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development experiment** is v1.42 Hall Safe Return. Two consecutive
+**Latest development milestone** is v1.42 Hall Safe Return. Two consecutive
 player-earned Pest Rat victories paid native rewards and returned to the Castle
-Guild. Hall trials remain unavailable in normal builds.
+Guild. Native Retry restored the Guild and allowed a fresh challenge. The
+normal source build keeps the experimental Pest Rat trial off by default.
 [Safe Return evidence and limits](docs/HALL-SAFE-RETURN-V142.md).
 
 **Campaign development baseline** is v1.40, with DLL

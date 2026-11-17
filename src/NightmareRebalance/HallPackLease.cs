@@ -1,4 +1,3 @@
-#if HALL_FIRST_CONTACT
 using Il2CppInterop.Runtime;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
@@ -115,5 +114,3 @@ internal sealed class HallPackLease
         Require(!LoaderValid && CacheEntry(key) == null, "Owned pack was not released exactly once.");
     }
 }
-
-#endif

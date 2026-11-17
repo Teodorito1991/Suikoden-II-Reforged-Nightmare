@@ -76,3 +76,27 @@ consecutive wins establish the victory and reward path on this same DLL.
 This artifact is only available in the protected experimental build.
 The managed regressions and the exact DLL's 5,046-check native
 production audit passed. The startup audit loaded no campaign.
+
+## Normal-build option
+
+Build the current source in Release with the usual project command and
+local game references. The normal build is `1.42.0-hall-opt-in.1` with DLL
+SHA256 `E4F48D8AB16AC0E224FF78AEE0689CE3E954A87E5FC47EAFA74DE508D5FFF40A`.
+It introduces `[Hall of Echoes] EnableHallOfEchoes` with default `false`.
+The option is read at startup. The game still requires the audited build,
+Normal difficulty and a compatible, idle Castle Guild at the audited
+location. The Hall installs its exclusive Harmony hooks only when opted
+in. A conflicting Hall-only target disables Hall access at startup.
+The live feature has no dependency on private paths, markers or observer
+assemblies. The test observer remains separate and disposable.
+
+The normal-build DLL passed the managed suite and the exact-build
+5,046-check native production audit with the gate off. With the
+configuration enabled in the protected copy, the Guild launched native
+Pest Rat at battle index `-1`. A rendered flee returned to the same
+position, awarded nothing, preserved the checked campaign state, and
+released both owned resources. The full victory and Retry tests above
+belong to the protected recovery DLL. The normal-build gate ships off in
+source and the experimental trial requires explicit opt-in.
+
+No player package was published. Pest Rat is the only trial.

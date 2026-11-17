@@ -11,8 +11,11 @@ Binary distribution requires separate owner approval.
   before releasing the trial's resources.
 - Two consecutive player-earned wins each delivered 17,000 Potch and one
   Poison Orb on the tested settings. Both returned to the same Guild spot.
-- Traced the earlier copied save write to map initialization after Retry.
-  Hall access remains disabled in normal builds.
+- Matched ordinary and Hall defeats against the same Retry checkpoint.
+  Their autosaves differ only in timestamps and timers.
+- Adds a default-off configuration gate for the Pest Rat rematch in a
+  normal source build. The feature checks compatibility before installing
+  its hooks. No player package was published.
   [Exact build and verification](docs/HALL-SAFE-RETURN-V142.md).
 
 ## v1.41 — Hall of Echoes First Contact (development only)

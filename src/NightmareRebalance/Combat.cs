@@ -111,10 +111,8 @@ internal static class Combat
         var s = State;
         if (s is not { Ready: true, StatsAllowed: true } || unit == null || unit.IsPlayer ||
             unit.TryCast<BattleMonsterCharacter>() == null || unit.hp <= 0 || unit.max_hp == 0 || !s.ScaledEnemies.Add(unit.Pointer.ToInt64())) return;
-#if HALL_FIRST_CONTACT
-        if (Framework.Singleton<BATTLE_WORK>.instance is {} work && HallFirstContact.UsesOriginalRatHp(work))
+        if (HallFirstContact.UsesOriginalRatHp())
             return;
-#endif
         // Mutate live instances only. MONSTER_DATA templates remain vanilla, including across encounters.
         int beforeHp = unit.hp, beforeMax = unit.max_hp;
         double factor = OverhaulRuntime.Register(s, unit)?.HpMultiplier ?? BossRuntime.Plan(s, unit)?.HpMultiplier ?? Plugin.Options.EnemyHpMultiplier.Value;
@@ -250,9 +248,7 @@ internal static class VictoryPatch
     [HarmonyPostfix] static void Postfix(BattleManager __instance)
     {
         Combat.Win(__instance);
-#if HALL_FIRST_CONTACT
         HallFirstContact.Outcome(__instance.battle_work, true);
-#endif
     }
 }
 
@@ -262,9 +258,7 @@ internal static class NonVictoryPatch
     [HarmonyPrefix] static void Prefix(BattleManager __instance)
     {
         Combat.NonVictory(__instance);
-#if HALL_FIRST_CONTACT
         HallFirstContact.Outcome(__instance.battle_work, false);
-#endif
     }
 }
 

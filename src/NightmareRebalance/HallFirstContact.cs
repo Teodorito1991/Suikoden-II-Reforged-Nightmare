@@ -1,5 +1,3 @@
-#if HALL_FIRST_CONTACT
-using BepInEx;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
@@ -9,32 +7,16 @@ using UnityEngine.SceneManagement;
 
 namespace NightmareRebalance;
 
+[AttributeUsage(AttributeTargets.Class)]
+internal sealed class HallTrialPatchAttribute : Attribute { }
+
 internal static class HallFirstContact
 {
     static Trial? trial;
     static bool faulted;
-    static Func<bool>? isolated;
-    internal static readonly bool CopyLaunch = !Application.isBatchMode &&
-        Environment.GetCommandLineArgs().Contains("--reforged-hall-first-contact") &&
-        Path.GetFullPath(Paths.GameRootPath).EndsWith(
-            Path.Combine("github-private-staging", "isolated-game"), StringComparison.OrdinalIgnoreCase) &&
-        File.Exists(Path.Combine(Paths.GameRootPath, "PRIVATE_DO_NOT_UPLOAD.txt")) &&
-        File.Exists(Path.Combine(Paths.GameRootPath, "PRIVATE_HALL_COPY_ARMED"));
-
-    internal static bool Available => CopyLaunch && !faulted && trial == null && IsolationReady();
-
-    static bool IsolationReady()
-    {
-        if (isolated == null)
-        {
-            var guard = AppDomain.CurrentDomain.GetAssemblies()
-                .SingleOrDefault(a => a.GetName().Name == "HallCampaignGuard")?.GetType("HallGuard", false);
-            var method = AccessTools.Method(guard, "FirstContactIsolated");
-            if (method == null) return false;
-            isolated = method.CreateDelegate<Func<bool>>();
-        }
-        return isolated();
-    }
+    internal static bool EnabledAtStartup;
+    internal static bool Available => EnabledAtStartup && HallFirstContactDriver.Instance != null &&
+        !faulted && trial == null;
 
     internal static bool Request()
     {
@@ -117,8 +99,7 @@ internal static class HallFirstContact
 
     static bool SameCampaign(Trial t) =>
         Framework.Singleton<GAME_WORK>.instance?.Pointer == t.Game.Pointer &&
-        t.Game.party_data?.Pointer == t.Party && t.Game.sys_work?.Pointer == t.Sys.Pointer &&
-        IsolationReady();
+        t.Game.party_data?.Pointer == t.Party && t.Game.sys_work?.Pointer == t.Sys.Pointer;
 
     static bool SafeField(Trial t) => SameCampaign(t) && CastleGuildRuntime.Idle &&
         CastleGuildRuntime.Near && CastleGuildRuntime.Owner?.Pointer == t.Field.Pointer &&
@@ -339,7 +320,7 @@ internal static class HallFirstContact
     static bool Owns(BATTLE_WORK? work) => trial is {Committed:true} t &&
         work?.battle_data?.Pointer == t.Table?.Pointer;
 
-    internal static bool UsesOriginalRatHp(BATTLE_WORK work) => Owns(work);
+    internal static bool UsesOriginalRatHp() => trial != null && Owns(Framework.Singleton<BATTLE_WORK>.instance);
 
     internal static void ChapterStarting()
     {
@@ -449,24 +430,28 @@ public sealed class HallFirstContactDriver : MonoBehaviour
 }
 
 [HarmonyPatch(typeof(MACHICON), nameof(MACHICON.MachiMain))]
+[HallTrialPatch]
 internal static class HallFirstContactField
 {
     static void Postfix() => HallFirstContact.Tick();
 }
 
 [HarmonyPatch(typeof(Field), nameof(Field.Setup))]
+[HallTrialPatch]
 internal static class HallFirstContactScene
 {
     static void Postfix(BATTLE_WORK work) => HallFirstContact.Scene(work);
 }
 
 [HarmonyPatch(typeof(MACHICON), "OnEndBattle")]
+[HallTrialPatch]
 internal static class HallFirstContactFieldReturn
 {
     static void Postfix(MACHICON __instance) => HallFirstContact.FieldReturned(__instance);
 }
 
 [HarmonyPatch(typeof(BattleManager), nameof(BattleManager.Release))]
+[HallTrialPatch]
 internal static class HallFirstContactRelease
 {
     static void Prefix(BattleManager __instance, out bool __state) =>
@@ -475,18 +460,21 @@ internal static class HallFirstContactRelease
 }
 
 [HarmonyPatch(typeof(BattleChapter), nameof(BattleChapter.OnDestroy))]
+[HallTrialPatch]
 internal static class HallFirstContactDestroy
 {
     static void Postfix() => HallFirstContact.DestroyObserved();
 }
 
 [HarmonyPatch(typeof(BattleChapter), nameof(BattleChapter.Start))]
+[HallTrialPatch]
 internal static class HallFirstContactStart
 {
     static void Prefix() => HallFirstContact.ChapterStarting();
 }
 
 [HarmonyPatch(typeof(OverlayFunctionBase), "GetBossOPD")]
+[HallTrialPatch]
 internal static class HallFirstContactRatSprite
 {
     static bool Prefix(int __0, ref OPD_DATA? __result)
@@ -498,6 +486,7 @@ internal static class HallFirstContactRatSprite
 }
 
 [HarmonyPatch(typeof(GameOverChapter), nameof(GameOverChapter.Update))]
+[HallTrialPatch]
 internal static class HallFirstContactGameOver
 {
     static void Postfix() => HallFirstContact.Tick();
@@ -505,6 +494,7 @@ internal static class HallFirstContactGameOver
 
 [HarmonyPatch(typeof(OPDResLoader), nameof(OPDResLoader.GetData))]
 [HarmonyPatch(typeof(OPDResLoader), nameof(OPDResLoader.GetActionData))]
+[HallTrialPatch]
 internal static class HallFirstContactPackUse
 {
     static void Prefix(string __0, System.Reflection.MethodBase __originalMethod) =>
@@ -512,8 +502,8 @@ internal static class HallFirstContactPackUse
 }
 
 [HarmonyPatch(typeof(BattleChapter), nameof(BattleChapter.Update))]
+[HallTrialPatch]
 internal static class HallFirstContactBattleTick
 {
     static void Postfix(int __result) => HallFirstContact.BattleTick(__result);
 }
-#endif
