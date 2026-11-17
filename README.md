@@ -1,12 +1,17 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone** is v1.40, with DLL
+**Latest development experiment** is v1.41 First Contact. A protected copied
+runtime completed a native Pest Rat rematch and returned to the Castle Guild.
+Hall trials remain unavailable in normal builds.
+[First Contact evidence and limits](docs/HALL-FIRST-CONTACT-V141.md).
+
+**Campaign development baseline** is v1.40, with DLL
 `1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional
 Star Bonds give Normal parties new ways to prepare and fight. The Castle Guild's
 Party Strategy page shows combinations, their triggers and their effects.
 [Party Revolution profiles and verification](docs/PARTY-REVOLUTION-V140.md).
 [Hall of Echoes engineering handoff](docs/HALL-OF-ECHOES-ENGINEERING-HANDOFF-V141.md)
-records an untagged native fixture investigation. Boss rematches and battle guests remain unavailable.
+records the earlier native fixture investigation. Battle guests remain unavailable.
 [Tactical profiles and v1.39 evidence](docs/TACTICAL-REVOLUTION-V139.md).
 The source repository is public. The installable beta remains unpublished.
 [Castle Guild and Total War changes](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).

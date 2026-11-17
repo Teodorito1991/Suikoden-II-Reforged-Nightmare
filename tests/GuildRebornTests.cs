@@ -73,6 +73,15 @@ internal static class GuildRebornTests
         check(Confirm()==GuildChoice.None && menu.Page==GuildPage.Services && menu.Focus==4,"Hall has no launch action");
         Down();
         check(Confirm()==GuildChoice.Leave,"Leave follows Hall of Echoes");
+        menu.Open(false,10);
+        for (int row = 0; row < 4; row++) Down();
+        check(Confirm()==GuildChoice.None && menu.Page==GuildPage.Echoes &&
+            menu.Confirm(true,true,GuildQuestState.NoContract,true,echoAvailable:true)==GuildChoice.None,
+            "Opening the experimental Hall cannot confirm its challenge");
+        menu.Confirm(false,false,GuildQuestState.NoContract,true,echoAvailable:true);
+        check(menu.Confirm(true,true,GuildQuestState.NoContract,true,echoAvailable:true)==GuildChoice.StartEcho &&
+            menu.Confirm(true,true,GuildQuestState.NoContract,true,echoAvailable:true)==GuildChoice.None,
+            "Experimental Hall requires a fresh confirm and does not repeat while held");
         var serviceRows=Enumerable.Range(0,6).Select(i=>new GuildMenuRow("Service "+i,"")).ToArray();
         var services=GuildRebornScreen.Paginate(new GuildMenuView("SERVICES",serviceRows,5,"","","","","","","","",false),6);
         var last=GuildRebornScreen.Row(services.Focus,services.Rows.Length);

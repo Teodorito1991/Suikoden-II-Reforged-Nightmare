@@ -57,6 +57,12 @@ internal static class HallEchoesProbe
         if (!Requested || original.id != "boss_rat") return;
         Check(Combat.State == null && !WarRuntime.Active && !HuntLaunchProof.PendingWalkingRequest &&
             !HuntAccess.Ticket.Armed, "unloaded launcher and idle battle hooks");
+        var source = ValidatePestRat(original, audit);
+        InspectVerified(original, audit, source, original.monster_data[audit.Monsters.Single().Index]);
+    }
+
+    internal static MONSTER_PARTY_DATA ValidatePestRat(BATTLE_DATA original, FormationAudit audit)
+    {
         var source = original.monster_party[audit.Indices.Single()];
         var monster = original.monster_data[audit.Monsters.Single().Index];
         Check(source.id == audit.PartyId && source.party_flg == audit.Flags &&
@@ -70,12 +76,17 @@ internal static class HallEchoesProbe
             CombatReforgedRuntime.Signature(monster).SequenceEqual(audit.Monsters.Single().Signature),
             "exact source and move signature");
 
-        Plugin.Logger.LogInfo("Hall of Echoes fixture: exact source audited.");
         var opd = monster.opd_data;
         Check(opd != null && opd.anime_kazu > 0 && opd.pattern_kazu > 0 &&
             opd.anime_table.Count > 0 && opd.pattern_table.Count > 0, "original sprite animation records");
 
-        Plugin.Logger.LogInfo("Hall of Echoes fixture: original sprite records loaded.");
+        return source;
+    }
+
+    static void InspectVerified(BATTLE_DATA original, FormationAudit audit, MONSTER_PARTY_DATA source, MONSTER_DATA monster)
+    {
+        var opd = monster.opd_data;
+        Plugin.Logger.LogInfo("Hall of Echoes fixture: audited source and original sprite records loaded.");
         var previousGame = Framework.Singleton<GAME_WORK>.instance;
         var previousWork = Framework.Singleton<BATTLE_WORK>.instance;
         var rng = UnityEngine.Random.state;

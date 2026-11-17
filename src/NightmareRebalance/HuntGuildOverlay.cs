@@ -131,11 +131,25 @@ public sealed class HuntGuildOverlay:MonoBehaviour
 
   if (page == GuildPage.Services)
   {
-   var row = Services[focus];
-   return GuildRebornScreen.Paginate(new("SERVICES", Services, focus, row.Title, "", row.Note,
+   var rows = Services;
+#if HALL_FIRST_CONTACT
+   if (!preview && !developer && HallFirstContact.Available)
+   {
+    rows = Services.ToArray();
+    rows[4] = new GuildMenuRow("Hall of Echoes", "Pest Rat development trial");
+   }
+#endif
+   var row = rows[focus];
+   return GuildRebornScreen.Paginate(new("SERVICES", rows, focus, row.Title, "", row.Note,
        "", "", status, focus == Services.Length-1 ? "Leave" : "Open", back, preview), pageSize:6);
   }
 
+#if HALL_FIRST_CONTACT
+  if (page == GuildPage.Echoes && !preview && !developer && HallFirstContact.Available)
+   return new("HALL OF ECHOES", new[]{new GuildMenuRow("Pest Rat", "Normal")}, 0,
+       "Pest Rat", "Development trial", "Challenge Pest Rat at its original HP.",
+       "", "Native battle spoils", status, "Confirm challenge", back, false);
+#endif
   if (page == GuildPage.Echoes)
    return new("HALL OF ECHOES", new[]{new GuildMenuRow("Boss rematches","Unavailable")}, 0,
        "Hall of Echoes","Development preview",

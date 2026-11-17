@@ -7,7 +7,11 @@ using HarmonyLib;
 
 namespace NightmareRebalance;
 
+#if HALL_FIRST_CONTACT
+[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.41.0")]
+#else
 [BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.40.0")]
+#endif
 [BepInDependency("d3xMachina.suikoden_fix", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("faospark.pkcore", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("nightmare.suikoden2.rebalance", BepInDependency.DependencyFlags.SoftDependency)]
@@ -82,7 +86,14 @@ public sealed class Plugin : BasePlugin
             CombatRealityProbe.Run();
             if(ProductionAssetAudit.Requested){AddComponent<ProductionAssetAudit>();ProductionAssetAudit.Scheduled=true;}
             if (Options.EnableDeveloperTools.Value) AddComponent<DeveloperOverlay>();
+#if HALL_FIRST_CONTACT
+            if (HallFirstContact.CopyLaunch) AddComponent<HallFirstContactDriver>();
+#endif
+#if HALL_FIRST_CONTACT
+            Log.LogInfo("Reforged Nightmare 1.41.0-first-contact.1 loaded.");
+#else
             Log.LogInfo("Reforged Nightmare 1.40.0-party-revolution.1 loaded.");
+#endif
         }
         catch (Exception ex)
         {

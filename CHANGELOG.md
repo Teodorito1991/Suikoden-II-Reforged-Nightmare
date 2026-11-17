@@ -3,6 +3,18 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.41 — Hall of Echoes First Contact (development only)
+
+- Opens a Pest Rat rematch through the Castle Guild in a protected copied
+  runtime. Normal builds keep Hall trials unavailable.
+- Rendered native combat produced a victory and a return to the Guild
+  corridor. A second launch ended in stock Game Over. Both runs passed the
+  trial's scene and resource teardown checks.
+- Native victory delivered a Poison Orb. The test party was already at the
+  Potch cap. Stock Retry restored movement but the Guild attendant was absent
+  in the reloaded corridor.
+  [Exact build and limitations](docs/HALL-FIRST-CONTACT-V141.md).
+
 ## Hall of Echoes investigation (untagged)
 
 - Rehearses a native RPG request and detached Pest Rat setup on disposable owners.

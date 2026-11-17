@@ -10,6 +10,11 @@
     <AssemblyName>ReforgedNightmare</AssemblyName>
     <OutputPath>bin/$(Configuration)/$(Version)/</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(HallFirstContact)' == 'true'">
+    <DefineConstants>$(DefineConstants);HALL_FIRST_CONTACT</DefineConstants>
+    <Version>1.41.0-first-contact.1</Version>
+    <OutputPath>bin/$(Configuration)/$(Version)/</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="BepInEx.Core"><HintPath>$(GamePath)\BepInEx\core\BepInEx.Core.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="BepInEx.Unity.IL2CPP"><HintPath>$(GamePath)\BepInEx\core\BepInEx.Unity.IL2CPP.dll</HintPath><Private>false</Private></Reference>
