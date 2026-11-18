@@ -47,6 +47,19 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   if(table.id=="vb07_00")GuildNativeProbe.ReissueTable=table;
   if (HallEchoesProbe.Requested && table.id=="boss_rat")
       HallEchoesProbe.Inspect(table,bossSources.Single(b=>b.Data.TableId==table.id).Data);
+  if (HallTrialCatalogue.Entries.Any(x => x.TableId == table.id))
+  {
+   var a = bossSources.Single(x => x.Data.TableId == table.id).Data;
+   HallEchoesProbe.ValidateSource(table, a);
+   int bossIndex = Array.IndexOf(BattleLoader.btl_bos_data.ToArray(), table.id);
+   Check(bossIndex >= 0, "Original Hall boss resource index");
+   var monster = table.monster_data[a.Monsters.Single().Index];
+   Rows.Add(new { Kind="HallTrialSource", table.id, BossIndex=bossIndex,
+       Pack=BattleLoader.GetBossResID(bossIndex), Scene=table.battle_field_data?.hd_field_id,
+       monster.name_id, monster.hp, monster.mochi_kin,
+       Items=monster.item_data.Where(i=>i!=null).Select(i=>new {i.item_no}).ToArray(),
+       Opening=a.HookNames[0], Ending=a.HookNames[3] });
+  }
   CastleGuildNativeProbe.HuntTable(table);
   BossTacticsProbe.Table(table);
   var legendary=LegendaryBossRuntime.Audit.Where(x=>x.Data.TableId==table.id).ToArray();

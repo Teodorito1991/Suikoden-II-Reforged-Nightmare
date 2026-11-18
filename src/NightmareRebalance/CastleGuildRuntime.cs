@@ -103,6 +103,7 @@ internal static class CastleGuildRuntime
   // native window invalidates Idle and keeps the Guild closed.
   if(Modal||ReleaseFence||Field?.Pointer!=e.Pointer||!Idle||!Near||!FacingClerk||HuntGuildRuntime.RenderFaulted)return;
   Modal=true;
+  Menu.EchoCount = HallTrialCatalogue.Entries.Length;
   Menu.Open(Quest.State==GuildQuestState.AwaitingReport,HuntRuntime.BrowseOrder.Length);
   HuntGuildRuntime.Visible=true;
   HuntGuildRuntime.LastRenderFrame=-1;
@@ -128,13 +129,13 @@ internal static class CastleGuildRuntime
   string restriction=Menu.Page==GuildPage.Training?TrainingWar.Unavailable((TrainingWar.Drill)Menu.Focus):"";
   if(decide&&Menu.ConfirmReleased&&restriction.Length!=0)Status=restriction;
   var choice=Menu.Confirm(decide,Held(GRInputManager.Type.Decide),Quest.State,restriction.Length==0
-      ,HallFirstContact.Available
+      ,HallFirstContact.Available && (Menu.Focus == 0 || Plugin.Options.EnableHallHarpy.Value)
   );
   bool leave=choice switch
   {
    GuildChoice.Accept when Menu.Focus<HuntRuntime.BrowseOrder.Length => AcceptContract(HuntRuntime.BrowseOrder[Menu.Focus].Id),
    GuildChoice.Start => TrainingWar.Request((TrainingWar.Drill)Menu.Drill,Menu.Focus==1),
-   GuildChoice.StartEcho => HallFirstContact.Request(),
+   GuildChoice.StartEcho => HallFirstContact.Request(Menu.Focus),
    GuildChoice.Report => ReportContract(),
    GuildChoice.Withdraw => WithdrawContract(),
    GuildChoice.Leave => true,

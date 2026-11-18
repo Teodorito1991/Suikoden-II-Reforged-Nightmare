@@ -135,7 +135,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    if (!preview && !developer && HallFirstContact.Available)
    {
     rows = Services.ToArray();
-    rows[4] = new GuildMenuRow("Hall of Echoes", "Pest Rat development trial");
+    rows[4] = new GuildMenuRow("Hall of Echoes", "Choose a boss rematch");
    }
    var row = rows[focus];
    return GuildRebornScreen.Paginate(new("SERVICES", rows, focus, row.Title, "", row.Note,
@@ -143,9 +143,17 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   }
 
   if (page == GuildPage.Echoes && !preview && !developer && HallFirstContact.Available)
-   return new("HALL OF ECHOES", new[]{new GuildMenuRow("Pest Rat", "Normal")}, 0,
-       "Pest Rat", "Development trial", "Challenge Pest Rat at its original HP.",
-       "", "Native Potch · Possible Poison Orb", status, "Confirm challenge", back, false);
+  {
+   var trials = HallTrialCatalogue.Entries;
+   var selected = trials[focus];
+   bool available = focus == 0 || Plugin.Options.EnableHallHarpy.Value;
+   var rows = trials.Select((trial, index) => new GuildMenuRow(trial.Name,
+       index == 0 || Plugin.Options.EnableHallHarpy.Value ? "Normal" : "Unavailable")).ToArray();
+   return GuildRebornScreen.Paginate(new("HALL OF ECHOES", rows, focus,
+       selected.Name, available ? "Normal rematch" : "Experimental · Disabled",
+       selected.Description, "", selected.Rewards, status,
+       available ? "Confirm challenge" : "Back", back, false));
+  }
   if (page == GuildPage.Echoes)
    return new("HALL OF ECHOES", new[]{new GuildMenuRow("Boss rematches","Unavailable")}, 0,
        "Hall of Echoes","Development preview",

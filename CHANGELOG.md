@@ -3,6 +3,28 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.43 — Hall of Echoes Second Challenger (development only)
+
+- Adds the authentic first Harpy rematch, with its original 7,400 HP, moves,
+  hap resources, mountain battlefield and native Potch rewards.
+- Reuses the accepted Hall encounter and cleanup lifecycle through audited trial
+  definitions. Pest Rat keeps its original IDs, scene and native loot.
+- Adds two-row Guild selection and an independent default-off EnableHallHarpy
+  setting. EnableHallOfEchoes also remains false by default.
+- Verifies original resource mappings and loot records in the production audit.
+- The owner completed Pest Rat → Harpy → Pest Rat victories and reopened the
+  Guild. Exact-build receipts recorded 17,000, 34,000 and 17,000 Potch under
+  tested settings, plus a Poison Orb after each Pest Rat victory.
+- Harpy flee returned with no reward. An earlier native Harpy defeat reached
+  stock Game Over and released the trial's resources. All terminal receipts
+  preserved protected flags, war data and progression.
+- Owner-earned Harpy defeat → stock Retry → Headquarters → Guild → new Pest Rat
+  encounter → native flee also passed. Default-off startup installed no optional
+  Hall hooks. The accepted v1.42 fallback and fourteen original saves were preserved.
+- Private automation failures are excluded from acceptance. No player package
+  or release was published.
+  [Build hash, verification and remaining limits](docs/HALL-SECOND-CHALLENGER-V143.md).
+
 ## v1.42 — Hall of Echoes Safe Return (development only)
 
 - Retires the Hall's exact combat state after native defeat so a reloaded

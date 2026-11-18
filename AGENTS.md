@@ -45,3 +45,15 @@ source references and player-facing artifacts.
   synchronization without verification.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
+
+## Current Hall development evidence
+
+v1.43 development artifact is 1.43.0-second-challenger.1, SHA256
+4A73164EC7DF9A16169BB858FE14A2BE1652505E0B63F70BBDFA3862D2554763.
+The owner completed Pest Rat → Harpy → Pest Rat victories, Harpy flee, and
+Harpy defeat → stock Retry → Guild → Pest Rat → flee on this exact DLL.
+Native receipts preserved protected flags, war state, progression and Guild
+return coordinates. Both Hall switches remain false by default. The accepted
+v1.42 fallback is preserved. The original Steam DLL was not replaced.
+See docs/HALL-SECOND-CHALLENGER-V143.md for evidence boundaries.
+Never transfer acceptance to a different rebuild hash.

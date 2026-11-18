@@ -111,7 +111,7 @@ internal static class Combat
         var s = State;
         if (s is not { Ready: true, StatsAllowed: true } || unit == null || unit.IsPlayer ||
             unit.TryCast<BattleMonsterCharacter>() == null || unit.hp <= 0 || unit.max_hp == 0 || !s.ScaledEnemies.Add(unit.Pointer.ToInt64())) return;
-        if (HallFirstContact.UsesOriginalRatHp())
+        if (HallFirstContact.UsesOriginalHp())
             return;
         // Mutate live instances only. MONSTER_DATA templates remain vanilla, including across encounters.
         int beforeHp = unit.hp, beforeMax = unit.max_hp;

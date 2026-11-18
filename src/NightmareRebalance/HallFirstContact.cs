@@ -18,9 +18,11 @@ internal static class HallFirstContact
     internal static bool Available => EnabledAtStartup && HallFirstContactDriver.Instance != null &&
         !faulted && trial == null;
 
-    internal static bool Request()
+    internal static bool Request(int selection = 0)
     {
-        if (!Available || !CastleGuildRuntime.Context || !Plugin.CheckCompatibility() ||
+        if (selection < 0 || selection >= HallTrialCatalogue.Entries.Length ||
+            (selection == 1 && !Plugin.Options.EnableHallHarpy.Value) ||
+            !Available || !CastleGuildRuntime.Context || !Plugin.CheckCompatibility() ||
             CastleGuildRuntime.Owner is not { ano: 10, vno: 6, mno: 3, _mstep: 20 } field ||
             CastleGuildRuntime.Field is not {} events ||
             CastleGuildRuntime.Copy is not {} map || MachiLoader.GetMachiID(field.ano, field.vno) != "vk07" ||
@@ -33,13 +35,15 @@ internal static class HallFirstContact
             return false;
         }
 
-        trial = new Trial(game, sys, field, events, map);
-        Plugin.Logger.LogInfo("HallFirstContact: Guild confirmed Pest Rat.");
+        trial = new Trial(HallTrialCatalogue.Entries[selection], game, sys, field, events, map);
+        Plugin.Logger.LogInfo($"HallFirstContact: Guild confirmed {trial.Definition.Name}.");
         return true;
     }
 
     sealed class Trial
     {
+        internal readonly HallTrialDefinition Definition;
+        internal string PackId = "";
         internal readonly GAME_WORK Game;
         internal readonly SYS_WORK Sys;
         internal readonly MACHICON Field;
@@ -69,13 +73,14 @@ internal static class HallFirstContact
         internal uint Potch;
         internal byte[] RewardIds = Array.Empty<byte>();
         internal int[] RewardCounts = Array.Empty<int>();
-        internal Trial(GAME_WORK game, SYS_WORK sys, MACHICON field, EVENTCON events, MACHIDAT map)
+        internal Trial(HallTrialDefinition definition, GAME_WORK game, SYS_WORK sys, MACHICON field, EVENTCON events, MACHIDAT map)
         {
+            Definition = definition;
             Game = game; Sys = sys; Field = field; Events = events; Map = map;
             Party = game.party_data.Pointer;
             X = events.ehuman[0].x.ss.inte; Y = events.ehuman[0].y.ss.inte;
             Handle = Addressables.LoadAssetAsync<BATTLE_DATA>(
-                (Il2CppSystem.String)"gsd2-classic-battle-battle-boss_rat");
+                (Il2CppSystem.String)("gsd2-classic-battle-battle-" + definition.TableId));
         }
     }
 
@@ -115,13 +120,21 @@ internal static class HallFirstContact
         // Reuse the exact audited source contract from the native fixture.
         var original = t.Handle.Result;
         var audit = ContentRules.Read<BossSourceAudit[]>(ContentRuntime.Resource("boss-resource-audit.json"))
-            .Single(a => a.Data.TableId == "boss_rat").Data;
-        var source = HallEchoesProbe.ValidatePestRat(original, audit);
+            .Single(a => a.Data.TableId == t.Definition.TableId).Data;
+        var source = HallEchoesProbe.ValidateSource(original, audit);
+        if (source.id != t.Definition.PartyId) throw new InvalidOperationException("Trial source party mismatch.");
+        int bossIndex = Array.IndexOf(BattleLoader.btl_bos_data.ToArray(), t.Definition.TableId);
+        if (bossIndex < 0) throw new InvalidOperationException("Trial has no original resource mapping.");
+        t.PackId = BattleLoader.GetBossResID(bossIndex);
+        if (t.PackId != t.Definition.PackId || original.battle_field_data?.hd_field_id != t.Definition.SceneId ||
+            original.monster_data[audit.Monsters.Single().Index].hp != t.Definition.Hp)
+            throw new InvalidOperationException("Trial resource, background or HP identity mismatch.");
+        Plugin.Logger.LogInfo($"HallFirstContact: source={original.id} pack={t.PackId} scene={original.battle_field_data?.hd_field_id} opener={audit.Hooks[0]}.");
         t.Formation = CombatEvolutionRuntime.CopyParty(source, audit.OldCodes);
-        t.Formation.id = "echo_trial_rat_00";
+        t.Formation.id = "echo_trial_" + t.Definition.Id + "_00";
         t.Formation.party_flg = 0;
         t.Formation.item_no = 0;
-        // The original opening creates Pest Rat's battle-local effect work
+        // The original opening creates the boss's battle-local effect work
         // and turns off the captured field background. Retain its audited
         // binding while leaving command, phase and ending callbacks detached.
         t.Formation.data.phase_start_func_index = 0;
@@ -130,7 +143,7 @@ internal static class HallFirstContact
         t.Formation.data.command_func_index = 0;
         t.Formation.data.battle_main_func_index = 0;
         t.Table = ScriptableObject.CreateInstance<BATTLE_DATA>();
-        t.Table.id = "echo_trial_rat";
+        t.Table.id = "echo_trial_" + t.Definition.Id;
         t.Table.is_battle_field_data = original.is_battle_field_data;
         t.Table.battle_field_data = original.battle_field_data;
         t.Table.monster_party_num = 1;
@@ -138,10 +151,10 @@ internal static class HallFirstContact
         t.Table.monster_data = original.monster_data;
         // Keep the original coin value and ordinary monster-drop table.
         // The rematch grants neither a separate Hall payout nor story loot.
-        var rat = original.monster_data[audit.Monsters.Single().Index];
-        t.RewardIds = rat.item_data.Where(item => item != null && item.item_no != 0)
+        var monster = original.monster_data[audit.Monsters.Single().Index];
+        t.RewardIds = monster.item_data.Where(item => item != null && item.item_no != 0)
             .Select(item => item.item_no).Distinct().ToArray();
-        Plugin.Logger.LogInfo($"HallFirstContact: native loot policy; Potch={rat.mochi_kin}, item IDs={string.Join(",", t.RewardIds)}.");
+        Plugin.Logger.LogInfo($"HallFirstContact: native loot policy; Potch={monster.mochi_kin}, item IDs={string.Join(",", t.RewardIds)}.");
     }
 
     static void RequestNative(Trial t)
@@ -196,11 +209,11 @@ internal static class HallFirstContact
                 if (!t.Handle.IsDone) return;
                 if (t.Abort && t.Pack == null) { Finish(t); return; }
                 if (t.Handle.Status != AsyncOperationStatus.Succeeded)
-                    throw new InvalidOperationException("Pest Rat table failed to load.");
+                    throw new InvalidOperationException("Hall source table failed to load.");
                 if (t.Pack == null)
                 {
                     Prepare(t);
-                    t.Pack = new HallPackLease("rat");
+                    t.Pack = new HallPackLease(t.PackId);
                 }
                 if (!t.Pack.Step()) return;
                 if (!t.Abort || t.Scenes != null)
@@ -320,7 +333,7 @@ internal static class HallFirstContact
     static bool Owns(BATTLE_WORK? work) => trial is {Committed:true} t &&
         work?.battle_data?.Pointer == t.Table?.Pointer;
 
-    internal static bool UsesOriginalRatHp() => trial != null && Owns(Framework.Singleton<BATTLE_WORK>.instance);
+    internal static bool UsesOriginalHp() => trial != null && Owns(Framework.Singleton<BATTLE_WORK>.instance);
 
     internal static void ChapterStarting()
     {
@@ -333,17 +346,17 @@ internal static class HallFirstContact
         Plugin.Logger.LogInfo($"HallFirstContact: original chapter starts with owned scene slot {previous}->{t.SceneSlot}.");
     }
 
-    internal static bool TryRatSprite(int index, out OPD_DATA? sprite)
+    internal static bool TryBossSprite(int index, out OPD_DATA? sprite)
     {
         sprite = null;
         if (trial is not {Committed:true, Released:false} t || t.Sys.battle_no != -1 ||
             !Owns(Framework.Singleton<BATTLE_WORK>.instance) || t.Pack?.Loaded != true ||
             index < 0 || index >= t.Pack.Records) return false;
-        sprite = OPDResLoader.GetData("rat", index);
+        sprite = OPDResLoader.GetData(t.PackId, index);
         if (sprite != null && !t.RatLookup)
         {
             t.RatLookup = true;
-            Plugin.Logger.LogInfo($"HallFirstContact: native attack consumed rat pack record {index}.");
+            Plugin.Logger.LogInfo($"HallFirstContact: native attack consumed {t.PackId} pack record {index}.");
         }
         return sprite != null;
     }
@@ -417,8 +430,8 @@ internal static class HallFirstContact
 
     internal static void PackUse(string id, string method)
     {
-        if (id == "rat" && trial is {Committed:true} t && t.PackLookups.Add((method, t.Setup, t.ActorBound, t.Win || t.Loss)))
-            Plugin.Logger.LogInfo($"HallFirstContact: native rat lookup; method={method}, setup={t.Setup}, actors={t.ActorBound}, terminal={t.Win || t.Loss}.");
+        if (trial is {Committed:true} t && id == t.PackId && t.PackLookups.Add((method, t.Setup, t.ActorBound, t.Win || t.Loss)))
+            Plugin.Logger.LogInfo($"HallFirstContact: native {t.PackId} lookup; method={method}, setup={t.Setup}, actors={t.ActorBound}, terminal={t.Win || t.Loss}.");
     }
 }
 
@@ -479,7 +492,7 @@ internal static class HallFirstContactRatSprite
 {
     static bool Prefix(int __0, ref OPD_DATA? __result)
     {
-        if (!HallFirstContact.TryRatSprite(__0, out var sprite)) return true;
+        if (!HallFirstContact.TryBossSprite(__0, out var sprite)) return true;
         __result = sprite;
         return false;
     }

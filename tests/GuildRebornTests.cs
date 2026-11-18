@@ -82,6 +82,20 @@ internal static class GuildRebornTests
         check(menu.Confirm(true,true,GuildQuestState.NoContract,true,echoAvailable:true)==GuildChoice.StartEcho &&
             menu.Confirm(true,true,GuildQuestState.NoContract,true,echoAvailable:true)==GuildChoice.None,
             "Experimental Hall requires a fresh confirm and does not repeat while held");
+        menu.EchoCount=2;
+        menu.Open(false,10);
+        for (int row=0; row<4; row++) Down();
+        Confirm();
+        check(menu.Page==GuildPage.Echoes && menu.RowCount==2, "Hall has independent encounter rows");
+        Down();
+        check(menu.Focus==1, "Second Hall encounter can receive focus");
+        menu.Confirm(false,false,GuildQuestState.NoContract,true,echoAvailable:true);
+        check(menu.Confirm(true,true,GuildQuestState.NoContract,true,echoAvailable:true)==GuildChoice.StartEcho &&
+            menu.Focus==1, "Hall launch preserves selected encounter");
+        Down();
+        check(menu.Focus==0, "Hall encounter navigation wraps");
+        menu.Back();
+        check(menu.Page==GuildPage.Services && menu.Focus==4, "Hall Back restores service focus");
         var serviceRows=Enumerable.Range(0,6).Select(i=>new GuildMenuRow("Service "+i,"")).ToArray();
         var services=GuildRebornScreen.Paginate(new GuildMenuView("SERVICES",serviceRows,5,"","","","","","","","",false),6);
         var last=GuildRebornScreen.Row(services.Focus,services.Rows.Length);

@@ -22,6 +22,8 @@ internal sealed class GuildMenuNavigation
 
     internal static readonly GuildPage[] Services = { GuildPage.Hunts, GuildPage.Training, GuildPage.Status, GuildPage.Strategy, GuildPage.Echoes };
 
+    internal int EchoCount { get; set; } = 1;
+
     internal int RowCount => Page switch
     {
         GuildPage.Services => Services.Length + 1,
@@ -29,6 +31,7 @@ internal sealed class GuildMenuNavigation
         GuildPage.Strategy => StarBondRules.Catalogue.Length,
         GuildPage.Hunts => HuntCount,
         GuildPage.Difficulty => 2,
+        GuildPage.Echoes => EchoCount,
         _ => 1
     };
 

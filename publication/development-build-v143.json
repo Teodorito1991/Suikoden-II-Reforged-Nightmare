@@ -1,0 +1,74 @@
+{
+  "Version": "1.43.0-second-challenger.1",
+  "DllSha256": "4A73164EC7DF9A16169BB858FE14A2BE1652505E0B63F70BBDFA3862D2554763",
+  "AcceptedFallbackSha256": "E4F48D8AB16AC0E224FF78AEE0689CE3E954A87E5FC47EAFA74DE508D5FFF40A",
+  "SourceParent": "343b2085a6699825ecb95eee468cc4f780d85f7d",
+  "Build": {
+    "Configuration": "Release",
+    "DebugType": "None",
+    "Deterministic": true,
+    "Warnings": 0,
+    "Errors": 0,
+    "BuiltBeforeSourceCommit": true
+  },
+  "Verification": {
+    "ManagedRegressions": "pass",
+    "NativeProductionAudit": {
+      "Passed": true,
+      "Assertions": 5048,
+      "RenderedGameplay": false
+    },
+    "ActualRenderedTrials": [
+      "Pest Rat",
+      "Harpy"
+    ],
+    "OwnerVictorySequence": [
+      "Pest Rat",
+      "Harpy",
+      "Pest Rat"
+    ],
+    "ObservedPotchCredits": [
+      17000,
+      34000,
+      17000
+    ],
+    "PoisonOrbSlotsAdded": [
+      1,
+      0,
+      1
+    ],
+    "HarpyFlee": {
+      "Passed": true,
+      "Reward": 0
+    },
+    "HarpyEarnedDefeat": {
+      "Passed": true,
+      "StockGameOver": true,
+      "Reward": 0
+    },
+    "RetryThenNewEncounter": {
+      "Passed": true,
+      "Trial": "Pest Rat",
+      "NativeFlee": true,
+      "Reward": 0
+    },
+    "ProtectedFlagArraysUnchanged": true,
+    "WarStateUnchanged": true,
+    "ProgressionUnchanged": true,
+    "NativeTeardownAndOwnedRelease": true,
+    "OwnerConfirmedGuildReopening": true,
+    "OriginalSaveFilesChecked": 14,
+    "OriginalSaveFilesChanged": 0,
+    "DefaultOffStartup": {
+      "HallEnabled": false,
+      "HarpyEnabled": false,
+      "OptionalHallHooksInstalled": 0,
+      "OptionalHallHookTargets": 11
+    },
+    "FullDecodedStockRetryComparison": "historical v1.42 only; v1.43 observed original MapChapter step-14 save boundary",
+    "AutomationLimit": "Some private launcher/menu input attempts failed and are excluded from acceptance."
+  },
+  "OriginalSteamDllReplaced": false,
+  "BinaryPublished": false,
+  "ReleasePublished": false
+}

@@ -22,7 +22,8 @@ fallbacks and the user's existing settings. No local user configuration changed.
 | Features / EnableCharacterBalancing |true| Character profiles |
 | Features / EnableRuneBalancing |true| Base spell layer; physical runes have separate JSON controls |
 | Features / EnableEnemyProfiles, EnableEnemyTargeting |true| Regular enemy profiles/targeting |
-| Hall of Echoes / EnableHallOfEchoes |false| Opt-in native Pest Rat rematch in the Castle Guild. Restart required |
+| Hall of Echoes / EnableHallOfEchoes |false| Opt-in Hall rematches in the Castle Guild. Restart required |
+| Hall of Echoes / EnableHallHarpy |false| Independent Harpy opt-in, also requiring EnableHallOfEchoes. Restart required |
 | Combat Reforged / EnableCombatReforgedAi |true| Native RPG selection layer |
 | Features / EnableWarUnitProfiles |true| Original-war commander profiles |
 | Native War / EnableNativeWarRemix |true| Guarded story-war objectives |

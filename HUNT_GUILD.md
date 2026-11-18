@@ -130,3 +130,16 @@ contracts have no rendered or player-earned quest acceptance. Sun's historical
 v1.12.2 acceptance remains specific to that binary.
 
 For protected play preparation and the latest candidate, see the [v1.26 acceptance guide](docs/HUNT-ACCEPTANCE-V126.md).
+
+## Hall of Echoes in v1.43
+
+The same attendant now offers a separate Hall page containing Pest Rat and Harpy.
+Choose an encounter with Up/Down and confirm a fresh press. Cancel returns to
+Services. The Hall requires EnableHallOfEchoes; Harpy also requires
+EnableHallHarpy. Both default to false.
+
+The owner completed Pest Rat → Harpy → Pest Rat victories in the copied game.
+Harpy uses its native mountain scene and original attacks. Its reward is native
+Potch with no item drop. Pest Rat retains its possible Poison Orb. The Hall
+uses ordinary native victory processing, with no report-back reward.
+[Exact v1.43 evidence and limitations](docs/HALL-SECOND-CHALLENGER-V143.md).

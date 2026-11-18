@@ -1,11 +1,13 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone** is v1.42 Hall Safe Return. Two consecutive
-player-earned Pest Rat victories paid native rewards and returned to the Castle
-Guild. Native Retry restored the Guild and allowed a fresh challenge. The
-exact normal build passed its own earned victory and Retry cycle and keeps
-the Pest Rat trial off by default.
-[Safe Return evidence and limits](docs/HALL-SAFE-RETURN-V142.md).
+**Latest development milestone** is v1.43, Hall of Echoes Second Challenger.
+The Castle Guild offers Pest Rat and Harpy through one guarded native battle
+lifecycle. The owner completed Pest Rat → Harpy → Pest Rat victories and reopened
+the Guild. Harpy also passed native flee and earned defeat checks.
+Stock Retry restored the Guild and allowed another encounter. Both Hall
+configuration switches default to off.
+[Second challenger evidence and limits](docs/HALL-SECOND-CHALLENGER-V143.md).
+[Accepted v1.42 fallback](docs/HALL-SAFE-RETURN-V142.md).
 
 **Campaign development baseline** is v1.40, with DLL
 `1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional

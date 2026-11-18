@@ -1,8 +1,14 @@
 # Known issues and validation limits
 
-The public source repository tracks v1.38 (`1.38.0-nightmare-campaign.1`). An
+The public source repository tracks v1.43. The campaign baseline is v1.40.
+Earlier campaign settings are documented for `1.38.0-nightmare-campaign.1`. An
 installable release remains unpublished. [Campaign settings and evidence](docs/NIGHTMARE-CAMPAIGN-V138.md).
 
+- **Hall remains opt-in.** Pest Rat and Harpy use independent source, pack and
+  scene identities. v1.43 has alternating owner-earned victories and Harpy flee
+  and defeat → Retry → rematch evidence. Whole-campaign balance and other castle variants remain unverified.
+  The previous accepted v1.42 DLL is preserved.
+  [Exact-build Hall status](docs/HALL-SECOND-CHALLENGER-V143.md).
 - **Legendary Bosses gameplay acceptance is pending.** Original selectors ran
   with disposable phase states. Transformation playback, cinematic endings and
   campaign balance await play. All three Luca fights remain native in campaign

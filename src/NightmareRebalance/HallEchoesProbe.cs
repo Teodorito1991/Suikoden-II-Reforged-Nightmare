@@ -57,15 +57,15 @@ internal static class HallEchoesProbe
         if (!Requested || original.id != "boss_rat") return;
         Check(Combat.State == null && !WarRuntime.Active && !HuntLaunchProof.PendingWalkingRequest &&
             !HuntAccess.Ticket.Armed, "unloaded launcher and idle battle hooks");
-        var source = ValidatePestRat(original, audit);
+        var source = ValidateSource(original, audit);
         InspectVerified(original, audit, source, original.monster_data[audit.Monsters.Single().Index]);
     }
 
-    internal static MONSTER_PARTY_DATA ValidatePestRat(BATTLE_DATA original, FormationAudit audit)
+    internal static MONSTER_PARTY_DATA ValidateSource(BATTLE_DATA original, FormationAudit audit)
     {
         var source = original.monster_party[audit.Indices.Single()];
         var monster = original.monster_data[audit.Monsters.Single().Index];
-        Check(source.id == audit.PartyId && source.party_flg == audit.Flags &&
+        Check(original.id == audit.TableId && source.id == audit.PartyId && source.party_flg == audit.Flags &&
             source.item_no == audit.Item && source.monster_kazu == 1 &&
             source.monster_code.Select(x => (int)x).SequenceEqual(audit.OldCodes) &&
             source.monster_id.Select(x => (int)x).SequenceEqual(audit.OldIds) &&

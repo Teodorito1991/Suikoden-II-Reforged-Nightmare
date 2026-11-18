@@ -19,10 +19,12 @@ internal sealed class Settings
 
     internal readonly ConfigEntry<bool> EnableStarBonds, EnablePartyIdentity;
     internal readonly ConfigEntry<bool> EnableCombatReforgedAi, RunCombatSelfTest, EnableHuntDebugTools;
-    internal readonly ConfigEntry<bool> EnableHallOfEchoes;
+    internal readonly ConfigEntry<bool> EnableHallOfEchoes, EnableHallHarpy;
 
     internal Settings(ConfigFile config)
     {
+        EnableHallHarpy = config.Bind("Hall of Echoes", nameof(EnableHallHarpy), false,
+            "Enable the experimental Harpy rematch. Requires EnableHallOfEchoes and a restart.");
         EnableHallOfEchoes = config.Bind("Hall of Echoes", nameof(EnableHallOfEchoes), false,
             "Enable the experimental Pest Rat rematch in the Castle Guild. Requires a restart.");
         EnableHuntDebugTools = config.Bind("Developer", nameof(EnableHuntDebugTools), false, "Explicit hunt-test damage protection hotkey F7. Disabled by default; restart required. Never changes levels or saves.");
