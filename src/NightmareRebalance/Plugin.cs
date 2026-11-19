@@ -7,14 +7,14 @@ using HarmonyLib;
 
 namespace NightmareRebalance;
 
-[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.48.0")]
+[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.49.0")]
 [BepInDependency("d3xMachina.suikoden_fix", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("faospark.pkcore", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("nightmare.suikoden2.rebalance", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("s2_character_mod", BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class Plugin : BasePlugin
 {
-    internal const string BuildLabel = "1.48.0-campaign-integration.1";
+    internal const string BuildLabel = "1.49.0-grand-expansion.1";
     public const string Id = "nightmare.suikoden2.reforged";
     internal static Settings Options = null!;
     internal static ManualLogSource Logger = null!;
@@ -158,4 +158,3 @@ public sealed class Plugin : BasePlugin
     internal static void Debug(string message) { if (Options.EnableDebugLogging.Value) Logger.LogInfo(message); }
     public override bool Unload() { harmony?.UnpatchSelf(); Combat.Clear(); WarRuntime.Clear(); NativeWarRemix.Clear(); War2Runtime.Clear(); TotalWarRuntime.Clear(); WarTacticsRuntime.Clear(); CombatReforgedRuntime.Clear(); return true; }
 }
-

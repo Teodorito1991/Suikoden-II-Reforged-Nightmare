@@ -87,3 +87,10 @@ v1.19 reuses existing UI/interoperability references. The existing --reforged-gu
 ## v1.20 development note
 
 v1.20 adds no external references. Existing production-audit path includes disposable original-engine boss selectors/targets and damage helpers. Use independent protected runtime, combat self-test on and native-war self-tests OFF. No boss story callbacks or rendered battles are invoked.
+
+## v1.49 configuration-only staging
+
+Run `tools/test-full-content.ps1` alongside the retained managed and Fresh Campaign
+checks. Generate optional configuration with `tools/prepare-full-content.ps1` into
+an empty directory. This does not build/install a DLL or touch saves. Native checks
+require a privately owned game runtime; no game/interop assets are in this repository.

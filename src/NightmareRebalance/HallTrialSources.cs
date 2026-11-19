@@ -6,7 +6,9 @@ internal static class HallTrialSources
         ContentRules.Read<BossSourceAudit[]>(ContentRuntime.Resource("boss-resource-audit.json"))
             .Select(x=>x.Data)
             .Concat(ContentRules.Read<FormationAudit[]>(ContentRuntime.Resource("boss-revolution-audit.json")))
-            .ToDictionary(x=>x.TableId));
+            .Concat(ContentRules.Read<BossSourceAudit[]>(ContentRuntime.Resource("legendary-boss-audit.json")).Select(x=>x.Data))
+            .Concat(ContentRules.Read<FormationAudit[]>(ContentRuntime.Resource("hall-bulk-source-audit.json")))
+            .GroupBy(x=>x.TableId).ToDictionary(x=>x.Key,x=>x.First()));
 
     internal static FormationAudit Get(string tableId)=>sources.Value[tableId];
 }

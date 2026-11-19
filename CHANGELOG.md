@@ -1,5 +1,26 @@
 # Development history
 
+## v1.49 — Grand Expansion (development)
+
+- Eleven additional original-source Hall encounters; nineteen definitions and
+  optional Nightmare profiles total. Owned group templates and explicit retained
+  battle-local phase/command roles reuse the existing request/return lifecycle.
+- Four additional direct post-battle story witnesses; seven clearly identified
+  bonus memories use verified milestone prerequisites. Three old unresolved
+  memories remain normal-locked. No story flag writes or availability bypass.
+- Tier-specific native Power/Magic/Speed/Magic Protection stone offers retain the
+  existing conditional25% ledger, original loot priority and native inventory.
+- Separate Full Content Preview enables all ten Hunts and compatible Hall entries;
+  conservative profile and all personal settings remain intact.
+- Corrected the general history version label. War/RPG systems otherwise preserved;
+  Army Training remains protected-copy-only; no commander progression.
+- Build `1.49.0-grand-expansion.1`, SHA256 `D98E62D3B09E0FBFB9DFEC7AA8AE99AB661FF3F11D8DF14B79C2673056AC822F`.
+  Actual Mist Shade/Rowd earned victories, native item gains and clean returns
+  passed; other new fights and Nightmare rewards remain native-only. Preview
+  capture frame ownership improved; intermittent fixed-text omission remains.
+  [Complete coverage and evidence](docs/GRAND-EXPANSION-V149.md).
+
+
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 

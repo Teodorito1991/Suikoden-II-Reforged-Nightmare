@@ -1,13 +1,19 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone** is v1.48, The Journey Begins: Campaign Integration.
-A reproducible **Fresh Campaign** configuration now selects a conservative Normal
-playthrough baseline without changing personal settings or installing anything.
-Exact-build gameplay passed an early ordinary battle, protected save/reload,
-The Undying Watch's full accept → walking battle → native rewards → Guild report
-→ reacceptance loop, and a later victory with rune-charge recovery.
-[Campaign profile, readiness and evidence](docs/FRESH-CAMPAIGN-V148.md).
-[Preserved Nightmare tier implementation](docs/HALL-NIGHTMARE-TRIALS-V147.md).
+**Latest development milestone: v1.49 — The Grand Expansion.**
+19 Hall rematch definitions (eleven additions), 19 optional Nightmare profiles and
+four native growth-stone reward choices. Sixteen entries have read-only story or
+explicit bonus unlocks; three remain normal-locked. New group/phase integrations
+have native setup evidence; Mist Shade and Rowd's Patrol also passed earned
+victory/return/Guild reopen on this DLL. Other additions remain native-only.
+[Coverage, blocked records and verification](docs/GRAND-EXPANSION-V149.md).
+
+A separate **Full Content Preview** selects all ten Hunts and compatible Hall
+content without developer bypasses or changing personal settings. The conservative
+[v1.48 Fresh Campaign baseline](docs/FRESH-CAMPAIGN-V148.md) and its genuine
+Undying Watch/early-battle evidence remain preserved.
+[Generate the full-content configuration](profiles/full-content/README.md).
+Army Training remains protected-copy-only; no commander XP is advertised.
 
 **Campaign development baseline** is v1.40, with DLL
 `1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional

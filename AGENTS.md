@@ -46,6 +46,24 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
+## Current v1.49 Grand Expansion
+
+Build1.49.0-grand-expansion.1 / SHA256 D98E62D3B09E0FBFB9DFEC7AA8AE99AB661FF3F11D8DF14B79C2673056AC822F.
+19 trial definitions/19 Nightmare profiles; eleven additions. Native source and
+manager setup checks cover all19. Exact-hash owner Original Mist Shade win and
+Rowd group win/Guild reopens passed; protected snapshots unchanged, owned cleanup
+complete, native item9+1/item1+1, purse capped999999/zero credit, no saves. Other
+new fights and Nightmare rewards remain native-only. Automated fifth-page captures
+can omit fixed header/footer text; do not call all33 screenshots visually perfect. Seven bonus memories use
+explicitly disclosed verified milestone gates; four new direct completion witnesses;
+three old unresolved entries remain locked. Original8 IDs/options preserved.
+Owned group clones and explicit local phase/command roles; no story endings.
+Mist Shade direct GetBossResID(-1) uses only the active trial's owned/borrowed pack,
+without changing battle_no. Four conditional growth stones, duplicate identity
+protected. Full Content Preview is separate; all10 Hunts selected, training,
+unsafe scripted switches and developer overrides off. No Steam install/save change,
+no release. v1.48 fallback preserved. See docs/GRAND-EXPANSION-V149.md.
+
 ## Current v1.48 campaign integration
 
 Build 1.48.0-campaign-integration.1 / SHA256

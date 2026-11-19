@@ -18,7 +18,7 @@ internal static class HallUnlockProbe
         var policy=o.HallUnlockPolicy.Value;
         bool hall=o.EnableHallOfEchoes.Value;
         var trialOptions=new[]{o.EnableHallPestRat,o.EnableHallHarpy,o.EnableHallGoldenWolf,
-            o.EnableHallStoneGolem,o.EnableHallAbomination};
+            o.EnableHallStoneGolem,o.EnableHallAbomination}.Concat(o.AdditionalHallTrials.Values).ToArray();
         var trialValues=trialOptions.Select(x=>x.Value).ToArray();
         static void Check(bool ok){if(!ok)throw new InvalidOperationException("Native Hall availability/reset guard failed.");}
         try
@@ -40,6 +40,7 @@ internal static class HallUnlockProbe
             scratch.event_flag[0xB6]=2;scratch.event_flag[0x21]=0x10;scratch.event_flag[0x16]=2;
             scratch.event_flag[0xC9]=1;scratch.event_flag[0x56]=0x20;
             scratch.event_flag[0x3D]=0x10;
+            scratch.event_flag[7]=64;scratch.event_flag[0xBA]=8;scratch.event_flag[0xBB]=16;scratch.event_flag[0x14]=2;
             Check(!HallAvailability.Unlocked(7)); // Worm's encounter-start flag is not victory.
             Check(All(true));
             o.EnableHallGoldenWolf.Value=false;Check(!HallAvailability.CanSelect(2));o.EnableHallGoldenWolf.Value=true;

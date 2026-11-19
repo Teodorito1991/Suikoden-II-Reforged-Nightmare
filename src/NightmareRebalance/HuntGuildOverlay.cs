@@ -7,7 +7,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
 {
  readonly Stopwatch timer=Stopwatch.StartNew();
  Font? fallbackFont;readonly Dictionary<int,GUIStyle> styles=new();bool faulted;readonly StableHotkeyEdge request=new();
- bool smokeExitRequested;
+ bool smokeExitRequested,smokeCapturePending;
+ int smokeCaptureFrame;
  HuntDefinition? fieldOffer;
  int smokeScreen,smokePaints;
  long nextCaptureAt=-1;
@@ -34,7 +35,18 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   (GuildPage.EchoDifficulty,0,5,"19-original-tier.png",false),
   (GuildPage.EchoDifficulty,1,5,"20-nightmare-golem.png",false),
   (GuildPage.EchoDifficulty,1,6,"21-nightmare-abomination.png",false),
-  (GuildPage.EchoDifficulty,1,2,"22-nightmare-wolf.png",false)
+  (GuildPage.EchoDifficulty,1,2,"22-nightmare-wolf.png",false),
+  (GuildPage.Echoes,8,0,"23-bone-dragon.png",false),
+  (GuildPage.Echoes,10,0,"24-neclord-final.png",false),
+  (GuildPage.Echoes,11,0,"25-lucia-retinue.png",false),
+  (GuildPage.Echoes,14,0,"26-seed-culgan.png",false),
+  (GuildPage.Echoes,16,0,"27-mist-shade.png",false),
+  (GuildPage.EchoDifficulty,1,14,"28-nightmare-commanders.png",false),
+  (GuildPage.EchoDifficulty,1,0,"29-nightmare-rat.png",false),
+  (GuildPage.EchoDifficulty,1,10,"30-nightmare-neclord.png",false),
+  (GuildPage.Echoes,17,0,"31-lucia-castle.png",false),
+  (GuildPage.Echoes,18,0,"32-rowd-patrol.png",false),
+  (GuildPage.EchoDifficulty,1,18,"33-nightmare-rowd.png",false)
  };
  [DllImport("user32.dll")]static extern short GetAsyncKeyState(int key);
  [DllImport("user32.dll")]static extern IntPtr GetForegroundWindow();
@@ -73,7 +85,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   if(smokeExitRequested)return;
   try
   {
-   if(faulted||GuildVisualResources.Failed||timer.ElapsedMilliseconds>35000)
+   if(faulted||GuildVisualResources.Failed||timer.ElapsedMilliseconds>10000+SmokeScreens.Length*1100)
     throw new InvalidOperationException($"Preview incomplete: {smokePaints} repaint passes, {smokeScreen}/{SmokeScreens.Length} screenshots queued. Run on a separate Windows desktop with a visible game surface.");
    if(nextCaptureAt<0&&timer.ElapsedMilliseconds>=3000&&
        UnityEngine.SceneManagement.SceneManager.GetActiveScene().name=="Main"&&
@@ -81,6 +93,12 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    {
     Directory.CreateDirectory(HuntGuildRuntime.CaptureDirectory!);
     nextCaptureAt=timer.ElapsedMilliseconds+2000;
+   }
+   // A screenshot is fulfilled after rendering. Keep the same view throughout
+   // all repaint calls and the following frames; never advance inside OnGUI.
+   if(smokeCapturePending && Time.frameCount>smokeCaptureFrame+2)
+   {
+    smokeCapturePending=false;smokeScreen++;nextCaptureAt=timer.ElapsedMilliseconds+700;
    }
    if(smokeScreen!=SmokeScreens.Length||timer.ElapsedMilliseconds<nextCaptureAt||
        !SmokeScreens.All(s=>new FileInfo(Path.Combine(HuntGuildRuntime.CaptureDirectory!,s.File)) is {Exists:true,Length:>0}))return;
@@ -141,7 +159,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   if (page == GuildPage.Services)
   {
    var rows = Services;
-   if (!preview && !developer && HallFirstContact.Available)
+   if (preview || !developer && HallFirstContact.Available)
    {
     rows = Services.ToArray();
     rows[4] = new GuildMenuRow("Hall of Echoes", "Choose a boss rematch");
@@ -344,8 +362,9 @@ public sealed class HuntGuildOverlay:MonoBehaviour
  void CapturePreview()
  {
   smokePaints++;
-  if(timer.ElapsedMilliseconds<nextCaptureAt)return;
-  var file=SmokeScreens[smokeScreen++].File;
+  if(smokeCapturePending||timer.ElapsedMilliseconds<nextCaptureAt)return;
+  var file=SmokeScreens[smokeScreen].File;
+  smokeCapturePending=true;smokeCaptureFrame=Time.frameCount;
   ScreenCapture.CaptureScreenshot(Path.Combine(HuntGuildRuntime.CaptureDirectory!,file));
   Plugin.Logger.LogInfo($"Guild preview painted {file} at {Screen.width}x{Screen.height}.");
   nextCaptureAt=timer.ElapsedMilliseconds+700;

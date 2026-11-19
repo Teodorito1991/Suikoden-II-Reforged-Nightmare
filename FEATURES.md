@@ -22,8 +22,11 @@ not yet been certified.
 | Grand Guild Hunts |Ten original-engine optional contracts with native rewards| v1.48 Undying Watch full field-acceptance/victory/item/return/report/reacceptance passed. Sun has historical full acceptance; other eight remain native/component-only. [Current evidence](docs/FRESH-CAMPAIGN-V148.md). |
 | Story wars |Original-engine unit and objective changes for wars 1, 2, 3, 6 and 13, plus native enemy maneuver scoring for 1, 2, 3, 6, 10, 13 and 15| On; native evaluator fixtures. Full story battles await gameplay. |
 | Castle Guild |Suggestion Box attendant, paginated contracts and local party-menu acceptance| v1.48 native field acceptance and live Guild report/reacceptance passed. Exact vk07 variant 3 scope; other castle layouts not certified. |
-| Hall of Echoes |Eight Original rematches; three optional Nightmare tiers with native growth-stone offers| Final v1.47 Golem/Abomination earned wins, native stone receipt and cross-tier returns. Wolf won on earlier candidate; final-hash fight unobserved. Hall/Nightmare default off. [Evidence](docs/HALL-NIGHTMARE-TRIALS-V147.md). |
+| Hall of Echoes |19 rematch definitions; 19 optional Nightmare profiles with four growth-stone choices| v1.49 source-backed setup for all19; Mist Shade phase-capable fight and Rowd group victory/return passed on this DLL; other additions unplayed. Sixteen story/bonus-unlockable; three normal-locked. Historical v1.47 Golem/Abomination earned wins, native stone receipt and cross-tier returns. Wolf won on earlier candidate; final-hash fight unobserved. Hall/Nightmare default off. [Evidence](docs/HALL-NIGHTMARE-TRIALS-V147.md). |
 | Castle Army Training |Three original war scenarios, four drills and optional Veteran tactics| Opt-in in the copied runtime. Historical tavern returns and v1.36 corridor routing are separate evidence. [Current evidence](docs/CASTLE-GUILD-TOTAL-WAR-V136.md). |
+
+Current bulk coverage and honest unlock exceptions: [v1.49](docs/GRAND-EXPANSION-V149.md).
+The Full Content Preview selects all ten Hunts; it is distinct from the conservative profile.
 
 ## Difficulty and builds
 

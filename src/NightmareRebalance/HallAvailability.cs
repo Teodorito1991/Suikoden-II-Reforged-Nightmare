@@ -15,7 +15,8 @@ internal static class HallAvailability
         5 => Plugin.Options.EnableHallStoneGolem.Value,
         6 => Plugin.Options.EnableHallAbomination.Value,
         7 => Plugin.Options.EnableHallWorm.Value,
-        _ => false
+        _ => selection >= 8 && selection < HallTrialCatalogue.Entries.Length &&
+            Plugin.Options.AdditionalHallTrials.TryGetValue(HallTrialCatalogue.Entries[selection].Id,out var option) && option.Value
     };
 
     internal static bool Unlocked(int selection)
@@ -36,5 +37,8 @@ internal static class HallAvailability
             ? "A memory yet to be made. Continue your journey."
             : "This echo is not available in normal play yet."
         : !Configured(selection) ? "This rematch is disabled in the Hall settings."
-        : Testing ? "Testing availability · Story flags are unchanged." : "Story memory recalled · Rematch available.";
+        : Testing ? "Testing availability · Story flags are unchanged." :
+          HallUnlockRules.IsBonus(HallTrialCatalogue.Entries[selection].Id)
+            ? $"Bonus Echo · After {HallUnlockRules.BonusMilestone(HallTrialCatalogue.Entries[selection].Id)}. Not an individual boss-clear claim."
+            : "Story memory recalled · Rematch available.";
 }

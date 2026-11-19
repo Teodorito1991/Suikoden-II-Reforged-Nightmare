@@ -44,7 +44,7 @@ internal static class BattleReportHistory
         if(Plugin.Options.RunCombatSelfTest.Value&&Environment.GetCommandLineArgs().Contains("--reforged-test-exit"))return;
         try{
             string dir=Path.Combine(Paths.BepInExRootPath,"ReforgedNightmare","combat");Directory.CreateDirectory(dir);
-            string record=JsonSerializer.Serialize(new{Version="1.13.0-native-war-foundation.1",CompletedUtc=DateTime.UtcNow,Completed=true,Report=report});
+            string record=JsonSerializer.Serialize(new{Version=Plugin.BuildLabel,CompletedUtc=DateTime.UtcNow,Completed=true,Report=report});
             DiagnosticHistoryStore.Append(Path.Combine(dir,"battle-history.json"),record);
         }catch(Exception e){Plugin.Logger.LogWarning("Battle history write skipped; gameplay retained: "+e.Message);}
     }

@@ -6,11 +6,11 @@ internal static class HallNightmareRuntime
     internal static bool CanSelect(int index)=>index>=0&&index<HallTrialCatalogue.Entries.Length&&
         Plugin.Options.EnableNightmareEchoes.Value&&HallAvailability.CanSelect(index)&&
         HallNightmareRules.Find(HallTrialCatalogue.Entries[index].Id)!=null;
-    internal static MONSTER_DATA Copy(BATTLE_DATA original,HallTrialDefinition definition)
+    internal static MONSTER_DATA Copy(BATTLE_DATA original,HallTrialDefinition definition,int monsterIndex = -1)
     {
         var audit=HallTrialSources.Get(definition.TableId);
         HallEchoesProbe.ValidateSource(original,audit);
-        var source=original.monster_data[audit.Monsters.Single().Index];
+        var source=original.monster_data[monsterIndex<0?audit.Monsters[0].Index:monsterIndex];
         var profile=HallNightmareRules.Find(definition.Id)??throw new InvalidOperationException("No Nightmare profile.");
         var signature=CombatReforgedRuntime.Signature(source);
         var copy=source.ShallowCopy();

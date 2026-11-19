@@ -123,16 +123,16 @@ internal static class GuildRebornTests
         check(flags[0x15]==0&&flags[0xC2]==0x80,"Availability checks never write flags");
         check(!HallUnlockRules.CanLaunch(true,false,true)&&!HallUnlockRules.CanLaunch(false,true,true)&&
             !HallUnlockRules.CanLaunch(true,true,false),"Independent module, trial and story gates");
-        check(HallTrialCatalogue.Entries.Select(x=>x.Id).Distinct().Count()==8&&
+        check(HallTrialCatalogue.Entries.Select(x=>x.Id).Distinct().Count()==19&&HallNightmareRules.Profiles.Length==19&&
             HallTrialCatalogue.Entries[0].Id=="rat"&&HallTrialCatalogue.Entries[1].Id=="harpy", "Stable Hall IDs and eight distinct trials");
         check(HallTrialCatalogue.Entries.Take(5).All(x=>!x.RetainCombatMain)&&
-            HallTrialCatalogue.Entries.Skip(5).All(x=>x.RetainCombatMain),"Existing trials keep their accepted callback roles; new visual controllers are explicit");
+            HallTrialCatalogue.Entries.Skip(5).Take(3).All(x=>x.RetainCombatMain),"Existing trials keep their accepted callback roles; new visual controllers are explicit");
         menu.EchoCount=HallTrialCatalogue.Entries.Length;
         menu.Open(false,10);
         for(int i=0;i<4;i++) Down();
         Confirm();
         for(int i=0;i<HallTrialCatalogue.Entries.Length-1;i++) Down();
-        check(menu.Page==GuildPage.Echoes&&menu.Focus==7,"Eight-trial navigation reaches the final selectable row");
+        check(menu.Page==GuildPage.Echoes&&menu.Focus==HallTrialCatalogue.Entries.Length-1,"Expanded Hall navigation reaches the final selectable row");
         var echoes=HallTrialCatalogue.Entries.Select(x=>new GuildMenuRow(x.Name,"Locked")).ToArray();
         var echoPage=GuildRebornScreen.Paginate(new GuildMenuView("HALL",echoes,7,"","","","","","","","",false));
         check(echoPage.Rows.Length==4&&echoPage.Focus==3&&echoPage.Rows[3]==echoes[7],"Hall pagination keeps final selected memory visible");
@@ -157,6 +157,14 @@ internal static class GuildRebornTests
             var definition=HallTrialCatalogue.Entries.Single(x=>x.Id==profile.Id);
             check(HallNightmareRules.Hp(definition.Hp,profile)>definition.Hp&&HallNightmareRules.Hp(definition.Hp,profile)<definition.Hp*2,"Bounded distinct HP adjustments");
         }
+        foreach(var definition in HallTrialCatalogue.Entries.Skip(8))
+        {
+            check(HallNightmareRules.Find(definition.Id)!=null,"Every new entry has an optional initial advanced profile");
+            check(!HallUnlockRules.StoryUnlocked(definition.Id,(_,_)=>false),"No new memory admits a blank campaign");
+        }
+        check(HallUnlockRules.StoryUnlocked("double-head",(f,m)=>f==7&&m==64),"Double Head dedicated completion");
+        check(HallUnlockRules.StoryUnlocked("bone-dragon",(f,m)=>f==0xBA&&m==0x10),"Bone Dragon alternate post-battle branch");
+        check(HallUnlockRules.IsBonus("seed-culgan")&&HallUnlockRules.StoryUnlocked("seed-culgan",(f,m)=>f==0x14&&m==2),"Bonus explicitly uses a later service milestone, not an individual kill claim");
         var basic=new CombatAction(0,1,100,true,false,0,100,255,true);
         var magic=new CombatAction(1,2,150,false,true,0,100,3,true);
         var targets=new[]{new CombatTarget(0,200,500,100,100,100,100,0)};

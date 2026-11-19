@@ -1,5 +1,17 @@
 # The Castle Hunt Guild
 
+## v1.49 expanded optional catalogue
+
+Hall:19 original-source definitions and19 optional Nightmare profiles.16 have
+legitimate story/bonus gates; Sierra, second Harpy and Worm remain normal-locked.
+Bonus entries disclose their actual prerequisite instead of claiming an individual
+boss victory. Five-page browsing uses existing native confirm/cancel controls.
+All10 Hunts are selected by Full Content Preview; source/scene/Normal/quest guards,
+native loot priority, escape retry and report-without-payout are preserved.
+New group/phase Hall battles are native-prepared, not human-played. Training is
+still protected-copy-only. [Full inventory](docs/GRAND-EXPANSION-V149.md).
+
+
 Sun King's Retinue has complete gameplay acceptance on **1.12.2-guild-ui.1**.
 v1.19 refines its presentation and feedback; it has no separate user-assisted quest session.
 See [exact-build evidence](docs/ACCEPTANCE.md).

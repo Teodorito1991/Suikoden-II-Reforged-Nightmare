@@ -17,5 +17,8 @@ jobs:
       - name: Verify fresh campaign configuration
         shell: pwsh
         run: ./tools/test-fresh-campaign.ps1
+      - name: Verify full content configuration
+        shell: pwsh
+        run: ./tools/test-full-content.ps1
       - name: Audit publication source tree
         run: python tools/audit-publication.py

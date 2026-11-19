@@ -14,12 +14,12 @@ internal static class HallNightmareProbe
         if(!ProductionAssetAudit.Requested)return;
         var definition=HallTrialCatalogue.Entries.FirstOrDefault(x=>x.TableId==original.id);
         if(definition==null||HallNightmareRules.Find(definition.Id) is not {} profile)return;
-        var audit=HallTrialSources.Get(original.id);var source=original.monster_data[audit.Monsters.Single().Index];
+        var audit=HallTrialSources.Get(original.id);var source=original.monster_data[audit.Monsters.OrderByDescending(m=>m.Signature[0]).First().Index];
         Check(source.level==profile.Level,"original foe level identity");
         var signature=CombatReforgedRuntime.Signature(source);
         for(int cycle=0;cycle<2;cycle++)
         {
-            var copy=HallNightmareRuntime.Copy(original,definition);
+            var copy=HallNightmareRuntime.Copy(original,definition,audit.Monsters.OrderByDescending(m=>m.Signature[0]).First().Index);
             var setupCopy=copy.ShallowCopy();
             try
             {
@@ -68,6 +68,24 @@ internal static class HallNightmareProbe
             character.para[0]=254;G2_SYS.G2_chara_para(1,0,3,0);G2_SYS.G2_chara_para(1,0,3,0);
             Check(character.para[0]==255,"repeated native strength increase saturates at 255");
             ProductionAssetAudit.Rows.Add(new{Kind="HallNightmareNativeReward",Prepared=true,NativeInserted=true,NativeFullInventoryPreserved=true,DuplicateRollPrevented=true,OriginalLootPriority=true,NativeStrengthCap=255,NativeInsertReturn=inserted,NativeFullReturn=full,VictoryInputSynthetic=true,RenderedReceipt=false});
+            foreach(string reward in new[]{"power-stone","stone-of-magic","stone-of-speed","magic-protection-stone"})
+            {
+                foreach(var slot in g.party_data.party_item){slot.item_no=0;slot.use_cnt=0;}
+                var offer=new EXIT_WORK{monster_item=new PARTY_ITEM()};var receipt=new HallStoneReward();
+                UnityEngine.Random.InitState(seed);receipt.Prepare(g,offer,true,reward);
+                var item=HuntGuildRuntime.Items.Single(x=>x.Id==reward);
+                Check(receipt.Prepared&&offer.monster_item.item_no==item.Number&&offer.monster_item.use_cnt==item.UseCount,
+                    "per-tier audited growth stone offer");
+                var rngAfter=UnityEngine.Random.state;byte pending=offer.monster_item.item_no;
+                receipt.Prepare(g,offer,true,reward=="power-stone"?"stone-of-magic":"power-stone");
+                Check(offer.monster_item.item_no==pending&&rngAfter.Equals(UnityEngine.Random.state),"pending reward cannot change identity or reroll");
+                var data=G2_SYS.G2_data_get(g.ovit_data,item.Kind,item.Number);
+                G2_SYS.G2_min_item_move(g.ovit_data,data,0,0,item.Kind,item.Number,0,0);
+                Check(g.party_data.party_item.Count(x=>x.item_no==item.Number)==1,"native capacity-controlled growth stone receipt");
+                ProductionAssetAudit.Rows.Add(new{Kind="HallGrowthReward",Id=reward,item.Number,NativeOffer=true,NativeInsertion=true,
+                    DuplicateIdentityProtected=true,VictoryInputSynthetic=true,RenderedReceipt=false});
+            }
+
         }
         finally{Framework.Singleton<GAME_WORK>.instance=old;UnityEngine.Random.state=rng;}
     }

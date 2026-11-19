@@ -45,7 +45,7 @@ internal static class HallFirstContact
         internal readonly HallTrialDefinition Definition;
         internal readonly bool Nightmare;
         internal readonly HallStoneReward Stone=new();
-        internal MONSTER_DATA? OwnedMonster;
+        internal readonly List<MONSTER_DATA> OwnedMonsters=new();
         internal string? PackId;
         internal bool SourcePrepared;
         internal readonly GAME_WORK Game;
@@ -131,26 +131,10 @@ internal static class HallFirstContact
         if (bossIndex < 0) throw new InvalidOperationException("Trial has no original resource mapping.");
         t.PackId = BattleLoader.GetBossResID(bossIndex);
         if (t.PackId != t.Definition.PackId || original.battle_field_data?.hd_field_id != t.Definition.SceneId ||
-            original.monster_data[audit.Monsters.Single().Index].hp != t.Definition.Hp)
+            audit.Monsters.Max(m=>(int)original.monster_data[m.Index].hp) != t.Definition.Hp)
             throw new InvalidOperationException("Trial resource, background or HP identity mismatch.");
         Plugin.Logger.LogInfo($"HallFirstContact: source={original.id} pack={t.PackId} scene={original.battle_field_data?.hd_field_id} opener={audit.Hooks[0]}.");
-        t.Formation = CombatEvolutionRuntime.CopyParty(source, audit.OldCodes);
-        t.Formation.id = "echo_trial_" + t.Definition.Id + "_00";
-        t.Formation.party_flg = 0;
-        t.Formation.item_no = 0;
-        // The original opening creates the boss's battle-local effect work
-        // and turns off the captured field background. Retain its audited
-        // binding while leaving command, phase and ending callbacks detached.
-        t.Formation.data.phase_start_func_index = 0;
-        t.Formation.data.phase_end_func_index = 0;
-        t.Formation.data.battle_end_func_index = 0;
-        t.Formation.data.command_func_index = 0;
-        // Only explicitly audited battle-local visual controllers are retained.
-        // Story endings, phase transitions and scripted commands remain detached.
-        if(t.Definition.RetainCombatMain &&
-            (audit.Hooks[5]==0 || audit.Hooks[1]!=0 || audit.Hooks[2]!=0 || audit.Hooks[4]!=0))
-            throw new InvalidOperationException("Trial combat-main role is not a standalone audited controller.");
-        t.Formation.data.battle_main_func_index = t.Definition.RetainCombatMain ? audit.Hooks[5] : 0;
+        t.Formation = HallTrialSetup.Copy(source,audit,t.Definition);
         t.Table = ScriptableObject.CreateInstance<BATTLE_DATA>();
         t.Table.id = "echo_trial_" + t.Definition.Id;
         t.Table.is_battle_field_data = original.is_battle_field_data;
@@ -160,17 +144,20 @@ internal static class HallFirstContact
         t.Table.monster_data = original.monster_data;
         if(t.Nightmare)
         {
-            t.OwnedMonster=HallNightmareRuntime.Copy(original,t.Definition);
             var list=original.monster_data.ToArray();
-            list[audit.Monsters.Single().Index]=t.OwnedMonster;
+            foreach(var monster in audit.Monsters)
+            {
+                var copy=HallNightmareRuntime.Copy(original,t.Definition,monster.Index);
+                t.OwnedMonsters.Add(copy);list[monster.Index]=copy;
+            }
             t.Table.monster_data=new Il2CppReferenceArray<MONSTER_DATA>(list);
         }
         // Keep the original coin value and ordinary monster-drop table.
         // The rematch grants neither a separate Hall payout nor story loot.
-        var monster = original.monster_data[audit.Monsters.Single().Index];
-        t.RewardIds = monster.item_data.Where(item => item != null && item.item_no != 0)
-            .Select(item => item.item_no).Concat(t.Nightmare?new byte[]{21}:Array.Empty<byte>()).Distinct().ToArray();
-        Plugin.Logger.LogInfo($"HallFirstContact: native loot policy; Potch={monster.mochi_kin}, item IDs={string.Join(",", t.RewardIds)}.");
+        var monsters = audit.Monsters.Select(m=>original.monster_data[m.Index]).ToArray();
+        t.RewardIds = monsters.SelectMany(m=>m.item_data).Where(item => item != null && item.item_no != 0)
+            .Select(item => item.item_no).Concat(t.Nightmare?new byte[]{(byte)HuntGuildRuntime.Items.Single(item=>item.Id==HallNightmareRules.Find(t.Definition.Id)!.RewardId).Number}:Array.Empty<byte>()).Distinct().ToArray();
+        Plugin.Logger.LogInfo($"HallFirstContact: native loot policy; Potch per native formation; , item IDs={string.Join(",", t.RewardIds)}.");
     }
 
     static void RequestNative(Trial t)
@@ -294,7 +281,7 @@ internal static class HallFirstContact
         if (!FinishScene(t)) return;
         bool borrowed = t.Pack?.Borrowed == true;
         t.Pack?.Release();
-        if (t.OwnedMonster != null) UnityEngine.Object.Destroy(t.OwnedMonster);
+        foreach(var monster in t.OwnedMonsters) UnityEngine.Object.Destroy(monster);
         if (t.Formation != null) UnityEngine.Object.Destroy(t.Formation);
         if (t.Table != null) UnityEngine.Object.Destroy(t.Table);
         if (t.Handle.IsValid()) Addressables.Release(t.Handle);
@@ -359,14 +346,14 @@ internal static class HallFirstContact
         if(trial is not {Nightmare:true,Committed:true,Setup:true,Released:false} t||
             !Owns(work)||work?.monster_party_data?.Pointer!=t.Formation?.Pointer||
             !SameCampaign(t)||actor==null||actor.IsPlayer||actor.IsDead||
-            actor.monster_data?.id!=t.OwnedMonster?.id||
+            !t.OwnedMonsters.Any(m=>m.id==actor.monster_data?.id)||
             work!.pm_data?[actor.chara_no]?.Pointer!=actor.Pointer)return null;
         return t.Definition.Id;
     }
     internal static void PrepareStone(BATTLE_WORK work,EXIT_WORK? exit)
     {
         if(exit==null||trial is not {} t||!Owns(work)||!SameCampaign(t)||!t.Setup)return;
-        try{t.Stone.Prepare(t.Game,exit,t.Nightmare&&t.Win&&!t.Loss&&Plugin.Options.EnableNightmareStoneRewards.Value);}
+        try{t.Stone.Prepare(t.Game,exit,t.Nightmare&&t.Win&&!t.Loss&&Plugin.Options.EnableNightmareStoneRewards.Value,HallNightmareRules.Find(t.Definition.Id)?.RewardId??"power-stone");}
         catch(Exception e){Plugin.Logger.LogWarning("Nightmare bonus retained native loot: "+e.Message);}
     }
 
@@ -386,6 +373,14 @@ internal static class HallFirstContact
         t.Scenes.ChangeActiveMem(t.SceneSlot);
         t.Scenes.SetActive(t.SceneName!, true);
         Plugin.Logger.LogInfo($"HallFirstContact: original chapter starts with owned scene slot {previous}->{t.SceneSlot}.");
+    }
+
+    internal static string? OwnedPackForOrdinaryRequest(int index)
+    {
+        if(index!=-1 || trial is not {Committed:true,Setup:true,Released:false} t ||
+           !Owns(Framework.Singleton<BATTLE_WORK>.instance) || !SameCampaign(t) ||
+           t.Sys.battle_no!=-1 || t.Pack?.Loaded!=true)return null;
+        return t.PackId;
     }
 
     internal static bool TryBossSprite(int index, out OPD_DATA? sprite)
@@ -417,7 +412,7 @@ internal static class HallFirstContact
         if (!Owns(work) || trial is not {} t) return;
         var actor = work.pm_data?.FirstOrDefault(a => a != null && !a.IsPlayer && a.hp > 0);
         t.Work = work;
-        t.ActorBound = actor != null;
+        t.ActorBound = actor != null && work.pm_data!.Count(a=>a!=null && !a.IsPlayer && a.hp>0)==t.Formation!.monster_kazu;
         t.ActorHp = actor?.hp ?? 0;
         Plugin.Logger.LogInfo($"HallFirstContact: Field.Setup completed; liveMonster={t.ActorBound}; tier={(t.Nightmare?"Nightmare":"Original")}; HP={t.ActorHp}.");
     }
@@ -568,4 +563,18 @@ internal static class HallFirstContactPackUse
 internal static class HallFirstContactBattleTick
 {
     static void Postfix(int __result) => HallFirstContact.BattleTick(__result);
+}
+
+// Some native phase controllers resolve the boss pack directly rather than via
+// OverlayFunctionBase.GetBossOPD. Keep battle_no=-1; return only this trial's lease.
+[HarmonyPatch(typeof(BattleLoader),nameof(BattleLoader.GetBossResID))]
+[HallTrialPatch]
+internal static class HallOwnedPackLookup
+{
+    static bool Prefix(int n,ref string? __result)
+    {
+        var pack=HallFirstContact.OwnedPackForOrdinaryRequest(n);
+        if(pack==null)return true;
+        __result=pack;return false;
+    }
 }

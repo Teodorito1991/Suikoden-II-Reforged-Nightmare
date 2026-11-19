@@ -21,7 +21,12 @@ internal static class HallProgressProbe
         ("vg15",4,7,"C696A02BF3F97939C8BDE869C6EA081D9D9812B40C72F4163C7779F5DF46C5FB",17,0xC9,0x01,-1,-1),
         ("vg15",4,8,"3D6504860378DC15625CE4524E5A3C0582C6EEDA1067393842E8D9356C814F14",17,0xC9,0x01,203,209),
         ("vd14",0,0,"79158ACE5388DDCE90914B0E1FFFB99B3BF9503867BB598800FEF806F498DA8D",11,0x56,0x20,-1,-1),
-        ("vd14",0,3,"A933692E1845C9FC9D1EC842D888C3E39689A6189E9B786870D8EB2D271B9556",11,0x56,0x20,643,648)
+        ("vd14",0,3,"A933692E1845C9FC9D1EC842D888C3E39689A6189E9B786870D8EB2D271B9556",11,0x56,0x20,643,648),
+        ("vc14",0,4,"CB0442C1423E5C838728C2CCE40B5CCDEBCE38622C99B58B4B968FBD8FB38CC0",1,0x07,0x40,226,232),
+        ("ve13",1,16,"8727299C229B66AB932E0B7916D105EB4C87FBB23EC5EC9BCDCD6EEB978776AF",4,0xBA,0x08,90,99),
+        ("ve13",1,17,"9291FDCDF4D22365110CEA19FE1C1FEC61D9F0A859330DE03A52B48F2F612CE5",4,0xBA,0x10,90,99),
+        ("ve08",3,10,"F454DA033977B3ADA653FC38FBA5385A8C1D75C25BD96215CCBCCE869CA919F2",3,0xBB,0x10,96,332),
+        ("vi10",0,1,"B44AB0765542E6410EBB6C816C51040A1E07DF6B975D04CC50CA0F1583C3A844",22,0x14,0x02,1095,1105)
     };
     static int index;
     static AsyncOperationHandle<MACHIDAT>? pending;
@@ -49,7 +54,7 @@ internal static class HallProgressProbe
                 : code.Skip(s.BattleOffset).Take(3).SequenceEqual(new byte[]{83,1,240}) &&
                   s.FlagOffset>=s.BattleOffset+3 &&
                   code.Skip(s.FlagOffset).Take(3).SequenceEqual(new byte[]{9,(byte)s.Flag,s.Mask});
-            string expectedTable=s.Boss switch {18=>"boss_rat",14=>"boss_hap1",23=>"boss_gwo1",17=>"boss_gol",11=>"boss_nik",_=>""};
+            string expectedTable=s.Boss switch {18=>"boss_rat",14=>"boss_hap1",23=>"boss_gwo1",17=>"boss_gol",11=>"boss_nik",1=>"boss_ryo",4=>"boss_dor",3=>"boss_lus1",22=>"boss_gor",_=>""};
             if(BattleLoader.btl_bos_data[s.Boss]!=expectedTable)
                 throw new InvalidOperationException("Hall story source no longer maps to the expected original boss.");
             if(!boundary)throw new InvalidOperationException("Hall boss category or post-battle completion boundary changed.");

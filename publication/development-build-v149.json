@@ -1,0 +1,70 @@
+{
+  "Version": "1.49.0-grand-expansion.1",
+  "DllSha256": "D98E62D3B09E0FBFB9DFEC7AA8AE99AB661FF3F11D8DF14B79C2673056AC822F",
+  "BuildParentCommit": "be36a1905741675ba52c2ab8fc7c0159113577ba",
+  "OriginalBossTablesIdentified": 31,
+  "ImplementedHallDefinitions": 19,
+  "NewHallDefinitions": 11,
+  "NightmareProfiles": 19,
+  "NormalOrBonusUnlockableDefinitions": 16,
+  "NormalLockedDefinitions": [
+    "sierra",
+    "harpy-second",
+    "worm"
+  ],
+  "SourceAudit": "all19 original identity/formation/HP/pack/background and callback-copy policies; nineteen real native BattleDataSetup calls on disposable owners; all Nightmare templates cloned without source mutation",
+  "ManagedRegression": "passed",
+  "NativeProductionAudit": {
+    "Passed": true,
+    "Assertions": 5066,
+    "EarnedBattle": false
+  },
+  "GraphicalPreview": {
+    "Captures": 33,
+    "OriginalFrameFontCursor": true,
+    "CaptureSameFrameAdvanceCorrected": true,
+    "KnownIssue": "Some automated fifth-page captures intermittently omit fixed header/footer text; not full visual acceptance."
+  },
+  "ActualGameplay": {
+    "ExactDll": "D98E62D3B09E0FBFB9DFEC7AA8AE99AB661FF3F11D8DF14B79C2673056AC822F",
+    "Configuration": "Full Content Preview; developer, protection, availability bypass and Nightmare tiers off",
+    "Checkpoint": "Archived strong headquarters party; original levels/equipment, converted to Normal before this milestone. No test-time combat edits.",
+    "Victories": [
+      "mist-shade: Original; owner defended for two rounds then won",
+      "rowd-patrol: Original; six-enemy group won"
+    ],
+    "GuildReopenedAfterEach": true,
+    "ConsecutiveCrossTrialEntry": true,
+    "SameTrialRepeat": false,
+    "FiveFlagArraysUnchanged": true,
+    "WarAndSelectedProgressionSnapshotUnchanged": true,
+    "NativeCleanupCompleted": true,
+    "NativeItemSlotIncreases": {
+      "MistShadeItem9": 1,
+      "RowdItem1": 1
+    },
+    "PotchCredited": 0,
+    "PurseAlreadyAtNativeCap": 999999,
+    "NewNightmareReceiptObserved": false,
+    "DefeatRetryTested": false,
+    "SaveIntents": 0,
+    "SaveFileCalls": 0,
+    "WholeCampaignCertified": false
+  },
+  "RewardComponentEvidence": [
+    "power-stone",
+    "stone-of-magic",
+    "stone-of-speed",
+    "magic-protection-stone"
+  ],
+  "War": "unchanged original story-war layers; Army Training still needs private stock-transition harness; no commander XP",
+  "OriginalSteamDllUnchanged": true,
+  "OriginalFourteenSavesUnchanged": true,
+  "CopiedTestingDisarmed": true,
+  "ReleasesPublished": false,
+  "RepositoryVisibility": "PUBLIC; existing owner authorization, unchanged",
+  "HistoricalFallback": {
+    "Version": "1.48.0-campaign-integration.1",
+    "Sha256": "56BAB506B49F10A9D2206C9E5903769C3C79A8D092B8748A67C6D53F4923D469"
+  }
+}

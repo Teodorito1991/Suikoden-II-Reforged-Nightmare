@@ -1,5 +1,24 @@
 # Known issues and validation limits
 
+## v1.49 development limits
+
+The expanded Hall has19 implemented definitions,16 normal story/bonus unlocks,
+and19 Nightmare profiles. Eleven new encounters have original-source and native setup evidence; Mist Shade
+and Rowd also passed earned victory/return on this DLL. Double Head phase playback
+and remaining group command controllers still need live sampling. Nightmare balance and new stone receipt during actual combat are unplayed.
+Seven unlocks intentionally designate bonus memories; they can precede their own
+story appearance and do not prove an individual boss-clear. Three old unresolved
+memories stay normal-locked. Twelve other native records are blocked or deferred;
+[the inventory](docs/GRAND-EXPANSION-V149.md) states why without claiming impossibility.
+Army Training's private transition harness and ambient Steam/save side effects
+remain an unresolved normal-build release boundary. No commander XP/persistence.
+Automated fifth-page previews can intermittently omit fixed header/footer text;
+33 generated captures are not a claim of perfect visual acceptance. Live Guild
+use passed during both owner fights.
+The v1.48 fallback and conservative profile are preserved. No full campaign has
+begun or been certified; no public installable beta is authorized.
+
+
 The public source repository tracks v1.48. The campaign baseline is v1.40.
 Earlier campaign settings are documented for `1.38.0-nightmare-campaign.1`. An
 installable release remains unpublished. [Campaign settings and evidence](docs/NIGHTMARE-CAMPAIGN-V138.md).

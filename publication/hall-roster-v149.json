@@ -1,0 +1,284 @@
+{
+  "NativeBossTablesIdentified": 31,
+  "Implemented": 19,
+  "NightmareProfiles": 19,
+  "NormalOrBonusUnlocks": 16,
+  "UnresolvedOriginalUnlocks": 3,
+  "Notes": "Authored inventory; no event bytecode, assets, saves or raw native listings. Static resource inspection for the complete roster; native preparation for implemented entries. Not 31 unique boss identities.",
+  "Entries": [
+    {
+      "TableId": "boss_dor",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "bone-dragon",
+      "Name": "Bone Dragon",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "BA/08 or BA/10",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_gol",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "stone-golem",
+      "Name": "Stone Golem",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "C9/01",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_gor",
+      "ActiveMonsters": 6,
+      "MonsterTemplates": 2,
+      "Id": "gorudo",
+      "Name": "Gorudo's Guard",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "14/02",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_gwo1",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "golden-wolf",
+      "Name": "Golden Wolf",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "16/02",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_gwo2",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Status": "Duplicate/deferred",
+      "Reason": "Mirrored Golden Wolf appearance; same HP and native attack profile. Not padded into another challenge."
+    },
+    {
+      "TableId": "boss_hap1",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "harpy",
+      "Name": "Harpy",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "21/10",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_hap2",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "harpy-second",
+      "Name": "Harpy \u00b7 Second Encounter",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "Unresolved; testing-only",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_imo1",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "worm",
+      "Name": "Worm",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "Unresolved; testing-only",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_imo2",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 2,
+      "Status": "Blocked",
+      "Reason": "Worm-to-Moth transformation, command controller and outcome require an additional audited multi-form adapter."
+    },
+    {
+      "TableId": "boss_imo3",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Status": "Blocked",
+      "Reason": "Three original BE commands and 32,000-HP scripted Moth record; cannot be treated as an ordinary standalone boss."
+    },
+    {
+      "TableId": "boss_ki1",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 2,
+      "Id": "mist-shade",
+      "Name": "Mist Shade",
+      "Status": "Implemented / earned victory and Guild return on v1.49",
+      "NormalUnlock": "Bonus after Double Head",
+      "ExactBuildEarnedVictory": true
+    },
+    {
+      "TableId": "boss_kul_sid",
+      "ActiveMonsters": 2,
+      "MonsterTemplates": 2,
+      "Id": "seed-culgan",
+      "Name": "Seed & Culgan",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "Bonus after Gorudo",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_las",
+      "ActiveMonsters": 5,
+      "MonsterTemplates": 6,
+      "Status": "Blocked",
+      "Reason": "Five active body parts plus additional controller record; coordinated phase/command/main and death rules remain outside this adapter."
+    },
+    {
+      "TableId": "boss_luc1",
+      "ActiveMonsters": 6,
+      "MonsterTemplates": 3,
+      "Status": "Blocked",
+      "Reason": "First Luca party and persistent luka_hp handoff; not an interchangeable isolated rematch."
+    },
+    {
+      "TableId": "boss_luc2",
+      "ActiveMonsters": 4,
+      "MonsterTemplates": 3,
+      "Status": "Blocked",
+      "Reason": "Second Luca party and persistent luka_hp handoff; not an interchangeable isolated rematch."
+    },
+    {
+      "TableId": "boss_luc3",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Status": "Blocked",
+      "Reason": "Original opening reads GAME_DATA.luka_hp into the actor. No Hall-local replacement for that campaign-owned input is proven."
+    },
+    {
+      "TableId": "boss_lus1",
+      "ActiveMonsters": 4,
+      "MonsterTemplates": 4,
+      "Id": "lucia-retinue",
+      "Name": "Lucia's Retinue",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "BB/10",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_lus2",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "lucia-highland",
+      "Name": "Lucia \u00b7 Highland",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "Bonus after Gorudo",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_lus3",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "lucia-castle",
+      "Name": "Lucia \u00b7 Castle",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "Bonus after Gorudo",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_lus4",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Status": "Duplicate/deferred",
+      "Reason": "Another castle Lucia appearance with the same short duel profile as lus3; omitted from the selectable roster."
+    },
+    {
+      "TableId": "boss_lus5",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Status": "Duplicate/deferred",
+      "Reason": "Another castle Lucia appearance with the same short duel profile as lus3; omitted from the selectable roster."
+    },
+    {
+      "TableId": "boss_nec1",
+      "ActiveMonsters": 4,
+      "MonsterTemplates": 3,
+      "Status": "Blocked",
+      "Reason": "Story-specific invulnerability and supporting zombies; not the final vulnerable Neclord battle."
+    },
+    {
+      "TableId": "boss_nec2",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Status": "Blocked",
+      "Reason": "Earlier invulnerable Neclord encounter; scripted story outcome cannot become an earned ordinary victory by clearing an ending."
+    },
+    {
+      "TableId": "boss_nec3",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "neclord-final",
+      "Name": "Neclord \u00b7 Final Encounter",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "Bonus after Gorudo",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_nik",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "abomination",
+      "Name": "Abomination",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "56/20",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_rat",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "rat",
+      "Name": "Pest Rat",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "B6/02",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_rau1",
+      "ActiveMonsters": 6,
+      "MonsterTemplates": 4,
+      "Id": "rowd-patrol",
+      "Name": "Rowd's Patrol",
+      "Status": "Implemented / earned victory and Guild return on v1.49",
+      "NormalUnlock": "Bonus after Double Head",
+      "ExactBuildEarnedVictory": true
+    },
+    {
+      "TableId": "boss_rau2",
+      "ActiveMonsters": 6,
+      "MonsterTemplates": 4,
+      "Status": "Deferred",
+      "Reason": "30,000-HP story-specific Rowd encounter. Its intended capture/outcome remains unverified; first Rowd encounter is implemented instead."
+    },
+    {
+      "TableId": "boss_ryo",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "double-head",
+      "Name": "Double Head",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "07/40",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_sei",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "celestial-sword",
+      "Name": "Celestial Sword",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "Bonus after Abomination",
+      "ExactBuildEarnedVictory": false
+    },
+    {
+      "TableId": "boss_sie1",
+      "ActiveMonsters": 1,
+      "MonsterTemplates": 1,
+      "Id": "sierra",
+      "Name": "Sierra",
+      "Status": "Implemented / native-prepared",
+      "NormalUnlock": "Unresolved; testing-only",
+      "ExactBuildEarnedVictory": false
+    }
+  ]
+}

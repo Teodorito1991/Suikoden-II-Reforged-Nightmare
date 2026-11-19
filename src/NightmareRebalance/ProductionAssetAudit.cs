@@ -26,11 +26,12 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   try
   {
    if(Combat.State!=null||WarRuntime.Active||WarTacticsRuntime.Armed)throw new InvalidOperationException("Audit requires unloaded launcher.");
-   if(tables==null){previousBackground=Application.runInBackground;Application.runInBackground=true;tables=CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Concat(RpgEvolutionRuntime.Audit.Formations).Select(x=>x.TableId).Concat(bossSources.Concat(lucaSources).Concat(LegendaryBossRuntime.Audit).Select(x=>x.Data.TableId)).Concat(BossTacticsRuntime.RevolutionAudit.Select(a=>a.TableId)).Concat(CombatReforgedRuntime.Audit.Enemies.Select(x=>x.Id.Substring(0,x.Id.LastIndexOf('_')))).Concat(HuntRuntime.Definitions.Select(x=>x.Audit.TableId)).Distinct().ToArray();started=Time.realtimeSinceStartup;}
+   if(tables==null){previousBackground=Application.runInBackground;Application.runInBackground=true;tables=CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Concat(RpgEvolutionRuntime.Audit.Formations).Select(x=>x.TableId).Concat(bossSources.Concat(lucaSources).Concat(LegendaryBossRuntime.Audit).Select(x=>x.Data.TableId)).Concat(BossTacticsRuntime.RevolutionAudit.Select(a=>a.TableId)).Concat(CombatReforgedRuntime.Audit.Enemies.Select(x=>x.Id.Substring(0,x.Id.LastIndexOf('_')))).Concat(HuntRuntime.Definitions.Select(x=>x.Audit.TableId)).Concat(HallTrialCatalogue.Entries.Select(x=>x.TableId)).Distinct().ToArray();started=Time.realtimeSinceStartup;}
    if(Time.realtimeSinceStartup-started>40)throw new TimeoutException("Production resource audit timed out before resource completion.");
    // HD UI font/material bundles require the graphics player; never load in -nographics.
    // The explicit unloaded render smoke verifies them separately.
    if(!GuildNativeProbe.Resources())return;
+   if(!Rows.Any(row=>row.GetType().GetProperty("Kind")?.GetValue(row)?.ToString()=="HallBossIndex"))Rows.Add(new{Kind="HallBossIndex",Entries=BattleLoader.btl_bos_data.Select((id,i)=>new{Id=id,Index=i,Pack=string.IsNullOrEmpty(id)?null:BattleLoader.GetBossResID(i)}).ToArray()});
    if(Time.realtimeSinceStartup-started>40)throw new TimeoutException("Production resource audit timed out.");
    if(!pending)
    {if(index==tables.Length){if(!RpgEvolutionProbe.Step())return;if(!HuntResourceProbe.Step())return;if(!HuntFieldSourceProbe.Step())return;if(!CastleGuildNativeProbe.Step())return;if(!HallProgressProbe.Step())return;MaintenanceNativeProbe.Finish();ExpansionNativeProbe.Finish();GuildNativeProbe.Menu();Check(BossTacticsProbe.LucaRows.Count==3,"All three original Luca selector baselines");Check(BossTacticsProbe.Covered.Count==BossTacticsRuntime.Audit.Length+BossTacticsRuntime.RevolutionAudit.Length,"All audited boss action fixtures");Check(BossTacticsProbe.Differences>0,"Actual native boss selections changed");var hunts=HuntRuntime.Definitions.Select(x=>x.Id).ToArray();Check(hunts.Length>0&&GuildNativeProbe.Hunts.SetEquals(hunts),"Guild rewards tested for all hunts");Check(HuntCatalogueProbe.Covered.SetEquals(hunts),"Every catalogue native fixture executed");TeamworkNativeProbe.Finish();if(HallEchoesProbe.Requested) Check(HallEchoesProbe.Evidence!=null,"Hall of Echoes fixture completed");Passed=true;Finish();return;}Plugin.Logger.LogInfo("Production asset request: "+tables[index]);handle=Addressables.LoadAssetAsync<BATTLE_DATA>((Il2CppSystem.String)("gsd2-classic-battle-battle-"+tables[index]));pending=true;return;}
@@ -49,12 +50,13 @@ public sealed class ProductionAssetAudit : MonoBehaviour
       HallEchoesProbe.Inspect(table,bossSources.Single(b=>b.Data.TableId==table.id).Data);
   if (HallTrialCatalogue.Entries.Any(d=>d.TableId==table.id))
   {
+   HallContentProbe.Inspect(table);
    HallNightmareProbe.Inspect(table);
    var a = HallTrialSources.Get(table.id);
    HallEchoesProbe.ValidateSource(table, a);
    int bossIndex = Array.IndexOf(BattleLoader.btl_bos_data.ToArray(), table.id);
    Check(bossIndex >= 0, "Original Hall boss resource index");
-   var monster = table.monster_data[a.Monsters.Single().Index];
+   var monster = table.monster_data[a.Monsters[0].Index];
    Rows.Add(new { Kind="HallTrialSource", table.id, BossIndex=bossIndex,
        Pack=BattleLoader.GetBossResID(bossIndex), Scene=table.battle_field_data?.hd_field_id,
        monster.name_id, monster.hp, monster.mochi_kin,

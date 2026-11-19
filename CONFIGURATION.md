@@ -1,5 +1,18 @@
 # Configuration
 
+## v1.49 Full Content Preview
+
+Run `tools/prepare-full-content.ps1 -OutputDirectory <empty-folder>` to generate
+a separate proposal. No installation, save discovery or overwrite occurs. All10
+Hunts and16 legitimate story/bonus Hall entries are opted in. Nightmare is a separate
+optional overlay; new per-entry CFG keys use `EnableHall_<stable_id_with_underscores>`.
+All11 additions default false outside this proposal. Existing eight keys retain
+their defaults. `EnableNightmareStoneRewards` now allows the selected profile's
+audited growth stone, not only Power. Its25% offer remains conditional on empty
+native loot and inventory acceptance. No developer bypass/unsafe scripted switch or
+normal-build Army Training is enabled. [Exact choices](profiles/full-content/README.md).
+
+
 Close the game before editing. JSON is read at startup. Keep valid syntax, types
 and audited IDs. Unknown source records fail closed; there is no guard bypass.
 Public defaults are packaging-only proposals, distinct from developer embedded

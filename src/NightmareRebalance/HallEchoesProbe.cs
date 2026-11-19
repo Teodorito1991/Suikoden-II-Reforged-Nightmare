@@ -64,21 +64,22 @@ internal static class HallEchoesProbe
     internal static MONSTER_PARTY_DATA ValidateSource(BATTLE_DATA original, FormationAudit audit)
     {
         var source = original.monster_party[audit.Indices.Single()];
-        var monster = original.monster_data[audit.Monsters.Single().Index];
         Check(original.id == audit.TableId && source.id == audit.PartyId && source.party_flg == audit.Flags &&
-            source.item_no == audit.Item && source.monster_kazu == 1 &&
+            source.item_no == audit.Item && source.monster_kazu == audit.OldCodes.Count(x=>x!=0) &&
             source.monster_code.Select(x => (int)x).SequenceEqual(audit.OldCodes) &&
             source.monster_id.Select(x => (int)x).SequenceEqual(audit.OldIds) &&
             source.data.monster_position.Select(x => (int)x).SequenceEqual(audit.Positions) &&
             source.data.be_data.command_num == 0 && source.data.be_data.com_data.Length == 0 &&
-            CombatEvolutionRuntime.Hooks(source.data).SequenceEqual(audit.Hooks) &&
-            monster.id == audit.Monsters.Single().Id &&
-            CombatReforgedRuntime.Signature(monster).SequenceEqual(audit.Monsters.Single().Signature),
-            "exact source and move signature");
-
-        var opd = monster.opd_data;
-        Check(opd != null && opd.anime_kazu > 0 && opd.pattern_kazu > 0 &&
-            opd.anime_table.Count > 0 && opd.pattern_table.Count > 0, "original sprite animation records");
+            CombatEvolutionRuntime.Hooks(source.data).SequenceEqual(audit.Hooks), "exact party source and callback signature");
+        foreach(var expected in audit.Monsters)
+        {
+            var monster=original.monster_data[expected.Index];
+            Check(monster?.id==expected.Id && CombatReforgedRuntime.Signature(monster).SequenceEqual(expected.Signature),
+                "exact original monster and move signature");
+            var opd=monster!.opd_data;
+            Check(opd!=null && opd.anime_kazu>0 && opd.pattern_kazu>0 && opd.anime_table.Count>0 && opd.pattern_table.Count>0,
+                "original sprite animation records");
+        }
 
         return source;
     }

@@ -2,6 +2,9 @@ namespace NightmareRebalance;
 
 internal static class HallPresentation
 {
+    internal static string RewardName(string id)=>id switch {
+        "stone-of-magic"=>"Stone of Magic","stone-of-speed"=>"Stone of Speed",
+        "magic-protection-stone"=>"Stone of Magic Protection",_=>"Stone of Power"};
     internal static GuildMenuView View(int focus, System.Func<int,bool> unlocked,
         System.Func<int,bool> configured, string reason, string back, bool preview)
     {
@@ -13,7 +16,7 @@ internal static class HallPresentation
             unlocked(index)?trial.Name:"???",
             !unlocked(index)?"Locked":configured(index)?"Original / tiers":"Disabled")).ToArray();
         return GuildRebornScreen.Paginate(new("HALL OF ECHOES",rows,focus,
-            known?selected.Name:"Unknown Echo",available?"Normal rematch":"Unavailable",
+            known?selected.Name:"Unknown Echo",available?(HallUnlockRules.IsBonus(selected.Id)?$"Bonus rematch · After {HallUnlockRules.BonusMilestone(selected.Id)}":"Normal rematch"):"Unavailable",
             known?selected.Description:"A memory yet to be made. Continue your journey.","",
             known?selected.Rewards:"",reason,available?"Choose tier":"Unavailable",back,preview));
     }
@@ -26,7 +29,7 @@ internal static class HallPresentation
             new GuildMenuRow("Nightmare Echo",nightmare&&p!=null?"Advanced optional challenge":"Unavailable")},focus,
             unlocked?d.Name:"Unknown Echo",advanced&&p!=null?$"Nightmare Echo · Original foe level {p.Level}":"Original Echo · Normal campaign",
             !unlocked?"A memory yet to be made.":advanced?(p?.Advice??"No advanced version is offered."):d.Description,
-            !unlocked?"":advanced&&p!=null&&stones?"Native rewards + 25% Stone of Power offer if no loot rolls.":d.Rewards,
+            !unlocked?"":advanced&&p!=null&&stones?$"Native rewards + 25% {RewardName(p.RewardId)} offer if no loot rolls.":d.Rewards,
             !unlocked?"Continue your journey.":advanced&&p!=null?$"HP {p.HpPercent}% · Damage {p.Damage:0.00}× Original. Native inventory applies.":"Original HP, attacks and native rewards are preserved.",
             available?"Confirm to enter. Cancel returns to the Hall catalogue.":"This tier is unavailable. Original Echo remains separately accessible.",
             available?"Begin rematch":"Unavailable","Back",preview);
