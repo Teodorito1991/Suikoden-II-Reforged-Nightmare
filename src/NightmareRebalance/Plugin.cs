@@ -7,7 +7,7 @@ using HarmonyLib;
 
 namespace NightmareRebalance;
 
-[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.43.0")]
+[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.44.0")]
 [BepInDependency("d3xMachina.suikoden_fix", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("faospark.pkcore", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("nightmare.suikoden2.rebalance", BepInDependency.DependencyFlags.SoftDependency)]
@@ -85,7 +85,7 @@ public sealed class Plugin : BasePlugin
             if(ProductionAssetAudit.Requested){AddComponent<ProductionAssetAudit>();ProductionAssetAudit.Scheduled=true;}
             if (Options.EnableDeveloperTools.Value) AddComponent<DeveloperOverlay>();
             if (HallFirstContact.EnabledAtStartup) AddComponent<HallFirstContactDriver>();
-            Log.LogInfo($"Reforged Nightmare 1.43.0-second-challenger.1 loaded. Hall of Echoes enabled={HallFirstContact.EnabledAtStartup}.");
+            Log.LogInfo($"Reforged Nightmare 1.44.0-echoes-of-the-past.2 loaded. Hall of Echoes enabled={HallFirstContact.EnabledAtStartup}.");
         }
         catch (Exception ex)
         {

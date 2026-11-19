@@ -1,13 +1,16 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone** is v1.43, Hall of Echoes Second Challenger.
-The Castle Guild offers Pest Rat and Harpy through one guarded native battle
-lifecycle. The owner completed Pest Rat → Harpy → Pest Rat victories and reopened
-the Guild. Harpy also passed native flee and earned defeat checks.
-Stock Retry restored the Guild and allowed another encounter. Both Hall
-configuration switches default to off.
-[Second challenger evidence and limits](docs/HALL-SECOND-CHALLENGER-V143.md).
-[Accepted v1.42 fallback](docs/HALL-SAFE-RETURN-V142.md).
+**Latest development milestone** is v1.44, Hall of Echoes: Echoes of the Past.
+The Hall catalogue now includes Golden Wolf, Sierra and a second Harpy alongside
+Pest Rat and the first Harpy, with paginated, story-aware presentation. Golden Wolf
+and Sierra have owner-earned victories on the first v1.44 candidate; the second
+Harpy has rendered defeat/Game Over evidence, with victory still unverified.
+Three original-source progression witnesses are implemented. Pest Rat and the
+second Harpy remain story-locked because their completion witnesses are unproven.
+Final revised candidate .2 also passed an owner-earned Pest Rat victory, native
+rewards and Guild reopening. All new trials remain opt-in. A developer-only availability override writes no flags.
+[Exact candidates, unlocks and evidence](docs/HALL-ECHOES-PAST-V144.md).
+[Accepted v1.43 fallback](docs/HALL-SECOND-CHALLENGER-V143.md).
 
 **Campaign development baseline** is v1.40, with DLL
 `1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional

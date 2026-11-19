@@ -21,7 +21,7 @@ internal static class HallFirstContact
     internal static bool Request(int selection = 0)
     {
         if (selection < 0 || selection >= HallTrialCatalogue.Entries.Length ||
-            (selection == 1 && !Plugin.Options.EnableHallHarpy.Value) ||
+            !HallAvailability.CanSelect(selection) ||
             !Available || !CastleGuildRuntime.Context || !Plugin.CheckCompatibility() ||
             CastleGuildRuntime.Owner is not { ano: 10, vno: 6, mno: 3, _mstep: 20 } field ||
             CastleGuildRuntime.Field is not {} events ||
@@ -43,7 +43,8 @@ internal static class HallFirstContact
     sealed class Trial
     {
         internal readonly HallTrialDefinition Definition;
-        internal string PackId = "";
+        internal string? PackId;
+        internal bool SourcePrepared;
         internal readonly GAME_WORK Game;
         internal readonly SYS_WORK Sys;
         internal readonly MACHICON Field;
@@ -164,7 +165,8 @@ internal static class HallFirstContact
         // Index zero is reserved. Preserve all original entries including nulls.
         index = Math.Max(index, 1);
         if (index >= 0xF0 || t.Sys.yobi == null || t.Sys.yobi.Length == 0 || t.Sys.yobi[0] != 0 ||
-            !CastleGuildRuntime.HuntEntryCompatible || !Plugin.CheckCompatibility())
+            !CastleGuildRuntime.HuntEntryCompatible || !Plugin.CheckCompatibility() ||
+            !HallAvailability.CanSelect(Array.IndexOf(HallTrialCatalogue.Entries, t.Definition)))
             throw new InvalidOperationException("Ordinary request preconditions rejected.");
         var extended = new Il2CppReferenceArray<BATTLE_DATA>(index + 1);
         if (tables != null)
@@ -205,17 +207,19 @@ internal static class HallFirstContact
         {
             if (!t.Committed)
             {
-                t.Abort |= !SafeField(t);
+                t.Abort |= !SafeField(t) || !HallAvailability.CanSelect(
+                    Array.IndexOf(HallTrialCatalogue.Entries, t.Definition));
                 if (!t.Handle.IsDone) return;
-                if (t.Abort && t.Pack == null) { Finish(t); return; }
+                if (t.Abort && !t.SourcePrepared) { Finish(t); return; }
                 if (t.Handle.Status != AsyncOperationStatus.Succeeded)
                     throw new InvalidOperationException("Hall source table failed to load.");
-                if (t.Pack == null)
+                if (!t.SourcePrepared)
                 {
                     Prepare(t);
-                    t.Pack = new HallPackLease(t.PackId);
+                    if (t.PackId != null) t.Pack = new HallPackLease(t.PackId);
+                    t.SourcePrepared = true;
                 }
-                if (!t.Pack.Step()) return;
+                if (t.Pack != null && !t.Pack.Step()) return;
                 if (!t.Abort || t.Scenes != null)
                 {
                     if (!StepScene(t)) return;
@@ -352,7 +356,7 @@ internal static class HallFirstContact
         if (trial is not {Committed:true, Released:false} t || t.Sys.battle_no != -1 ||
             !Owns(Framework.Singleton<BATTLE_WORK>.instance) || t.Pack?.Loaded != true ||
             index < 0 || index >= t.Pack.Records) return false;
-        sprite = OPDResLoader.GetData(t.PackId, index);
+        sprite = OPDResLoader.GetData(t.PackId!, index);
         if (sprite != null && !t.RatLookup)
         {
             t.RatLookup = true;

@@ -128,8 +128,10 @@ internal static class CastleGuildRuntime
   }
   string restriction=Menu.Page==GuildPage.Training?TrainingWar.Unavailable((TrainingWar.Drill)Menu.Focus):"";
   if(decide&&Menu.ConfirmReleased&&restriction.Length!=0)Status=restriction;
+  if(decide&&Menu.ConfirmReleased&&Menu.Page==GuildPage.Echoes&&!HallAvailability.CanSelect(Menu.Focus))
+   Status=HallAvailability.Reason(Menu.Focus);
   var choice=Menu.Confirm(decide,Held(GRInputManager.Type.Decide),Quest.State,restriction.Length==0
-      ,HallFirstContact.Available && (Menu.Focus == 0 || Plugin.Options.EnableHallHarpy.Value)
+      ,HallFirstContact.Available && HallAvailability.CanSelect(Menu.Focus)
   );
   bool leave=choice switch
   {

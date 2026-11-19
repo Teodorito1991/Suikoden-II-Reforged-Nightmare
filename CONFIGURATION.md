@@ -23,7 +23,12 @@ fallbacks and the user's existing settings. No local user configuration changed.
 | Features / EnableRuneBalancing |true| Base spell layer; physical runes have separate JSON controls |
 | Features / EnableEnemyProfiles, EnableEnemyTargeting |true| Regular enemy profiles/targeting |
 | Hall of Echoes / EnableHallOfEchoes |false| Opt-in Hall rematches in the Castle Guild. Restart required |
-| Hall of Echoes / EnableHallHarpy |false| Independent Harpy opt-in, also requiring EnableHallOfEchoes. Restart required |
+| Hall of Echoes / EnableHallHarpy |false| Independent first Harpy opt-in; requires the Hall and read-only story witness. Restart required |
+| Hall of Echoes / EnableHallPestRat |true| Independent Pest Rat permission; unproven story gate still locks it under StoryProgression |
+| Hall of Echoes / EnableHallGoldenWolf |false| Experimental native Golden Wolf rematch; independent story witness |
+| Hall of Echoes / EnableHallSierra |false| Experimental native Sierra rematch; independent story witness |
+| Hall of Echoes / EnableHallHarpySecond |false| Experimental second Harpy; victory and story witness remain unproven |
+| Hall of Echoes / HallUnlockPolicy |StoryProgression| UnrestrictedTesting requires EnableDeveloperTools and changes only availability, never flags |
 | Combat Reforged / EnableCombatReforgedAi |true| Native RPG selection layer |
 | Features / EnableWarUnitProfiles |true| Original-war commander profiles |
 | Native War / EnableNativeWarRemix |true| Guarded story-war objectives |

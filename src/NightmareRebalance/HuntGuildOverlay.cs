@@ -25,7 +25,9 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   (GuildPage.Status,0,0,"08-guild-status.png",false),
   (GuildPage.Services,0,0,"11-field-contract.png",true),
   (GuildPage.Strategy,0,0,"12-party-strategy.png",false),
-  (GuildPage.Echoes,0,0,"13-hall-of-echoes.png",false)
+  (GuildPage.Echoes,0,0,"13-hall-story-locked.png",false),
+  (GuildPage.Echoes,1,0,"14-hall-harpy-memory.png",false),
+  (GuildPage.Echoes,4,0,"15-hall-second-page.png",false)
  };
  [DllImport("user32.dll")]static extern short GetAsyncKeyState(int key);
  [DllImport("user32.dll")]static extern IntPtr GetForegroundWindow();
@@ -142,23 +144,18 @@ public sealed class HuntGuildOverlay:MonoBehaviour
        "", "", status, focus == Services.Length-1 ? "Leave" : "Open", back, preview), pageSize:6);
   }
 
-  if (page == GuildPage.Echoes && !preview && !developer && HallFirstContact.Available)
-  {
-   var trials = HallTrialCatalogue.Entries;
-   var selected = trials[focus];
-   bool available = focus == 0 || Plugin.Options.EnableHallHarpy.Value;
-   var rows = trials.Select((trial, index) => new GuildMenuRow(trial.Name,
-       index == 0 || Plugin.Options.EnableHallHarpy.Value ? "Normal" : "Unavailable")).ToArray();
-   return GuildRebornScreen.Paginate(new("HALL OF ECHOES", rows, focus,
-       selected.Name, available ? "Normal rematch" : "Experimental · Disabled",
-       selected.Description, "", selected.Rewards, status,
-       available ? "Confirm challenge" : "Back", back, false));
-  }
   if (page == GuildPage.Echoes)
-   return new("HALL OF ECHOES", new[]{new GuildMenuRow("Boss rematches","Unavailable")}, 0,
-       "Hall of Echoes","Development preview",
-       "Boss rematches and battle guests are unavailable.\nYou can return to the other Guild services.",
-       "", "", status, "Back", back, preview);
+  {
+   if(preview)
+    return HallPresentation.View(focus,index=>index!=0,_=>true,
+        "Preview · Sample availability, not a campaign observation.",back,true);
+   if(!developer&&HallFirstContact.Available)
+    return HallPresentation.View(focus,HallAvailability.Unlocked,HallAvailability.Configured,
+        HallAvailability.Reason(focus),back,false);
+   return new("HALL OF ECHOES",new[]{new GuildMenuRow("Boss rematches","Unavailable")},0,
+       "Hall of Echoes","Unavailable","Enable the Hall in settings to recall your story memories.",
+       "","",status,"Back",back,false);
+  }
 
   if (page == GuildPage.Strategy)
   {

@@ -3,6 +3,24 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.44 — Hall of Echoes: Echoes of the Past (development only)
+
+- Adds original Golden Wolf, Sierra and second Harpy trial definitions to the
+  shared Hall lifecycle. Golden Wolf safely uses its verified null extra-pack
+  mapping; source/scene ownership and original battle index -1 are preserved.
+- Adds default StoryProgression policy, read-only source-backed Harpy / Sierra /
+  Golden Wolf witnesses, separate per-trial switches and an explicit developer-only
+  availability override. Pest Rat and second Harpy remain conservatively locked
+  under normal progression until their witnesses are established.
+- Adds five-entry pagination, hidden locked identities, original foe levels and
+  truthful native reward descriptions. No new stats, payout engine or story writes.
+- Owner played Golden Wolf and Sierra victories (8,500 / 850 Potch), followed by
+  second Harpy defeat and stock Game Over on candidate .1. Protected state and
+  owned cleanup passed. Revised candidate .2 passed Pest Rat victory, native rewards and Guild reopening;
+  second Harpy victory and original-story unlock timing remain unaccepted.
+- Preserves exact v1.43 fallback, installed Steam game, RPG/Hunts/war systems and
+  unpublished beta. [Evidence and limitations](docs/HALL-ECHOES-PAST-V144.md).
+
 ## v1.43 — Hall of Echoes Second Challenger (development only)
 
 - Adds the authentic first Harpy rematch, with its original 7,400 HP, moves,

@@ -33,7 +33,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
    if(!GuildNativeProbe.Resources())return;
    if(Time.realtimeSinceStartup-started>40)throw new TimeoutException("Production resource audit timed out.");
    if(!pending)
-   {if(index==tables.Length){if(!RpgEvolutionProbe.Step())return;if(!HuntResourceProbe.Step())return;if(!HuntFieldSourceProbe.Step())return;if(!CastleGuildNativeProbe.Step())return;MaintenanceNativeProbe.Finish();ExpansionNativeProbe.Finish();GuildNativeProbe.Menu();Check(BossTacticsProbe.LucaRows.Count==3,"All three original Luca selector baselines");Check(BossTacticsProbe.Covered.Count==BossTacticsRuntime.Audit.Length+BossTacticsRuntime.RevolutionAudit.Length,"All audited boss action fixtures");Check(BossTacticsProbe.Differences>0,"Actual native boss selections changed");var hunts=HuntRuntime.Definitions.Select(x=>x.Id).ToArray();Check(hunts.Length>0&&GuildNativeProbe.Hunts.SetEquals(hunts),"Guild rewards tested for all hunts");Check(HuntCatalogueProbe.Covered.SetEquals(hunts),"Every catalogue native fixture executed");TeamworkNativeProbe.Finish();if(HallEchoesProbe.Requested) Check(HallEchoesProbe.Evidence!=null,"Hall of Echoes fixture completed");Passed=true;Finish();return;}Plugin.Logger.LogInfo("Production asset request: "+tables[index]);handle=Addressables.LoadAssetAsync<BATTLE_DATA>((Il2CppSystem.String)("gsd2-classic-battle-battle-"+tables[index]));pending=true;return;}
+   {if(index==tables.Length){if(!RpgEvolutionProbe.Step())return;if(!HuntResourceProbe.Step())return;if(!HuntFieldSourceProbe.Step())return;if(!CastleGuildNativeProbe.Step())return;if(!HallProgressProbe.Step())return;MaintenanceNativeProbe.Finish();ExpansionNativeProbe.Finish();GuildNativeProbe.Menu();Check(BossTacticsProbe.LucaRows.Count==3,"All three original Luca selector baselines");Check(BossTacticsProbe.Covered.Count==BossTacticsRuntime.Audit.Length+BossTacticsRuntime.RevolutionAudit.Length,"All audited boss action fixtures");Check(BossTacticsProbe.Differences>0,"Actual native boss selections changed");var hunts=HuntRuntime.Definitions.Select(x=>x.Id).ToArray();Check(hunts.Length>0&&GuildNativeProbe.Hunts.SetEquals(hunts),"Guild rewards tested for all hunts");Check(HuntCatalogueProbe.Covered.SetEquals(hunts),"Every catalogue native fixture executed");TeamworkNativeProbe.Finish();if(HallEchoesProbe.Requested) Check(HallEchoesProbe.Evidence!=null,"Hall of Echoes fixture completed");Passed=true;Finish();return;}Plugin.Logger.LogInfo("Production asset request: "+tables[index]);handle=Addressables.LoadAssetAsync<BATTLE_DATA>((Il2CppSystem.String)("gsd2-classic-battle-battle-"+tables[index]));pending=true;return;}
    if(!handle.IsDone)return;
    try{Check(handle.Status==AsyncOperationStatus.Succeeded,"Native asset load failed: "+tables[index]);Inspect(handle.Result);}
    finally{retained.Add(handle);pending=false;}
@@ -47,7 +47,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   if(table.id=="vb07_00")GuildNativeProbe.ReissueTable=table;
   if (HallEchoesProbe.Requested && table.id=="boss_rat")
       HallEchoesProbe.Inspect(table,bossSources.Single(b=>b.Data.TableId==table.id).Data);
-  if (HallTrialCatalogue.Entries.Any(x => x.TableId == table.id))
+  if (table.id is "boss_rat" or "boss_hap1" or "boss_gwo1" or "boss_sie1" or "boss_hap2")
   {
    var a = bossSources.Single(x => x.Data.TableId == table.id).Data;
    HallEchoesProbe.ValidateSource(table, a);

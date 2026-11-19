@@ -19,14 +19,25 @@ internal sealed class Settings
 
     internal readonly ConfigEntry<bool> EnableStarBonds, EnablePartyIdentity;
     internal readonly ConfigEntry<bool> EnableCombatReforgedAi, RunCombatSelfTest, EnableHuntDebugTools;
-    internal readonly ConfigEntry<bool> EnableHallOfEchoes, EnableHallHarpy;
+    internal readonly ConfigEntry<bool> EnableHallOfEchoes, EnableHallHarpy, EnableHallPestRat, EnableHallGoldenWolf, EnableHallSierra, EnableHallHarpySecond;
+    internal readonly ConfigEntry<HallUnlockPolicy> HallUnlockPolicy;
 
     internal Settings(ConfigFile config)
     {
+        HallUnlockPolicy = config.Bind("Hall of Echoes", nameof(HallUnlockPolicy), NightmareRebalance.HallUnlockPolicy.StoryProgression,
+            "StoryProgression reads proven original completion flags. UnrestrictedTesting requires EnableDeveloperTools and only bypasses Hall availability; never writes progression.");
+        EnableHallPestRat = config.Bind("Hall of Echoes", nameof(EnableHallPestRat), true,
+            "Permit Pest Rat when the Hall and progression gate are enabled. Existing global Hall opt-ins are preserved.");
+        EnableHallGoldenWolf = config.Bind("Hall of Echoes", nameof(EnableHallGoldenWolf), false,
+            "Experimental Golden Wolf rematch. Requires the Hall and a proven story gate or explicit developer testing override.");
+        EnableHallSierra = config.Bind("Hall of Echoes", nameof(EnableHallSierra), false,
+            "Experimental Sierra rematch. Requires the Hall and a proven story gate or explicit developer testing override.");
+        EnableHallHarpySecond = config.Bind("Hall of Echoes", nameof(EnableHallHarpySecond), false,
+            "Experimental second Harpy rematch. Requires the Hall and a proven story gate or explicit developer testing override.");
         EnableHallHarpy = config.Bind("Hall of Echoes", nameof(EnableHallHarpy), false,
             "Enable the experimental Harpy rematch. Requires EnableHallOfEchoes and a restart.");
         EnableHallOfEchoes = config.Bind("Hall of Echoes", nameof(EnableHallOfEchoes), false,
-            "Enable the experimental Pest Rat rematch in the Castle Guild. Requires a restart.");
+            "Enable the experimental Hall rematches in the Castle Guild. Requires a restart.");
         EnableHuntDebugTools = config.Bind("Developer", nameof(EnableHuntDebugTools), false, "Explicit hunt-test damage protection hotkey F7. Disabled by default; restart required. Never changes levels or saves.");
         EnableStarBonds = config.Bind("Party Revolution", nameof(EnableStarBonds), true, "Conditional Star Bonds in eligible Normal battles.");
         EnablePartyIdentity = config.Bind("Party Revolution", nameof(EnablePartyIdentity), true, "Revised native growth and existing rune slot thresholds. Restart required.");

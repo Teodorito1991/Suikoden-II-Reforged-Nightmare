@@ -143,3 +143,16 @@ Harpy uses its native mountain scene and original attacks. Its reward is native
 Potch with no item drop. Pest Rat retains its possible Poison Orb. The Hall
 uses ordinary native victory processing, with no report-back reward.
 [Exact v1.43 evidence and limitations](docs/HALL-SECOND-CHALLENGER-V143.md).
+
+## Hall expansion in v1.44
+
+The Hall now has five paginated memories: Pest Rat, Harpy, Golden Wolf, Sierra and
+Harpy · Second Encounter. Original native foe levels and potential native spoils
+are shown without promising a fixed Potch credit. Locked entries hide their names.
+Three progression gates are source-backed; Pest Rat and the second Harpy remain
+locked under StoryProgression. Testing availability requires both an explicit
+UnrestrictedTesting policy and developer tools, and never changes story state.
+Golden Wolf/Sierra owner victories and the second Harpy defeat belong to the first
+candidate; revised exact-build evidence is separate. Historical sections above
+retain their original versions and conclusions.
+See [v1.44 evidence and configuration](docs/HALL-ECHOES-PAST-V144.md).

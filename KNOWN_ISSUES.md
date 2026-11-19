@@ -1,14 +1,18 @@
 # Known issues and validation limits
 
-The public source repository tracks v1.43. The campaign baseline is v1.40.
+The public source repository tracks v1.44. The campaign baseline is v1.40.
 Earlier campaign settings are documented for `1.38.0-nightmare-campaign.1`. An
 installable release remains unpublished. [Campaign settings and evidence](docs/NIGHTMARE-CAMPAIGN-V138.md).
 
-- **Hall remains opt-in.** Pest Rat and Harpy use independent source, pack and
-  scene identities. v1.43 has alternating owner-earned victories and Harpy flee
-  and defeat → Retry → rematch evidence. Whole-campaign balance and other castle variants remain unverified.
-  The previous accepted v1.42 DLL is preserved.
-  [Exact-build Hall status](docs/HALL-SECOND-CHALLENGER-V143.md).
+- **Hall progression is partially established.** Source-backed gates exist for
+  first Harpy, Sierra and Golden Wolf; original-story save timing still needs play.
+  Pest Rat and second Harpy remain locked in StoryProgression because no reliable
+  completion witness is proven. An explicit developer override is available.
+- **Second Harpy victory remains unverified.** It rendered and reached native Game
+  Over with zero payout and clean teardown. Golden Wolf/Sierra wins are on the
+  first v1.44 candidate; revised candidate verification is recorded separately.
+  Whole-campaign balance and other castle variants remain unverified.
+  [Exact-build Hall status](docs/HALL-ECHOES-PAST-V144.md).
 - **Legendary Bosses gameplay acceptance is pending.** Original selectors ran
   with disposable phase states. Transformation playback, cinematic endings and
   campaign balance await play. All three Luca fights remain native in campaign

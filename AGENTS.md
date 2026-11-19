@@ -46,6 +46,19 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
+## v1.44 development evidence
+
+Development source now includes five Hall trials, read-only source-backed gates
+for first Harpy/Sierra/Golden Wolf, independent default-off new trial switches,
+and an explicit developer-only availability override. Pest Rat and second Harpy
+remain locked under StoryProgression until reliable witnesses are established.
+Candidate .1 owner wins: Golden Wolf and Sierra; second Harpy earned defeat,
+stock Game Over and zero payout. Revised candidate .2 is a distinct hash with
+separate native/graphics verification and an owner-earned Pest Rat victory with
+rewards, clean return and Guild reopening. Preserve the accepted v1.43 artifact.
+See docs/HALL-ECHOES-PAST-V144.md and publication/development-build-v144.json.
+No release publication or original Steam DLL change is authorized by this work.
+
 ## Current Hall development evidence
 
 v1.43 development artifact is 1.43.0-second-challenger.1, SHA256

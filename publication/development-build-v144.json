@@ -1,0 +1,110 @@
+{
+  "Version": "1.44.0-echoes-of-the-past.2",
+  "DllSha256": "07D7E151920F81AE81163F3618897D1A84C18C3C99F0635EDE65228CFDFF8941",
+  "SourceParent": "09746a35f513dda64c008c05f99c2f04e0c1c74c",
+  "AcceptedFallbackSha256": "4A73164EC7DF9A16169BB858FE14A2BE1652505E0B63F70BBDFA3862D2554763",
+  "Build": {
+    "Configuration": "Release",
+    "DebugType": "None",
+    "Deterministic": true,
+    "Warnings": 0,
+    "Errors": 0,
+    "BuiltBeforeSourceCommit": true
+  },
+  "Verification": {
+    "ManagedRegressions": "pass",
+    "NativeProductionAudit": {
+      "Passed": true,
+      "Assertions": 5051,
+      "OriginalBossSources": 5,
+      "OriginalEventFingerprints": 5,
+      "CommandsExecuted": false,
+      "CampaignLoaded": false
+    },
+    "OwnerPlayedCandidate": {
+      "Version": "1.44.0-echoes-of-the-past.1",
+      "DllSha256": "D5508962071822CAA401A32B40293D3451475E426BB028B9A9B2ED3844EFDE2F",
+      "Sequence": [
+        {
+          "Trial": "Golden Wolf",
+          "Outcome": "Victory",
+          "PotchCredit": 8500
+        },
+        {
+          "Trial": "Sierra",
+          "Outcome": "Victory",
+          "PotchCredit": 850
+        },
+        {
+          "Trial": "Harpy second",
+          "Outcome": "Stock Game Over",
+          "PotchCredit": 0
+        }
+      ],
+      "ProtectedFlagArraysUnchanged": true,
+      "WarStateUnchanged": true,
+      "ProtectedProgressionUnchanged": true,
+      "NativeTeardownAndOwnedRelease": true,
+      "AvailabilityPolicy": "UnrestrictedTesting",
+      "DeveloperOptIn": true
+    },
+    "FinalHashRenderedBattle": {
+      "Trial": "Pest Rat",
+      "EarnedVictory": true,
+      "PotchCredit": 17000,
+      "PoisonOrbAdded": 1,
+      "OwnerConfirmedGuildReopened": true,
+      "ProtectedFlagArraysUnchanged": true,
+      "WarStateUnchanged": true,
+      "ProtectedProgressionUnchanged": true,
+      "NativeTeardownAndOwnedRelease": true,
+      "AvailabilityPolicy": "UnrestrictedTesting"
+    },
+    "SecondHarpyVictory": "not observed",
+    "OriginalStorySaveTiming": "not observed",
+    "FinalHashGraphics": {
+      "Passed": true,
+      "Images": 15,
+      "OriginalFrameCursorFont": true,
+      "StartupGuardVerifiedExactHash": true,
+      "ActiveScene": "Main",
+      "CampaignLoaded": false,
+      "VisualReview": "locked memory, unlocked Harpy and second Hall page readable"
+    },
+    "OriginalSaveFilesChecked": 14,
+    "OriginalSaveFilesChanged": 0
+  },
+  "StoryWitnesses": [
+    {
+      "Trial": "Harpy",
+      "Flag": 21,
+      "Mask": 2,
+      "Map": "vc06",
+      "Variant": 1,
+      "Event": 32
+    },
+    {
+      "Trial": "Sierra",
+      "Flag": 221,
+      "Mask": 2,
+      "Map": "vj20",
+      "Variant": 4,
+      "Event": 3
+    },
+    {
+      "Trial": "Golden Wolf",
+      "Flag": 223,
+      "Mask": 64,
+      "Map": "vj23",
+      "Variant": 4,
+      "Event": 6
+    }
+  ],
+  "UnprovenStoryWitnesses": [
+    "Pest Rat",
+    "Harpy second"
+  ],
+  "OriginalSteamDllReplaced": false,
+  "BinaryPublished": false,
+  "ReleasePublished": false
+}
