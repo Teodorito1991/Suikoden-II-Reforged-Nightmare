@@ -99,12 +99,15 @@ internal static class GuildRebornTests
         var flags = new byte[256];
         bool Read(int flag, byte mask) => (flags[flag] & mask) != 0;
         check(!HallUnlockRules.Unlocked("harpy",HallUnlockPolicy.StoryProgression,false,Read),"Early Harpy memory is locked");
-        flags[0x15]=0x02;
+        flags[0x21]=0x10;
         check(HallUnlockRules.StoryUnlocked("harpy",Read),"Original Harpy completion witness unlocks memory");
-        flags[0xDD]=0x02;
-        flags[0xDF]=0x40;
-        check(HallUnlockRules.StoryUnlocked("sierra",Read)&&HallUnlockRules.StoryUnlocked("golden-wolf",Read),"Dedicated native optional-boss completion witnesses");
-        check(!HallUnlockRules.StoryUnlocked("rat",Read)&&!HallUnlockRules.StoryUnlocked("harpy-second",Read),"Unproven witnesses do not inherit another boss's victory");
+        flags[0x15]=0x02;flags[0xDD]=0x02;flags[0xDF]=0x40;
+        check(!HallUnlockRules.StoryUnlocked("sierra",Read)&&!HallUnlockRules.StoryUnlocked("golden-wolf",Read),"Unrelated map event flags are not boss victories");
+        flags[0x21]=0;
+        check(!HallUnlockRules.StoryUnlocked("harpy",Read),"A numeric duel ID cannot establish a Harpy victory");
+        flags[0xB6]=0x02;flags[0x16]=0x02;flags[0x21]=0x10;
+        check(HallUnlockRules.StoryUnlocked("rat",Read)&&HallUnlockRules.StoryUnlocked("golden-wolf",Read),"Original boss preload and completion witnesses unlock the correct trials");
+        check(!HallUnlockRules.StoryUnlocked("sierra",Read)&&!HallUnlockRules.StoryUnlocked("harpy-second",Read),"Unproven witnesses do not inherit another boss's victory");
         flags=new byte[256]; // An earlier loaded campaign replaces the state; no cached unlock.
         flags[0xC2]=0x80;
         check(!HallUnlockRules.StoryUnlocked("harpy",Read),"Shared battle result cannot unlock a story memory");

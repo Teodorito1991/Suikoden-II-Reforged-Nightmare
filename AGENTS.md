@@ -46,6 +46,19 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
+## v1.45 progression correction
+
+v1.44's three unlock claims are superseded: ordinary map loads / nonordinary
+battle IDs were mistaken for boss provenance. Correct source-backed witnesses
+are Pest Rat B6/02, first Harpy 21/10 and Golden Wolf 16/02, with category-15
+preloads and immediate native post-battle writes. Sierra and second Harpy remain
+locked normally; never restore the old witnesses or use shared C2/80 as proof.
+Historical reports/artifacts stay preserved. All five battle definitions remain
+implemented. Exact v1.45 hash owner wins: Golden Wolf / first Harpy under normal
+story gating; Sierra / second Harpy with explicit testing availability, followed
+by Pest Rat flee and Guild reopening. Second Harpy credited 127,500 Potch. See
+docs/HALL-ECHOES-EARNED-V145.md and its verification manifest.
+
 ## v1.44 development evidence
 
 Development source now includes five Hall trials, read-only source-backed gates

@@ -3,6 +3,25 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.45 — Hall of Echoes: Echoes Earned (development only)
+
+- Corrects the v1.44 story-gate identity error: map indices and nonordinary battle
+  IDs are not boss-resource indices. Adds Pest Rat B6/02, first Harpy 21/10 and
+  Golden Wolf 16/02 witnesses linked to original category-15 preloads and native
+  victory continuations. Removes the unrelated old witnesses.
+- Keeps Sierra and second Harpy normal-play unlocks unavailable rather than
+  guessing. Both existing encounters and the explicit developer availability
+  override remain implemented. No encounter, stat or reward changes.
+- Strengthens six original event-source audits and native production gate/reset
+  checks. Current-hash Golden Wolf and first Harpy owner victories passed under
+  StoryProgression, with native payouts and clean Guild returns.
+- Owner earned Sierra and second Harpy victories on this exact DLL under the
+  explicit testing override: 850 / 127,500 Potch, no items, clean Guild returns.
+  Post-Harpy Pest Rat flee passed with zero payout and working Guild interaction.
+- Preserves historical reports, both accepted fallback artifacts, normal default-
+  off settings and all existing RPG/Hunt/war systems.
+  [Exact-build results and limitations](docs/HALL-ECHOES-EARNED-V145.md).
+
 ## v1.44 — Hall of Echoes: Echoes of the Past (development only)
 
 - Adds original Golden Wolf, Sierra and second Harpy trial definitions to the

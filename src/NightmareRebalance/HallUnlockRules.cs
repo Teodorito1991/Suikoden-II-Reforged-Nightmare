@@ -4,17 +4,16 @@ internal enum HallUnlockPolicy { StoryProgression, UnrestrictedTesting }
 
 internal static class HallUnlockRules
 {
-    // vc06 variant 1, event 32: original boss index 14, followed by the
-    // persistent ECEvFlgSet(0x15, 0x02). Never use the shared result flag C2/80.
-    // vj20 variant 4 loads boss 20 and sets DD/02 after its battle.
-    // vj23 variant 4 loads boss 23 and sets DF/40 after its battle.
-    // Pest Rat and second Harpy witnesses remain unproven and fail closed.
+    // Audited category-15 boss loads followed by ordinary event battles and
+    // dedicated persistent completion writes. Numeric map/duel IDs are not bosses.
+    internal static bool HasWitness(string id) => id is "rat" or "harpy" or "golden-wolf";
+
     internal static bool StoryUnlocked(string id, System.Func<int, byte, bool> readFlag) => id switch
     {
-        "harpy" => readFlag(0x15, 0x02),
-        "sierra" => readFlag(0xDD, 0x02),
-        "golden-wolf" => readFlag(0xDF, 0x40),
-        _ => false
+        "rat" => readFlag(0xB6, 0x02),        // vh04 / variant 8 / event 9
+        "harpy" => readFlag(0x21, 0x10),     // vi15 / variant 0 / event 4
+        "golden-wolf" => readFlag(0x16, 0x02), // vc27 / variant 0 / event 2
+        _ => false // Sierra and second Harpy: no proven persistent victory witness.
     };
 
     internal static bool Testing(HallUnlockPolicy policy, bool developer) =>

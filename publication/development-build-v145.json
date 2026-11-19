@@ -1,0 +1,138 @@
+{
+  "Version": "1.45.0-echoes-earned.1",
+  "DllSha256": "CADC047632A5948BA7277360D34ED4FC6D3EEE0E08DDEA7B43F01EC663E56843",
+  "SourceParent": "f311142fe1bcd9596fc63b9445388d7155910b22",
+  "PreservedFallbacks": {
+    "v1.44": "07D7E151920F81AE81163F3618897D1A84C18C3C99F0635EDE65228CFDFF8941",
+    "v1.43": "4A73164EC7DF9A16169BB858FE14A2BE1652505E0B63F70BBDFA3862D2554763"
+  },
+  "Build": {
+    "Configuration": "Release",
+    "DebugType": "None",
+    "Deterministic": true,
+    "Warnings": 0,
+    "Errors": 0,
+    "BuiltBeforeSourceCommit": true
+  },
+  "CorrectedWitnesses": [
+    {
+      "Trial": "Pest Rat",
+      "Flag": 182,
+      "Mask": 2,
+      "Map": "vh04",
+      "Variant": 8,
+      "PreloadEvent": 8,
+      "CompletionEvent": 9,
+      "BossCategory": 15,
+      "BossIndex": 18
+    },
+    {
+      "Trial": "First Harpy",
+      "Flag": 33,
+      "Mask": 16,
+      "Map": "vi15",
+      "Variant": 0,
+      "PreloadEvent": 5,
+      "CompletionEvent": 4,
+      "BossCategory": 15,
+      "BossIndex": 14
+    },
+    {
+      "Trial": "Golden Wolf",
+      "Flag": 22,
+      "Mask": 2,
+      "Map": "vc27",
+      "Variant": 0,
+      "PreloadEvent": 4,
+      "CompletionEvent": 2,
+      "BossCategory": 15,
+      "BossIndex": 23
+    }
+  ],
+  "UnresolvedNormalUnlocks": [
+    "Sierra",
+    "Second Harpy"
+  ],
+  "Correction": "v1.44 unrelated map/nonordinary battle numbers were incorrectly treated as original boss provenance; all three old witnesses removed.",
+  "Verification": {
+    "ManagedRegressions": "pass",
+    "NativeProductionAudit": {
+      "Passed": true,
+      "Assertions": 5051,
+      "OriginalBossSources": 5,
+      "OriginalEventSources": 6,
+      "EventCommandsExecuted": false
+    },
+    "NativeGateProbe": {
+      "Passed": true,
+      "OwnedScratchState": true,
+      "NativeFlagReads": true,
+      "OldWitnessesRejected": true,
+      "ResetRevokesEligibility": true,
+      "ConfigurationOptOuts": true,
+      "StoryPlayed": false
+    },
+    "ActualCurrentHashGameplay": [
+      {
+        "Trial": "Golden Wolf",
+        "Policy": "StoryProgression",
+        "Outcome": "Victory",
+        "PotchCredit": 8500,
+        "ItemAdded": false
+      },
+      {
+        "Trial": "First Harpy",
+        "Policy": "StoryProgression",
+        "Outcome": "Victory",
+        "PotchCredit": 34000,
+        "ItemAdded": false
+      },
+      {
+        "Trial": "Sierra",
+        "Policy": "UnrestrictedTesting",
+        "Outcome": "Victory",
+        "PotchCredit": 850,
+        "ItemAdded": false
+      },
+      {
+        "Trial": "Second Harpy",
+        "Policy": "UnrestrictedTesting",
+        "Outcome": "Victory",
+        "PotchCredit": 127500,
+        "ItemAdded": false,
+        "PlayerHpLost": 978,
+        "PlayerHealing": 850
+      },
+      {
+        "Trial": "Pest Rat",
+        "Policy": "UnrestrictedTesting",
+        "Outcome": "Native flee",
+        "PotchCredit": 0,
+        "ItemAdded": false,
+        "RuneRecovery": 0
+      }
+    ],
+    "OwnerConfirmedGuildReopening": true,
+    "ProtectedFlagArraysUnchanged": true,
+    "WarStateUnchanged": true,
+    "ProtectedProgressionUnchanged": true,
+    "NativeTeardownAndOwnedRelease": true,
+    "CrossBossReentryAfterSecondHarpy": true,
+    "PairedOriginalStoryBeforeAfter": "not observed",
+    "ActualEarlierSaveGuildCheck": "not observed",
+    "RealMidLoadStoryRevocation": "not induced; native eligibility revocation fixture only",
+    "KnownSavedCheckpointWarning": "Existing character-30 source mismatch also present in v1.44; record left unchanged by guard.",
+    "GraphicsPreview": {
+      "Passed": true,
+      "ExactHashGuardVerified": true,
+      "OriginalFrameCursorFont": true,
+      "Images": 15,
+      "CampaignGameplay": false
+    },
+    "OriginalSavesChecked": 14,
+    "OriginalSavesChanged": 0
+  },
+  "OriginalSteamDllReplaced": false,
+  "BinaryPublished": false,
+  "ReleasePublished": false
+}

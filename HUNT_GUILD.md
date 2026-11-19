@@ -156,3 +156,18 @@ Golden Wolf/Sierra owner victories and the second Harpy defeat belong to the fir
 candidate; revised exact-build evidence is separate. Historical sections above
 retain their original versions and conclusions.
 See [v1.44 evidence and configuration](docs/HALL-ECHOES-PAST-V144.md).
+
+## v1.45 progression correction
+
+The v1.44 witness interpretation above is historical and superseded. Correct
+source-backed witnesses are Pest Rat B6/02, first Harpy 21/10 and Golden Wolf
+16/02. These correspond to original category-15 boss loads and post-battle
+completion writes. Sierra and second Harpy have no proven normal unlock yet;
+ordinary map indices and shared battle-result flags are insufficient. All five
+encounters remain implemented without combat changes.
+[Current exact-build evidence](docs/HALL-ECHOES-EARNED-V145.md).
+
+Exact v1.45 DLL gameplay also passed Sierra and second Harpy victories under the
+explicit testing override (850 and 127,500 Potch), followed by Pest Rat flee with
+zero payout and working Guild interaction. This verifies their battle paths, not
+a normal-play unlock for those two trials.

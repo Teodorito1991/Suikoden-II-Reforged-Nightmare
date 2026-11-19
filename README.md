@@ -1,16 +1,16 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone** is v1.44, Hall of Echoes: Echoes of the Past.
-The Hall catalogue now includes Golden Wolf, Sierra and a second Harpy alongside
-Pest Rat and the first Harpy, with paginated, story-aware presentation. Golden Wolf
-and Sierra have owner-earned victories on the first v1.44 candidate; the second
-Harpy has rendered defeat/Game Over evidence, with victory still unverified.
-Three original-source progression witnesses are implemented. Pest Rat and the
-second Harpy remain story-locked because their completion witnesses are unproven.
-Final revised candidate .2 also passed an owner-earned Pest Rat victory, native
-rewards and Guild reopening. All new trials remain opt-in. A developer-only availability override writes no flags.
-[Exact candidates, unlocks and evidence](docs/HALL-ECHOES-PAST-V144.md).
-[Accepted v1.43 fallback](docs/HALL-SECOND-CHALLENGER-V143.md).
+**Latest development milestone** is v1.45, Hall of Echoes: Echoes Earned.
+StoryProgression now uses corrected original-boss witnesses for Pest Rat, first
+Harpy and Golden Wolf. v1.44 had confused map/nonordinary battle numbers with boss
+resource indices; its unlock claims are superseded. Sierra and second Harpy stay
+locked in normal play until reliable victory witnesses are established.
+The owner won Golden Wolf and first Harpy under normal story gating, then Sierra
+and the second Harpy under explicit testing availability, all on this exact DLL.
+Second Harpy credited 127,500 Potch; a subsequent Pest Rat flee paid nothing and
+returned cleanly. All five trial definitions remain implemented. No combat-stat, reward-engine or campaign progression changes.
+[Current evidence and remaining gaps](docs/HALL-ECHOES-EARNED-V145.md).
+[Preserved v1.44 artifact](docs/HALL-ECHOES-PAST-V144.md).
 
 **Campaign development baseline** is v1.40, with DLL
 `1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional

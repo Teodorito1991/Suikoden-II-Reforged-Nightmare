@@ -29,7 +29,9 @@ internal static class HallAvailability
         Plugin.Options.EnableHallOfEchoes.Value, Configured(selection), Unlocked(selection));
 
     internal static string Reason(int selection) => !Unlocked(selection)
-        ? "A memory yet to be made. Continue your journey."
+        ? HallUnlockRules.HasWitness(HallTrialCatalogue.Entries[selection].Id)
+            ? "A memory yet to be made. Continue your journey."
+            : "This echo is not available in normal play yet."
         : !Configured(selection) ? "This rematch is disabled in the Hall settings."
         : Testing ? "Testing availability · Story flags are unchanged." : "Story memory recalled · Rematch available.";
 }
