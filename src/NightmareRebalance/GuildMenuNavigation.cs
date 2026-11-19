@@ -1,6 +1,6 @@
 namespace NightmareRebalance;
 
-internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy, Echoes }
+internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy, Echoes, EchoDifficulty }
 internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave, StartEcho }
 
 internal static class GuildApproach
@@ -22,6 +22,7 @@ internal sealed class GuildMenuNavigation
 
     internal static readonly GuildPage[] Services = { GuildPage.Hunts, GuildPage.Training, GuildPage.Status, GuildPage.Strategy, GuildPage.Echoes };
 
+    internal int Echo { get; private set; }
     internal int EchoCount { get; set; } = 1;
 
     internal int RowCount => Page switch
@@ -30,7 +31,7 @@ internal sealed class GuildMenuNavigation
         GuildPage.Training => 4,
         GuildPage.Strategy => StarBondRules.Catalogue.Length,
         GuildPage.Hunts => HuntCount,
-        GuildPage.Difficulty => 2,
+        GuildPage.Difficulty or GuildPage.EchoDifficulty => 2,
         GuildPage.Echoes => EchoCount,
         _ => 1
     };
@@ -61,6 +62,7 @@ internal sealed class GuildMenuNavigation
         switch (Page)
         {
             case GuildPage.Services: return false;
+            case GuildPage.EchoDifficulty: Enter(GuildPage.Echoes, Echo); break;
             case GuildPage.Difficulty: Enter(GuildPage.Training, Drill); break;
             case GuildPage.Hunts: Enter(GuildPage.Services, 0); break;
             case GuildPage.Training: Enter(GuildPage.Services, 1); break;
@@ -71,7 +73,7 @@ internal sealed class GuildMenuNavigation
         return true;
     }
 
-    internal GuildChoice Confirm(bool pressed, bool held, GuildQuestState state, bool drillAvailable, bool echoAvailable = false)
+    internal GuildChoice Confirm(bool pressed, bool held, GuildQuestState state, bool drillAvailable, bool echoAvailable = false, bool nightmareAvailable = false)
     {
         if (!pressed)
         {
@@ -92,7 +94,10 @@ internal sealed class GuildMenuNavigation
                 Enter(GuildPage.Difficulty, 0);
                 return GuildChoice.None;
             case GuildPage.Difficulty: return GuildChoice.Start;
-            case GuildPage.Echoes when echoAvailable: return GuildChoice.StartEcho;
+            case GuildPage.Echoes when echoAvailable:
+                Echo=Focus; Enter(GuildPage.EchoDifficulty,0); return GuildChoice.None;
+            case GuildPage.EchoDifficulty when echoAvailable && (Focus==0||nightmareAvailable): return GuildChoice.StartEcho;
+            case GuildPage.EchoDifficulty: return GuildChoice.None;
             case GuildPage.Status when state == GuildQuestState.Accepted: return GuildChoice.Withdraw;
             case GuildPage.Status when state == GuildQuestState.AwaitingReport: return GuildChoice.Report;
             case GuildPage.Status:

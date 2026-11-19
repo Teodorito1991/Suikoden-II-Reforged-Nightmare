@@ -3,6 +3,28 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.47 — Hall of Echoes: The Nightmare Trials (development only)
+
+- Adds separate Original/Nightmare selection for three optional advanced trials:
+  Abomination (6,750 HP), Stone Golem (10,500 HP), Golden Wolf (4,375 HP).
+  Existing eight Original sources, progression and rewards remain intact.
+- Native-legal tactical preferences and one owned final-damage increment: 10%
+  for Abomination, 15% for Golem/Wolf. Fixes a real first-candidate integration
+  defect: special attacks bypassed the calculation helper. Revision .2 uses the
+  existing native reaction boundary once, without changing story-war/boss scope.
+- Conditional 25% Stone of Power offer on earned Nightmare victory with no native
+  loot, native inventory acceptance, per-trial pending-offer ledger and no payout
+  after flee/defeat. Native Strength growth/cap and full bag handling checked.
+- Final .2 owner evidence: five Nightmare wins across Golem and Abomination,
+  actual stone inventory +1, Nightmare and Original flee, clean repeated Guild
+  returns and unchanged protected state. Wolf's earlier-candidate win is separate.
+- Managed/native regressions and 22 native-style previews passed. New-tier defeat,
+  midgame parties and full campaign balance remain untested. Hall and Nightmare
+  default off; original installed DLL/saves and v1.46 fallback preserved.
+- Build `1.47.0-nightmare-trials.2`, SHA256
+  `7283F4B6873C6AFA8BE4277ADF6A7E09CEB42E4607C168D3AB3A381CABE211BF`.
+  [Detailed rules and evidence](docs/HALL-NIGHTMARE-TRIALS-V147.md).
+
 ## v1.46 — Hall of Echoes: New Memories (development only)
 
 - Adds original Stone Golem, Abomination and first Worm rematches, extending the

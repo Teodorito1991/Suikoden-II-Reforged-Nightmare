@@ -79,7 +79,7 @@ internal static class GuildRebornTests
             menu.Confirm(true,true,GuildQuestState.NoContract,true,echoAvailable:true)==GuildChoice.None,
             "Opening the experimental Hall cannot confirm its challenge");
         menu.Confirm(false,false,GuildQuestState.NoContract,true,echoAvailable:true);
-        check(menu.Confirm(true,true,GuildQuestState.NoContract,true,echoAvailable:true)==GuildChoice.StartEcho &&
+        check(menu.Confirm(true,true,GuildQuestState.NoContract,true,echoAvailable:true)==GuildChoice.None && menu.Page==GuildPage.EchoDifficulty &&
             menu.Confirm(true,true,GuildQuestState.NoContract,true,echoAvailable:true)==GuildChoice.None,
             "Experimental Hall requires a fresh confirm and does not repeat while held");
         menu.EchoCount=2;
@@ -90,8 +90,9 @@ internal static class GuildRebornTests
         Down();
         check(menu.Focus==1, "Second Hall encounter can receive focus");
         menu.Confirm(false,false,GuildQuestState.NoContract,true,echoAvailable:true);
-        check(menu.Confirm(true,true,GuildQuestState.NoContract,true,echoAvailable:true)==GuildChoice.StartEcho &&
-            menu.Focus==1, "Hall launch preserves selected encounter");
+        check(menu.Confirm(true,true,GuildQuestState.NoContract,true,echoAvailable:true)==GuildChoice.None && menu.Page==GuildPage.EchoDifficulty &&
+            menu.Echo==1 && menu.Focus==0, "Hall tier selection preserves selected encounter");
+        menu.Back();
         Down();
         check(menu.Focus==0, "Hall encounter navigation wraps");
         menu.Back();
@@ -137,6 +138,36 @@ internal static class GuildRebornTests
         check(echoPage.Rows.Length==4&&echoPage.Focus==3&&echoPage.Rows[3]==echoes[7],"Hall pagination keeps final selected memory visible");
         var unknown=HallPresentation.View(0,_=>false,_=>true,"Locked","Back",false);
         check(unknown.Title=="Unknown Echo"&&unknown.Rows.All(x=>x==new GuildMenuRow("???","Locked")),"Locked memories hide boss identities");
+        menu.Open(false,10);
+        for(int i=0;i<4;i++)Down();
+        Confirm();
+        for(int i=0;i<6;i++)Down();
+        menu.Confirm(false,false,GuildQuestState.NoContract,true,true);
+        check(menu.Confirm(true,true,GuildQuestState.NoContract,true,true)==GuildChoice.None&&menu.Page==GuildPage.EchoDifficulty&&menu.Echo==6&&menu.Focus==0,"Echo selection enters a separate confirmation page");
+        check(menu.Confirm(true,true,GuildQuestState.NoContract,true,true,true)==GuildChoice.None,"Held confirmation cannot start an echo");
+        menu.Confirm(false,false,GuildQuestState.NoContract,true,true);
+        check(menu.Confirm(true,true,GuildQuestState.NoContract,true,true)==GuildChoice.StartEcho,"Original remains available with Nightmare disabled");
+        Down();menu.Confirm(false,false,GuildQuestState.NoContract,true,true);
+        check(menu.Confirm(true,true,GuildQuestState.NoContract,true,true,false)==GuildChoice.None,"Disabled advanced tier cannot launch");
+        menu.Confirm(false,false,GuildQuestState.NoContract,true,true);
+        check(menu.Confirm(true,true,GuildQuestState.NoContract,true,true,true)==GuildChoice.StartEcho&&menu.Echo==6,"Nightmare needs its separate permission");
+        check(menu.Back()&&menu.Page==GuildPage.Echoes&&menu.Focus==6,"Tier cancellation restores catalogue focus");
+        foreach(var profile in HallNightmareRules.Profiles)
+        {
+            var definition=HallTrialCatalogue.Entries.Single(x=>x.Id==profile.Id);
+            check(HallNightmareRules.Hp(definition.Hp,profile)>definition.Hp&&HallNightmareRules.Hp(definition.Hp,profile)<definition.Hp*2,"Bounded distinct HP adjustments");
+        }
+        var basic=new CombatAction(0,1,100,true,false,0,100,255,true);
+        var magic=new CombatAction(1,2,150,false,true,0,100,3,true);
+        var targets=new[]{new CombatTarget(0,200,500,100,100,100,100,0)};
+        check(HallNightmareRules.Score("abomination",0,magic,targets)>HallNightmareRules.Score("abomination",0,basic,targets)&&HallNightmareRules.Score("abomination",2,basic,targets)>HallNightmareRules.Score("abomination",2,magic,targets),"Advanced pressure and native-round recovery differ");
+        check(HallNightmareRules.Score("stone-golem",2,magic with {Power=145},targets)>HallNightmareRules.Score("stone-golem",2,magic with {Power=270},targets)&&HallNightmareRules.Score("stone-golem",2,magic with {Power=145},targets)>HallNightmareRules.Score("stone-golem",2,basic with {Power=390,Multi=true},targets),"Golem recovery prefers lower-power native magic when no single attack exists");
+        check(HallNightmareRules.Score("golden-wolf",0,basic,targets)>HallNightmareRules.Score("golden-wolf",0,magic,targets),"Wolf favors physical identity");
+        check(HallNightmareRules.BonusEligible(true,true,false,false,true)&&!HallNightmareRules.BonusEligible(false,true,false,false,true)&&!HallNightmareRules.BonusEligible(true,false,false,false,true)&&!HallNightmareRules.BonusEligible(true,true,true,false,true)&&!HallNightmareRules.BonusEligible(true,true,false,true,true)&&!HallNightmareRules.BonusEligible(true,true,false,false,false),"Stone eligibility excludes Original, nonvictory, retries, handoff and rolled native loot");
+        check(HallNightmareRules.DamageAmount(180,1.15)==207&&HallNightmareRules.DamageAmount(200,1.10)==220&&HallNightmareRules.DamageAmount(9999,1.15)==9999,"Final native reaction gets one bounded relative increment");
+        var tier=HallPresentation.Difficulty(6,1,true,true,true,true,true);
+        check(tier.Rows.Length==2&&tier.Reward.Contains("25%")&&tier.Condition.Contains("150%")&&tier.Area.Contains("34"),"Tier presentation states real conditional reward and HP");
+        check(HallPresentation.Difficulty(6,1,false,true,true,true).Title=="Unknown Echo","Difficulty never reveals a locked identity");
         var serviceRows=Enumerable.Range(0,6).Select(i=>new GuildMenuRow("Service "+i,"")).ToArray();
         var services=GuildRebornScreen.Paginate(new GuildMenuView("SERVICES",serviceRows,5,"","","","","","","","",false),6);
         var last=GuildRebornScreen.Row(services.Focus,services.Rows.Length);

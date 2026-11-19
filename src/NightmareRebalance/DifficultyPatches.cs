@@ -94,6 +94,7 @@ internal static class PotchPatch
     [HarmonyPrefix]static void Prefix()=>HuntRuntime.RecalculateReward();
     [HarmonyPostfix] static void Postfix(BATTLE_WORK battle_work)
     {
+        HallFirstContact.PrepareStone(battle_work,battle_work.exit_work);
         Combat.Observe(nameof(BattleManager.get_monster_okane), battle_work);
         if (!Combat.Matches(battle_work)) return;
         var exit = battle_work.exit_work;

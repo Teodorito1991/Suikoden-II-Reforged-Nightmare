@@ -1,0 +1,292 @@
+{
+  "Version": "1.47.0-nightmare-trials.2",
+  "DllSha256": "7283F4B6873C6AFA8BE4277ADF6A7E09CEB42E4607C168D3AB3A381CABE211BF",
+  "SourceParent": "6f8cd84ce2a84bfd378d246bda4fb7c2f63bc02b",
+  "FallbackSha256": "35F2E3BC0A8A84EB401E92C535D503ABF3059F87112AA6F3921BE87BDD59F50D",
+  "ImplementedNightmareTrials": [
+    "Abomination",
+    "Stone Golem",
+    "Golden Wolf"
+  ],
+  "FinalHashGameplay": [
+    {
+      "Trial": "Stone Golem",
+      "Tier": "Nightmare",
+      "InitialHp": 10500,
+      "Outcome": "Earned victory",
+      "PotchCredit": 50000,
+      "ItemSlotDeltas": "21:0",
+      "ProtectedStateUnchanged": true,
+      "CorrectFieldReturn": true,
+      "OwnedCleanupComplete": true,
+      "StoneRolls": [
+        86
+      ]
+    },
+    {
+      "Trial": "Abomination",
+      "Tier": "Nightmare",
+      "InitialHp": 6750,
+      "Outcome": "Earned victory",
+      "PotchCredit": 10000,
+      "ItemSlotDeltas": "21:0",
+      "ProtectedStateUnchanged": true,
+      "CorrectFieldReturn": true,
+      "OwnedCleanupComplete": true,
+      "StoneRolls": [
+        34
+      ]
+    },
+    {
+      "Trial": "Abomination",
+      "Tier": "Nightmare",
+      "InitialHp": 6750,
+      "Outcome": "Let Go",
+      "PotchCredit": 0,
+      "ItemSlotDeltas": "21:0",
+      "ProtectedStateUnchanged": true,
+      "CorrectFieldReturn": true,
+      "OwnedCleanupComplete": true,
+      "StoneRolls": []
+    },
+    {
+      "Trial": "Abomination",
+      "Tier": "Original",
+      "InitialHp": 4500,
+      "Outcome": "Let Go",
+      "PotchCredit": 0,
+      "ItemSlotDeltas": "",
+      "ProtectedStateUnchanged": true,
+      "CorrectFieldReturn": true,
+      "OwnedCleanupComplete": true,
+      "StoneRolls": []
+    },
+    {
+      "Trial": "Abomination",
+      "Tier": "Nightmare",
+      "InitialHp": 6750,
+      "Outcome": "Earned victory",
+      "PotchCredit": 10000,
+      "ItemSlotDeltas": "21:0",
+      "ProtectedStateUnchanged": true,
+      "CorrectFieldReturn": true,
+      "OwnedCleanupComplete": true,
+      "StoneRolls": [
+        80
+      ]
+    },
+    {
+      "Trial": "Abomination",
+      "Tier": "Nightmare",
+      "InitialHp": 6750,
+      "Outcome": "Earned victory",
+      "PotchCredit": 10000,
+      "ItemSlotDeltas": "21:0",
+      "ProtectedStateUnchanged": true,
+      "CorrectFieldReturn": true,
+      "OwnedCleanupComplete": true,
+      "StoneRolls": [
+        64
+      ]
+    },
+    {
+      "Trial": "Abomination",
+      "Tier": "Nightmare",
+      "InitialHp": 6750,
+      "Outcome": "Earned victory",
+      "PotchCredit": 10000,
+      "ItemSlotDeltas": "21:1",
+      "ProtectedStateUnchanged": true,
+      "CorrectFieldReturn": true,
+      "OwnedCleanupComplete": true,
+      "StoneRolls": [
+        4
+      ]
+    }
+  ],
+  "NativeReactionSamples": [
+    {
+      "Trial": "Stone Golem",
+      "Before": 67,
+      "After": 77,
+      "Factor": 1.15
+    },
+    {
+      "Trial": "Stone Golem",
+      "Before": 44,
+      "After": 51,
+      "Factor": 1.15
+    },
+    {
+      "Trial": "Stone Golem",
+      "Before": 55,
+      "After": 63,
+      "Factor": 1.15
+    },
+    {
+      "Trial": "Stone Golem",
+      "Before": 82,
+      "After": 94,
+      "Factor": 1.15
+    },
+    {
+      "Trial": "Stone Golem",
+      "Before": 39,
+      "After": 45,
+      "Factor": 1.15
+    },
+    {
+      "Trial": "Stone Golem",
+      "Before": 80,
+      "After": 92,
+      "Factor": 1.15
+    },
+    {
+      "Trial": "Stone Golem",
+      "Before": 78,
+      "After": 90,
+      "Factor": 1.15
+    },
+    {
+      "Trial": "Stone Golem",
+      "Before": 62,
+      "After": 71,
+      "Factor": 1.15
+    },
+    {
+      "Trial": "Stone Golem",
+      "Before": 43,
+      "After": 49,
+      "Factor": 1.15
+    },
+    {
+      "Trial": "Stone Golem",
+      "Before": 130,
+      "After": 150,
+      "Factor": 1.15
+    },
+    {
+      "Trial": "Stone Golem",
+      "Before": 85,
+      "After": 98,
+      "Factor": 1.15
+    },
+    {
+      "Trial": "Stone Golem",
+      "Before": 108,
+      "After": 124,
+      "Factor": 1.15
+    },
+    {
+      "Trial": "Abomination",
+      "Before": 1,
+      "After": 1,
+      "Factor": 1.1
+    },
+    {
+      "Trial": "Abomination",
+      "Before": 1,
+      "After": 1,
+      "Factor": 1.1
+    },
+    {
+      "Trial": "Abomination",
+      "Before": 1,
+      "After": 1,
+      "Factor": 1.1
+    },
+    {
+      "Trial": "Abomination",
+      "Before": 2,
+      "After": 2,
+      "Factor": 1.1
+    },
+    {
+      "Trial": "Abomination",
+      "Before": 2,
+      "After": 2,
+      "Factor": 1.1
+    },
+    {
+      "Trial": "Abomination",
+      "Before": 2,
+      "After": 2,
+      "Factor": 1.1
+    },
+    {
+      "Trial": "Abomination",
+      "Before": 1,
+      "After": 1,
+      "Factor": 1.1
+    },
+    {
+      "Trial": "Abomination",
+      "Before": 1,
+      "After": 1,
+      "Factor": 1.1
+    },
+    {
+      "Trial": "Abomination",
+      "Before": 1,
+      "After": 1,
+      "Factor": 1.1
+    },
+    {
+      "Trial": "Abomination",
+      "Before": 2,
+      "After": 2,
+      "Factor": 1.1
+    },
+    {
+      "Trial": "Abomination",
+      "Before": 1,
+      "After": 1,
+      "Factor": 1.1
+    }
+  ],
+  "GoldenWolfFinalHashGameplay": "Not repeated; earlier candidate earned victory, final shared reaction path verified on two other bosses",
+  "NativeAudit": {
+    "Passed": true,
+    "RetainedChecks": 5054,
+    "OwnedNativeCloneCyclesPerTrial": 2,
+    "OriginalSourcesUnchanged": true,
+    "NativeStoneInsertion": true,
+    "NativeFullInventoryReturn": -1,
+    "NativeStrengthCap": 255,
+    "RewardFixtureVictorySynthetic": true
+  },
+  "ManagedRegressions": "pass",
+  "Graphics": {
+    "ExactHash": true,
+    "PreviewImages": 22,
+    "OriginalFrameCursorFont": true,
+    "ActualGameplay": false
+  },
+  "Defaults": {
+    "Hall": false,
+    "Nightmare": false,
+    "StoneRewards": true
+  },
+  "TestingDisarmed": true,
+  "OriginalSavesChecked": 14,
+  "OriginalSavesChanged": 0,
+  "OriginalInstalledDllReplaced": false,
+  "MidgamePartyTested": false,
+  "NightmareDefeatPlayed": false,
+  "CampaignBalanceCertified": false,
+  "PublicBinaryOrReleasePublished": false,
+  "KnownWarnings": [
+    "Existing saved-checkpoint character 26/30 mismatches remain guarded"
+  ],
+  "EarlierCandidate": {
+    "Version": "1.47.0-nightmare-trials.1",
+    "Sha256": "64C3B5B432B9E553CC85E88C3C21041283997EFF97CD04A492409645412BE38A",
+    "EarnedNightmareWins": [
+      "Abomination",
+      "Stone Golem",
+      "Golden Wolf"
+    ],
+    "ObservedDefect": "Abomination/Golem special attacks bypassed the calculation damage hook; corrected in revision 2",
+    "StoneReceipt": false
+  }
+}

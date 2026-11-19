@@ -77,6 +77,8 @@ internal static class CombatReforgedRuntime
     internal static bool AiActive(BATTLE_WORK? w)=>Config.Enabled&&Config.EnableEnemyAi&&Plugin.Options.EnableCombatReforgedAi.Value&&w!=null&&w.Pointer==Work&&(Probe||Combat.State is {Ready:true} s&&s.Work==w.Pointer);
     internal static Context? For(BATTLE_WORK? w,int slot)
     {
+        if(w?.pm_data is {} hallUnits&&slot>=0&&slot<hallUnits.Length&&hallUnits[slot] is {} hallActor&&
+            HallNightmareRuntime.Plan(w,hallActor) is {} hallPlan&&!Faulted.Contains(hallActor.Pointer))return new(w,hallActor,hallPlan);
         if(!AiActive(w)||w!.pm_data==null||slot<0||slot>=w.pm_data.Length||w.pm_data[slot] is not {} u||u.IsPlayer||u.IsDead||!(Plans.TryGetValue(u.Pointer,out var p)||BossTacticsRuntime.Plan(u,out p))||Faulted.Contains(u.Pointer))return null;
         return new(w,u,CombatEvolutionRuntime.Plan(u,p));
     }
@@ -118,13 +120,15 @@ internal static class CombatReforgedRuntime
                         allies.Any(t=>t.Hp*3<=t.MaxHp),multi&&team.AreaReserved(u.chara_no,a.status));
                 if(score!=int.MinValue){if(ordinary&&Config.EnablePacing&&PM_DATA.status_henkan_table is {Length:>10} masks&&masks[10]==b_game_h.STATUS_SLEEP)
                     score-=CombatReforgedRules.OrdinarySleepPenalty(option,enemies);
-                if(BossTacticsRuntime.Bound(u))score=BossTacticsRuntime.Score(w,u,option,enemies,score);
+                if(HallFirstContact.NightmareId(w,u) is {} echoId)score=HallNightmareRules.Score(echoId,w.battle_kaisuu,option,enemies);
+                else if(BossTacticsRuntime.Bound(u))score=BossTacticsRuntime.Score(w,u,option,enemies,score);
                 else{score+=CombatEvolutionRuntime.Bonus(u,i)+CombatMasteryRuntime.Bonus(u,i);int extra=CombatRealityRuntime.Bonus(u,i);CombatRealityRuntime.Score(u,i,score,extra);score+=extra;}}
                 MaintenanceRuntime.Ai("ActionEvaluated",u.chara_no,new{Mode=i,BaseScore=baseScore,FinalScore=score,ScoreModified=score!=baseScore,NativeLegalityChecked=true});
                 if(score>bestScore){bestScore=score;best=i;bestAction=option;}
             }
             if(team!=null&&bestAction.Legal)team.Selected(u.chara_no,bestAction);
             int before=selected;selected=best;CombatRealityRuntime.Selected(u,before,best);Previous[u.Pointer]=best;CombatMasteryRuntime.Selected(u,best);BossTacticsRuntime.Selected(w,u,before,best);
+            HallNightmareRuntime.Selected(w,u,before,best);
             Record(new{Kind="ModeSelection",Attacker=u.chara_no,c.Plan.Id,c.Plan.Behavior,Before=before,After=best,Changed=before!=best,NativeRangeAndUsesChecked=true});
             if(before!=best){if(!Probe)ModeChanges++;Record(new{Kind="Mode",Attacker=u.chara_no,c.Plan.Id,c.Plan.Behavior,Before=before,After=best,NativeRangeAndUsesChecked=true});}
         }
@@ -160,7 +164,9 @@ internal static class CombatReforgedRuntime
         int before=result;
         if(c!=null)
         {
-            if(BossTacticsRuntime.QualityTarget(c.Attacker))
+            if(HallFirstContact.NightmareId(w,c.Attacker)!=null)
+                result=HallNightmareRuntime.Target(legal,result,w.battle_kaisuu);
+            else if(BossTacticsRuntime.QualityTarget(c.Attacker))
                 result=BossTacticsRuntime.ChooseTarget(c.Attacker,legal,result,Config.FocusLimit);
             else
                 result=ChooseTeamTarget(party,c,legal,result);

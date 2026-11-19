@@ -1,9 +1,15 @@
 # Known issues and validation limits
 
-The public source repository tracks v1.46. The campaign baseline is v1.40.
+The public source repository tracks v1.47. The campaign baseline is v1.40.
 Earlier campaign settings are documented for `1.38.0-nightmare-campaign.1`. An
 installable release remains unpublished. [Campaign settings and evidence](docs/NIGHTMARE-CAMPAIGN-V138.md).
 
+- **Nightmare balance remains preliminary.** Final v1.47 .2 has strong-party
+  Golem/Abomination wins and a real growth-stone receipt. Golden Wolf's win is on
+  the earlier candidate, not the final hash. New-tier defeat, reasonable midgame
+  parties and full campaign economy remain unplayed. Small Abomination hits can
+  round unchanged despite its 10% increment. Defaults remain off.
+  [Exact evidence](docs/HALL-NIGHTMARE-TRIALS-V147.md).
 - **v1.46 progression and balance limits.** Stone Golem and Abomination have
   source-backed post-battle gates, not paired owner-played original-story unlock
   tests. Worm, Sierra and second Harpy remain testing-only. New wins used a strong

@@ -18,10 +18,10 @@ internal static class HallFirstContact
     internal static bool Available => EnabledAtStartup && HallFirstContactDriver.Instance != null &&
         !faulted && trial == null;
 
-    internal static bool Request(int selection = 0)
+    internal static bool Request(int selection = 0, bool nightmare = false)
     {
         if (selection < 0 || selection >= HallTrialCatalogue.Entries.Length ||
-            !HallAvailability.CanSelect(selection) ||
+            !HallAvailability.CanSelect(selection) || (nightmare && !HallNightmareRuntime.CanSelect(selection)) ||
             !Available || !CastleGuildRuntime.Context || !Plugin.CheckCompatibility() ||
             CastleGuildRuntime.Owner is not { ano: 10, vno: 6, mno: 3, _mstep: 20 } field ||
             CastleGuildRuntime.Field is not {} events ||
@@ -35,7 +35,7 @@ internal static class HallFirstContact
             return false;
         }
 
-        trial = new Trial(HallTrialCatalogue.Entries[selection], game, sys, field, events, map);
+        trial = new Trial(HallTrialCatalogue.Entries[selection], nightmare, game, sys, field, events, map);
         Plugin.Logger.LogInfo($"HallFirstContact: Guild confirmed {trial.Definition.Name}.");
         return true;
     }
@@ -43,6 +43,9 @@ internal static class HallFirstContact
     sealed class Trial
     {
         internal readonly HallTrialDefinition Definition;
+        internal readonly bool Nightmare;
+        internal readonly HallStoneReward Stone=new();
+        internal MONSTER_DATA? OwnedMonster;
         internal string? PackId;
         internal bool SourcePrepared;
         internal readonly GAME_WORK Game;
@@ -75,9 +78,9 @@ internal static class HallFirstContact
         internal uint Potch;
         internal byte[] RewardIds = Array.Empty<byte>();
         internal int[] RewardCounts = Array.Empty<int>();
-        internal Trial(HallTrialDefinition definition, GAME_WORK game, SYS_WORK sys, MACHICON field, EVENTCON events, MACHIDAT map)
+        internal Trial(HallTrialDefinition definition, bool nightmare, GAME_WORK game, SYS_WORK sys, MACHICON field, EVENTCON events, MACHIDAT map)
         {
-            Definition = definition;
+            Definition = definition; Nightmare=nightmare;
             Game = game; Sys = sys; Field = field; Events = events; Map = map;
             Party = game.party_data.Pointer;
             X = events.ehuman[0].x.ss.inte; Y = events.ehuman[0].y.ss.inte;
@@ -155,11 +158,18 @@ internal static class HallFirstContact
         t.Table.monster_party_num = 1;
         t.Table.monster_party = new Il2CppReferenceArray<MONSTER_PARTY_DATA>(new[] { t.Formation });
         t.Table.monster_data = original.monster_data;
+        if(t.Nightmare)
+        {
+            t.OwnedMonster=HallNightmareRuntime.Copy(original,t.Definition);
+            var list=original.monster_data.ToArray();
+            list[audit.Monsters.Single().Index]=t.OwnedMonster;
+            t.Table.monster_data=new Il2CppReferenceArray<MONSTER_DATA>(list);
+        }
         // Keep the original coin value and ordinary monster-drop table.
         // The rematch grants neither a separate Hall payout nor story loot.
         var monster = original.monster_data[audit.Monsters.Single().Index];
         t.RewardIds = monster.item_data.Where(item => item != null && item.item_no != 0)
-            .Select(item => item.item_no).Distinct().ToArray();
+            .Select(item => item.item_no).Concat(t.Nightmare?new byte[]{21}:Array.Empty<byte>()).Distinct().ToArray();
         Plugin.Logger.LogInfo($"HallFirstContact: native loot policy; Potch={monster.mochi_kin}, item IDs={string.Join(",", t.RewardIds)}.");
     }
 
@@ -171,7 +181,8 @@ internal static class HallFirstContact
         index = Math.Max(index, 1);
         if (index >= 0xF0 || t.Sys.yobi == null || t.Sys.yobi.Length == 0 || t.Sys.yobi[0] != 0 ||
             !CastleGuildRuntime.HuntEntryCompatible || !Plugin.CheckCompatibility() ||
-            !HallAvailability.CanSelect(Array.IndexOf(HallTrialCatalogue.Entries, t.Definition)))
+            !HallAvailability.CanSelect(Array.IndexOf(HallTrialCatalogue.Entries, t.Definition)) ||
+            (t.Nightmare&&!HallNightmareRuntime.CanSelect(Array.IndexOf(HallTrialCatalogue.Entries,t.Definition))))
             throw new InvalidOperationException("Ordinary request preconditions rejected.");
         var extended = new Il2CppReferenceArray<BATTLE_DATA>(index + 1);
         if (tables != null)
@@ -283,6 +294,7 @@ internal static class HallFirstContact
         if (!FinishScene(t)) return;
         bool borrowed = t.Pack?.Borrowed == true;
         t.Pack?.Release();
+        if (t.OwnedMonster != null) UnityEngine.Object.Destroy(t.OwnedMonster);
         if (t.Formation != null) UnityEngine.Object.Destroy(t.Formation);
         if (t.Table != null) UnityEngine.Object.Destroy(t.Table);
         if (t.Handle.IsValid()) Addressables.Release(t.Handle);
@@ -342,6 +354,27 @@ internal static class HallFirstContact
     static bool Owns(BATTLE_WORK? work) => trial is {Committed:true} t &&
         work?.battle_data?.Pointer == t.Table?.Pointer;
 
+    internal static string? NightmareId(BATTLE_WORK? work,PM_DATA? actor)
+    {
+        if(trial is not {Nightmare:true,Committed:true,Setup:true,Released:false} t||
+            !Owns(work)||work?.monster_party_data?.Pointer!=t.Formation?.Pointer||
+            !SameCampaign(t)||actor==null||actor.IsPlayer||actor.IsDead||
+            actor.monster_data?.id!=t.OwnedMonster?.id||
+            work!.pm_data?[actor.chara_no]?.Pointer!=actor.Pointer)return null;
+        return t.Definition.Id;
+    }
+    internal static void PrepareStone(BATTLE_WORK work,EXIT_WORK? exit)
+    {
+        if(exit==null||trial is not {} t||!Owns(work)||!SameCampaign(t)||!t.Setup)return;
+        try{t.Stone.Prepare(t.Game,exit,t.Nightmare&&t.Win&&!t.Loss&&Plugin.Options.EnableNightmareStoneRewards.Value);}
+        catch(Exception e){Plugin.Logger.LogWarning("Nightmare bonus retained native loot: "+e.Message);}
+    }
+
+    internal static void LootStarting(BATTLE_WORK work)
+    {
+        if(trial is {} t&&Owns(work))t.Stone.PayoutStarted=true;
+    }
+
     internal static bool UsesOriginalHp() => trial != null && Owns(Framework.Singleton<BATTLE_WORK>.instance);
 
     internal static void ChapterStarting()
@@ -386,7 +419,7 @@ internal static class HallFirstContact
         t.Work = work;
         t.ActorBound = actor != null;
         t.ActorHp = actor?.hp ?? 0;
-        Plugin.Logger.LogInfo($"HallFirstContact: Field.Setup completed; liveMonster={t.ActorBound}.");
+        Plugin.Logger.LogInfo($"HallFirstContact: Field.Setup completed; liveMonster={t.ActorBound}; tier={(t.Nightmare?"Nightmare":"Original")}; HP={t.ActorHp}.");
     }
 
     internal static void BattleTick(int result)

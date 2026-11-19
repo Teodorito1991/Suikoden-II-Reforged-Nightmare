@@ -11,10 +11,24 @@ internal static class HallPresentation
         bool known=unlocked(focus), available=known&&configured(focus);
         var rows=trials.Select((trial,index)=>new GuildMenuRow(
             unlocked(index)?trial.Name:"???",
-            !unlocked(index)?"Locked":configured(index)?"Normal":"Disabled")).ToArray();
+            !unlocked(index)?"Locked":configured(index)?"Original / tiers":"Disabled")).ToArray();
         return GuildRebornScreen.Paginate(new("HALL OF ECHOES",rows,focus,
             known?selected.Name:"Unknown Echo",available?"Normal rematch":"Unavailable",
             known?selected.Description:"A memory yet to be made. Continue your journey.","",
-            known?selected.Rewards:"",reason,available?"Begin rematch":"Unavailable",back,preview));
+            known?selected.Rewards:"",reason,available?"Choose tier":"Unavailable",back,preview));
+    }
+    internal static GuildMenuView Difficulty(int index,int focus,bool unlocked,bool configured,bool nightmare,bool stones,bool preview=false)
+    {
+        var d=HallTrialCatalogue.Entries[Math.Clamp(index,0,HallTrialCatalogue.Entries.Length-1)];
+        var p=HallNightmareRules.Find(d.Id);
+        bool advanced=focus==1, available=unlocked&&configured&&(!advanced||nightmare&&p!=null);
+        return new("ECHO DIFFICULTY",new[]{new GuildMenuRow("Original Echo","Recall the original battle"),
+            new GuildMenuRow("Nightmare Echo",nightmare&&p!=null?"Advanced optional challenge":"Unavailable")},focus,
+            unlocked?d.Name:"Unknown Echo",advanced&&p!=null?$"Nightmare Echo · Original foe level {p.Level}":"Original Echo · Normal campaign",
+            !unlocked?"A memory yet to be made.":advanced?(p?.Advice??"No advanced version is offered."):d.Description,
+            !unlocked?"":advanced&&p!=null&&stones?"Native rewards + 25% Stone of Power offer if no loot rolls.":d.Rewards,
+            !unlocked?"Continue your journey.":advanced&&p!=null?$"HP {p.HpPercent}% · Damage {p.Damage:0.00}× Original. Native inventory applies.":"Original HP, attacks and native rewards are preserved.",
+            available?"Confirm to enter. Cancel returns to the Hall catalogue.":"This tier is unavailable. Original Echo remains separately accessible.",
+            available?"Begin rematch":"Unavailable","Back",preview);
     }
 }

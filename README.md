@@ -1,14 +1,14 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone** is v1.46, Hall of Echoes: New Memories.
-The Hall now contains eight native rematches. Stone Golem, Abomination and Worm
-have exact-build owner-earned victories and clean Guild returns. Golem and
-Abomination add source-backed story witnesses; Worm, Sierra and second Harpy
-remain developer-testing only until trustworthy unlocks are established.
-All three new switches and the global Hall switch default off. Native rewards
-and the existing RPG, Hunt and Army Training systems are preserved.
-[Current evidence and limitations](docs/HALL-NEW-MEMORIES-V146.md).
-[Preserved v1.45 progression correction](docs/HALL-ECHOES-EARNED-V145.md).
+**Latest development milestone** is v1.47, Hall of Echoes: The Nightmare Trials.
+Three optional advanced tiers add owned HP changes, legal tactical preferences
+and a rare native Stone of Power offer to existing rematches. Original Echoes
+retain their accepted definitions. Final revision .2 has owner-earned Golem and
+Abomination wins, repeated entry, clean cross-tier returns and an actual stone
+receipt. Golden Wolf was won on the earlier candidate; its final-hash rendered
+fight remains unobserved. Hall and Nightmare both default off.
+[Rules, exact-build evidence and limits](docs/HALL-NIGHTMARE-TRIALS-V147.md).
+[Preserved v1.46 expansion](docs/HALL-NEW-MEMORIES-V146.md).
 
 **Campaign development baseline** is v1.40, with DLL
 `1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional

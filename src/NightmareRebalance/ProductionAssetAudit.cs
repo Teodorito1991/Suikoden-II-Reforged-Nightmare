@@ -49,6 +49,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
       HallEchoesProbe.Inspect(table,bossSources.Single(b=>b.Data.TableId==table.id).Data);
   if (HallTrialCatalogue.Entries.Any(d=>d.TableId==table.id))
   {
+   HallNightmareProbe.Inspect(table);
    var a = HallTrialSources.Get(table.id);
    HallEchoesProbe.ValidateSource(table, a);
    int bossIndex = Array.IndexOf(BattleLoader.btl_bos_data.ToArray(), table.id);

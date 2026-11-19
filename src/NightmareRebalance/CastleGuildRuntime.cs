@@ -131,13 +131,14 @@ internal static class CastleGuildRuntime
   if(decide&&Menu.ConfirmReleased&&Menu.Page==GuildPage.Echoes&&!HallAvailability.CanSelect(Menu.Focus))
    Status=HallAvailability.Reason(Menu.Focus);
   var choice=Menu.Confirm(decide,Held(GRInputManager.Type.Decide),Quest.State,restriction.Length==0
-      ,HallFirstContact.Available && HallAvailability.CanSelect(Menu.Focus)
+      ,HallFirstContact.Available && HallAvailability.CanSelect(Menu.Page==GuildPage.EchoDifficulty?Menu.Echo:Menu.Focus),
+      HallNightmareRuntime.CanSelect(Menu.Echo)
   );
   bool leave=choice switch
   {
    GuildChoice.Accept when Menu.Focus<HuntRuntime.BrowseOrder.Length => AcceptContract(HuntRuntime.BrowseOrder[Menu.Focus].Id),
    GuildChoice.Start => TrainingWar.Request((TrainingWar.Drill)Menu.Drill,Menu.Focus==1),
-   GuildChoice.StartEcho => HallFirstContact.Request(Menu.Focus),
+   GuildChoice.StartEcho => HallFirstContact.Request(Menu.Echo, Menu.Focus==1),
    GuildChoice.Report => ReportContract(),
    GuildChoice.Withdraw => WithdrawContract(),
    GuildChoice.Leave => true,

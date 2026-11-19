@@ -46,6 +46,22 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
+## Current v1.47 Nightmare evidence
+
+Build 1.47.0-nightmare-trials.2 / SHA256
+7283F4B6873C6AFA8BE4277ADF6A7E09CEB42E4607C168D3AB3A381CABE211BF.
+Final owner evidence: Golem win + four Abomination wins; native stone item21 +1
+on last win; Nightmare/Original Abomination Let Go pay zero. Seven clean returns,
+protected flags/war/progression unchanged, owned cleanup complete. Original HP
+4,500 vs Nightmare6,750 observed. Golem10500 and actual reaction damage78->90.
+Revision .1's calculation hook missed special damage; .2 moves only the Nightmare
+increment to guarded DamageSetReActionData. Never re-add a second calculation
+increment. Wolf won on .1, not .2; don't transfer exact-hash acceptance. Native
+clone/reward/cap tests and 22-screen graphics passed, full campaign/new-tier defeat
+unplayed. Global Hall and Nightmare default off. Original Steam DLL/14 saves and
+v1.46 fallback preserved. Copied testing disarmed; no binary/release publication.
+See docs/HALL-NIGHTMARE-TRIALS-V147.md and sanitized publication manifest.
+
 ## Current v1.46 Hall evidence
 
 Build 1.46.0-new-memories.1 / SHA256

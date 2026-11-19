@@ -183,3 +183,17 @@ Owner earned all three new wins on the exact v1.46 DLL, then fled Golem and Pest
 Rat and reopened the Guild. All observed returns preserved protected state.
 [Current native, graphical and gameplay evidence](docs/HALL-NEW-MEMORIES-V146.md).
 Earlier sections document historical versions, not current catalogue size.
+
+## Current Nightmare tier — v1.47
+
+Selecting an available memory opens Original Echo / Nightmare Echo. The latter
+requires its independent opt-in and is offered only for Golden Wolf, Stone Golem
+and Abomination. Cancel returns to the selected catalogue row; locked names stay
+hidden. Existing story and individual-trial gates apply to both tiers. Sierra,
+second Harpy and Worm still have no invented normal-play witnesses.
+
+Nightmare offers stronger owned HP, restrained native tactical preferences and
+10–15% extra submitted damage. With rewards enabled, an earned victory with no
+native loot makes one 25% Stone of Power offer roll. Native inventory capacity
+and item acceptance apply. Original rewards do not change, and neither reporting
+nor fleeing pays a bonus. [Exact rules and current acceptance](docs/HALL-NIGHTMARE-TRIALS-V147.md).

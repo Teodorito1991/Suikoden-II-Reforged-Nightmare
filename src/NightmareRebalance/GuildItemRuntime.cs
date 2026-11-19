@@ -42,7 +42,7 @@ internal static class GuildItemRuntime
 [HarmonyPatch(typeof(BattleManager),nameof(BattleManager.BattleItemGet))]
 internal static class GuildLootHandoff
 {
- [HarmonyPrefix]static void Prefix(BattleManager __instance){try{var w=__instance.battle_work;if(GuildItemRuntime.Bound(w)&&GuildItemRuntime.Prepared is {} a&&w.exit_work?.monster_item is {} item&&item.item_no==a.Number&&item.use_cnt==a.UseCount){GuildItemRuntime.PayoutStarted=true;HuntSessionRuntime.Current?.ItemHandoff();GuildItemRuntime.Record(new{Kind="NativeBattleItemGetEntered",a.Id,AwardConfirmed=false});}}catch(Exception e){Plugin.Debug("Guild handoff observation: "+e.Message);}}
+ [HarmonyPrefix]static void Prefix(BattleManager __instance){HallFirstContact.LootStarting(__instance.battle_work);try{var w=__instance.battle_work;if(GuildItemRuntime.Bound(w)&&GuildItemRuntime.Prepared is {} a&&w.exit_work?.monster_item is {} item&&item.item_no==a.Number&&item.use_cnt==a.UseCount){GuildItemRuntime.PayoutStarted=true;HuntSessionRuntime.Current?.ItemHandoff();GuildItemRuntime.Record(new{Kind="NativeBattleItemGetEntered",a.Id,AwardConfirmed=false});}}catch(Exception e){Plugin.Debug("Guild handoff observation: "+e.Message);}}
 }
 [HarmonyPatch(typeof(BattleManager),nameof(BattleManager.b_AddItemWinMain))]
 internal static class GuildItemTransferScope

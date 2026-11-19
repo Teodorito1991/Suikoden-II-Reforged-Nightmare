@@ -21,9 +21,12 @@ internal sealed class Settings
     internal readonly ConfigEntry<bool> EnableCombatReforgedAi, RunCombatSelfTest, EnableHuntDebugTools;
     internal readonly ConfigEntry<bool> EnableHallOfEchoes, EnableHallHarpy, EnableHallPestRat, EnableHallGoldenWolf, EnableHallSierra, EnableHallHarpySecond, EnableHallStoneGolem, EnableHallAbomination, EnableHallWorm;
     internal readonly ConfigEntry<HallUnlockPolicy> HallUnlockPolicy;
+    internal readonly ConfigEntry<bool> EnableNightmareEchoes, EnableNightmareStoneRewards;
 
     internal Settings(ConfigFile config)
     {
+        EnableNightmareEchoes = config.Bind("Hall of Echoes", nameof(EnableNightmareEchoes), false, "Optional advanced Golden Wolf, Stone Golem and Abomination tiers. Never alters story bosses or Original Echoes.");
+        EnableNightmareStoneRewards = config.Bind("Hall of Echoes", nameof(EnableNightmareStoneRewards), true, "25% chance to offer Stone of Power after an earned Nightmare victory if no native loot rolled. Native inventory acceptance required.");
         HallUnlockPolicy = config.Bind("Hall of Echoes", nameof(HallUnlockPolicy), NightmareRebalance.HallUnlockPolicy.StoryProgression,
             "StoryProgression reads proven original completion flags. UnrestrictedTesting requires EnableDeveloperTools and only bypasses Hall availability; never writes progression.");
         EnableHallPestRat = config.Bind("Hall of Echoes", nameof(EnableHallPestRat), true,

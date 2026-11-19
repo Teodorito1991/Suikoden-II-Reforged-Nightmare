@@ -31,6 +31,8 @@ fallbacks and the user's existing settings. No local user configuration changed.
 | Hall of Echoes / EnableHallStoneGolem |false| Native Stone Golem; source-backed C9/01 witness; restart required |
 | Hall of Echoes / EnableHallAbomination |false| Native Abomination; source-backed 56/20 witness; restart required |
 | Hall of Echoes / EnableHallWorm |false| Native first Worm; normal unlock unresolved, developer testing only |
+| Hall of Echoes / EnableNightmareEchoes |false| Separate advanced tiers for Golden Wolf, Stone Golem and Abomination; original availability still required |
+| Hall of Echoes / EnableNightmareStoneRewards |true| One 25% Stone of Power offer roll after an earned Nightmare victory with no native loot; original inventory acceptance required |
 | Hall of Echoes / HallUnlockPolicy |StoryProgression| UnrestrictedTesting requires EnableDeveloperTools and changes only availability, never flags |
 | Combat Reforged / EnableCombatReforgedAi |true| Native RPG selection layer |
 | Features / EnableWarUnitProfiles |true| Original-war commander profiles |

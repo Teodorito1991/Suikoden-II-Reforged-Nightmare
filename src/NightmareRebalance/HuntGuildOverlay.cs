@@ -30,7 +30,11 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   (GuildPage.Echoes,4,0,"15-hall-second-page.png",false),
   (GuildPage.Echoes,5,0,"16-hall-stone-golem.png",false),
   (GuildPage.Echoes,6,0,"17-hall-abomination.png",false),
-  (GuildPage.Echoes,7,0,"18-hall-worm.png",false)
+  (GuildPage.Echoes,7,0,"18-hall-worm.png",false),
+  (GuildPage.EchoDifficulty,0,5,"19-original-tier.png",false),
+  (GuildPage.EchoDifficulty,1,5,"20-nightmare-golem.png",false),
+  (GuildPage.EchoDifficulty,1,6,"21-nightmare-abomination.png",false),
+  (GuildPage.EchoDifficulty,1,2,"22-nightmare-wolf.png",false)
  };
  [DllImport("user32.dll")]static extern short GetAsyncKeyState(int key);
  [DllImport("user32.dll")]static extern IntPtr GetForegroundWindow();
@@ -158,6 +162,14 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    return new("HALL OF ECHOES",new[]{new GuildMenuRow("Boss rematches","Unavailable")},0,
        "Hall of Echoes","Unavailable","Enable the Hall in settings to recall your story memories.",
        "","",status,"Back",back,false);
+  }
+
+  if(page==GuildPage.EchoDifficulty)
+  {
+   int echo=preview?drillIndex:CastleGuildRuntime.Menu.Echo;
+   return HallPresentation.Difficulty(echo,focus,preview||HallAvailability.Unlocked(echo),
+       preview||HallAvailability.Configured(echo),preview||HallNightmareRuntime.CanSelect(echo),
+       preview||Plugin.Options.EnableNightmareStoneRewards.Value,preview);
   }
 
   if (page == GuildPage.Strategy)

@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net9.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
   <ItemGroup>
+ <Compile Include="../src/NightmareRebalance/HallNightmareRules.cs" Link="HallNightmareRules.cs" />
  <Compile Include="../src/NightmareRebalance/HallPresentation.cs" Link="HallPresentation.cs" />
  <Compile Include="../src/NightmareRebalance/HallUnlockRules.cs" Link="HallUnlockRules.cs" />
  <Compile Include="../src/NightmareRebalance/HallTrialCatalogue.cs" Link="HallTrialCatalogue.cs" />

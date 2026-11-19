@@ -22,7 +22,7 @@ not yet been certified.
 | Grand Guild Hunts |Seven new original-engine contracts across four difficulty tiers, with repeatable Potch and conditional consumable, growth stone and rune orb rewards| Available with the Hunt module. Native setup, selectors, asset loads and native scratch inventory verified; full live quests unplayed. [Catalogue](docs/GRAND-GUILD-V137.md). |
 | Story wars |Original-engine unit and objective changes for wars 1, 2, 3, 6 and 13, plus native enemy maneuver scoring for 1, 2, 3, 6, 10, 13 and 15| On; native evaluator fixtures. Full story battles await gameplay. |
 | Castle Guild |Suggestion Box attendant, tier-ordered Hunt pages and optional local contract reissue| Native party-menu ownership fixture and graphical preview. Live field interaction awaits acceptance. |
-| Hall of Echoes |Eight native rematches; five source-backed story witnesses| v1.46 owner wins: Stone Golem, Abomination, Worm; Golem/Pest Rat flee and clean re-entry. Worm/Sierra/second Harpy normal unlocks unresolved. Global opt-in remains off. [Evidence](docs/HALL-NEW-MEMORIES-V146.md). |
+| Hall of Echoes |Eight Original rematches; three optional Nightmare tiers with native growth-stone offers| Final v1.47 Golem/Abomination earned wins, native stone receipt and cross-tier returns. Wolf won on earlier candidate; final-hash fight unobserved. Hall/Nightmare default off. [Evidence](docs/HALL-NIGHTMARE-TRIALS-V147.md). |
 | Castle Army Training |Three original war scenarios, four drills and optional Veteran tactics| Opt-in in the copied runtime. Historical tavern returns and v1.36 corridor routing are separate evidence. [Current evidence](docs/CASTLE-GUILD-TOTAL-WAR-V136.md). |
 
 ## Difficulty and builds
