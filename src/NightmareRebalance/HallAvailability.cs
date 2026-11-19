@@ -12,6 +12,9 @@ internal static class HallAvailability
         2 => Plugin.Options.EnableHallGoldenWolf.Value,
         3 => Plugin.Options.EnableHallSierra.Value,
         4 => Plugin.Options.EnableHallHarpySecond.Value,
+        5 => Plugin.Options.EnableHallStoneGolem.Value,
+        6 => Plugin.Options.EnableHallAbomination.Value,
+        7 => Plugin.Options.EnableHallWorm.Value,
         _ => false
     };
 

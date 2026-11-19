@@ -108,6 +108,9 @@ internal static class GuildRebornTests
         flags[0xB6]=0x02;flags[0x16]=0x02;flags[0x21]=0x10;
         check(HallUnlockRules.StoryUnlocked("rat",Read)&&HallUnlockRules.StoryUnlocked("golden-wolf",Read),"Original boss preload and completion witnesses unlock the correct trials");
         check(!HallUnlockRules.StoryUnlocked("sierra",Read)&&!HallUnlockRules.StoryUnlocked("harpy-second",Read),"Unproven witnesses do not inherit another boss's victory");
+        flags[0xC9]=1;flags[0x56]=0x20;flags[0x3D]=0x10;
+        check(HallUnlockRules.StoryUnlocked("stone-golem",Read)&&HallUnlockRules.StoryUnlocked("abomination",Read),"New original post-victory witnesses");
+        check(!HallUnlockRules.StoryUnlocked("worm",Read),"The first Worm's pre-battle flag does not prove victory");
         flags=new byte[256]; // An earlier loaded campaign replaces the state; no cached unlock.
         flags[0xC2]=0x80;
         check(!HallUnlockRules.StoryUnlocked("harpy",Read),"Shared battle result cannot unlock a story memory");
@@ -119,17 +122,19 @@ internal static class GuildRebornTests
         check(flags[0x15]==0&&flags[0xC2]==0x80,"Availability checks never write flags");
         check(!HallUnlockRules.CanLaunch(true,false,true)&&!HallUnlockRules.CanLaunch(false,true,true)&&
             !HallUnlockRules.CanLaunch(true,true,false),"Independent module, trial and story gates");
-        check(HallTrialCatalogue.Entries.Select(x=>x.Id).Distinct().Count()==5&&
-            HallTrialCatalogue.Entries[0].Id=="rat"&&HallTrialCatalogue.Entries[1].Id=="harpy", "Stable Hall IDs and five distinct trials");
+        check(HallTrialCatalogue.Entries.Select(x=>x.Id).Distinct().Count()==8&&
+            HallTrialCatalogue.Entries[0].Id=="rat"&&HallTrialCatalogue.Entries[1].Id=="harpy", "Stable Hall IDs and eight distinct trials");
+        check(HallTrialCatalogue.Entries.Take(5).All(x=>!x.RetainCombatMain)&&
+            HallTrialCatalogue.Entries.Skip(5).All(x=>x.RetainCombatMain),"Existing trials keep their accepted callback roles; new visual controllers are explicit");
         menu.EchoCount=HallTrialCatalogue.Entries.Length;
         menu.Open(false,10);
         for(int i=0;i<4;i++) Down();
         Confirm();
-        for(int i=0;i<4;i++) Down();
-        check(menu.Page==GuildPage.Echoes&&menu.Focus==4,"Five-trial navigation reaches second page");
+        for(int i=0;i<HallTrialCatalogue.Entries.Length-1;i++) Down();
+        check(menu.Page==GuildPage.Echoes&&menu.Focus==7,"Eight-trial navigation reaches the final selectable row");
         var echoes=HallTrialCatalogue.Entries.Select(x=>new GuildMenuRow(x.Name,"Locked")).ToArray();
-        var echoPage=GuildRebornScreen.Paginate(new GuildMenuView("HALL",echoes,4,"","","","","","","","",false));
-        check(echoPage.Rows.Length==1&&echoPage.Focus==0&&echoPage.Rows[0]==echoes[4],"Hall pagination keeps final selected memory visible");
+        var echoPage=GuildRebornScreen.Paginate(new GuildMenuView("HALL",echoes,7,"","","","","","","","",false));
+        check(echoPage.Rows.Length==4&&echoPage.Focus==3&&echoPage.Rows[3]==echoes[7],"Hall pagination keeps final selected memory visible");
         var unknown=HallPresentation.View(0,_=>false,_=>true,"Locked","Back",false);
         check(unknown.Title=="Unknown Echo"&&unknown.Rows.All(x=>x==new GuildMenuRow("???","Locked")),"Locked memories hide boss identities");
         var serviceRows=Enumerable.Range(0,6).Select(i=>new GuildMenuRow("Service "+i,"")).ToArray();

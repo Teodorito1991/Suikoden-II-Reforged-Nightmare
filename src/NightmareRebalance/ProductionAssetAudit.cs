@@ -47,9 +47,9 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   if(table.id=="vb07_00")GuildNativeProbe.ReissueTable=table;
   if (HallEchoesProbe.Requested && table.id=="boss_rat")
       HallEchoesProbe.Inspect(table,bossSources.Single(b=>b.Data.TableId==table.id).Data);
-  if (table.id is "boss_rat" or "boss_hap1" or "boss_gwo1" or "boss_sie1" or "boss_hap2")
+  if (HallTrialCatalogue.Entries.Any(d=>d.TableId==table.id))
   {
-   var a = bossSources.Single(x => x.Data.TableId == table.id).Data;
+   var a = HallTrialSources.Get(table.id);
    HallEchoesProbe.ValidateSource(table, a);
    int bossIndex = Array.IndexOf(BattleLoader.btl_bos_data.ToArray(), table.id);
    Check(bossIndex >= 0, "Original Hall boss resource index");

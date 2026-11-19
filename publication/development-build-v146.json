@@ -1,0 +1,65 @@
+{
+  "Version": "1.46.0-new-memories.1",
+  "DllSha256": "35F2E3BC0A8A84EB401E92C535D503ABF3059F87112AA6F3921BE87BDD59F50D",
+  "SourceParent": "81a860cde6ec2a419de131ef9d06a56cd268a349",
+  "FallbackSha256": "CADC047632A5948BA7277360D34ED4FC6D3EEE0E08DDEA7B43F01EC663E56843",
+  "ManagedRegressions": "pass",
+  "NativeProductionAudit": {
+    "Passed": true,
+    "Checks": 5054,
+    "TrialSources": 8,
+    "EventSources": 10
+  },
+  "GraphicalPreview": {
+    "Screens": 18,
+    "ExactHash": true,
+    "CampaignGameplay": false
+  },
+  "ActualGameplay": [
+    {
+      "Trial": "Stone Golem",
+      "Outcome": "earned victory",
+      "PotchCredit": 50000
+    },
+    {
+      "Trial": "Abomination",
+      "Outcome": "earned victory",
+      "PotchCredit": 10000
+    },
+    {
+      "Trial": "Worm",
+      "Outcome": "earned victory",
+      "PotchCredit": 35000
+    },
+    {
+      "Trial": "Stone Golem",
+      "Outcome": "Let Go",
+      "PotchCredit": 0
+    },
+    {
+      "Trial": "Pest Rat",
+      "Outcome": "Let Go",
+      "PotchCredit": 0
+    }
+  ],
+  "Policy": "Explicit developer testing availability",
+  "OwnerConfirmedGuildReopening": true,
+  "ProtectedFlagsWarProgressionUnchanged": true,
+  "OwnedCleanupComplete": true,
+  "NewTrialDefeatObserved": false,
+  "PairedOriginalStoryUnlockPlayed": false,
+  "NormalUnlocksUnresolved": [
+    "Sierra",
+    "Second Harpy",
+    "Worm"
+  ],
+  "OriginalSavesChecked": 14,
+  "OriginalSavesChanged": 0,
+  "OriginalSteamDllReplaced": false,
+  "HallDefault": false,
+  "NewTrialDefaults": false,
+  "TestingDisarmed": true,
+  "SecondHarpyRewardChanged": false,
+  "BinaryPublished": false,
+  "ReleasePublished": false
+}

@@ -63,6 +63,7 @@ internal static class HallFirstContact
         internal MONSTER_PARTY_DATA? Formation;
         internal bool Abort, Committed, Setup, ActorBound, Win, Loss, Released, HpChanged, RatLookup, OutcomeRecorded;
         internal int ActorHp;
+        internal readonly HashSet<string> MainStates=new();
         internal int TerminalResult;
         internal bool NativeFieldReturn, AtGuildPosition;
         internal BATTLE_WORK? Work;
@@ -120,8 +121,7 @@ internal static class HallFirstContact
     {
         // Reuse the exact audited source contract from the native fixture.
         var original = t.Handle.Result;
-        var audit = ContentRules.Read<BossSourceAudit[]>(ContentRuntime.Resource("boss-resource-audit.json"))
-            .Single(a => a.Data.TableId == t.Definition.TableId).Data;
+        var audit = HallTrialSources.Get(t.Definition.TableId);
         var source = HallEchoesProbe.ValidateSource(original, audit);
         if (source.id != t.Definition.PartyId) throw new InvalidOperationException("Trial source party mismatch.");
         int bossIndex = Array.IndexOf(BattleLoader.btl_bos_data.ToArray(), t.Definition.TableId);
@@ -142,7 +142,12 @@ internal static class HallFirstContact
         t.Formation.data.phase_end_func_index = 0;
         t.Formation.data.battle_end_func_index = 0;
         t.Formation.data.command_func_index = 0;
-        t.Formation.data.battle_main_func_index = 0;
+        // Only explicitly audited battle-local visual controllers are retained.
+        // Story endings, phase transitions and scripted commands remain detached.
+        if(t.Definition.RetainCombatMain &&
+            (audit.Hooks[5]==0 || audit.Hooks[1]!=0 || audit.Hooks[2]!=0 || audit.Hooks[4]!=0))
+            throw new InvalidOperationException("Trial combat-main role is not a standalone audited controller.");
+        t.Formation.data.battle_main_func_index = t.Definition.RetainCombatMain ? audit.Hooks[5] : 0;
         t.Table = ScriptableObject.CreateInstance<BATTLE_DATA>();
         t.Table.id = "echo_trial_" + t.Definition.Id;
         t.Table.is_battle_field_data = original.is_battle_field_data;
@@ -393,6 +398,13 @@ internal static class HallFirstContact
             Plugin.Logger.LogInfo($"HallFirstContact: BattleChapter.Update terminal result={result}.");
         }
         if (t.Released || !Owns(t.Work)) return;
+        if(t.Definition.RetainCombatMain && t.Work != null)
+        {
+            string main=t.Work.monster_bm_func?.Method?.Name ?? "(none)";
+            string state=main+"/work="+(t.Work.monster_bm_work!=null);
+            if(t.MainStates.Count<8&&t.MainStates.Add(state))
+                Plugin.Logger.LogInfo("HallFirstContact: native combat-main state "+state+".");
+        }
         var actor = t.Work!.pm_data?.FirstOrDefault(a => a != null && !a.IsPlayer);
         if (!t.HpChanged && actor != null && actor.hp != t.ActorHp)
         {

@@ -46,6 +46,20 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
+## Current v1.46 Hall evidence
+
+Build 1.46.0-new-memories.1 / SHA256
+35F2E3BC0A8A84EB401E92C535D503ABF3059F87112AA6F3921BE87BDD59F50D.
+Eight trials. Exact-hash owner wins Golem/Abomination/Worm; Golem then Pest Rat
+Let Go, zero payouts and Guild reopening. Protected flags/war/progression unchanged,
+owned cleanup complete. Source-backed new gates C9/01 and 56/20. Worm 3D/10 is
+pre-battle and MUST NOT become a victory witness. Sierra/second Harpy unresolved;
+keep all three normal-locked. Preserve v1.45 corrected gates and fallback CADC0476.
+Native 5,054-check production audit, managed regressions and 18-screen graphics
+preview passed; not full campaign acceptance. Original Steam DLL and 14 saves
+unchanged. Global/new options default off, copied testing disarmed. No releases.
+See docs/HALL-NEW-MEMORIES-V146.md; historical sections below retain old evidence.
+
 ## v1.45 progression correction
 
 v1.44's three unlock claims are superseded: ordinary map loads / nonordinary

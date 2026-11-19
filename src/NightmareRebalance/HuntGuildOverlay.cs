@@ -27,7 +27,10 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   (GuildPage.Strategy,0,0,"12-party-strategy.png",false),
   (GuildPage.Echoes,0,0,"13-hall-story-locked.png",false),
   (GuildPage.Echoes,1,0,"14-hall-harpy-memory.png",false),
-  (GuildPage.Echoes,4,0,"15-hall-second-page.png",false)
+  (GuildPage.Echoes,4,0,"15-hall-second-page.png",false),
+  (GuildPage.Echoes,5,0,"16-hall-stone-golem.png",false),
+  (GuildPage.Echoes,6,0,"17-hall-abomination.png",false),
+  (GuildPage.Echoes,7,0,"18-hall-worm.png",false)
  };
  [DllImport("user32.dll")]static extern short GetAsyncKeyState(int key);
  [DllImport("user32.dll")]static extern IntPtr GetForegroundWindow();

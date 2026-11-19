@@ -28,6 +28,9 @@ fallbacks and the user's existing settings. No local user configuration changed.
 | Hall of Echoes / EnableHallGoldenWolf |false| Experimental native Golden Wolf rematch; corrected witness is 16/02 |
 | Hall of Echoes / EnableHallSierra |false| Experimental native Sierra rematch; no proven normal story unlock; developer testing only |
 | Hall of Echoes / EnableHallHarpySecond |false| Experimental second Harpy; no proven normal story unlock; developer testing only |
+| Hall of Echoes / EnableHallStoneGolem |false| Native Stone Golem; source-backed C9/01 witness; restart required |
+| Hall of Echoes / EnableHallAbomination |false| Native Abomination; source-backed 56/20 witness; restart required |
+| Hall of Echoes / EnableHallWorm |false| Native first Worm; normal unlock unresolved, developer testing only |
 | Hall of Echoes / HallUnlockPolicy |StoryProgression| UnrestrictedTesting requires EnableDeveloperTools and changes only availability, never flags |
 | Combat Reforged / EnableCombatReforgedAi |true| Native RPG selection layer |
 | Features / EnableWarUnitProfiles |true| Original-war commander profiles |

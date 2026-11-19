@@ -171,3 +171,15 @@ Exact v1.45 DLL gameplay also passed Sierra and second Harpy victories under the
 explicit testing override (850 and 127,500 Potch), followed by Pest Rat flee with
 zero payout and working Guild interaction. This verifies their battle paths, not
 a normal-play unlock for those two trials.
+
+## Current Hall catalogue — v1.46
+
+Eight entries retain original order/IDs: Pest Rat, Harpy, Golden Wolf, Sierra,
+second Harpy, Stone Golem, Abomination and Worm. Four rows per page; normal
+navigation keeps selection visible. New trials have independent default-off
+switches. Locked names remain ???. Golem and Abomination read source-backed
+C9/01 and 56/20 witnesses; Worm, Sierra and second Harpy stay developer-only.
+Owner earned all three new wins on the exact v1.46 DLL, then fled Golem and Pest
+Rat and reopened the Guild. All observed returns preserved protected state.
+[Current native, graphical and gameplay evidence](docs/HALL-NEW-MEMORIES-V146.md).
+Earlier sections document historical versions, not current catalogue size.

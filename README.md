@@ -1,16 +1,14 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone** is v1.45, Hall of Echoes: Echoes Earned.
-StoryProgression now uses corrected original-boss witnesses for Pest Rat, first
-Harpy and Golden Wolf. v1.44 had confused map/nonordinary battle numbers with boss
-resource indices; its unlock claims are superseded. Sierra and second Harpy stay
-locked in normal play until reliable victory witnesses are established.
-The owner won Golden Wolf and first Harpy under normal story gating, then Sierra
-and the second Harpy under explicit testing availability, all on this exact DLL.
-Second Harpy credited 127,500 Potch; a subsequent Pest Rat flee paid nothing and
-returned cleanly. All five trial definitions remain implemented. No combat-stat, reward-engine or campaign progression changes.
-[Current evidence and remaining gaps](docs/HALL-ECHOES-EARNED-V145.md).
-[Preserved v1.44 artifact](docs/HALL-ECHOES-PAST-V144.md).
+**Latest development milestone** is v1.46, Hall of Echoes: New Memories.
+The Hall now contains eight native rematches. Stone Golem, Abomination and Worm
+have exact-build owner-earned victories and clean Guild returns. Golem and
+Abomination add source-backed story witnesses; Worm, Sierra and second Harpy
+remain developer-testing only until trustworthy unlocks are established.
+All three new switches and the global Hall switch default off. Native rewards
+and the existing RPG, Hunt and Army Training systems are preserved.
+[Current evidence and limitations](docs/HALL-NEW-MEMORIES-V146.md).
+[Preserved v1.45 progression correction](docs/HALL-ECHOES-EARNED-V145.md).
 
 **Campaign development baseline** is v1.40, with DLL
 `1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional

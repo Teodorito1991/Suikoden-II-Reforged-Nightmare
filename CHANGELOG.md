@@ -3,6 +3,23 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.46 — Hall of Echoes: New Memories (development only)
+
+- Adds original Stone Golem, Abomination and first Worm rematches, extending the
+  existing Hall to eight entries on two pages without replacing its engine.
+- Source-backed Stone Golem C9/01 and Abomination 56/20 story witnesses; retains
+  corrected v1.45 gates. Worm, Sierra and second Harpy remain testing-only.
+- Exact-build owner wins credited 50,000 / 10,000 / 35,000 Potch under test settings.
+  Golem and Pest Rat Let Go returns paid zero; protected campaign state and cleanup
+  passed throughout. No new defeat acceptance or paired story-unlock session claim.
+- Native sources, callback roles, owned resources, managed regressions and 18-screen
+  graphical preview passed. Second Harpy payout remains unchanged after review.
+- Global/new individual switches remain off by default; original Steam DLL, saves,
+  existing beta and prior accepted artifacts preserved. No binary publication.
+- Build `1.46.0-new-memories.1`, SHA256
+  `35F2E3BC0A8A84EB401E92C535D503ABF3059F87112AA6F3921BE87BDD59F50D`.
+  [Detailed evidence](docs/HALL-NEW-MEMORIES-V146.md).
+
 ## v1.45 — Hall of Echoes: Echoes Earned (development only)
 
 - Corrects the v1.44 story-gate identity error: map indices and nonordinary battle

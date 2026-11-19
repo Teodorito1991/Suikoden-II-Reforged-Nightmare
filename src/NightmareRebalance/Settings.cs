@@ -19,7 +19,7 @@ internal sealed class Settings
 
     internal readonly ConfigEntry<bool> EnableStarBonds, EnablePartyIdentity;
     internal readonly ConfigEntry<bool> EnableCombatReforgedAi, RunCombatSelfTest, EnableHuntDebugTools;
-    internal readonly ConfigEntry<bool> EnableHallOfEchoes, EnableHallHarpy, EnableHallPestRat, EnableHallGoldenWolf, EnableHallSierra, EnableHallHarpySecond;
+    internal readonly ConfigEntry<bool> EnableHallOfEchoes, EnableHallHarpy, EnableHallPestRat, EnableHallGoldenWolf, EnableHallSierra, EnableHallHarpySecond, EnableHallStoneGolem, EnableHallAbomination, EnableHallWorm;
     internal readonly ConfigEntry<HallUnlockPolicy> HallUnlockPolicy;
 
     internal Settings(ConfigFile config)
@@ -34,6 +34,12 @@ internal sealed class Settings
             "Experimental Sierra rematch. Requires the Hall and a proven story gate or explicit developer testing override.");
         EnableHallHarpySecond = config.Bind("Hall of Echoes", nameof(EnableHallHarpySecond), false,
             "Experimental second Harpy rematch. Requires the Hall and a proven story gate or explicit developer testing override.");
+        EnableHallStoneGolem = config.Bind("Hall of Echoes", nameof(EnableHallStoneGolem), false,
+            "Experimental native Stone Golem rematch. Requires the Hall and original story completion or explicit developer testing availability.");
+        EnableHallAbomination = config.Bind("Hall of Echoes", nameof(EnableHallAbomination), false,
+            "Experimental native Abomination rematch. Requires the Hall and original story completion or explicit developer testing availability.");
+        EnableHallWorm = config.Bind("Hall of Echoes", nameof(EnableHallWorm), false,
+            "Experimental first Worm rematch. No proven normal story witness; explicit developer testing availability required.");
         EnableHallHarpy = config.Bind("Hall of Echoes", nameof(EnableHallHarpy), false,
             "Enable the experimental Harpy rematch. Requires EnableHallOfEchoes and a restart.");
         EnableHallOfEchoes = config.Bind("Hall of Echoes", nameof(EnableHallOfEchoes), false,

@@ -1,9 +1,15 @@
 # Known issues and validation limits
 
-The public source repository tracks v1.45. The campaign baseline is v1.40.
+The public source repository tracks v1.46. The campaign baseline is v1.40.
 Earlier campaign settings are documented for `1.38.0-nightmare-campaign.1`. An
 installable release remains unpublished. [Campaign settings and evidence](docs/NIGHTMARE-CAMPAIGN-V138.md).
 
+- **v1.46 progression and balance limits.** Stone Golem and Abomination have
+  source-backed post-battle gates, not paired owner-played original-story unlock
+  tests. Worm, Sierra and second Harpy remain testing-only. New wins used a strong
+  existing party; full campaign pacing and new-trial defeats remain untested.
+  Second Harpy's native payout is retained pending real economy evidence.
+  [Current evidence](docs/HALL-NEW-MEMORIES-V146.md).
 - **Hall witnesses are corrected in v1.45.** The old v1.44 first-Harpy/Sierra/
   Golden-Wolf interpretation is superseded. Verified source links now support
   Pest Rat, first Harpy and Golden Wolf; the owner exercised normal-policy
