@@ -39,7 +39,7 @@ internal static class HuntDebug
  internal static void Record(object value){if(Events.Count<128)Events.Add(value);Dirty=true;}
  internal static void Write()
  {
-  try{string dir=Path.Combine(BepInEx.Paths.BepInExRootPath,"ReforgedNightmare","developer");Directory.CreateDirectory(dir);string path=Path.Combine(dir,"hunt-debug.json");File.WriteAllText(path+".tmp",JsonSerializer.Serialize(new{Version="1.13.0-native-war-foundation.1",Utc=DateTime.UtcNow,Armed,Faulted,Blocked,Prevented,Scope="Admitted native catalogue hunt only",Events=Events.ToArray(),LevelsChanged=false,SaveFilesWritten=false,StatusImmunity=false}));File.Move(path+".tmp",path,true);}catch(Exception e){Log.LogWarning("Debug report unavailable: "+e.Message);}Dirty=false;
+  try{string dir=Path.Combine(BepInEx.Paths.BepInExRootPath,"ReforgedNightmare","developer");Directory.CreateDirectory(dir);string path=Path.Combine(dir,"hunt-debug.json");File.WriteAllText(path+".tmp",JsonSerializer.Serialize(new{Version=NightmareRebalance.Plugin.BuildLabel,Utc=DateTime.UtcNow,Armed,Faulted,Blocked,Prevented,Scope="Admitted native catalogue hunt only",Events=Events.ToArray(),LevelsChanged=false,SaveFilesWritten=false,StatusImmunity=false}));File.Move(path+".tmp",path,true);}catch(Exception e){Log.LogWarning("Debug report unavailable: "+e.Message);}Dirty=false;
  }
 }
 [HarmonyPatch(typeof(PM_DATA),nameof(PM_DATA.DamageSetReActionData))]

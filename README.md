@@ -1,14 +1,13 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone** is v1.47, Hall of Echoes: The Nightmare Trials.
-Three optional advanced tiers add owned HP changes, legal tactical preferences
-and a rare native Stone of Power offer to existing rematches. Original Echoes
-retain their accepted definitions. Final revision .2 has owner-earned Golem and
-Abomination wins, repeated entry, clean cross-tier returns and an actual stone
-receipt. Golden Wolf was won on the earlier candidate; its final-hash rendered
-fight remains unobserved. Hall and Nightmare both default off.
-[Rules, exact-build evidence and limits](docs/HALL-NIGHTMARE-TRIALS-V147.md).
-[Preserved v1.46 expansion](docs/HALL-NEW-MEMORIES-V146.md).
+**Latest development milestone** is v1.48, The Journey Begins: Campaign Integration.
+A reproducible **Fresh Campaign** configuration now selects a conservative Normal
+playthrough baseline without changing personal settings or installing anything.
+Exact-build gameplay passed an early ordinary battle, protected save/reload,
+The Undying Watch's full accept → walking battle → native rewards → Guild report
+→ reacceptance loop, and a later victory with rune-charge recovery.
+[Campaign profile, readiness and evidence](docs/FRESH-CAMPAIGN-V148.md).
+[Preserved Nightmare tier implementation](docs/HALL-NIGHTMARE-TRIALS-V147.md).
 
 **Campaign development baseline** is v1.40, with DLL
 `1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional

@@ -4,6 +4,14 @@ Sun King's Retinue has complete gameplay acceptance on **1.12.2-guild-ui.1**.
 v1.19 refines its presentation and feedback; it has no separate user-assisted quest session.
 See [exact-build evidence](docs/ACCEPTANCE.md).
 
+**The Undying Watch now has full v1.48 gameplay acceptance:** field acceptance,
+legitimate walking battle, earned victory, 12,236 Potch credited and Sacrificial
+Jizo received, field return, ordinary travel to the Guild, report and reacceptance.
+The level-44–46 checkpoint party was unchanged. Escape Talisman helped the owner
+leave the dungeon; no teleport/load shortcut or fabricated progression was used.
+[Current profile and exact-build evidence](docs/FRESH-CAMPAIGN-V148.md).
+The fresh proposal enables Sun and Undying; the other eight remain explicit opt-ins.
+
 The v1.37 catalogue has ten contracts. Press Up or Down to browse. The next
 page appears automatically when the cursor crosses the end of the current
 page. Tiers describe preparation, and the selected contract gives its

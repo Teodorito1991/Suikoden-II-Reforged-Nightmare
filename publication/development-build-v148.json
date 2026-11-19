@@ -1,0 +1,113 @@
+{
+  "Version": "1.48.0-campaign-integration.1",
+  "DllSha256": "56BAB506B49F10A9D2206C9E5903769C3C79A8D092B8748A67C6D53F4923D469",
+  "SourceParent": "d4f985fac17b2938b32fa1a1d316e40ffda60046",
+  "FallbackSha256": "7283F4B6873C6AFA8BE4277ADF6A7E09CEB42E4607C168D3AB3A381CABE211BF",
+  "Build": {
+    "Configuration": "Release",
+    "Deterministic": true,
+    "Warnings": 0,
+    "Errors": 0,
+    "DebugSymbols": false
+  },
+  "Verification": {
+    "ManagedRegressions": "pass",
+    "NativeProductionAudit": {
+      "Passed": true,
+      "Checks": 5054,
+      "Context": "Isolated native components with required fixture opt-ins, not recommended gameplay defaults"
+    },
+    "FreshProfileStartup": {
+      "Passed": true,
+      "AllGeneratedModuleFilesMatched": true,
+      "DeveloperTools": false,
+      "DamageProtection": false,
+      "WalletFixture": false,
+      "InputFeed": false
+    },
+    "Graphics": {
+      "PreviewImages": 22,
+      "ExactHash": true,
+      "OriginalFrameCursorFont": true,
+      "CampaignGameplay": false
+    },
+    "EarlyGameplay": {
+      "RealVictory": true,
+      "PartyLevelRange": [
+        3,
+        6
+      ],
+      "PartySize": 3,
+      "EnemyId": "wb_00_00",
+      "EnemyCount": 6,
+      "NativeHpPerEnemy": 14,
+      "PlayerHpLost": 4,
+      "PlayerHpHealed": 3,
+      "OwnerAssistedSaveReload": true,
+      "CopiedSaveWriteObserved": true,
+      "ExactExpDeltaRecorded": false,
+      "WholeEarlyCampaignVerified": false
+    },
+    "RuneRecovery": {
+      "LaterOrdinaryVictory": true,
+      "ChargesBefore": 80,
+      "ChargesAfter": 81,
+      "Restored": 1
+    },
+    "Hunt": {
+      "Id": "undying-watch",
+      "Source": "vg15_00",
+      "ConfiguredBonus": 3800,
+      "NativeWalking": true,
+      "Normal": true,
+      "SourceSceneSessionHookGuardsPassed": true,
+      "VictoryEarned": true,
+      "ActualPotchCredit": 12236,
+      "NativeCreditCalls": 1,
+      "Item": "Sacrificial Jizo",
+      "NativeHandoff": true,
+      "InventoryIncreaseObservations": 1,
+      "FieldResumed": true,
+      "OwnerConfirmedOrdinaryTravelAndControls": true,
+      "ReportCount": 1,
+      "Reaccepted": true,
+      "SecondVictoryTested": false,
+      "ReportRewardGrants": 0,
+      "DebugProtection": false,
+      "ForcedProgress": false
+    },
+    "ProfileGeneration": {
+      "Reproducible": true,
+      "ExistingFilesRefused": true
+    },
+    "LiveTrainingTested": false,
+    "TrainingReadiness": "Protected stock-transition harness only; disabled in Fresh Campaign proposal",
+    "CurrentHashHallBattleTested": false,
+    "NightmareDefeatRetryTested": false,
+    "FullCampaignCertified": false,
+    "FreshNewGameCreationObserved": false
+  },
+  "Profile": {
+    "EnabledHunts": [
+      "sun-kings-retinue",
+      "undying-watch"
+    ],
+    "StoryGatedOriginalHall": true,
+    "Nightmare": false,
+    "Training": false,
+    "ScriptedLegendary": false,
+    "CoreRpgAndStoryWars": true,
+    "NativeExpAndPotchRates": true
+  },
+  "KnownLimits": [
+    "General battle-history wrapper retains legacy v1.13 label; current Hunt/quest journals and runtime/hash correlate evidence",
+    "Character 26/30 source mismatches remain guarded in archived checkpoints",
+    "Other eight Hunt routes/battles and full mandatory story sequence not accepted"
+  ],
+  "OriginalSavesChecked": 14,
+  "OriginalSavesChanged": 0,
+  "InstalledSteamDllReplaced": false,
+  "SteamSettingsChanged": false,
+  "TestingDisarmed": true,
+  "PublicBinaryOrReleasePublished": false
+}

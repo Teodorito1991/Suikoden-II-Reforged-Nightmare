@@ -14,5 +14,8 @@ jobs:
           dotnet-version: '9.0.x'
       - name: Run retained managed regression suite
         run: dotnet run --project tests/NightmareRebalance.Tests.csproj -c Release
+      - name: Verify fresh campaign configuration
+        shell: pwsh
+        run: ./tools/test-fresh-campaign.ps1
       - name: Audit publication source tree
         run: python tools/audit-publication.py

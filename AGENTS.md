@@ -46,6 +46,25 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
+## Current v1.48 campaign integration
+
+Build 1.48.0-campaign-integration.1 / SHA256
+56BAB506B49F10A9D2206C9E5903769C3C79A8D092B8748A67C6D53F4923D469.
+Generated Fresh Campaign profile tested without developer/input/reward fixtures.
+Early levels3–6 party ordinary victory: 4 HP lost, 3 healed; protected save/reload.
+Undying Watch real loop: local native-menu accept at vg15, walking request/native
+formation, earned victory, 12,236 Potch actual credit and Sacrificial Jizo native
+inventory+1, field return, Escape Talisman/ordinary travel, Guild report and
+reacceptance. One completion/report; no report payout or second-win claim. Later
+ordinary victory restored one missing charge. Managed/native5054 checks and22
+previews passed; profile hashes reproducible and nonempty destinations refused.
+Hunt/quest/export version labels corrected; general history wrapper still legacy.
+Do not rewrite acceptance hashes to hide that metadata limit. Training still
+requires private stock-transition harness; fresh profile leaves it off, along
+with scripted Legendary options and Nightmare tiers. Core/story-war guarded
+layers on; full campaign unverified. Steam DLL and14 originals untouched, testing
+disarmed, exactv147 fallback preserved. No beta/release. See docs/FRESH-CAMPAIGN-V148.md.
+
 ## Current v1.47 Nightmare evidence
 
 Build 1.47.0-nightmare-trials.2 / SHA256

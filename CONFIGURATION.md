@@ -5,6 +5,18 @@ and audited IDs. Unknown source records fail closed; there is no guard bypass.
 Public defaults are packaging-only proposals, distinct from developer embedded
 fallbacks and the user's existing settings. No local user configuration changed.
 
+## Fresh Campaign proposal (v1.48)
+
+Use `tools/prepare-fresh-campaign.ps1 -OutputDirectory <empty-staging-folder>`.
+It generates configuration only and refuses existing content. It never discovers
+or changes an installed game. [Decisions and instructions](docs/FRESH-CAMPAIGN-V148.md).
+The proposal selects Normal, native EXP/Potch rates (1.00, unlike the legacy 0.85
+Potch example below), core RPG and guarded story-war systems, Sun/Undying Watch,
+and five source-backed Original Echoes. Scripted Legendary changes, protected
+Army Training and Nightmare tiers are off. All definitions remain in source;
+additional content is independently configurable. Existing personal files and
+embedded defaults are unchanged. Review/merge deliberately before use.
+
 ## Main CFG
 
 `BepInEx/config/nightmare.suikoden2.reforged.cfg`

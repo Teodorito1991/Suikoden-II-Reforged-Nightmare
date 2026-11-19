@@ -1,0 +1,23 @@
+{
+  "boss-tactics.json": {
+    "EnableMajorBosses": false
+  },
+  "legendary-bosses.json": {
+    "EnableMistShade": false,
+    "EnableGorudo": false,
+    "EnableWormMoth": false,
+    "EnableLaterLucia": false
+  },
+  "castle-guild.json": {
+    "Enabled": true,
+    "AutoRequestAcceptedContract": true,
+    "EnableFieldReissue": true
+  },
+  "first-expansion.json": {
+    "EnableExperimentalHunt": true
+  },
+  "hunt-guild.json": {
+    "EnableSelector": true,
+    "EnableVictoryItems": true
+  }
+}

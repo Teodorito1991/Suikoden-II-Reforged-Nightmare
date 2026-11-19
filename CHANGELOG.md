@@ -3,6 +3,28 @@
 This changelog records development milestones. The source repository is public.
 Binary distribution requires separate owner approval.
 
+## v1.48 — The Journey Begins: Campaign Integration (development only)
+
+- Adds a reproducible Fresh Campaign proposal and non-overwriting staging tool.
+  Core RPG/story-war layers on; native EXP/Potch rates, two recommended Hunts,
+  five source-gated Original Echoes. Nightmare, scripted Legendary changes and
+  protected-harness Training remain separate opt-ins/off in this profile.
+- Completes The Undying Watch's first real quest loop on this exact DLL: local
+  acceptance, walking encounter, earned victory, 12,236 Potch and native
+  Sacrificial Jizo receipt, ordinary return, Guild report and reacceptance.
+- Early levels 3–6 party won an ordinary battle with actual damage/healing;
+  protected save/reload and a later one-charge victory recovery observed. No
+  max-level test party, reward fixture or developer protection was used.
+- Fixes stale current Hunt/quest/export version labels and contradictory contract
+  default text. Encounter, reward, Hall and war engines are preserved.
+- Managed/native regressions, real-profile startup, 22 Guild previews and profile
+  reproducibility/non-overwrite checks pass. Full campaign, current-hash Hall
+  fights and native story-war outcomes remain unverified. Training stays
+  protected-copy-only; no commander XP or new war experiments.
+- Build `1.48.0-campaign-integration.1`, SHA256
+  `56BAB506B49F10A9D2206C9E5903769C3C79A8D092B8748A67C6D53F4923D469`.
+  [Profile, evidence and limitations](docs/FRESH-CAMPAIGN-V148.md).
+
 ## v1.47 — Hall of Echoes: The Nightmare Trials (development only)
 
 - Adds separate Original/Nightmare selection for three optional advanced trials:

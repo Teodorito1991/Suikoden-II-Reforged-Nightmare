@@ -1,9 +1,20 @@
 # Known issues and validation limits
 
-The public source repository tracks v1.47. The campaign baseline is v1.40.
+The public source repository tracks v1.48. The campaign baseline is v1.40.
 Earlier campaign settings are documented for `1.38.0-nightmare-campaign.1`. An
 installable release remains unpublished. [Campaign settings and evidence](docs/NIGHTMARE-CAMPAIGN-V138.md).
 
+- **Fresh Campaign is a proposal, not full certification.** v1.48 passed a low-level
+  ordinary battle, protected save/reload, one new full Hunt loop and later rune
+  recovery. Mandatory story wars/boss chains, every early formation and whole
+  campaign economy remain unplayed. Review the generated profile before use.
+  [Readiness and opt-ins](docs/FRESH-CAMPAIGN-V148.md).
+- **Other Hunts remain unaccepted.** Undying Watch has exact v1.48 full-quest proof;
+  Sun has historical proof. The fresh profile enables these two and leaves the
+  other eight separately configurable. Source audits do not prove their routes.
+- **Legacy general history labels.** Current Hunt/quest/export labels are fixed,
+  but the older general battle-history wrapper still says v1.13. Correlate exact
+  DLL hash and current session logs; do not treat that wrapper as version proof.
 - **Nightmare balance remains preliminary.** Final v1.47 .2 has strong-party
   Golem/Abomination wins and a real growth-stone receipt. Golden Wolf's win is on
   the earlier candidate, not the final hash. New-tier defeat, reasonable midgame
@@ -64,8 +75,8 @@ installable release remains unpublished. [Campaign settings and evidence](docs/N
   story access windows, complete trips and campaign balance are unplayed.
 - **Guild map coverage.** The attendant is scoped to the exact Suggestion
   Box corridor (`vk07`, event variant 3). The copied game rendered the Guild
-  screens in preview. Live field interaction and training return to the corridor
-  still need verification.
+  screens in preview. v1.48 live field acceptance and corridor Guild report/reacceptance
+  passed; a current-hash protected Training return was not exercised.
 - **Session-only contracts.** Actual loading/restart clears accepted/unreported
   state. Optional field reissue can start a fresh local contract. It cannot
   restore a completed report.

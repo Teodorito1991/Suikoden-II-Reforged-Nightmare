@@ -19,9 +19,9 @@ not yet been certified.
 | Rune recovery |One missing charge per eligible survivor| On; genuine recovery observed; Escape exclusion on an earlier hash |
 | Sun King's Retinue |Castle contract, Cave encounter, native rewards, report/repeat| On publicly; complete exact v1.12.2 quest accepted |
 | Dreamer / Thornwake |Two native-table contracts| On in fresh v1.38 settings. Existing explicit opt-outs win. Native-tested, live quests unplayed. |
-| Grand Guild Hunts |Seven new original-engine contracts across four difficulty tiers, with repeatable Potch and conditional consumable, growth stone and rune orb rewards| Available with the Hunt module. Native setup, selectors, asset loads and native scratch inventory verified; full live quests unplayed. [Catalogue](docs/GRAND-GUILD-V137.md). |
+| Grand Guild Hunts |Ten original-engine optional contracts with native rewards| v1.48 Undying Watch full field-acceptance/victory/item/return/report/reacceptance passed. Sun has historical full acceptance; other eight remain native/component-only. [Current evidence](docs/FRESH-CAMPAIGN-V148.md). |
 | Story wars |Original-engine unit and objective changes for wars 1, 2, 3, 6 and 13, plus native enemy maneuver scoring for 1, 2, 3, 6, 10, 13 and 15| On; native evaluator fixtures. Full story battles await gameplay. |
-| Castle Guild |Suggestion Box attendant, tier-ordered Hunt pages and optional local contract reissue| Native party-menu ownership fixture and graphical preview. Live field interaction awaits acceptance. |
+| Castle Guild |Suggestion Box attendant, paginated contracts and local party-menu acceptance| v1.48 native field acceptance and live Guild report/reacceptance passed. Exact vk07 variant 3 scope; other castle layouts not certified. |
 | Hall of Echoes |Eight Original rematches; three optional Nightmare tiers with native growth-stone offers| Final v1.47 Golem/Abomination earned wins, native stone receipt and cross-tier returns. Wolf won on earlier candidate; final-hash fight unobserved. Hall/Nightmare default off. [Evidence](docs/HALL-NIGHTMARE-TRIALS-V147.md). |
 | Castle Army Training |Three original war scenarios, four drills and optional Veteran tactics| Opt-in in the copied runtime. Historical tavern returns and v1.36 corridor routing are separate evidence. [Current evidence](docs/CASTLE-GUILD-TOTAL-WAR-V136.md). |
 
