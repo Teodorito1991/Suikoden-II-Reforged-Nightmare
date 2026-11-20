@@ -1,0 +1,107 @@
+{
+  "Version": "1.50.0-final-encounters.2",
+  "DllSha256": "EAF67EB039F569149C9AB811AE770C82EC48DCB6D466AD070458C39D1D5338DF",
+  "SourceParent": "c13be876f245599360a692c9ac77b0af9212e7d3",
+  "HallDefinitions": 21,
+  "NightmareProfiles": 21,
+  "ProductionNativeAudit": {
+    "Passed": true,
+    "OriginalEngineSourceCopySetup": true,
+    "RenderedBattle": false,
+    "Count": 21
+  },
+  "LucaHpGetterAudit": {
+    "Passed": true,
+    "OriginalGetterExecuted": true,
+    "LoadedRecords": 3,
+    "OwnedScratchState": true,
+    "CampaignLoaded": false,
+    "OriginalOpeningExecuted": false,
+    "GauntletPlayable": false
+  },
+  "Gameplay": [
+    {
+      "Hash": "EAF67EB039F569149C9AB811AE770C82EC48DCB6D466AD070458C39D1D5338DF",
+      "Trial": "worm-moth",
+      "Tier": "Original",
+      "OwnerPlayed": true,
+      "Transformed": true,
+      "NativeTransformationTurn": 3,
+      "EarnedVictory": true,
+      "CastleReturn": true,
+      "ProtectedFlagArraysUnchanged": true,
+      "WarSnapshotUnchanged": true,
+      "SelectedProgressionMarkersUnchanged": true,
+      "CleanupComplete": true,
+      "ObservedPotchCredit": 0,
+      "NightmareStoneReceipt": false
+    },
+    {
+      "Hash": "259139F596B015CA51F46DFA62FCD30862D352D65284EA481560A4D8A37BF192",
+      "Trial": "beast-rune",
+      "Tier": "Original",
+      "OwnerPlayed": true,
+      "RenderedNativeCombat": true,
+      "EarnedVictory": false,
+      "EarnedDefeat": true,
+      "StockGameOver": true,
+      "ProtectedStateUnchanged": true,
+      "Reward": 0,
+      "CleanupComplete": true,
+      "ExactFinalHashGameplayAcceptance": false
+    }
+  ],
+  "GraphicalPreview": {
+    "FinalHash": true,
+    "Captures": 33,
+    "OriginalAssetsLoadedReleased": [
+      1,
+      1
+    ],
+    "IntermittentTextOmissionRemains": true,
+    "GameplayScreenshot": false
+  },
+  "TrainingNormalContract": {
+    "Implemented": true,
+    "DefaultEnabled": false,
+    "CurrentHashGameplayStatus": "Owner-earned Commander Rout victory and controllable castle return",
+    "LegacyPrivateTransitionHarnessUsed": false,
+    "NativeResult": 1,
+    "ManagerResult": 1,
+    "FlagsRestoredAtVerifiedReturnPrefix": true,
+    "WarCharacterPartyDataDifferences": [],
+    "AllowedDifferences": [
+      "return position",
+      "elapsed play/event timers"
+    ],
+    "OwnerMovementWorked": true,
+    "RewardEarned": 750,
+    "RewardCredited": 0,
+    "Gsd2SaveFileCalls": 0,
+    "NativeCopiedAutosavesAfterRestoration": 1,
+    "PostAutosaveProtectedPayloadDiffVerified": true,
+    "AllNormalInstallSideEffectsCertified": false,
+    "ReleaseStatus": "Experimental opt-in; GSD2 save-file fence does not cover direct native writes, especially fault paths. Full Content Preview leaves off.",
+    "PostAutosaveProtectedScope": [
+      "all five flag arrays",
+      "war_data",
+      "party_data"
+    ],
+    "SavedHallHpLossMatchesRuntime": 224,
+    "OtherSavedDifferences": "HP/EXP/kill count, existing character profiles, map/time/settings and three shop timer/event fields across the loaded session; not isolated as training effects"
+  },
+  "CommanderProgressionImplemented": false,
+  "FullCampaignAccepted": false,
+  "SteamInstallationChanged": false,
+  "BetaPublished": false,
+  "FullContentPreview": {
+    "HuntsSelected": 10,
+    "HallSelected": 17,
+    "FinalBossSelected": false,
+    "TrainingSelected": false,
+    "NightmareSeparateOptIn": true,
+    "DeveloperBypass": false
+  },
+  "OriginalSavesUnchanged": 14,
+  "InstalledDllSha256": "AA27445761E1E7581FF2D32DCF5FA608E47A072F06A5B307B809A46557EA09B0"
+}

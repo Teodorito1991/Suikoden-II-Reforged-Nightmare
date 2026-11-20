@@ -46,7 +46,26 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
-## Current v1.49 Grand Expansion
+## Current v1.50 Final Encounters
+
+Development `1.50.0-final-encounters.2`, SHA256
+EAF67EB039F569149C9AB811AE770C82EC48DCB6D466AD070458C39D1D5338DF.
+21 definitions/profiles; native Worm/Moth and multipart final controllers retained,
+original story endings excluded. Original extra-texture coroutine fixes the live
+final-boss field callback failure without changing battle_no=-1. Luca stage receipts
+and private native HP getter are foundations only; no gauntlet launch/party owner.
+Normal-build training contract is a separate default-off private-flag/save-fence
+experiment; exact-build Commander Rout win/return passed, but direct SystemSave
+autosave at map step14 bypasses the GSD2 save-file counter. Do not claim zero saves
+or full normal-install certification. Autosave flags/war/party subsequently matched
+the exact checkpoint; savedHP loss224 matches Worm. Fault paths remain unverified. Exact-build transformed Worm/Moth win/return
+passed. Final-boss combat/defeat was on intermediate259139; victory unverified.
+No commander XP. Exact build/evidence distinctions are mandatory.
+Steam installation, original saves/config and previous fallback artifacts stay
+unchanged. Preserve historical reports; no release or beta publication.
+See docs/FINAL-ENCOUNTERS-V150.md and publication/development-build-v150.json.
+
+## Historical v1.49 Grand Expansion
 
 Build1.49.0-grand-expansion.1 / SHA256 D98E62D3B09E0FBFB9DFEC7AA8AE99AB661FF3F11D8DF14B79C2673056AC822F.
 19 trial definitions/19 Nightmare profiles; eleven additions. Native source and

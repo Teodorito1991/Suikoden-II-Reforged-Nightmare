@@ -22,8 +22,8 @@ not yet been certified.
 | Grand Guild Hunts |Ten original-engine optional contracts with native rewards| v1.48 Undying Watch full field-acceptance/victory/item/return/report/reacceptance passed. Sun has historical full acceptance; other eight remain native/component-only. [Current evidence](docs/FRESH-CAMPAIGN-V148.md). |
 | Story wars |Original-engine unit and objective changes for wars 1, 2, 3, 6 and 13, plus native enemy maneuver scoring for 1, 2, 3, 6, 10, 13 and 15| On; native evaluator fixtures. Full story battles await gameplay. |
 | Castle Guild |Suggestion Box attendant, paginated contracts and local party-menu acceptance| v1.48 native field acceptance and live Guild report/reacceptance passed. Exact vk07 variant 3 scope; other castle layouts not certified. |
-| Hall of Echoes |19 rematch definitions; 19 optional Nightmare profiles with four growth-stone choices| v1.49 source-backed setup for all19; Mist Shade phase-capable fight and Rowd group victory/return passed on this DLL; other additions unplayed. Sixteen story/bonus-unlockable; three normal-locked. Historical v1.47 Golem/Abomination earned wins, native stone receipt and cross-tier returns. Wolf won on earlier candidate; final-hash fight unobserved. Hall/Nightmare default off. [Evidence](docs/HALL-NIGHTMARE-TRIALS-V147.md). |
-| Castle Army Training |Three original war scenarios, four drills and optional Veteran tactics| Opt-in in the copied runtime. Historical tavern returns and v1.36 corridor routing are separate evidence. [Current evidence](docs/CASTLE-GUILD-TOTAL-WAR-V136.md). |
+| Hall of Echoes |21 rematch definitions; 21 optional Nightmare profiles with four growth-stone choices| v1.50 source-backed setup for all21; exact-build transformed Worm/Moth victory/return and intermediate final-boss combat/defeat are distinct. Historical v1.49: Mist Shade phase-capable fight and Rowd group victory/return passed on this DLL; other additions unplayed. Sixteen story/bonus-unlockable; three normal-locked. Historical v1.47 Golem/Abomination earned wins, native stone receipt and cross-tier returns. Wolf won on earlier candidate; final-hash fight unobserved. Hall/Nightmare default off. [Evidence](docs/HALL-NIGHTMARE-TRIALS-V147.md). |
+| Castle Army Training |Three original war scenarios, four drills and optional Veteran tactics| Legacy copied-runtime opt-in plus a default-off experimental normal-build ownership contract. Historical tavern returns and v1.36 corridor routing are separate evidence. [Current evidence](docs/CASTLE-GUILD-TOTAL-WAR-V136.md). |
 
 Current bulk coverage and honest unlock exceptions: [v1.49](docs/GRAND-EXPANSION-V149.md).
 The Full Content Preview selects all ten Hunts; it is distinct from the conservative profile.
@@ -55,7 +55,10 @@ patch or unverified inn feedback is added.
 ## War boundaries
 
 Story-war changes use original maps, units, animations, combat and interpreter.
-Castle Army Training uses the original engine in the copied runtime. Commander
+Castle Army Training uses the original engine. The new default-off normal-build
+contract passed one Commander Rout win/return in the copy, with a post-return native
+autosave whose protected flags/war/party data were subsequently verified unchanged.
+Other outcomes and direct-write fault handling remain experimental. Commander
 experience remains deferred.
 The retired custom arena is absent from the plugin; archived pure test inputs
 preserve regression coverage only.
@@ -87,3 +90,13 @@ v1.27 expands native combat-quality decisions to Sierra, both Golden Wolf
 encounters and the second Harpy encounter. [Boss expansion and evidence](docs/BOSS-EXPANSION-V127.md).
 
 v1.20 refines Pest Rat/first Harpy native action and target choices, without stat/damage changes. Corrected Lucia/Luca identity confusion; v1.21 audits Luca Blight’s three original records and HP carryover. Live Luca tactics remain unavailable. [Luca encounter audit](docs/LUCA-ENCOUNTER-V121.md). [Native evidence and limitations](docs/BOSS-COMBAT-QUALITY-V120.md).
+
+## v1.50 complex encounter families
+
+Worm/Moth and the multipart Beast Rune reuse original controllers, scenes and legal
+attacks; 21 Hall definitions and21 optional Nightmare profiles are implemented.
+New families retain original phase/command authority and exclude story endings.
+The final extra-texture dependency uses its original loader/release registration.
+Luca stage/private HP-view infrastructure is implemented but its gauntlet is closed.
+The experimental normal-build training contract remains separately opt-in; commander
+XP remains absent. [Evidence and limitations](docs/FINAL-ENCOUNTERS-V150.md).

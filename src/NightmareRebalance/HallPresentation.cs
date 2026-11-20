@@ -27,7 +27,7 @@ internal static class HallPresentation
         bool advanced=focus==1, available=unlocked&&configured&&(!advanced||nightmare&&p!=null);
         return new("ECHO DIFFICULTY",new[]{new GuildMenuRow("Original Echo","Recall the original battle"),
             new GuildMenuRow("Nightmare Echo",nightmare&&p!=null?"Advanced optional challenge":"Unavailable")},focus,
-            unlocked?d.Name:"Unknown Echo",advanced&&p!=null?$"Nightmare Echo · Original foe level {p.Level}":"Original Echo · Normal campaign",
+            unlocked?d.Name:"Unknown Echo",advanced&&p!=null?(d.Id=="beast-rune"?"Nightmare Echo · Native multi-part controller":$"Nightmare Echo · Original foe level {p.Level}"):"Original Echo · Normal campaign",
             !unlocked?"A memory yet to be made.":advanced?(p?.Advice??"No advanced version is offered."):d.Description,
             !unlocked?"":advanced&&p!=null&&stones?$"Native rewards + 25% {RewardName(p.RewardId)} offer if no loot rolls.":d.Rewards,
             !unlocked?"Continue your journey.":advanced&&p!=null?$"HP {p.HpPercent}% · Damage {p.Damage:0.00}× Original. Native inventory applies.":"Original HP, attacks and native rewards are preserved.",

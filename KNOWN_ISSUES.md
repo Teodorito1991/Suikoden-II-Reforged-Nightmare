@@ -1,5 +1,34 @@
 # Known issues and validation limits
 
+## Current v1.50 limits
+
+- Twenty-one definitions are implemented; source/setup checks are not21 earned
+  rematches. The new final-boss loader fix permits real combat and stock defeat;
+  a complete earned victory/return is still unverified. It stays an experimental
+  opt-in. The earlier attempt failed in `las_field_sub_func00` before the extra
+  texture loader was connected; that failure is preserved as evidence.
+- Worm/Moth has an earned transformed victory and clean return on final v1.50.2.
+  Its Nightmare variant remains native-prepared rather than player-accepted. The
+  earlier instant-kill run was not used as proof of transformation.
+- Luca's three-party selection, restoration and scene-owned inter-stage sequence
+  remain unresolved. The ordered owner and private HP getter are reusable code,
+  not a playable gauntlet. Commander progression remains unimplemented.
+- Normal-build Army Training has an owner-earned Commander Rout win and controllable
+  return on final v1.50.2, using its explicit default-off experimental contract.
+  Native map return subsequently autosaved the copied checkpoint after restoration;
+  `GSD2SaveData.SaveFile` alone does not cover that persistence path. The actual autosave
+  matches all five protected flag arrays, war data and party data; saved224 HP loss
+  matches the Worm fight. Other new-contract outcomes, direct-write fault handling
+  and full ordinary-install safety remain unverified.
+  A rejected return blocks training and the GSD2 save-file path for that process;
+  restart and reload. It is not a universal native-write firewall.
+  Legacy protected-copy training evidence does not certify every normal-install
+  callback, achievement or campaign state path.
+- No whole-campaign certification, beta publication or Steam installation change.
+  [Current evidence](docs/FINAL-ENCOUNTERS-V150.md).
+
+## Historical milestone limits
+
 ## v1.49 development limits
 
 The expanded Hall has19 implemented definitions,16 normal story/bonus unlocks,
@@ -19,7 +48,7 @@ The v1.48 fallback and conservative profile are preserved. No full campaign has
 begun or been certified; no public installable beta is authorized.
 
 
-The public source repository tracks v1.48. The campaign baseline is v1.40.
+The public source repository tracks v1.50 development. The campaign baseline is v1.40.
 Earlier campaign settings are documented for `1.38.0-nightmare-campaign.1`. An
 installable release remains unpublished. [Campaign settings and evidence](docs/NIGHTMARE-CAMPAIGN-V138.md).
 

@@ -1,5 +1,24 @@
 # Development history
 
+## v1.50 — Final Encounters (development)
+
+- Added original Worm/Moth and multipart final-boss controller families, bringing
+  the catalogue and optional Nightmare profiles to21. Story endings stay excluded.
+- Fixed the final encounter's missing extra-texture initialization with the stock
+  loader and native timing-3 cleanup, without changing ordinary battle_no=-1.
+- Implemented ordered Luca stage/HP receipt rules and a native-getter-verified private
+  HP view. Three-party preparation/restore remains blocked; no gauntlet is exposed.
+- Added an opt-in normal-build training ownership contract: private flag arrays,
+  exact teardown/return ownership and save refusal during active/faulted sessions.
+  Exact-build Commander Rout win/return passed; a native post-return copied
+  autosave bypassed the GSD2 save-file hook. Its protected flags/war/party payload
+  matched the exact loaded checkpoint; direct-write fault handling remains open.
+  No persistent commander XP or unknown save fields.
+- Preserved prior content, fallback artifacts, personal settings and Steam game.
+- Build `1.50.0-final-encounters.2`, SHA256
+  `EAF67EB039F569149C9AB811AE770C82EC48DCB6D466AD070458C39D1D5338DF`.
+  [Verification scope and remaining gates](docs/FINAL-ENCOUNTERS-V150.md).
+
 ## v1.49 — Grand Expansion (development)
 
 - Eleven additional original-source Hall encounters; nineteen definitions and

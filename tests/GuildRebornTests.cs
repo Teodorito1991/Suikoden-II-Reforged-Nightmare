@@ -123,8 +123,8 @@ internal static class GuildRebornTests
         check(flags[0x15]==0&&flags[0xC2]==0x80,"Availability checks never write flags");
         check(!HallUnlockRules.CanLaunch(true,false,true)&&!HallUnlockRules.CanLaunch(false,true,true)&&
             !HallUnlockRules.CanLaunch(true,true,false),"Independent module, trial and story gates");
-        check(HallTrialCatalogue.Entries.Select(x=>x.Id).Distinct().Count()==19&&HallNightmareRules.Profiles.Length==19&&
-            HallTrialCatalogue.Entries[0].Id=="rat"&&HallTrialCatalogue.Entries[1].Id=="harpy", "Stable Hall IDs and eight distinct trials");
+        check(HallTrialCatalogue.Entries.Select(x=>x.Id).Distinct().Count()==21&&HallNightmareRules.Profiles.Length==21&&
+            HallTrialCatalogue.Entries[0].Id=="rat"&&HallTrialCatalogue.Entries[1].Id=="harpy", "Stable Hall IDs and twenty-one distinct trials");
         check(HallTrialCatalogue.Entries.Take(5).All(x=>!x.RetainCombatMain)&&
             HallTrialCatalogue.Entries.Skip(5).Take(3).All(x=>x.RetainCombatMain),"Existing trials keep their accepted callback roles; new visual controllers are explicit");
         menu.EchoCount=HallTrialCatalogue.Entries.Length;
@@ -165,6 +165,15 @@ internal static class GuildRebornTests
         check(HallUnlockRules.StoryUnlocked("double-head",(f,m)=>f==7&&m==64),"Double Head dedicated completion");
         check(HallUnlockRules.StoryUnlocked("bone-dragon",(f,m)=>f==0xBA&&m==0x10),"Bone Dragon alternate post-battle branch");
         check(HallUnlockRules.IsBonus("seed-culgan")&&HallUnlockRules.StoryUnlocked("seed-culgan",(f,m)=>f==0x14&&m==2),"Bonus explicitly uses a later service milestone, not an individual kill claim");
+        var gauntlet=new HallGauntletRules(6500);
+        check(!gauntlet.NativeOutcome("boss_luc2",true,4300),"Gauntlet rejects out-of-order native receipt");
+        check(gauntlet.NativeOutcome("boss_luc1",true,4300)&&!gauntlet.BonusEligible&&
+            !gauntlet.NativeOutcome("boss_luc1",true,4200),"Intermediate receipt cannot duplicate or pay a bonus");
+        check(gauntlet.NativeDisposed("boss_luc1",true,true)&&gauntlet.Stage==1&&gauntlet.CarryHp==4300,"Carry is actual HP, not multiplied again");
+        check(gauntlet.NativeOutcome("boss_luc2",true,2100)&&gauntlet.NativeDisposed("boss_luc2",true,true)&&
+            gauntlet.NativeOutcome("boss_luc3",true,0)&&gauntlet.NativeDisposed("boss_luc3",true,true)&&gauntlet.BonusEligible,
+            "Only final earned receipt plus verified teardown completes the sequence; synthetic state test");
+        check(!HallGauntletRules.DistinctTeams(new[]{new[]{1,2,3,4,5,6},new[]{1,2,3,4,5,6},new[]{1,2,3,4,5,6}}),"Reusing one party is not an authentic three-group plan");
         var basic=new CombatAction(0,1,100,true,false,0,100,255,true);
         var magic=new CombatAction(1,2,150,false,true,0,100,3,true);
         var targets=new[]{new CombatTarget(0,200,500,100,100,100,100,0)};

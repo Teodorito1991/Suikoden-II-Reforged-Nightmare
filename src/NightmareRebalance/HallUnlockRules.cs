@@ -6,7 +6,7 @@ internal static class HallUnlockRules
 {
     // Audited category-15 boss loads followed by ordinary event battles and
     // dedicated persistent completion writes. Numeric map/duel IDs are not bosses.
-    internal static bool HasWitness(string id) => id is "rat" or "harpy" or "golden-wolf" or "stone-golem" or "abomination" or "double-head" or "bone-dragon" or "lucia-retinue" or "gorudo" || IsBonus(id);
+    internal static bool HasWitness(string id) => id is "rat" or "harpy" or "golden-wolf" or "stone-golem" or "abomination" or "double-head" or "bone-dragon" or "lucia-retinue" or "gorudo" or "worm-moth" or "beast-rune" || IsBonus(id);
 
     // Bonus memories are not claims of an individual story victory.
     // Their prerequisites use independently audited native completion witnesses.
@@ -27,6 +27,8 @@ internal static class HallUnlockRules
         "bone-dragon" => readFlag(0xBA, 0x08) || readFlag(0xBA, 0x10),
         "lucia-retinue" => readFlag(0xBB, 0x10),
         "gorudo" => readFlag(0x14, 0x02),
+        "worm-moth" => readFlag(0x41,0x40), // Original imo2 ending's explicit completion write.
+        "beast-rune" => readFlag(0x56,0x02), // Original las ending; never set by the Hall.
         "mist-shade" or "rowd-patrol" => readFlag(0x07,0x40),
         "celestial-sword" => readFlag(0x56,0x20),
         _ when IsBonus(id) => readFlag(0x14, 0x02),

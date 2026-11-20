@@ -1,19 +1,21 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone: v1.49 — The Grand Expansion.**
-19 Hall rematch definitions (eleven additions), 19 optional Nightmare profiles and
-four native growth-stone reward choices. Sixteen entries have read-only story or
-explicit bonus unlocks; three remain normal-locked. New group/phase integrations
-have native setup evidence; Mist Shade and Rowd's Patrol also passed earned
-victory/return/Guild reopen on this DLL. Other additions remain native-only.
-[Coverage, blocked records and verification](docs/GRAND-EXPANSION-V149.md).
+**Latest development milestone: v1.50 — Final Encounters.**
+21 Hall definitions and 21 optional Nightmare profiles now include the native
+Worm/Moth transformation and coordinated multipart final-boss controllers. A missing
+final-boss texture load was found in live testing and corrected through the original
+loader, preserving ordinary encounter ownership. New complex entries remain
+experimental; rendered combat is distinct from complete victory/return acceptance.
+Luca has a private HP-view/stage foundation, **not a playable gauntlet**.
+[Implementation, evidence and exclusions](docs/FINAL-ENCOUNTERS-V150.md).
 
-A separate **Full Content Preview** selects all ten Hunts and compatible Hall
-content without developer bypasses or changing personal settings. The conservative
-[v1.48 Fresh Campaign baseline](docs/FRESH-CAMPAIGN-V148.md) and its genuine
-Undying Watch/early-battle evidence remain preserved.
-[Generate the full-content configuration](profiles/full-content/README.md).
-Army Training remains protected-copy-only; no commander XP is advertised.
+The separate **Full Content Preview** selects ten Hunts and compatible Hall content.
+The [v1.48 Fresh Campaign baseline](docs/FRESH-CAMPAIGN-V148.md) and v1.49 fallback
+are preserved. [Generate configurations](profiles/full-content/README.md).
+Army Training has a new default-off normal-build ownership contract; it is still
+experimental: an exact-build Commander Rout win/return and protected autosave
+comparison passed, but direct-write fault handling and other outcomes remain open. There is no commander XP
+or persistent training system.
 
 **Campaign development baseline** is v1.40, with DLL
 `1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional

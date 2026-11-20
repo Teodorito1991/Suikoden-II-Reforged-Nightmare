@@ -187,3 +187,19 @@ v1.19 changes no user/default settings. Dreamer and Thornwake remain disabled by
 ## v1.20 development note
 
 Boss tactics now accepts optional EnableCombatQuality (default true) for Pest Rat, both Harpy encounters, Sierra and both Golden Wolf encounters. Missing key in existing files is valid. Set false to use the base boss tactics without the combat-quality layer; all previous opt-outs still apply. Major means Lucia lus1/lus2 and final Neclord nec3, NOT Luca Blight. Actual Luca tables luc1/luc2/luc3 are not covered. Boss tactics stay Normal-only; Hard regular-enemy compatibility is separate.
+
+## v1.50 optional complex encounters and training
+
+`EnableHall_worm_moth` and `EnableHall_beast_rune` default false independently.
+Both require original source admission and read-only completion witnesses; neither
+sets story flags. Final-boss victory/return remains unverified. Nightmare is a separate
+opt-in and retains native controllers, with120% HP/1.08× relative damage once.
+No Luca launch option is exposed.
+
+`EnableTrainingNormalBuild=false` preserves the historical protected-harness gate.
+Explicit true selects the experimental private-flag/native-return/save-fence contract
+and also requires `EnableTrainingWar` and `EnableTrainingDefeatReturn`. Scenario,
+Veteran and rewards options remain separate. Never interpret a startup or fixture
+as full ordinary-install acceptance. The native post-return map autosave bypasses the GSD2 save-file hook; its five flags, war and party payloads passed the tested case, but direct-write
+fault handling and other outcomes remain unverified. Keep this option off for a conservative campaign.
+An unsafe return requires restart/reload before saving. No commander progression or new save bytes are written.

@@ -1,16 +1,19 @@
 # The Castle Hunt Guild
 
-## v1.49 expanded optional catalogue
+## v1.50 optional encounter families
 
-Hall:19 original-source definitions and19 optional Nightmare profiles.16 have
-legitimate story/bonus gates; Sierra, second Harpy and Worm remain normal-locked.
-Bonus entries disclose their actual prerequisite instead of claiming an individual
-boss victory. Five-page browsing uses existing native confirm/cancel controls.
-All10 Hunts are selected by Full Content Preview; source/scene/Normal/quest guards,
-native loot priority, escape retry and report-without-payout are preserved.
-New group/phase Hall battles are native-prepared, not human-played. Training is
-still protected-copy-only. [Full inventory](docs/GRAND-EXPANSION-V149.md).
+Hall:21 original-source definitions and21 optional Nightmare profiles, with six-page
+browsing through the original confirm/cancel controls. Worm/Moth and the multipart
+final boss retain their native controllers. Their normal access uses read-only
+original ending witnesses; new complex encounters remain independently configurable
+and experimental. Three old unresolved memories still stay normal-locked.
 
+All10 Hunts, native loot priority, escape retry and reporting without a second
+payout are preserved. Existing Sun and Undying Watch acceptance retains its historical
+DLL identity. Luca is a stage/private-HP foundation, not an available gauntlet.
+Training has a new default-off normal-build ownership contract alongside the old
+protected harness. No commander XP is implemented.
+[Current implementation and evidence](docs/FINAL-ENCOUNTERS-V150.md).
 
 Sun King's Retinue has complete gameplay acceptance on **1.12.2-guild-ui.1**.
 v1.19 refines its presentation and feedback; it has no separate user-assisted quest session.

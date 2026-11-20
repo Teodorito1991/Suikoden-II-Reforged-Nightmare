@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <GamePath Condition="'$(GamePath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Suikoden I and II HD Remaster</GamePath>
-    <Version>1.49.0-grand-expansion.1</Version>
+    <Version>1.50.0-final-encounters.2</Version>
     <AssemblyName>ReforgedNightmare</AssemblyName>
     <OutputPath>bin/$(Configuration)/$(Version)/</OutputPath>
   </PropertyGroup>

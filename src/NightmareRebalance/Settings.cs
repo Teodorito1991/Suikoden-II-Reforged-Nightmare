@@ -14,7 +14,7 @@ internal sealed class Settings
     internal readonly ConfigEntry<string> BossProfilePath;
     internal readonly ConfigEntry<bool> EnableBossProfileDiagnostics, FallbackToGlobalNightmare;
     internal readonly ConfigEntry<bool> EnableTrainingWar, EnableTrainingChallenge, EnableTrainingDefeatReturn, EnableTrainingWar2, EnableTrainingWar3;
-    internal readonly ConfigEntry<bool> EnableTrainingVeteran, EnableTrainingRewards;
+    internal readonly ConfigEntry<bool> EnableTrainingVeteran, EnableTrainingRewards, EnableTrainingNormalBuild;
     internal readonly ConfigEntry<bool> EnableNativeWarRemix,RunNativeWarSelfTest,ExportNativeWarResearch,EnableNativeWarAI,EnableWarSpecializations,EnableWarTactics,EnableWarManeuvers;
 
     internal readonly ConfigEntry<bool> EnableStarBonds, EnablePartyIdentity;
@@ -29,6 +29,8 @@ internal sealed class Settings
         foreach(var trial in HallTrialCatalogue.Entries.Skip(8))
             AdditionalHallTrials.Add(trial.Id, config.Bind("Hall of Echoes", "EnableHall_"+trial.Id.Replace('-','_'), false,
                 "Optional "+trial.Name+" rematch. Exact original source and read-only story unlock required. Restart required."));
+        EnableTrainingNormalBuild=config.Bind("Native War",nameof(EnableTrainingNormalBuild),false,
+            "Experimental production training contract: private flag fork, owned native return and save fence. Requires EnableTrainingWar and defeat return. No commander XP.");
         EnableNightmareEchoes = config.Bind("Hall of Echoes", nameof(EnableNightmareEchoes), false, "Optional data-driven advanced tiers for compatible Hall entries. Never alters story bosses or Original Echoes.");
         EnableNightmareStoneRewards = config.Bind("Hall of Echoes", nameof(EnableNightmareStoneRewards), true, "25% chance to offer the tier's audited growth stone after an earned Nightmare victory if no native loot rolled. Native inventory acceptance required.");
         HallUnlockPolicy = config.Bind("Hall of Echoes", nameof(HallUnlockPolicy), NightmareRebalance.HallUnlockPolicy.StoryProgression,
@@ -81,9 +83,9 @@ internal sealed class Settings
         EnableWarSpecializations = config.Bind("Native War", nameof(EnableWarSpecializations), true, "Additive audited enemy commander/branch profiles for wars 2,3,6,13 only; preserves the existing 21 profiles. Requires EnableWarUnitProfiles; restart required.");
         EnableNativeWarAI = config.Bind("Native War", nameof(EnableNativeWarAI), true, "Audited wars 2,3,6,13: native legal movement/attack/ability evaluation with commander strategies; independent of outcome remix.");
         ExportNativeWarResearch = config.Bind("Developer", nameof(ExportNativeWarResearch), false, "Developer-only read-only static war script export. No campaign entry or edits.");
-        EnableTrainingWar = config.Bind("Native War", nameof(EnableTrainingWar), false, "Disposable War 1 training experiment.");
-        EnableTrainingWar2 = config.Bind("Native War", nameof(EnableTrainingWar2), false, "Experimental War 2 fort defense in the disposable copy.");
-        EnableTrainingWar3 = config.Bind("Native War", nameof(EnableTrainingWar3), false, "Experimental original War 3 in the disposable copy.");
+        EnableTrainingWar = config.Bind("Native War", nameof(EnableTrainingWar), false, "Optional native War 1 training. Requires the normal-build ownership contract or protected harness.");
+        EnableTrainingWar2 = config.Bind("Native War", nameof(EnableTrainingWar2), false, "Optional native War 2 fort defense; training ownership and original completion required.");
+        EnableTrainingWar3 = config.Bind("Native War", nameof(EnableTrainingWar3), false, "Optional original War 3; training ownership and original completion required.");
         EnableTrainingChallenge = config.Bind("Native War", nameof(EnableTrainingChallenge), false, "Experimental War 1 commander-rout challenge in the disposable copy.");
         EnableTrainingVeteran = config.Bind("Native War", nameof(EnableTrainingVeteran), true, "Offer Veteran tactics for audited training drills.");
         EnableTrainingRewards = config.Bind("Native War", nameof(EnableTrainingRewards), true, "Award native Potch once for routing the enemy commander in a completed training drill.");

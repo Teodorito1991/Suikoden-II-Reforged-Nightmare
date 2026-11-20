@@ -11,6 +11,7 @@ namespace NightmareRebalance;
 public sealed class ProductionAssetAudit : MonoBehaviour
 {
  internal static bool Requested=>Plugin.Options.RunCombatSelfTest.Value&&Environment.GetCommandLineArgs().Contains("--reforged-production-audit");
+ internal static bool LucaHpOnly=>Requested&&Environment.GetCommandLineArgs().Contains("--reforged-private-luca-hp-view");
  internal static bool Passed,Finished,Scheduled;internal static int Assertions;internal static readonly List<object> Rows=new();
  static readonly BossSourceAudit[] bossSources=ContentRules.Read<BossSourceAudit[]>(ContentRuntime.Resource("boss-resource-audit.json"));
  static readonly BossSourceAudit[] lucaSources=ContentRules.Read<BossSourceAudit[]>(ContentRuntime.Resource("luca-source-audit.json"));
@@ -26,7 +27,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   try
   {
    if(Combat.State!=null||WarRuntime.Active||WarTacticsRuntime.Armed)throw new InvalidOperationException("Audit requires unloaded launcher.");
-   if(tables==null){previousBackground=Application.runInBackground;Application.runInBackground=true;tables=CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Concat(RpgEvolutionRuntime.Audit.Formations).Select(x=>x.TableId).Concat(bossSources.Concat(lucaSources).Concat(LegendaryBossRuntime.Audit).Select(x=>x.Data.TableId)).Concat(BossTacticsRuntime.RevolutionAudit.Select(a=>a.TableId)).Concat(CombatReforgedRuntime.Audit.Enemies.Select(x=>x.Id.Substring(0,x.Id.LastIndexOf('_')))).Concat(HuntRuntime.Definitions.Select(x=>x.Audit.TableId)).Concat(HallTrialCatalogue.Entries.Select(x=>x.TableId)).Distinct().ToArray();started=Time.realtimeSinceStartup;}
+   if(tables==null){previousBackground=Application.runInBackground;Application.runInBackground=true;tables=LucaHpOnly?lucaSources.Select(x=>x.Data.TableId).ToArray():CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Concat(RpgEvolutionRuntime.Audit.Formations).Select(x=>x.TableId).Concat(bossSources.Concat(lucaSources).Concat(LegendaryBossRuntime.Audit).Select(x=>x.Data.TableId)).Concat(BossTacticsRuntime.RevolutionAudit.Select(a=>a.TableId)).Concat(CombatReforgedRuntime.Audit.Enemies.Select(x=>x.Id.Substring(0,x.Id.LastIndexOf('_')))).Concat(HuntRuntime.Definitions.Select(x=>x.Audit.TableId)).Concat(HallTrialCatalogue.Entries.Select(x=>x.TableId)).Distinct().ToArray();started=Time.realtimeSinceStartup;}
    if(Time.realtimeSinceStartup-started>40)throw new TimeoutException("Production resource audit timed out before resource completion.");
    // HD UI font/material bundles require the graphics player; never load in -nographics.
    // The explicit unloaded render smoke verifies them separately.
@@ -34,7 +35,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
    if(!Rows.Any(row=>row.GetType().GetProperty("Kind")?.GetValue(row)?.ToString()=="HallBossIndex"))Rows.Add(new{Kind="HallBossIndex",Entries=BattleLoader.btl_bos_data.Select((id,i)=>new{Id=id,Index=i,Pack=string.IsNullOrEmpty(id)?null:BattleLoader.GetBossResID(i)}).ToArray()});
    if(Time.realtimeSinceStartup-started>40)throw new TimeoutException("Production resource audit timed out.");
    if(!pending)
-   {if(index==tables.Length){if(!RpgEvolutionProbe.Step())return;if(!HuntResourceProbe.Step())return;if(!HuntFieldSourceProbe.Step())return;if(!CastleGuildNativeProbe.Step())return;if(!HallProgressProbe.Step())return;MaintenanceNativeProbe.Finish();ExpansionNativeProbe.Finish();GuildNativeProbe.Menu();Check(BossTacticsProbe.LucaRows.Count==3,"All three original Luca selector baselines");Check(BossTacticsProbe.Covered.Count==BossTacticsRuntime.Audit.Length+BossTacticsRuntime.RevolutionAudit.Length,"All audited boss action fixtures");Check(BossTacticsProbe.Differences>0,"Actual native boss selections changed");var hunts=HuntRuntime.Definitions.Select(x=>x.Id).ToArray();Check(hunts.Length>0&&GuildNativeProbe.Hunts.SetEquals(hunts),"Guild rewards tested for all hunts");Check(HuntCatalogueProbe.Covered.SetEquals(hunts),"Every catalogue native fixture executed");TeamworkNativeProbe.Finish();if(HallEchoesProbe.Requested) Check(HallEchoesProbe.Evidence!=null,"Hall of Echoes fixture completed");Passed=true;Finish();return;}Plugin.Logger.LogInfo("Production asset request: "+tables[index]);handle=Addressables.LoadAssetAsync<BATTLE_DATA>((Il2CppSystem.String)("gsd2-classic-battle-battle-"+tables[index]));pending=true;return;}
+   {if(index==tables.Length){if(LucaHpOnly){Check(Rows.Count(r=>r.GetType().GetProperty("Kind")?.GetValue(r)?.ToString()=="LucaPrivateHpGetter")==3,"Three scoped native getter records");Passed=true;Finish();return;}if(!RpgEvolutionProbe.Step())return;if(!HuntResourceProbe.Step())return;if(!HuntFieldSourceProbe.Step())return;if(!CastleGuildNativeProbe.Step())return;if(!HallProgressProbe.Step())return;MaintenanceNativeProbe.Finish();ExpansionNativeProbe.Finish();GuildNativeProbe.Menu();Check(BossTacticsProbe.LucaRows.Count==3,"All three original Luca selector baselines");Check(BossTacticsProbe.Covered.Count==BossTacticsRuntime.Audit.Length+BossTacticsRuntime.RevolutionAudit.Length,"All audited boss action fixtures");Check(BossTacticsProbe.Differences>0,"Actual native boss selections changed");var hunts=HuntRuntime.Definitions.Select(x=>x.Id).ToArray();Check(hunts.Length>0&&GuildNativeProbe.Hunts.SetEquals(hunts),"Guild rewards tested for all hunts");Check(HuntCatalogueProbe.Covered.SetEquals(hunts),"Every catalogue native fixture executed");TeamworkNativeProbe.Finish();if(HallEchoesProbe.Requested) Check(HallEchoesProbe.Evidence!=null,"Hall of Echoes fixture completed");Passed=true;Finish();return;}Plugin.Logger.LogInfo("Production asset request: "+tables[index]);handle=Addressables.LoadAssetAsync<BATTLE_DATA>((Il2CppSystem.String)("gsd2-classic-battle-battle-"+tables[index]));pending=true;return;}
    if(!handle.IsDone)return;
    try{Check(handle.Status==AsyncOperationStatus.Succeeded,"Native asset load failed: "+tables[index]);Inspect(handle.Result);}
    finally{retained.Add(handle);pending=false;}
@@ -44,6 +45,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
  }
  static void Inspect(BATTLE_DATA table)
  {
+  if(LucaHpOnly){InspectBoss(table,lucaSources.Where(x=>x.Data.TableId==table.id).ToArray());HallLucaHpProbe.Inspect(table);return;}
   if(table==null||table.monster_data==null||table.monster_party==null)throw new InvalidOperationException("Native battle table arrays");
   if(table.id=="vb07_00")GuildNativeProbe.ReissueTable=table;
   if (HallEchoesProbe.Requested && table.id=="boss_rat")
@@ -74,6 +76,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   }
   if (lucaSources.SingleOrDefault(x => x.Data.TableId == table.id) is {} luca)
   {
+   HallLucaHpProbe.Inspect(table);
    InspectBoss(table, new[] { luca });
    BossTacticsProbe.Table(table, luca.Data);
    return;
@@ -148,5 +151,5 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   if(Application.isBatchMode&&Environment.GetCommandLineArgs().Contains("--reforged-test-exit")){quitAt=Time.frameCount+60;Plugin.Logger.LogInfo("Isolated audit scheduled normal exit after startup settles; no campaign loaded.");}
  }
  void Checkpoint(){string dir=Path.Combine(Paths.BepInExRootPath,"ReforgedNightmare","combat");Directory.CreateDirectory(dir);File.WriteAllText(Path.Combine(dir,"production-asset-audit.json"),JsonSerializer.Serialize(Snapshot(),new JsonSerializerOptions{WriteIndented=true}));}
- internal static object Snapshot()=>new{GuildVisual=GuildVisualNativeProbe.Snapshot(),CastleGuild=CastleGuildNativeProbe.Snapshot(),Requested,Finished,Passed,Assertions,Rows=Rows.ToArray(),Maintenance=MaintenanceNativeProbe.Snapshot(),Expansion=ExpansionNativeProbe.Snapshot(),Guild=GuildNativeProbe.Snapshot(),BossTactics=BossTacticsProbe.Snapshot(),LegendaryBosses=BossTacticsProbe.LegendaryRows.ToArray(),LucaSelectors=BossTacticsProbe.LucaRows.ToArray(),RewardAvailability=HuntRewardAvailabilityProbe.Snapshot(),HuntFieldSources=HuntFieldSourceProbe.Snapshot(),HuntCatalogue=HuntCatalogueProbe.Snapshot(),Teamwork=TeamworkNativeProbe.Snapshot(),StarBonds=StarBondProbe.Results.ToArray(),HallEchoes=HallEchoesProbe.Evidence,EchoGuestOwnership=HallEchoesProbe.GuestEvidence,HuntLifecycle=HuntLifecycleProbe.Snapshot(),HuntResources=HuntResourceProbe.Snapshot(),HuntRewards=HuntRewardProbe.Snapshot(),FullBattlePlayed=false,SaveWritten=false};
+ internal static object Snapshot()=>new{GuildVisual=GuildVisualNativeProbe.Snapshot(),CastleGuild=CastleGuildNativeProbe.Snapshot(),Requested,LucaHpOnly,Finished,Passed,Assertions,Rows=Rows.ToArray(),Maintenance=MaintenanceNativeProbe.Snapshot(),Expansion=ExpansionNativeProbe.Snapshot(),Guild=GuildNativeProbe.Snapshot(),BossTactics=BossTacticsProbe.Snapshot(),LegendaryBosses=BossTacticsProbe.LegendaryRows.ToArray(),LucaSelectors=BossTacticsProbe.LucaRows.ToArray(),RewardAvailability=HuntRewardAvailabilityProbe.Snapshot(),HuntFieldSources=HuntFieldSourceProbe.Snapshot(),HuntCatalogue=HuntCatalogueProbe.Snapshot(),Teamwork=TeamworkNativeProbe.Snapshot(),StarBonds=StarBondProbe.Results.ToArray(),HallEchoes=HallEchoesProbe.Evidence,EchoGuestOwnership=HallEchoesProbe.GuestEvidence,HuntLifecycle=HuntLifecycleProbe.Snapshot(),HuntResources=HuntResourceProbe.Snapshot(),HuntRewards=HuntRewardProbe.Snapshot(),FullBattlePlayed=false,SaveWritten=false};
 }

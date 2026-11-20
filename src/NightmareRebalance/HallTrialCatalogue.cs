@@ -53,7 +53,13 @@ internal static class HallTrialCatalogue
         new("lucia-castle", "Lucia · Castle", "boss_lus3", "boss_lus3_00", 1500, null, "bgk1",
             "Level 49 foe · A distinct, shorter duel with a single limited magic attack.", "Native Potch · Original loot", RetainCommand:true),
         new("rowd-patrol", "Rowd's Patrol", "boss_rau1", "boss_rau1_00", 3000, null, "bga3",
-            "Rowd and five Highland soldiers. An early bonus memory; break the formation.", "Native Potch · Original loot")
+            "Rowd and five Highland soldiers. An early bonus memory; break the formation.", "Native Potch · Original loot"),
+        new("worm-moth", "Worm & Poison Moth", "boss_imo2", "boss_imo2_00", 6800, "imo2", "bgf1",
+            "Original Worm-to-Moth transformation. Respect native phase timing and limited moves.",
+            "Native rewards · One conditional Nightmare stone offer", true, true, true),
+        new("beast-rune", "Beast Rune Incarnation", "boss_las", "boss_las_00", 5700, "las", "bgx0",
+            "Five coordinated body parts. Native barriers, phase changes and targeting remain active.",
+            "Native rewards · One conditional Nightmare stone offer", true, true, true)
     };
 
 }

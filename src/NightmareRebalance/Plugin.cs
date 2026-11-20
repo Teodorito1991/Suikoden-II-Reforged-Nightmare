@@ -7,14 +7,14 @@ using HarmonyLib;
 
 namespace NightmareRebalance;
 
-[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.49.0")]
+[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "1.50.0")]
 [BepInDependency("d3xMachina.suikoden_fix", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("faospark.pkcore", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("nightmare.suikoden2.rebalance", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("s2_character_mod", BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class Plugin : BasePlugin
 {
-    internal const string BuildLabel = "1.49.0-grand-expansion.1";
+    internal const string BuildLabel = "1.50.0-final-encounters.2";
     public const string Id = "nightmare.suikoden2.reforged";
     internal static Settings Options = null!;
     internal static ManualLogSource Logger = null!;
@@ -59,7 +59,7 @@ public sealed class Plugin : BasePlugin
             HuntDebug.Initialize(this);
             foreach (var type in ActivePatchTypes()) harmony.CreateClassProcessor(type).Patch();
             WarBoundaryRules.CanLaunch = TrainingWar.Enabled;
-            if (WarBoundaryRules.CanLaunch) Log.LogInfo("Disposable native war training enabled.");
+            if (WarBoundaryRules.CanLaunch) Log.LogInfo("Native war training enabled behind its selected ownership contract.");
             if(UnityEngine.Application.isBatchMode&&Environment.GetCommandLineArgs().Contains("--reforged-hunt-debug-selftest")){HuntDebugProbe.Run();AddComponent<HuntDebugExit>();}
             WarRuntime.NativeCopyProbe();
             NativeWarRemix.SelfTest();

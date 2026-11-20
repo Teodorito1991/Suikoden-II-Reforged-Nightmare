@@ -40,6 +40,7 @@ internal static class HallUnlockProbe
             scratch.event_flag[0xB6]=2;scratch.event_flag[0x21]=0x10;scratch.event_flag[0x16]=2;
             scratch.event_flag[0xC9]=1;scratch.event_flag[0x56]=0x20;
             scratch.event_flag[0x3D]=0x10;
+            scratch.event_flag[0x41]=0x40;scratch.event_flag[0x56]|=0x02;
             scratch.event_flag[7]=64;scratch.event_flag[0xBA]=8;scratch.event_flag[0xBB]=16;scratch.event_flag[0x14]=2;
             Check(!HallAvailability.Unlocked(7)); // Worm's encounter-start flag is not victory.
             Check(All(true));

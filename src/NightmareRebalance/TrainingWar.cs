@@ -10,6 +10,9 @@ internal static class TrainingWar
 
     sealed class Session(GAME_WORK game, SYS_WORK system, MACHICON field, EVENTCON events, EVENT_HUMAN player, Drill drill, bool veteran)
     {
+        internal readonly bool NormalContract=Plugin.Options.EnableTrainingNormalBuild.Value;
+        internal readonly Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte>[] OriginalFlags=ReadFlags(game);
+        internal Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte>[]? PrivateFlags;
         internal readonly GAME_WORK Game = game;
         internal readonly SYS_WORK System = system;
         internal readonly MACHICON Field = field;
@@ -40,7 +43,10 @@ internal static class TrainingWar
     internal static bool HasTransitionHarness => StockWarTransitionTrace.Enabled && !Application.isBatchMode &&
         Harmony.GetPatchInfo(AccessTools.Method(typeof(SteamService), nameof(SteamService.GetAppInstallDir)))?
             .Prefixes.Any(p => p.owner == "private.reforged.stocktrace.root") == true;
-    internal static bool Enabled => Plugin.Options?.EnableTrainingWar.Value == true && HasTransitionHarness;
+    internal static bool NormalContractEnabled=>Plugin.Options?.EnableTrainingNormalBuild.Value==true &&
+        Plugin.Options.EnableTrainingDefeatReturn.Value && !Application.isBatchMode &&
+        NativeWarRemix.DefinitionsVerified;
+    internal static bool Enabled => Plugin.Options?.EnableTrainingWar.Value == true && (HasTransitionHarness||NormalContractEnabled);
     internal static bool Available => Enabled && !faulted && current == null && !requested &&
         Framework.Singleton<GAME_WORK>.instance?.eventFlgCHK(0xA9, 0x40) == true;
 
@@ -65,7 +71,7 @@ internal static class TrainingWar
     internal static string Unavailable(Drill drill)
     {
         if (Plugin.Options?.EnableTrainingWar.Value!=true) return "Army Training is disabled in settings.";
-        if (!HasTransitionHarness) return "Drills currently require the protected training copy. Story wars remain available.";
+        if (!HasTransitionHarness&&!NormalContractEnabled) return "Enable the experimental normal-build return contract, or use the protected training copy.";
         if (faulted || current != null || requested) return "A drill cannot start right now.";
         if (CastleGuildRuntime.Quest.State is GuildQuestState.Accepted or GuildQuestState.AwaitingReport)
             return "Settle your Hunt contract first.";
@@ -117,12 +123,37 @@ internal static class TrainingWar
             session.System.mcon?.Pointer == field.Pointer;
     }
 
+    static void SetFlags(GAME_WORK game,Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte>[] flags)
+    {game.chara_flag=flags[0];game.town_flag=flags[1];game.event_flag=flags[2];game.scpoi_flag=flags[3];game.t_box_flag=flags[4];}
+    static void ForkFlags(Session session)
+    {
+        if(!session.NormalContract)return;
+        if(session.OriginalFlags.Any(a=>a==null||a.Length==0||a.Length>4096))throw new InvalidOperationException("Incomplete training flag ownership.");
+        session.PrivateFlags=session.OriginalFlags.Select(a=>new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte>(a.ToArray())).ToArray();
+        SetFlags(session.Game,session.PrivateFlags);
+    }
+    static bool RestoreFlags(Session session)
+    {
+        if(!session.NormalContract)return true;
+        if(Framework.Singleton<GAME_WORK>.instance?.Pointer!=session.Game.Pointer||session.Epoch!=NativeWarBoundary.Epoch||
+           session.PrivateFlags==null||!ReadFlags(session.Game).Select((a,i)=>a.Pointer==session.PrivateFlags[i].Pointer).All(x=>x))return false;
+        bool unchanged=session.OriginalFlags.Select((a,i)=>a.ToArray().SequenceEqual(session.Flags[i])).All(x=>x);
+        SetFlags(session.Game,session.OriginalFlags);session.PrivateFlags=null;
+        return unchanged;
+    }
+
     static void Reject(string reason)
     {
         Plugin.Logger.LogWarning("Training war stopped. " + reason);
         CastleGuildRuntime.TrainingFeedback(reason);
         requested = false;
         faulted |= current is { Committed: true };
+        if(current is {NormalContract:true} owner)
+        {
+            // Never guess that a running war has stopped using its private arrays.
+            if(owner.Committed&&!owner.Destroyed){faulted=true;return;}
+            if(owner.PrivateFlags!=null&&!RestoreFlags(owner))faulted=true;
+        }
         current = null;
     }
 
@@ -183,7 +214,9 @@ internal static class TrainingWar
                     return;
                 }
 
+                if(!Plugin.CheckCompatibility()||system.now_save!=0)throw new InvalidOperationException("Training compatibility/save boundary changed.");
                 current = new Session(game, system, field, events, player, requestedDrill, requestedVeteran);
+                ForkFlags(current);
                 G2_BACK.FilterSetRGB(255, 0);
                 G2_BACK.FilterBlackOut(2, 15, false);
                 return;
@@ -234,7 +267,12 @@ internal static class TrainingWar
                 Reject("Campaign flag storage changed during training.");
                 return;
             }
-            for (int i = 0; i < flags.Length; i++)
+            if(session.NormalContract)
+            {
+                if(!RestoreFlags(session))throw new InvalidOperationException("Training original flag references changed.");
+                flags=ReadFlags(session.Game);
+            }
+            else for (int i = 0; i < flags.Length; i++)
                 for (int j = 0; j < flags[i].Length; j++) flags[i][j] = session.Flags[i][j];
 
             bool equal = flags.Select((a, i) => a.ToArray().SequenceEqual(session.Flags[i])).All(x => x);
@@ -389,18 +427,33 @@ internal static class TrainingWar
         [HarmonyPostfix] static void Postfix(WarChapter __instance)
         {
             if (current is not { Committed: true } session) return;
-            if (session.War?.Pointer != __instance.Pointer || session.Destroyed || session.Result != 1)
+            if(session.War?.Pointer!=__instance.Pointer||session.Destroyed)
+            {
+                Reject("Training teardown owner did not match the armed war.");
+                return; // A foreign/duplicate teardown never authorizes flag restoration.
+            }
+            session.Destroyed=true;
+            if(session.Result!=1)
+            {
+                if(session.NormalContract&&session.PrivateFlags!=null&&!RestoreFlags(session))faulted=true;
                 Reject($"Training teardown observed result {session.Result}. A normal return is required.");
-            else session.Destroyed = true;
+            }
         }
     }
 
     [HarmonyPatch(typeof(GSD2SaveData), nameof(GSD2SaveData.SaveFile))]
     static class SaveWitness
     {
-        [HarmonyPrefix] static void Prefix()
+        [HarmonyPrefix] static bool Prefix()
         {
-            if (current is {} session) session.SaveCalls++;
+            if(current is {} session)
+            {
+                session.SaveCalls++;
+                if(session.NormalContract){Plugin.Logger.LogWarning("Training session refused an unexpected save request.");return false;}
+            }
+            if(faulted&&Plugin.Options.EnableTrainingNormalBuild.Value)
+            {Plugin.Logger.LogWarning("Training detected an unsafe return; restart and reload before saving.");return false;}
+            return true;
         }
     }
 }

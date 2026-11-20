@@ -341,6 +341,10 @@ internal static class HallFirstContact
     static bool Owns(BATTLE_WORK? work) => trial is {Committed:true} t &&
         work?.battle_data?.Pointer == t.Table?.Pointer;
 
+    internal static GAME_WORK? GameForOwnedLucaStage(BATTLE_WORK work)=>
+        trial is {Committed:true,Released:false} t && (t.Definition.TableId is "boss_luc1" or "boss_luc2" or "boss_luc3") &&
+        Owns(work)&&SameCampaign(t)&&t.Sys.battle_no==-1?t.Game:null;
+
     internal static string? NightmareId(BATTLE_WORK? work,PM_DATA? actor)
     {
         if(trial is not {Nightmare:true,Committed:true,Setup:true,Released:false} t||
@@ -382,6 +386,10 @@ internal static class HallFirstContact
            t.Sys.battle_no!=-1 || t.Pack?.Loaded!=true)return null;
         return t.PackId;
     }
+
+    internal static bool NeedsOriginalExtraTexture(BATTLE_WORK? work)=>
+        trial is {Committed:true,Setup:true,Released:false} t&&t.Definition.Id=="beast-rune"&&
+        Owns(work)&&SameCampaign(t)&&t.Sys.battle_no==-1;
 
     internal static bool TryBossSprite(int index, out OPD_DATA? sprite)
     {
@@ -429,7 +437,10 @@ internal static class HallFirstContact
         if(t.Definition.RetainCombatMain && t.Work != null)
         {
             string main=t.Work.monster_bm_func?.Method?.Name ?? "(none)";
-            string state=main+"/work="+(t.Work.monster_bm_work!=null);
+            string state=main+"/party="+(t.Work.party_func_work!=null)+
+                "/extraTexture="+(t.Work.ex_texture?.name??"none");
+            if(t.Definition.Id=="worm-moth"&&t.Work.party_func_work?.TryCast<imo_boss_h.BOSS_WORK>() is {} worm)
+                state+="/transformed="+worm.boss_hensin_flg+"/transformTurn="+worm.boss_hensin_turn;
             if(t.MainStates.Count<8&&t.MainStates.Add(state))
                 Plugin.Logger.LogInfo("HallFirstContact: native combat-main state "+state+".");
         }
