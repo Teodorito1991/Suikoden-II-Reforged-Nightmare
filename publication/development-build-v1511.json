@@ -1,0 +1,48 @@
+{
+  "Version": "1.51.1-feature-completion.1",
+  "DllSha256": "DB2EA401C0F3C0DCC30E4F079AF8A29A2D5C8B70A31E42ABAE68E75998282AE9",
+  "SourceParent": "d785831c0ddcb70eedaddcf8e3d89e07af2ee7e5",
+  "FullPreview": {
+    "Hunts": 10,
+    "OriginalHallEntriesSelected": 22,
+    "SpoilerModeDefault": false,
+    "NightmareDefault": false,
+    "NormalBuildTraining": false
+  },
+  "LucaImplementationChanged": false,
+  "HistoricalAcceptedLucaHash": "7D368B2E115082BEDA83AF7F2590E733114512C73A49487619F64A496705534B",
+  "BeastRuneGameplay": {
+    "OwnerPlayed": true,
+    "Tier": "Original",
+    "BoostedDisposableParty": true,
+    "VictoryViaNativeCombat": true,
+    "CastleReturn": true,
+    "GuildReopened": true,
+    "ProtectedFlagArraysUnchanged": true,
+    "WarSnapshotUnchanged": true,
+    "SelectedProgressionUnchanged": true,
+    "CleanupComplete": true,
+    "ObservedPotchCredit": 0,
+    "ObservedTrackedItemReceipt": false,
+    "NormalPartyBalanceAccepted": false
+  },
+  "Checks": {
+    "ReleaseBuild": true,
+    "Managed": true,
+    "NativeSourceAudit": true,
+    "FreshProfile": true,
+    "FullProfile": true
+  },
+  "TrainingRemainingGate": "Current-build genuine outcome with restored native autosave payload and transient/fault refusal acceptance",
+  "CommanderXpImplemented": false,
+  "CampaignStarted": false,
+  "SteamModified": false,
+  "ReleasePublished": false,
+  "GraphicalPreview": {
+    "CapturedScreens": 33,
+    "RepresentativeScreensReviewed": 2,
+    "RepresentativeReadable": true,
+    "CampaignGameplay": false,
+    "AllScreensCertified": false
+  }
+}

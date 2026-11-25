@@ -1,29 +1,36 @@
-# Full Content Preview — v1.50
+# Full Content Preview — v1.51.1
 
-Development configuration proposal; not an installation or complete-campaign certificate.
-Preserves the separate Fresh Campaign baseline. Choose Normal in the original game.
-
-Generate to an empty staging directory:
+Configuration proposal, not an installation or whole-campaign certificate.
+Choose Normal. Generate to a new empty directory:
 
 ```powershell
 ./tools/prepare-full-content.ps1 -OutputDirectory <empty-folder>
 ```
 
-All ten Hunts, core RPG/Party Revolution/Star Bonds and guarded original story wars
-are selected. Hall is on: seventeen story/bonus-unlockable entries are selected;
-Sierra, second Harpy and the first Worm remain off and locked. Seven entries are explicitly
-bonus memories with disclosed completion prerequisites, not individual-clear claims.
-Nightmare tiers are optional: merge `nightmare-opt-in.cfg` only if wanted. Their
-25% growth-stone offer is conditional on original loot priority and native capacity.
+Selects all10 Hunts, core RPG/Party Revolution/Star Bonds, guarded original story
+wars and all22 supported Original Hall definitions, including Original Luca and
+Beast Rune. Source, compatibility, scene and resource guards still apply.
+Story Progression is retained and Spoiler Mode defaults OFF. Sierra, second Harpy
+and first Worm have no verified story witness; the confirmed player-facing
+Unlock All Bosses preference can reveal them without changing campaign flags.
+It never enables an independently disabled implementation. Unsafe/unimplemented
+boss records are not selectable content.
 
-Developer tools, damage protection, forced outcomes, availability bypass, unaccepted
-scripted Legendary switches and the experimental normal-build Army Training
-contract stay off. Worm/Moth is selected following its transformed win/return on v1.50.2. The final
-boss remains disabled in this proposal: live combat/defeat passed on an intermediate
-build, but victory/return is unverified. It remains a separate experimental opt-in.
-Contracts reset on load/restart; inventory and native character growth persist
-normally. Some Hunt routes and new Echo combat have not been player-tested.
+Original Luca has historical exact-DLL complete three-team acceptance. Its
+unchanged implementation is selected with experimental defeat/interruption and
+Nightmare limits. Beast Rune's victory/return passed on this patch with an
+explicitly boosted disposable party; normal-party balance is unproven. It is a
+late-game Bonus Challenge after Gorudo, not an individual final-boss clear claim.
 
-This tool does not install, touch saves or modify personal settings. Review generated
-files before deciding whether to copy them into your own installation. Keep a known
-fallback DLL. See [coverage and evidence](../../docs/FINAL-ENCOUNTERS-V150.md).
+Nightmare is independently optional: merge `nightmare-opt-in.cfg` only if wanted
+and choose the tier in the Hall. Conditional stone offers respect original loot
+priority and native inventory capacity. Contracts reset on load/restart.
+
+Developer tools, damage protection, unsafe scripted switches, the retired arena
+and normal-build Army Training stay OFF. The new training direct-save contract
+still needs current-build outcome/autosave/fault-path evidence. No commander XP.
+Existing native training code and prior evidence are preserved.
+
+No DLL installation, save modification or overwrite occurs when generating this
+profile. The separate Fresh Campaign baseline remains unchanged.
+[Exact evidence and limitations](../../docs/FEATURE-COMPLETION-V1511.md).

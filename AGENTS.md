@@ -46,7 +46,22 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
-## Current v1.51 Luca checkpoint
+## Current v1.51.1 integration
+
+Build `1.51.1-feature-completion.1`, SHA256
+DB2EA401C0F3C0DCC30E4F079AF8A29A2D5C8B70A31E42ABAE68E75998282AE9.
+Full Preview selects22 supported Original echoes/10 Hunts, StoryProgression on,
+Spoiler Mode off, training normal contract off. Luca source unchanged from d785831;
+accepted7D368... DLL preserved, no full Luca retest. Beast Rune WinEnd/terminal1,
+correct Guild return, protected5flags/war/selected progression unchanged and owned
+cleanup passed on this DLL WITH OWNER-REQUESTED BOOSTED PARTY (lv99/HP999/stats255/
+weapon16/9spellcharges). Do not call it normal-party balance acceptance. Owner
+confirmed Guild reopened. Original saved records unaffected; copied manual slot
+restored pre-boost and campaign testing disarmed. No new training save-outcome/fault
+acceptance or XP. All existing systems retained. No beta/release/Steam install.
+See docs/FEATURE-COMPLETION-V1511.md. Historical v1.51 accepted DLL must not be rebuilt.
+
+## Historical v1.51 Luca checkpoint
 
 Development `1.51.0-last-challenge.1`, SHA256
 7D368B2E115082BEDA83AF7F2590E733114512C73A49487619F64A496705534B.

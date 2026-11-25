@@ -1,14 +1,14 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development checkpoint: v1.51 — Luca's first complete Hall gauntlet.**
-The owner completed Original Luca with three distinct teams, native HP carry,
-original handoffs, final earned victory and party restoration on the exact DLL.
-Protected flags/war/selected progression matched after every stage. The Guild
-reopened and controls worked. Nightmare, defeat and a second full run remain
-experimental; this is not full-campaign certification.
-Player-facing Spoiler Mode offers reversible, confirmed story-lock bypass without
-changing campaign flags. The catalogue has22 definitions /22 optional Nightmare
-profiles. [Evidence and limits](docs/LAST-CHALLENGE-V151.md).
+**Latest development checkpoint: v1.51.1 — Full Content integration.**
+One preview configuration now selects all22 supported Original Hall encounters,
+including the accepted Original Luca gauntlet, alongside all10 Hunts and the RPG/
+original story-war overhaul. Beast Rune's native victory/return and cleanup passed
+with an explicitly boosted disposable test party; normal-party balance remains
+unproven. Original Luca's accepted DLL and unchanged implementation are preserved.
+Spoiler Mode remains reversible, confirmed and OFF by default. Normal-build
+training remains OFF pending its direct-save acceptance; no commander XP.
+[Evidence and limits](docs/FEATURE-COMPLETION-V1511.md).
 
 The separate **Full Content Preview** selects ten Hunts and compatible Hall content.
 The [v1.48 Fresh Campaign baseline](docs/FRESH-CAMPAIGN-V148.md) and v1.49 fallback

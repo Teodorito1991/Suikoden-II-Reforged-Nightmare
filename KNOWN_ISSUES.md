@@ -1,6 +1,20 @@
 # Known issues and validation limits
 
-## Current v1.51 limits
+## Current v1.51.1 integration
+
+Full Content Preview selects all22 supported Original Hall definitions and10 Hunts.
+Original Luca's accepted implementation is unchanged and its exact DLL preserved.
+Beast Rune victory/return/cleanup passed with a deliberately boosted disposable
+party: this verifies mechanics, not normal-party balance. StoryProgression and
+per-entry safety/configuration gates remain; Spoiler Mode defaults OFF and requires
+confirmation. The three unresolved story witnesses can use that explicit mode.
+Nightmare stays optional. Training's normal-build direct-save contract remains
+OFF pending current-build restored autosave and fault-path acceptance. No XP.
+[Current evidence and blockers](docs/FEATURE-COMPLETION-V1511.md).
+
+Earlier sections below retain their milestone-specific historical claims.
+
+## Historical v1.51 limits
 
 - One complete Original Luca gauntlet passed on the recorded exact DLL, including
   native HP carry, three distinct parties, final win, party restore and Guild

@@ -1,5 +1,18 @@
 # Development history
 
+## v1.51.1 — Full Content integration (development)
+
+- Preview selects all22 supported Original Hall entries, including accepted Luca;
+  unresolved story witnesses remain locked unless the player confirms Spoiler Mode.
+- Beast Rune native victory, protected return and cleanup verified on this DLL
+  using an owner-requested boosted party. Normal-party balance is not certified.
+- Clarified independently disabled entries versus story locks; all safety guards
+  remain. No Luca implementation refactor, boss/stat changes or repeat Luca test.
+- Training native-save acceptance remains incomplete/default OFF; no commander XP.
+- Build `1.51.1-feature-completion.1`, SHA256
+  `DB2EA401C0F3C0DCC30E4F079AF8A29A2D5C8B70A31E42ABAE68E75998282AE9`.
+  [Verification](docs/FEATURE-COMPLETION-V1511.md). No beta/release or Steam installation.
+
 ## v1.51 — Last Challenge (development checkpoint)
 
 - Connected the three native Luca encounters to distinct native-roster teams and

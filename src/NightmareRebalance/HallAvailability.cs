@@ -32,11 +32,11 @@ internal static class HallAvailability
     internal static bool CanSelect(int selection) => HallUnlockRules.CanLaunch(
         Plugin.Options.EnableHallOfEchoes.Value, Configured(selection), Unlocked(selection));
 
-    internal static string Reason(int selection) => selection<0||selection>=HallTrialCatalogue.Entries.Length ? "Review Spoiler Mode preferences." : !Unlocked(selection)
+    internal static string Reason(int selection) => selection<0||selection>=HallTrialCatalogue.Entries.Length ? "Review Spoiler Mode preferences." : !Configured(selection)
+        ? "Disabled in Hall settings. Spoiler Mode changes story locks only." : !Unlocked(selection)
         ? HallUnlockRules.HasWitness(HallTrialCatalogue.Entries[selection].Id)
             ? "A memory yet to be made. Continue your journey."
-            : "This echo is not available in normal play yet."
-        : !Configured(selection) ? "This rematch is disabled in the Hall settings."
+            : "No verified story unlock. Spoiler Mode can reveal this supported echo."
         : Plugin.Options.UnlockAllBosses.Value ? "Spoiler Mode · Story flags are unchanged." : Testing ? "Testing availability · Story flags are unchanged." :
           HallUnlockRules.IsBonus(HallTrialCatalogue.Entries[selection].Id)
             ? $"Bonus Echo · After {HallUnlockRules.BonusMilestone(HallTrialCatalogue.Entries[selection].Id)}. Not an individual boss-clear claim."
