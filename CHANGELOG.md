@@ -1,5 +1,22 @@
 # Development history
 
+## v1.53 — Army Training save contract simplified (development; owner playtest pending)
+
+- Lift training save protection at the verified return instead of re-verifying
+  every later save; remove the record-payload comparison and idle-tick retirement.
+- Show a visible message when a fault keeps saving locked; log once, not per frame.
+- Reinstall original flag arrays on a mismatched war teardown; repair any value
+  written past the private fork.
+- Training never stages a permanent death: `w_dead.CheckDead` deaths become the
+  native retreat. Story wars unchanged.
+- `EnableTrainingNormalBuild` no longer requires `EnableTrainingDefeatReturn`;
+  without it a training defeat is an ordinary Game Over.
+- Release build clean; 38 managed test groups pass. No game launched, no save or
+  Steam install touched. Training remains default OFF.
+- Build `1.53.0-army-training.1`, SHA256
+  `54144F2F61644F6B632F4513B2A4F30C240033AFD68F6F80CE1453051F7BA286`.
+  [Contract and owner playtest](docs/ARMY-TRAINING-ACCEPTANCE-V153.md).
+
 ## v1.53 acceptance preparation — documentation only, gameplay pending
 
 - Added the single Commander Rout Standard outcome/autosave/readback procedure,

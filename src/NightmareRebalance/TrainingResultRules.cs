@@ -13,4 +13,8 @@ internal static class TrainingResultRules
             : 0;
 
     internal static int Potch(bool veteran) => veteran ? 1500 : 750;
+
+    // w_dead.CheckDead stages war_sys.sibou_flag: 0 none, 1 retreat, 2 permanent
+    // death. Training never stages a death; it uses the native retreat instead.
+    internal static byte TrainingCasualty(byte staged) => staged == 2 ? (byte)1 : staged;
 }

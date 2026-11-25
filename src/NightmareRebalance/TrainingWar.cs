@@ -12,7 +12,6 @@ internal static class TrainingWar
     {
         internal readonly Guid Identity=Guid.NewGuid();
         internal readonly IntPtr DataOwner=game.game_data.Pointer;
-        internal string[]? RestoredData;
         internal readonly bool NormalContract=Plugin.Options.EnableTrainingNormalBuild.Value;
         internal readonly Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte>[] OriginalFlags=ReadFlags(game);
         internal Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte>[]? PrivateFlags;
@@ -38,18 +37,21 @@ internal static class TrainingWar
         internal int Result, SaveCalls;
     }
 
+    // protectedSession owns the campaign save fence from arming until a verified
+    // return (or a native load). While it is set, campaign saves are refused.
     static Session? current, protectedSession;
-    static long loadedEpoch=-1;
-    static bool requested, faulted;
+    static bool requested, faulted, faultNoticePending, refusalLogged;
+    internal const string SaveLockMessage = "Training could not be verified. Saving is disabled until you load a save.";
     static Drill requestedDrill;
     static bool requestedVeteran;
     internal static bool Active => current is { Committed: true };
     internal static bool HasTransitionHarness => StockWarTransitionTrace.Enabled && !Application.isBatchMode &&
         Harmony.GetPatchInfo(AccessTools.Method(typeof(SteamService), nameof(SteamService.GetAppInstallDir)))?
             .Prefixes.Any(p => p.owner == "private.reforged.stocktrace.root") == true;
+    // Defeat return is optional: without it a training defeat is an ordinary
+    // Game Over, the save fence stays up and the next native load clears it.
     internal static bool NormalContractEnabled=>Plugin.Options?.EnableTrainingNormalBuild.Value==true &&
-        Plugin.Options.EnableTrainingDefeatReturn.Value && !Application.isBatchMode &&
-        NativeWarRemix.DefinitionsVerified;
+        !Application.isBatchMode && NativeWarRemix.DefinitionsVerified;
     internal static bool Enabled => Plugin.Options?.EnableTrainingWar.Value == true && (HasTransitionHarness||NormalContractEnabled);
     internal static bool Available => Enabled && !faulted && current == null && !requested &&
         Framework.Singleton<GAME_WORK>.instance?.eventFlgCHK(0xA9, 0x40) == true;
@@ -76,6 +78,7 @@ internal static class TrainingWar
     {
         if (Plugin.Options?.EnableTrainingWar.Value!=true) return "Army Training is disabled in settings.";
         if (!HasTransitionHarness&&!NormalContractEnabled) return "Enable the experimental normal-build return contract, or use the protected training copy.";
+        if (faulted && protectedSession != null) return SaveLockMessage;
         if (faulted || current != null || requested) return "A drill cannot start right now.";
         if (CastleGuildRuntime.Quest.State is GuildQuestState.Accepted or GuildQuestState.AwaitingReport)
             return "Settle your Hunt contract first.";
@@ -135,16 +138,33 @@ internal static class TrainingWar
         if(session.OriginalFlags.Any(a=>a==null||a.Length==0||a.Length>4096))throw new InvalidOperationException("Incomplete training flag ownership.");
         session.PrivateFlags=session.OriginalFlags.Select(a=>new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte>(a.ToArray())).ToArray();
         protectedSession=session;
+        refusalLogged=false;
         SetFlags(session.Game,session.PrivateFlags);
     }
+    // Reinstalls the original arrays. Returns false if they are not ours to
+    // restore (a load replaced them) or if anything wrote past the fork; in the
+    // latter case the snapshot values are copied back too.
     static bool RestoreFlags(Session session)
     {
         if(!session.NormalContract)return true;
         if(Framework.Singleton<GAME_WORK>.instance?.Pointer!=session.Game.Pointer||session.Epoch!=NativeWarBoundary.Epoch||
            session.PrivateFlags==null||!ReadFlags(session.Game).Select((a,i)=>a.Pointer==session.PrivateFlags[i].Pointer).All(x=>x))return false;
         bool unchanged=session.OriginalFlags.Select((a,i)=>a.ToArray().SequenceEqual(session.Flags[i])).All(x=>x);
+        if(!unchanged)
+            for(int i=0;i<session.OriginalFlags.Length;i++)
+                for(int j=0;j<session.OriginalFlags[i].Length;j++)session.OriginalFlags[i][j]=session.Flags[i][j];
         SetFlags(session.Game,session.OriginalFlags);session.PrivateFlags=null;
         return unchanged;
+    }
+
+    // Keeps the save fence up after a fault. The player is told on the next idle
+    // field tick and on every refused save; refusals themselves log once.
+    static void LockSaves(string reason)
+    {
+        faulted=true;
+        if(protectedSession==null)return;
+        Plugin.Logger.LogWarning($"Training {protectedSession.Identity}: campaign saving locked until a native load ({reason}).");
+        faultNoticePending=true;
     }
 
     static void Reject(string reason)
@@ -155,26 +175,21 @@ internal static class TrainingWar
         faulted |= current is { Committed: true };
         if(current is {NormalContract:true} owner)
         {
-            // Never guess that a running war has stopped using its private arrays.
-            if(owner.Committed&&!owner.Destroyed){faulted=true;return;}
+            // A running war may still use the private arrays; WarEnd restores them.
+            if(owner.Committed&&!owner.Destroyed){LockSaves(reason);return;}
             if(owner.PrivateFlags!=null&&!RestoreFlags(owner))faulted=true;
             if(!owner.Committed&&!faulted)protectedSession=null;
+            else LockSaves(reason);
         }
         current = null;
     }
 
     internal static void FieldTick(MACHICON field)
     {
-        if(current==null&&protectedSession is {} pending&&field._mstep==20)
+        if(faultNoticePending&&field._mstep==20)
         {
-            var live=Framework.Singleton<GAME_WORK>.instance;
-            if(loadedEpoch>pending.Epoch&&NativeWarBoundary.Epoch==loadedEpoch&&live?.sys_work?.mcon?.Pointer==field.Pointer&&
-               live.game_data?.Pointer!=pending.DataOwner&&live.party_data?.Pointer!=pending.PartyOwner&&
-               pending.PrivateFlags?.All(old=>ReadFlags(live).All(now=>now.Pointer!=old.Pointer))!=false)
-            {protectedSession=null;faulted=false;requested=false;Plugin.Logger.LogInfo("Training persistence ownership retired after a genuine load and idle field.");}
-            else if(!faulted&&RestoredState(pending))
-            {protectedSession=null;Plugin.Logger.LogInfo($"Training persistence contract {pending.Identity} completed on idle field.");}
-            else {faulted=true;Plugin.Logger.LogWarning("Training return remains unverified; native campaign saves remain blocked.");}
+            faultNoticePending=false;
+            CastleGuildRuntime.TrainingFeedback(SaveLockMessage);
         }
         if (!requested && current == null) return;
         // Eligibility guards admission. Once committed, teardown must still
@@ -323,6 +338,17 @@ internal static class TrainingWar
                     Plugin.Logger.LogWarning("Training reward status could not be confirmed. " + exception.Message);
                 }
             }
+            if (session.NormalContract && protectedSession == session)
+            {
+                // The live campaign now equals the verified restored state, so
+                // there is nothing left to protect: lift the fence here.
+                if (faulted) LockSaves("return verification failed");
+                else
+                {
+                    protectedSession = null;
+                    Plugin.Logger.LogInfo($"Training {session.Identity}: verified return; campaign saving restored.");
+                }
+            }
         }
         catch (Exception exception) { Reject(exception.Message); }
     }
@@ -343,7 +369,6 @@ internal static class TrainingWar
             : credited > 0 ? $"Training victory. You earned {credited:N0} Potch."
             : Plugin.Options.EnableTrainingRewards.Value ? "Training victory. Your purse is full."
             : "Training victory.";
-        if(session.NormalContract)session.RestoredData=Serialize(session.Game);
         CastleGuildRuntime.TrainingFeedback(message);
         Plugin.Logger.LogInfo($"Training War {session.WarNumber} receipt: ending={session.Ending}, gameOver={session.GameOver}, commanderRouted={session.CommanderRouted}, alliesRemain={session.AlliesRemain}, fortVictory={session.FortVictory}, earned={reward}, credited={credited}.");
     }
@@ -439,6 +464,25 @@ internal static class TrainingWar
         }
     }
 
+    // Training only: convert a staged permanent death into the native retreat
+    // outcome the same check produces on its other branch. CheckDead's return
+    // value does not depend on the staged type (verified in the native code).
+    [HarmonyPatch(typeof(w_dead), nameof(w_dead.CheckDead))]
+    static class CasualtyGuard
+    {
+        [HarmonyPostfix, HarmonyPriority(Priority.Last)]
+        static void Postfix()
+        {
+            if (current is not { Committed: true, War: not null } session || session.System.game_mode != 5 ||
+                war_h.g_w_war_no != session.WarNumber) return;
+            byte staged = war_sys.sibou_flag;
+            byte safe = TrainingResultRules.TrainingCasualty(staged);
+            if (safe == staged) return;
+            war_sys.sibou_flag = safe;
+            Plugin.Logger.LogInfo($"Training War {session.WarNumber}: permanent casualty converted to retreat (force {war_sys.danmatu_force}, unit {war_sys.danmatu_unit_number}).");
+        }
+    }
+
     [HarmonyPatch(typeof(WarChapter), nameof(WarChapter.OnDestroy))]
     static class WarEnd
     {
@@ -447,8 +491,12 @@ internal static class TrainingWar
             if (current is not { Committed: true } session) return;
             if(session.War?.Pointer!=__instance.Pointer||session.Destroyed)
             {
+                // Only one chapter runs at a time, so this teardown ends the war
+                // either way. Put the original arrays back; saves stay locked.
+                session.Destroyed=true;
+                if(session.NormalContract&&session.PrivateFlags!=null)RestoreFlags(session);
                 Reject("Training teardown owner did not match the armed war.");
-                return; // A foreign/duplicate teardown never authorizes flag restoration.
+                return;
             }
             session.Destroyed=true;
             if(session.Result!=1)
@@ -459,50 +507,28 @@ internal static class TrainingWar
         }
     }
 
+    // LoadDataCore assigns freshly deserialized records and flag arrays to
+    // GAME_WORK (verified in the native code), so new owners prove a real load.
     internal static void NativeLoadCompleted()
     {
-        loadedEpoch=NativeWarBoundary.Epoch;
-        if(current is {} old&&loadedEpoch>old.Epoch&&Framework.Singleton<GAME_WORK>.instance is {} live&&
-           live.game_data?.Pointer!=old.DataOwner&&live.party_data?.Pointer!=old.PartyOwner)
-        {current=null;requested=false;} // Never restore old arrays over a newly loaded campaign.
-    }
-    static bool RestoredState(Session s)
-    {
-        if(!s.Destroyed||s.Result!=1||s.PrivateFlags!=null||s.RestoredData==null||
-           Framework.Singleton<GAME_WORK>.instance?.Pointer!=s.Game.Pointer||s.Epoch!=NativeWarBoundary.Epoch||
-           s.Game.game_data?.Pointer!=s.DataOwner||s.Game.party_data?.Pointer!=s.PartyOwner||
-           s.System.mcon?.Pointer!=s.Field.Pointer||s.System.game_mode!=1||s.Field.ano!=s.Area||s.Field.vno!=s.Town||s.Field.mno!=s.Map)return false;
-        var flags=ReadFlags(s.Game);
-        if(flags.Where((a,i)=>a.Pointer!=s.OriginalFlags[i].Pointer||!a.ToArray().SequenceEqual(s.Flags[i])).Any())return false;
-        var after=Serialize(s.Game);string[] names={"game_data","war_data","chara_data","party_data"};var differences=new List<string>();
-        for(int i=0;i<4;i++){using var a=JsonDocument.Parse(s.RestoredData[i]);using var b=JsonDocument.Parse(after[i]);Compare(a.RootElement,b.RootElement,names[i],differences);}
-        return differences.Count<256&&differences.All(ExpectedDifference);
+        if(Framework.Singleton<GAME_WORK>.instance is not {} live)return;
+        bool Fresh(Session s)=>live.game_data?.Pointer!=s.DataOwner&&live.party_data?.Pointer!=s.PartyOwner&&
+            s.PrivateFlags?.All(old=>ReadFlags(live).All(now=>now.Pointer!=old.Pointer))!=false;
+        if(current is {} old&&Fresh(old)){current=null;requested=false;} // Never restore old arrays over a newly loaded campaign.
+        if(protectedSession is {} owner&&Fresh(owner))
+        {
+            protectedSession=null;faulted=false;faultNoticePending=false;requested=false;
+            Plugin.Logger.LogInfo($"Training {owner.Identity}: save protection retired after a native load.");
+        }
     }
     internal static bool AllowSaveIntent()
     {
         if(protectedSession is not {} s)return true;
-        try
-        {
-            bool allowed=current==null&&!faulted&&RestoredState(s);
-            if(!allowed)Plugin.Logger.LogWarning($"Training {s.Identity}: refused save intent while transient, faulted or unverified.");
-            return allowed;
-        }
-        catch(Exception error){return FaultSave(s,"live ownership verification: "+error.GetType().Name);}
+        if(!refusalLogged){refusalLogged=true;Plugin.Logger.LogWarning($"Training {s.Identity}: campaign save refused while training owns the campaign state.");}
+        if(faulted)CastleGuildRuntime.TrainingFeedback(SaveLockMessage);
+        return false;
     }
-    internal static bool AllowNativeSave(string path,string json)
-    {
-        if(!TrainingPersistenceRules.IsCampaignPath(path)||protectedSession is not {} s)return true;
-        try
-        {
-            if(!AllowSaveIntent())return false;
-            if(!TrainingPersistenceRules.PayloadMatches(json,s.Flags,Serialize(s.Game),out string reason))
-                return FaultSave(s,reason);
-            Plugin.Logger.LogInfo($"Training {s.Identity}: allowed native restored-state autosave payload; five flags and four records verified.");
-            return true;
-        }
-        catch(Exception e){return FaultSave(s,"payload verification: "+e.GetType().Name);}
-    }
-    static bool FaultSave(Session s,string reason){faulted=true;Plugin.Logger.LogWarning($"Training {s.Identity}: refused unsafe native save ({reason}); restart/load required.");return false;}
+    internal static bool AllowNativeSave(string path)=>!TrainingPersistenceRules.IsCampaignPath(path)||AllowSaveIntent();
 
     [HarmonyPatch(typeof(GSD2SaveData), nameof(GSD2SaveData.SaveFile))]
     static class SaveWitness

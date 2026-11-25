@@ -36,7 +36,7 @@ internal sealed class Settings
             AdditionalHallTrials.Add(trial.Id, config.Bind("Hall of Echoes", "EnableHall_"+trial.Id.Replace('-','_'), false,
                 "Optional "+trial.Name+" rematch. Exact original source and read-only story unlock required. Restart required."));
         EnableTrainingNormalBuild=config.Bind("Native War",nameof(EnableTrainingNormalBuild),false,
-            "Experimental production training contract: private flag fork, owned native return and save fence. Requires EnableTrainingWar and defeat return. No commander XP.");
+            "Experimental production training contract: private flag fork, owned native return and save fence lifted at the verified return. Requires EnableTrainingWar. Without EnableTrainingDefeatReturn a training defeat is an ordinary Game Over. No commander XP.");
         EnableNightmareEchoes = config.Bind("Hall of Echoes", nameof(EnableNightmareEchoes), false, "Optional data-driven advanced tiers for compatible Hall entries. Never alters story bosses or Original Echoes.");
         EnableNightmareStoneRewards = config.Bind("Hall of Echoes", nameof(EnableNightmareStoneRewards), true, "25% chance to offer the tier's audited growth stone after an earned Nightmare victory if no native loot rolled. Native inventory acceptance required.");
         HallUnlockPolicy = config.Bind("Hall of Echoes", nameof(HallUnlockPolicy), NightmareRebalance.HallUnlockPolicy.StoryProgression,

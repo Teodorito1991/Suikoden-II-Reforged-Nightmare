@@ -7,7 +7,7 @@ internal static class TrainingNativeSave
     static bool Prefix(string path, string json, Il2CppSystem.Action<bool>? cb, ref bool __result)
     {
         if ((!TrainingPersistenceRules.IsCampaignPath(path) || !HallLucaSession.Active) &&
-            TrainingWar.AllowNativeSave(path, json)) return true;
+            TrainingWar.AllowNativeSave(path)) return true;
         __result = false;
         // Follow the original failure contract: callers must not wait forever
         // for a completion callback after we refused the write.
