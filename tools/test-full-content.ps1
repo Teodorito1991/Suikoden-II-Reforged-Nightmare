@@ -15,5 +15,6 @@ foreach($key in @('EnableHallSierra','EnableHallHarpySecond','EnableHallWorm','E
  if($cfg -notmatch "(?m)^$key = true\r?$"){throw "Supported Original encounter missing: $key"}
 }
 if($cfg -notmatch 'HallUnlockPolicy = StoryProgression'){throw 'Story gate bypassed'}
+if($cfg -notmatch '(?m)^RuneRecoveryMaxLevel = 2\r?$'){throw 'Full profile must reserve high-level rune charges'}
 if(@([regex]::Matches($cfg,'(?m)^EnableHall_[a-z_]+ = true')).Count -ne 14){throw 'Bulk Hall selection incomplete'}
 'PASS: ten Hunts, 22 Original echoes and four training drills with supported Veteran/rewards; native story gates, stock defeat, no developer/protection/availability bypass.'

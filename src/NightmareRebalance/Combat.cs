@@ -187,10 +187,10 @@ internal static class Combat
             var mp = data.mp;
             if (mp == null || mp.Length != 4) continue;
             for (int i = 0; i < 4; i++) values[i] = mp[i];
-            int restored = Rules.Recover(values, Plugin.Options.RuneChargesPerVictory.Value, Plugin.Options.RuneRecoveryPriority.Value);
+            int restored = Rules.Recover(values, Plugin.Options.RuneChargesPerVictory.Value, Plugin.Options.RuneRecoveryPriority.Value, Plugin.Options.RuneRecoveryMaxLevel.Value);
             if (restored == 0) continue;
             CombatReforgedDiagnostics.RuneRestored+=restored;
-            CombatRealityRuntime.Event("RuneRegeneration","Applied","victory",new{Restored=restored,Priority=Plugin.Options.RuneRecoveryPriority.Value.ToString()});
+            CombatRealityRuntime.Event("RuneRegeneration","Applied","victory",new{Restored=restored,Priority=Plugin.Options.RuneRecoveryPriority.Value.ToString(),MaximumLevel=Plugin.Options.RuneRecoveryMaxLevel.Value});
             for (int i = 0; i < 4; i++) mp[i] = values[i];
             State.Report?.Applied("RuneChargesRestored", -1, 0, restored, 1);
             Plugin.Debug($"Victory charge recovery: character={data.Pointer}, restored={restored}");

@@ -1,6 +1,12 @@
-# Full Content Preview — v1.53
+# Full Content Preview — v1.54
 
 Configuration proposal, not an installation or whole-campaign certificate.
+Victory rune recovery restores one missing level1–2 charge per eligible survivor.
+Level3–4 spells retain their native resource cost; inns/other native recovery remain.
+This explicit profile uses RuneRecoveryMaxLevel=2; existing configurations retain
+the legacy default4 unless changed. No enemy HP/reward inflation.
+[Quantitative audit and limitations](../../docs/BALANCE-AUDIT-V154.md).
+
 Choose Normal. Generate to a new empty directory:
 
 ```powershell

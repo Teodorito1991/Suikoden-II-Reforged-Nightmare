@@ -46,6 +46,17 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
+## Current v1.54 balance audit
+
+Development1.54.0-balance-audit.1; exact hash/evidence in publication/development-build-v154.json.
+Full Content recovery maximum level2; generic default4 preserves existing configs.
+No stats/rewards/war/save changes; do not weaken boss identity/callback guards.
+Baseline report was prepared before balancing edits.80 profiles/four native growth
+sample levels and Normal/Hard raw formulas are component evidence, not a campaign.
+Accepted v1.53 DLL retained; no new Hall/Luca/Beast/training gameplay required here.
+Original Steam installation,14 saves, personal configs and unpublished beta retained.
+Read docs/BALANCE-AUDIT-V154.md before further tuning; use Normal. No blanket HP buffs.
+
 ## Current v1.53 gameplay acceptance
 
 Exact accepted `1.53.0-army-training.1`, SHA256

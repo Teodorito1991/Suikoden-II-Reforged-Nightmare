@@ -7,7 +7,7 @@ internal sealed class Settings
     internal readonly ConfigEntry<double> EnemyHpMultiplier, EnemyDamageMultiplier, ExperienceMultiplier, PotchMultiplier;
     internal readonly ConfigEntry<double> EnemyTargetHealthThreshold;
     internal readonly ConfigEntry<bool> EnableRuneRegeneration, RequireSurvivingCharacter, EnableDebugLogging;
-    internal readonly ConfigEntry<int> RuneChargesPerVictory;
+    internal readonly ConfigEntry<int> RuneChargesPerVictory, RuneRecoveryMaxLevel;
     internal readonly ConfigEntry<RecoveryPriority> RuneRecoveryPriority;
     internal readonly ConfigEntry<bool> EnableBossDiagnostics, EnableScriptedBossOverrides;
     internal readonly ConfigEntry<bool> EnableBossProfiles, EnableRuneBalancing, EnableCharacterBalancing, EnableEnemyProfiles, EnableWarUnitProfiles, EnableDeveloperTools, EnableWarArena, EnableEnemyTargeting;
@@ -77,6 +77,8 @@ internal sealed class Settings
         RuneChargesPerVictory = config.Bind("Rune Regeneration", nameof(RuneChargesPerVictory), 1,
             new ConfigDescription("Total charges per character, distributed across levels in priority order.", new AcceptableValueRange<int>(0, 60)));
         RuneRecoveryPriority = config.Bind("Rune Regeneration", nameof(RuneRecoveryPriority), RecoveryPriority.LowestDepletedLevel, "LowestDepletedLevel or HighestDepletedLevel.");
+        RuneRecoveryMaxLevel = config.Bind("Rune Regeneration", nameof(RuneRecoveryMaxLevel), 4,
+            new ConfigDescription("Highest spell level eligible for victory recovery. Full Content recommends 2; 4 retains legacy behavior. Does not change native maximum charges or other recovery methods.", new AcceptableValueRange<int>(1, 4)));
         RequireSurvivingCharacter = config.Bind("Rune Regeneration", nameof(RequireSurvivingCharacter), true, "Exclude HP <= 0 and characters considered dead/incapacitated by vanilla PM_DATA.IsDead at victory. False includes them but never revives or heals them.");
         EnableDebugLogging = config.Bind("Diagnostics", nameof(EnableDebugLogging), false, "Log battle decisions and actual charge changes; no per-frame logs.");
         EnableBossDiagnostics = config.Bind("Diagnostics", nameof(EnableBossDiagnostics), false, "Stage A: bounded JSONL encounter reports under BepInEx/NightmareRebalance/diagnostics. Restart required.");

@@ -37,6 +37,7 @@ internal static class RpgEvolutionProbe
         {
             Check(handle.Status == AsyncOperationStatus.Succeeded && handle.Result != null, "original Unite table loaded");
             Inspect(GuildNativeProbe.Data!, handle.Result!.unite_data);
+            BalanceAuditProbe.Growth();
             finished = true;
             return true;
         }

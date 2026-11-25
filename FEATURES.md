@@ -1,5 +1,13 @@
 # Features and evidence levels
 
+## Current v1.54 balance audit
+
+Full Content Preview explicitly selects RuneRecoveryMaxLevel=2; total recovery remains
+one charge per eligible survivor/victory. Native maximum charges, inns, escape/death
+exclusions and reward rules are preserved. The general default4 preserves old configs.
+No new content/stat changes. [Effective difficulty, all systems and limits](docs/BALANCE-AUDIT-V154.md).
+v1.53 gameplay acceptance below remains historical exact-hash evidence.
+
 ## Current v1.53 Army Training acceptance
 
 Exact1.53.0-army-training.1 now has an owner-earned Standard Commander Rout victory,

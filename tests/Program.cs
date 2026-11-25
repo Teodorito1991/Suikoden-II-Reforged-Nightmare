@@ -18,6 +18,23 @@ byte[] malformed = {0x87,0x05,0x03,0x01};
 var before = malformed.ToArray();
 Check(Rules.Recover(malformed, 1, RecoveryPriority.LowestDepletedLevel) == 0 && malformed.SequenceEqual(before), "Invalid packed current rejected atomically");
 Check(Rules.Recover(new byte[3], 1, RecoveryPriority.LowestDepletedLevel) == 0, "Unknown level count rejected");
+// A real resource-economy counterexample: one ultimate per victory was free.
+byte[] ultimate = {0x77,0x55,0x33,0x01};
+Check(Rules.Recover(ultimate,1,RecoveryPriority.LowestDepletedLevel)==1 && ultimate[3]==0x11,"Legacy recovery remains opt-in compatible");
+foreach(var priority in Enum.GetValues<RecoveryPriority>())
+{
+    for(int battle=0;battle<20;battle++)
+    {
+        byte[] spent = {0x77,0x55,0x23,0x01};
+        Check(Rules.Recover(spent,1,priority,2)==0 && spent.SequenceEqual(new byte[]{0x77,0x55,0x23,0x01}),"Full profile cannot refund high-tier spells through either priority");
+    }
+    byte[] low = {0x67,0x45,0x23,0x01};
+    Check(Rules.Recover(low,9,priority,2)==2 && low.SequenceEqual(new byte[]{0x77,0x55,0x23,0x01}),"Excess budget does not spill above configured tier");
+    byte[] one = {0x67,0x45,0x23,0x01};
+    Check(Rules.Recover(one,9,priority,1)==1 && one[1]==0x45,"Level-one recovery boundary");
+}
+byte[] invalidLimit={0x07,0x05,0x03,0x01};
+Check(Rules.Recover(invalidLimit,1,RecoveryPriority.LowestDepletedLevel,0)==0 && invalidLimit[0]==0x07,"Invalid limit refuses mutation");
 var rng = new Random(1932640);
 for (int n=0;n<10000;n++)
 {

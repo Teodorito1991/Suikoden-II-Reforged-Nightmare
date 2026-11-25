@@ -1,5 +1,16 @@
 # Suikoden II: Reforged Nightmare
 
+**Latest development: v1.54 — Great Balance Audit.** Native/source comparison finds
+uneven campaign pressure, with role-based enemy scaling rather than stacked global
+multipliers. Full Content now recovers one level1–2 rune charge per eligible victory;
+levels3–4 retain their resource cost. Existing configurations default to the legacy
+level4 ceiling unless deliberately changed. No character/enemy stats or rewards changed.
+[Quantitative report](docs/BALANCE-AUDIT-V154.md) ·
+[Nine-stage pre-change baseline](docs/BALANCE-BASELINE-V154.md) ·
+[All80 character comparisons](docs/BALANCE-CHARACTERS-V154.md).
+Automated/native component checks and startup are separate from gameplay acceptance;
+v1.53 below remains the latest owner-accepted exact DLL. No full-campaign certificate.
+
 **Latest accepted development checkpoint: v1.53 — Army Training.**
 Standard Commander Rout passed an earned victory, correct castle return, real
 native autosave/readback and reload on the exact recorded DLL. Full Content

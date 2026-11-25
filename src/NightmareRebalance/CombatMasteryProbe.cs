@@ -126,6 +126,7 @@ internal static class CombatMasteryProbe
    Check(player.PlayerCalcMagicDamage(spell,6)==expected,"native spell power plus Magic minus MagicDefense");actor.status=0x40000000;Check(player.PlayerCalcMagicDamage(spell,6)==expected/3,"native guarding magic reduction");actor.status=0;
    Check(player.PlayerClacMagicKaifuku(spell)==modified+magic,"native healing spell power plus Magic");
   }
+  BalanceAuditProbe.PlayerDamage(player,actor);
   foreach(var a in CombatReforgedRuntime.Audit.Enemies)
   {
    var native=CombatReforgedProbe.Template(a.Id,a.Signature);objects.Add(native);native.attack_data_num=0;w.monster_data[0]=native;actor.hp=400;actor.max_hp=400;actor.dead_flg=0;actor.status=0;
@@ -135,10 +136,11 @@ internal static class CombatMasteryProbe
   }
   Combat.State=null;
   Results.Add(new{Kind="SerializedActionCountRegression",Enemies=CombatReforgedRuntime.Audit.Enemies.Length,DeclaredCount=0,Slots=4,FullAttackSignaturesRequired=true,ActualSceneLoaded=false});
-  bool require=Plugin.Options.RequireSurvivingCharacter.Value,regen=Plugin.Options.EnableRuneRegeneration.Value;int amount=Plugin.Options.RuneChargesPerVictory.Value;var priority=Plugin.Options.RuneRecoveryPriority.Value;int restored=CombatReforgedDiagnostics.RuneRestored;string outcome=CombatReforgedDiagnostics.Outcome;
+  bool require=Plugin.Options.RequireSurvivingCharacter.Value,regen=Plugin.Options.EnableRuneRegeneration.Value;int amount=Plugin.Options.RuneChargesPerVictory.Value;var priority=Plugin.Options.RuneRecoveryPriority.Value;int maxLevel=Plugin.Options.RuneRecoveryMaxLevel.Value;int restored=CombatReforgedDiagnostics.RuneRestored;string outcome=CombatReforgedDiagnostics.Outcome;
   try
   {
    Plugin.Options.RequireSurvivingCharacter.Value=true;Plugin.Options.EnableRuneRegeneration.Value=true;Plugin.Options.RuneChargesPerVictory.Value=1;Plugin.Options.RuneRecoveryPriority.Value=RecoveryPriority.LowestDepletedLevel;
+   Plugin.Options.RuneRecoveryMaxLevel.Value=4;
    for(int i=0;i<6;i++){w.pm_data[i].hp=400;w.pm_data[i].dead_flg=0;w.c_varia_dat[i].mp=new Il2CppStructArray<byte>(new byte[]{0x37,0x25,0x13,0x01});}
    w.pm_data[1].hp=0;w.pm_data[1].dead_flg=1;w.c_varia_dat[2]=w.c_varia_dat[0];w.c_varia_dat[3].mp=new Il2CppStructArray<byte>(new byte[]{0x77,0x55,0x33,0x11});w.c_varia_dat[4].mp[0]=0x77;
    Combat.State=new BattleState(manager){Ready=true,Allowed=true};Combat.Win(manager);Combat.Win(manager);Check(Combat.State.Eligible.Count==4,"victory component survivor snapshot and native data-pointer deduplication");w.pm_data[1].hp=400;w.pm_data[1].dead_flg=0;
@@ -156,9 +158,16 @@ internal static class CombatMasteryProbe
    Check(CombatReforgedDiagnostics.Outcome=="InProgress"&&!Combat.State.SnapshotTaken,"foreign manager cannot change active battle outcome");
    Combat.Win(manager);Check(CombatReforgedDiagnostics.Outcome=="VictorySignal"&&Combat.State.SnapshotTaken,"legitimate production victory still snapshots survivors");
 
-   Results.Add(new{Kind="SyntheticVictoryComponentAndActualNativeExitStage",EarnedVictory=false,RewardsExecuted=false,SceneLoaded=false,StoryCallbacksExecuted=false,SaveWritten=false});
+   Plugin.Options.RuneRecoveryMaxLevel.Value=2;
+   for(int i=0;i<6;i++)w.c_varia_dat[i].mp=new Il2CppStructArray<byte>(new byte[]{0x77,0x55,0x23,0x01});
+   Combat.State=new BattleState(manager){Ready=true,Allowed=true};Combat.Win(manager);manager.battle_exit99();
+   Check(w.c_varia_dat[0].mp.SequenceEqual(new byte[]{0x77,0x55,0x23,0x01}),"native completion respects Full-profile high-tier recovery boundary");
+   w.c_varia_dat[0].mp[1]=0x45;
+   Combat.State=new BattleState(manager){Ready=true,Allowed=true};Combat.Win(manager);manager.battle_exit99();
+   Check(w.c_varia_dat[0].mp.SequenceEqual(new byte[]{0x77,0x55,0x23,0x01}),"native completion still restores low-tier sustain");
+   Results.Add(new{Kind="SyntheticVictoryComponentAndActualNativeExitStage",RecoveryTierBoundaryVerified=true,EarnedVictory=false,RewardsExecuted=false,SceneLoaded=false,StoryCallbacksExecuted=false,SaveWritten=false});
   }
-  finally{Combat.State=null;Plugin.Options.RequireSurvivingCharacter.Value=require;Plugin.Options.EnableRuneRegeneration.Value=regen;Plugin.Options.RuneChargesPerVictory.Value=amount;Plugin.Options.RuneRecoveryPriority.Value=priority;CombatReforgedDiagnostics.RuneRestored=restored;CombatReforgedDiagnostics.Outcome=outcome;}
+  finally{Combat.State=null;Plugin.Options.RequireSurvivingCharacter.Value=require;Plugin.Options.EnableRuneRegeneration.Value=regen;Plugin.Options.RuneChargesPerVictory.Value=amount;Plugin.Options.RuneRecoveryPriority.Value=priority;Plugin.Options.RuneRecoveryMaxLevel.Value=maxLevel;CombatReforgedDiagnostics.RuneRestored=restored;CombatReforgedDiagnostics.Outcome=outcome;}
  }
 
 }

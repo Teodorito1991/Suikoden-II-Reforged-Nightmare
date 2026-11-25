@@ -1,5 +1,15 @@
 # Configuration
 
+## Current v1.54 balance selection
+
+`Rune Regeneration / RuneRecoveryMaxLevel` accepts1–4, default4 (legacy).
+Full Content Preview explicitly selects2. It limits only which spell levels receive
+the existing one-charge victory budget; it never changes maximum charges or native
+recovery elsewhere. HighestDepletedLevel also respects the limit. No spillover to
+levels3–4 when levels1–2 are full. Personal configs are not auto-migrated.
+Use Normal with Full Content; native Hard HP stacks before role pacing and several
+Normal-only policy guards exclude Hard. [Audit and examples](docs/BALANCE-AUDIT-V154.md).
+
 ## Current v1.53 Army Training acceptance
 
 Exact1.53.0-army-training.1 now has an owner-earned Standard Commander Rout victory,
@@ -102,6 +112,7 @@ embedded defaults are unchanged. Review/merge deliberately before use.
 | Rune Regeneration / EnableRuneRegeneration |true| Completed victory only |
 | Rune Regeneration / RuneChargesPerVictory |1| Total budget per eligible character, not per spell level |
 | Rune Regeneration / RuneRecoveryPriority |LowestDepletedLevel| Also supports HighestDepletedLevel |
+| Rune Regeneration / RuneRecoveryMaxLevel |4| Highest eligible spell level1–4; Full Content explicitly2 |
 | Rune Regeneration / RequireSurvivingCharacter |true| Excludes defeated/incapacitated participants |
 | Features / EnableCharacterBalancing |true| Character profiles |
 | Features / EnableRuneBalancing |true| Base spell layer; physical runes have separate JSON controls |

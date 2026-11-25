@@ -42,6 +42,18 @@ internal static class HallNightmareProbe
             var g=Alloc<GAME_WORK>();g.party_data=Alloc<PARTY_DATA>();g.party_data.party_item=new Il2CppReferenceArray<PARTY_ITEM>(30);
             for(int i=0;i<30;i++)g.party_data.party_item[i]=new PARTY_ITEM();
             g.ovit_data=GuildNativeProbe.Data!.ovit_data;g.have_data=new Il2CppReferenceArray<HAVE_DATA>(176);
+            // Native item search inspects the character/cache owners too.
+            // Initialize them before calling the actual inventory routine.
+            for(int i=0;i<g.have_data.Length;i++)g.have_data[i]=new();
+            g.chara_data=new CHARA_DATA{ckd_info=GuildNativeProbe.Data.all_data_table.ckd_info,c_varia_dat=new Il2CppReferenceArray<C_VARIA_DAT>(GuildNativeProbe.Data.all_data_table.c_kotei_dat.Length),c_kotei_dat=GuildNativeProbe.Data.all_data_table.c_kotei_dat};
+            for(int i=0;i<g.chara_data.c_varia_dat.Length;i++)g.chara_data.c_varia_dat[i]=new C_VARIA_DAT{para=new Il2CppStructArray<byte>(7)};
+            for(int i=0;i<g.chara_data.c_varia_dat.Length;i++)
+            {
+                var v=g.chara_data.c_varia_dat[i];
+                v.mon_eqp=new Il2CppStructArray<byte>(3);v.bogu_eqp=new Il2CppStructArray<byte>(5);
+                v.item_eqp=new Il2CppReferenceArray<PARTY_ITEM>(3);
+                for(int slot=0;slot<3;slot++)v.item_eqp[slot]=new();
+            }
             Framework.Singleton<GAME_WORK>.instance=g;
             var exit=new EXIT_WORK{monster_item=new PARTY_ITEM()};
             int seed=0;for(;seed<1000;seed++){UnityEngine.Random.InitState(seed);if(UnityEngine.Random.Range(0,100)<25)break;}
@@ -62,8 +74,6 @@ internal static class HallNightmareProbe
             Check(g.party_data.party_item.All(x=>x.item_no==4&&x.use_cnt==32),"native capacity preserves full inventory");
             var priority=new HallStoneReward();exit.monster_item.item_no=4;priority.Prepare(g,exit,true);Check(!priority.Attempted&&exit.monster_item.item_no==4,"rolled loot priority");
             g.sys_work=new SYS_WORK{status_para=new Il2CppStructArray<ushort>(7)};g.game_data=new GAME_DATA{difficulty=0};
-            g.chara_data=new CHARA_DATA{ckd_info=GuildNativeProbe.Data.all_data_table.ckd_info,c_varia_dat=new Il2CppReferenceArray<C_VARIA_DAT>(GuildNativeProbe.Data.all_data_table.c_kotei_dat.Length),c_kotei_dat=GuildNativeProbe.Data.all_data_table.c_kotei_dat};
-            for(int i=0;i<g.chara_data.c_varia_dat.Length;i++)g.chara_data.c_varia_dat[i]=new C_VARIA_DAT{para=new Il2CppStructArray<byte>(7)};
             var character=new C_VARIA_DAT{para=new Il2CppStructArray<byte>(new byte[]{100,100,100,100,100,100,100})};g.chara_data.c_varia_dat[0]=character;
             G2_SYS.G2_chara_para(1,0,3,0);Check(character.para[0]==103,"native permanent strength increase");
             character.para[0]=254;G2_SYS.G2_chara_para(1,0,3,0);G2_SYS.G2_chara_para(1,0,3,0);

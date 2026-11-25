@@ -12,15 +12,15 @@ public static class Rules
         return (int)Math.Clamp(Math.Round(value * multiplier, MidpointRounding.AwayFromZero), 0, maximum);
     }
 
-    public static int Recover(Span<byte> charges, int amount, RecoveryPriority priority)
+    public static int Recover(Span<byte> charges, int amount, RecoveryPriority priority, int maximumLevel = 4)
     {
-        if (charges.Length != 4 || amount <= 0 || !Enum.IsDefined(typeof(RecoveryPriority), priority)) return 0;
+        if (charges.Length != 4 || amount <= 0 || maximumLevel is < 1 or > 4 || !Enum.IsDefined(typeof(RecoveryPriority), priority)) return 0;
         // Reject malformed input as a unit; never "repair" a character's normal maximum.
         foreach (byte b in charges) if ((b >> 4) > (b & 15)) return 0;
         int restored = 0;
-        for (int n = 0; n < 4 && amount > 0; n++)
+        for (int n = 0; n < maximumLevel && amount > 0; n++)
         {
-            int i = priority == RecoveryPriority.LowestDepletedLevel ? n : 3 - n;
+            int i = priority == RecoveryPriority.LowestDepletedLevel ? n : maximumLevel - 1 - n;
             int max = charges[i] & 15, current = charges[i] >> 4;
             int add = Math.Min(amount, max - current);
             charges[i] = (byte)(((current + add) << 4) | max);

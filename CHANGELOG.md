@@ -1,5 +1,24 @@
 # Development history
 
+## v1.54 — Great Balance Audit
+
+- Traced actual Normal/Hard HP, damage precedence, seven boss stat plans, independent
+  policy gates,31 spells,10 physical techniques,14 Unites,80 character profiles,
+  Star Bonds, native weapon prices and optional rewards. Nine-stage numeric baseline
+  written before balance edits; all-party/economy assumptions explicitly labeled.
+- Fixed renewable high-tier magic in Full Content: one eligible victory charge now
+  selects levels1–2. New validated RuneRecoveryMaxLevel defaults4 for compatibility.
+  Both priorities respect the limit; no high-tier spillover. Native charge caps,
+  inns, survival/duplicate/escape gates and unlimited optional stat farming retained.
+- Corrected native inventory audit initialization order; disposable character/cache
+  owners exist before actual item search. Production inventory unchanged.
+- Added explicitly requested unloaded native balance measurements and focused recovery
+  regressions. No new gameplay acceptance or Hall/Luca/Beast/training replay.
+- No enemy/boss/character numbers, war/save logic, installed game, original14 saves
+  or personal config changed. Full report records exact artifact/hash/evidence.
+- Source synchronization only; source stays public and beta/release unpublished.
+
+
 ## v1.53 — Army Training gameplay acceptance and Full Content integration
 
 - Owner-earned Commander Rout Standard victory, native castle return, movement,

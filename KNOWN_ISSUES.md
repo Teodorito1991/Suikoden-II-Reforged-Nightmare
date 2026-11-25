@@ -1,5 +1,17 @@
 # Known issues and validation limits
 
+## Current v1.54 balance limitations
+
+- Whole-campaign difficulty is uneven/unproven; native fixture calculations and
+  assumed parties do not prove encounter duration or campaign affordability.
+- Full Content fixes renewable high-tier magic by selecting RuneRecoveryMaxLevel=2.
+  Existing configs keep default4 and can retain that deliberate legacy advantage.
+- MajorBosses and four Legendary story policies remain independently disabled in
+  Full Preview. Policy count is not a claim that every story controller is modified.
+- No Hall/Luca/Beast or Army Training gameplay replay for this audit. v1.53 acceptance
+  remains attached to its own DLL. Source-native balance findings are not player wins.
+[Ranked risks and assumptions](docs/BALANCE-AUDIT-V154.md).
+
 ## Current v1.53 Army Training acceptance
 
 Exact1.53.0-army-training.1 now has an owner-earned Standard Commander Rout victory,

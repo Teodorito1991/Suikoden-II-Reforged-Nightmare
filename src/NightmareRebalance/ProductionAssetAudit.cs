@@ -47,6 +47,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
  {
   if(LucaHpOnly){InspectBoss(table,lucaSources.Where(x=>x.Data.TableId==table.id).ToArray());HallLucaHpProbe.Inspect(table);return;}
   if(table==null||table.monster_data==null||table.monster_party==null)throw new InvalidOperationException("Native battle table arrays");
+  BalanceAuditProbe.Setup(table);
   if(table.id=="vb07_00")GuildNativeProbe.ReissueTable=table;
   if (HallEchoesProbe.Requested && table.id=="boss_rat")
       HallEchoesProbe.Inspect(table,bossSources.Single(b=>b.Data.TableId==table.id).Data);
@@ -85,8 +86,9 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   ExpansionNativeProbe.Table(table);
   HuntLifecycleProbe.Table(table);
   HuntCatalogueProbe.Table(table);
+  if(BalanceAuditProbe.Requested && CombatReforgedRuntime.Audit.Enemies.Any(e=>e.Id.StartsWith(table.id+"_",StringComparison.Ordinal)))MeasureDamage(table);
   var configs=CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Concat(RpgEvolutionRuntime.Audit.Formations).Where(a=>a.TableId==table.id).ToArray();if(configs.Length==0){if(bossSources.Any(x=>x.Data.TableId==table.id))InspectBoss(table,bossSources.Where(x=>x.Data.TableId==table.id).ToArray());return;}Check(configs.Length>0,"Original table ID");
-  MeasureDamage(table);
+  if(!BalanceAuditProbe.Requested)MeasureDamage(table);
   foreach(var a in configs)
   {
    var w=Allocate<BATTLE_WORK>();w.battle_data=table;w.monster_party_index=a.Indices[0]+1;w.monster_party_data=table.monster_party[w.monster_party_index-1];var source=w.monster_party_data;
@@ -114,8 +116,10 @@ public sealed class ProductionAssetAudit : MonoBehaviour
  static void MeasureDamage(BATTLE_DATA table)
  {
   var saved=Framework.Singleton<BATTLE_WORK>.instance;var rng=UnityEngine.Random.state;
+  var savedGame=Framework.Singleton<GAME_WORK>.instance;
   try
   {
+   if(BalanceAuditProbe.Requested){var game=Allocate<GAME_WORK>();game.game_data=Allocate<GAME_DATA>();Framework.Singleton<GAME_WORK>.instance=game;}
    var manager=Allocate<BattleManager>();var w=Allocate<BATTLE_WORK>();Framework.Singleton<BATTLE_WORK>.instance=w;var native=manager.Cast<IBattleManager>();
    w.player_kazu=6;w.monster_kazu=1;w.pm_kazu=7;w.battle_data=table;w.monster_data=table.monster_data;w.pm_data=new Il2CppReferenceArray<PM_DATA>(12);w.b_chara=new Il2CppReferenceArray<BATTLE_CHARA>(12);w.c_varia_dat=new Il2CppReferenceArray<C_VARIA_DAT>(12);
    var player=Allocate<BattlePlayerCharacter>();player.manager=native;player.chara_no=0;player.chara_id=0;player.hp=600;player.max_hp=600;player.calc_para=new Il2CppStructArray<int>(8);w.pm_data[0]=player;
@@ -124,6 +128,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
    for(int index=1;index<table.monster_data.Length;index++)
    {
     var d=table.monster_data[index];if(d==null||d.para?.Length!=7)continue;actor.chara_id=(byte)index;w.b_chara[6].chara_id=index;for(int k=0;k<7;k++)actor.calc_para[k]=d.para[k];
+    if(BalanceAuditProbe.Requested)Rows.Add(new{Kind="BalanceNativeEnemyStats",Enemy=d.id,Hp=d.hp,Level=d.level,Parameters=d.para.Select(p=>(int)p).ToArray(),NativePotch=d.mochi_kin});
     int tier=d.level<=15?0:d.level<=35?1:2;int baseDefense=new[]{24,68,130}[tier],baseMagicDefense=new[]{22,65,120}[tier];
     var profile=OverhaulRuntime.Enemies.GetValueOrDefault(d.id);var pacing=CombatReforgedRuntime.Config.Enabled&&CombatReforgedRuntime.Config.EnablePacing?CombatReforgedRuntime.Config.RolePacing.FirstOrDefault(x=>x.Role==profile?.Role):null;double factor=pacing?.DamageMultiplier??profile?.DamageMultiplier??Plugin.Options.EnemyDamageMultiplier.Value;
     foreach(var budget in new[]{(Name:"Balanced",Defense:baseDefense,MagicDefense:baseMagicDefense),(Name:"Armored",Defense:baseDefense+35,MagicDefense:Math.Max(0,baseMagicDefense-15)),(Name:"Warded",Defense:Math.Max(0,baseDefense-15),MagicDefense:baseMagicDefense+35)})
@@ -134,11 +139,23 @@ public sealed class ProductionAssetAudit : MonoBehaviour
       var a=d.attack_data[mode];if(a.attack_prob==0||a.attack==0||a.attack_type is not(1 or 2))continue;int total=0,max=0;
       for(int seed=0;seed<8;seed++){UnityEngine.Random.InitState(1700+seed);int raw=actor.CalcMonsterDamage(0,mode);Check(raw>=0,"Native raw damage must be nonnegative in status-free scratch fixture");total+=raw;max=Math.Max(max,raw);}
       Rows.Add(new{Kind="LoadedEnemyNativeDamageBudget",Table=table.id,Enemy=d.id,Level=d.level,Budget=budget.Name,budget.Defense,budget.MagicDefense,Mode=mode,ProbabilityWeight=a.attack_prob,Physical=(a.attack_zokusei&0x10)!=0,Multi=(a.attack_seishitsu&0xf00) is 0x200 or 0x400 or 0x800,Status=a.status,MeanRaw=total/8.0,MaxRaw=max,DamageFactor=factor,ProjectedModifiedMax=Rules.Scale(max,factor,9999),IllustrativePartyHp=new[]{115,350,570}[tier],NativeRawFormulaExecuted=true,LiveDamageHookAcceptance=false,FullBattlePlayed=false});
+      if(BalanceAuditProbe.Requested && budget.Name=="Balanced")
+      {
+       var values=new List<int[]>();
+       foreach(int difficulty in new[]{0,2})
+       {
+        Framework.Singleton<GAME_WORK>.instance.game_data.difficulty=(byte)difficulty;
+        var samples=new int[8];for(int seed=0;seed<8;seed++){UnityEngine.Random.InitState(1700+seed);samples[seed]=actor.CalcMonsterDamage(0,mode);}
+        values.Add(samples);
+       }
+       Framework.Singleton<GAME_WORK>.instance.game_data.difficulty=0;
+       Rows.Add(new{Kind="BalanceNativeHardDamage",Enemy=d.id,Mode=mode,Normal=values[0],Hard=values[1],SameRng=true,StatsUnchanged=true,LiveDamageHookAcceptance=false});
+      }
      }
     }
    }
   }
-  finally{Framework.Singleton<BATTLE_WORK>.instance=saved;UnityEngine.Random.state=rng;}
+  finally{Framework.Singleton<BATTLE_WORK>.instance=saved;Framework.Singleton<GAME_WORK>.instance=savedGame;UnityEngine.Random.state=rng;}
   Check(Framework.Singleton<BATTLE_WORK>.instance?.Pointer==saved?.Pointer,"Damage budget singleton restored");
  }
 
