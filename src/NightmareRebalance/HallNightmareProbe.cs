@@ -12,7 +12,7 @@ internal static class HallNightmareProbe
     internal static void Inspect(BATTLE_DATA original)
     {
         if(!ProductionAssetAudit.Requested)return;
-        var definition=HallTrialCatalogue.Entries.FirstOrDefault(x=>x.TableId==original.id);
+        var definition=HallTrialCatalogue.AllSources.FirstOrDefault(x=>x.TableId==original.id);
         if(definition==null||HallNightmareRules.Find(definition.Id) is not {} profile)return;
         var audit=HallTrialSources.Get(original.id);var source=original.monster_data[audit.Monsters.OrderByDescending(m=>m.Signature[0]).First().Index];
         Check(source.level==profile.Level,"original foe level identity");
@@ -35,6 +35,7 @@ internal static class HallNightmareProbe
     }
     static void Rewards()
     {
+        HallPartyEquipmentProbe.Run();
         var old=Framework.Singleton<GAME_WORK>.instance;var rng=UnityEngine.Random.state;
         try
         {

@@ -11,7 +11,7 @@ internal static class HallUnlockRules
     // Bonus memories are not claims of an individual story victory.
     // Their prerequisites use independently audited native completion witnesses.
     internal static bool IsBonus(string id)=>id is "celestial-sword" or "neclord-final" or
-        "lucia-highland" or "seed-culgan" or "mist-shade" or "lucia-castle" or "rowd-patrol";
+        "lucia-highland" or "seed-culgan" or "beast-rune" or "luca-gauntlet" or "mist-shade" or "lucia-castle" or "rowd-patrol";
 
     internal static string BonusMilestone(string id)=>id is "mist-shade" or "rowd-patrol" ? "Double Head" :
         id=="celestial-sword"?"Abomination":"Gorudo";
@@ -28,7 +28,7 @@ internal static class HallUnlockRules
         "lucia-retinue" => readFlag(0xBB, 0x10),
         "gorudo" => readFlag(0x14, 0x02),
         "worm-moth" => readFlag(0x41,0x40), // Original imo2 ending's explicit completion write.
-        "beast-rune" => readFlag(0x56,0x02), // Original las ending; never set by the Hall.
+        "beast-rune" => readFlag(0x14,0x02), // Late-game bonus after Gorudo; no individual-clear claim.
         "mist-shade" or "rowd-patrol" => readFlag(0x07,0x40),
         "celestial-sword" => readFlag(0x56,0x20),
         _ when IsBonus(id) => readFlag(0x14, 0x02),

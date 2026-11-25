@@ -10,10 +10,10 @@ internal sealed class HallGauntletRules
     internal bool Completed {get;private set;}
     internal bool Failed {get;private set;}
     internal HallGauntletRules(int initialHp){if(initialHp is <1 or >32767)throw new ArgumentOutOfRangeException();CarryHp=initialHp;}
-    internal bool NativeOutcome(string source,bool win,int actualHp)
+    internal bool NativeOutcome(string source,bool win,int actualHp,bool nativeHandoff=false)
     {
         if(Failed||Completed||AwaitingTeardown||source!=LucaSources[Stage]||actualHp is <0 or >32767)return false;
-        if(!win){Failed=true;return true;}
+        if(!win&&!(nativeHandoff&&Stage<2&&actualHp>0)){Failed=true;return true;}
         CarryHp=actualHp;AwaitingTeardown=true;return true;
     }
     internal bool NativeDisposed(string source,bool fieldReturned,bool ownershipPreserved)

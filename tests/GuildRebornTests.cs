@@ -123,7 +123,7 @@ internal static class GuildRebornTests
         check(flags[0x15]==0&&flags[0xC2]==0x80,"Availability checks never write flags");
         check(!HallUnlockRules.CanLaunch(true,false,true)&&!HallUnlockRules.CanLaunch(false,true,true)&&
             !HallUnlockRules.CanLaunch(true,true,false),"Independent module, trial and story gates");
-        check(HallTrialCatalogue.Entries.Select(x=>x.Id).Distinct().Count()==21&&HallNightmareRules.Profiles.Length==21&&
+        check(HallTrialCatalogue.Entries.Select(x=>x.Id).Distinct().Count()==22&&HallNightmareRules.Profiles.Length==22&&
             HallTrialCatalogue.Entries[0].Id=="rat"&&HallTrialCatalogue.Entries[1].Id=="harpy", "Stable Hall IDs and twenty-one distinct trials");
         check(HallTrialCatalogue.Entries.Take(5).All(x=>!x.RetainCombatMain)&&
             HallTrialCatalogue.Entries.Skip(5).Take(3).All(x=>x.RetainCombatMain),"Existing trials keep their accepted callback roles; new visual controllers are explicit");
@@ -165,14 +165,32 @@ internal static class GuildRebornTests
         check(HallUnlockRules.StoryUnlocked("double-head",(f,m)=>f==7&&m==64),"Double Head dedicated completion");
         check(HallUnlockRules.StoryUnlocked("bone-dragon",(f,m)=>f==0xBA&&m==0x10),"Bone Dragon alternate post-battle branch");
         check(HallUnlockRules.IsBonus("seed-culgan")&&HallUnlockRules.StoryUnlocked("seed-culgan",(f,m)=>f==0x14&&m==2),"Bonus explicitly uses a later service milestone, not an individual kill claim");
+        menu.EchoCount=23;menu.SpoilerRow=22;menu.Open(false,10);
+        for(int i=0;i<4;i++)Down();Confirm();menu.Move(true,false);
+        check(menu.Focus==22&&Confirm()==GuildChoice.None&&menu.Page==GuildPage.SpoilerWarning&&menu.Focus==0,"Spoiler control opens a warning with Cancel selected");
+        check(menu.Confirm(true,true,GuildQuestState.NoContract,true)==GuildChoice.None,"Held opening confirm cannot activate spoiler mode");
+        check(Confirm()==GuildChoice.None&&menu.Page==GuildPage.Echoes,"Default warning action cancels");
+        Confirm();Down();
+        check(Confirm()==GuildChoice.SetSpoilers&&menu.Page==GuildPage.SpoilerWarning,"Spoiler preference requires an explicit second confirmation");
+        check(menu.Back()&&menu.Page==GuildPage.Echoes&&menu.Focus==22,"Cancel restores catalogue control row");
+        check(TrainingPersistenceRules.IsCampaignPath("Save/owner/gsd2/Data0")&&TrainingPersistenceRules.IsCampaignPath(@"Save\owner\gsd2\Data12"),"Both native campaign path separators match");
+        check(!TrainingPersistenceRules.IsCampaignPath("Save/owner/gsd1/Data0")&&!TrainingPersistenceRules.IsCampaignPath("Save/owner/gsd2/System")&&!TrainingPersistenceRules.IsCampaignPath("Save/owner/gsd2/Data0.backup"),"Campaign save fence does not capture other game/settings/backup paths");
+        check(GuildGauntletInput.CanHold(true,true,false,20,2),"Gauntlet protects only a fully idle exploration control step");
+        foreach(int step in new[]{14,15,16,17,40,42})check(!GuildGauntletInput.CanHold(true,true,false,step,2),"Gauntlet neither fences nor dispatches another stage during native return/fade/battle transitions");
+        check(!GuildGauntletInput.CanHold(true,false,false,20,2)&&!GuildGauntletInput.CanHold(true,true,false,20,1)&&!GuildGauntletInput.CanHold(true,true,true,20,2)&&!GuildGauntletInput.CanHold(false,true,false,20,2),"Unowned/busy/release contexts are not fenced");
         var gauntlet=new HallGauntletRules(6500);
         check(!gauntlet.NativeOutcome("boss_luc2",true,4300),"Gauntlet rejects out-of-order native receipt");
-        check(gauntlet.NativeOutcome("boss_luc1",true,4300)&&!gauntlet.BonusEligible&&
+        check(gauntlet.NativeOutcome("boss_luc1",false,4300,true)&&!gauntlet.BonusEligible&&
             !gauntlet.NativeOutcome("boss_luc1",true,4200),"Intermediate receipt cannot duplicate or pay a bonus");
         check(gauntlet.NativeDisposed("boss_luc1",true,true)&&gauntlet.Stage==1&&gauntlet.CarryHp==4300,"Carry is actual HP, not multiplied again");
         check(gauntlet.NativeOutcome("boss_luc2",true,2100)&&gauntlet.NativeDisposed("boss_luc2",true,true)&&
             gauntlet.NativeOutcome("boss_luc3",true,0)&&gauntlet.NativeDisposed("boss_luc3",true,true)&&gauntlet.BonusEligible,
             "Only final earned receipt plus verified teardown completes the sequence; synthetic state test");
+        var defeated=new HallGauntletRules(6500);
+        check(defeated.NativeOutcome("boss_luc1",false,4300)&&defeated.Failed&&!defeated.NativeDisposed("boss_luc1",true,true),"Defeat cannot advance without an original command handoff");
+        var finalLoss=new HallGauntletRules(6500);finalLoss.NativeOutcome("boss_luc1",true,4000);finalLoss.NativeDisposed("boss_luc1",true,true);
+        finalLoss.NativeOutcome("boss_luc2",true,2000);finalLoss.NativeDisposed("boss_luc2",true,true);
+        check(finalLoss.NativeOutcome("boss_luc3",false,1000,true)&&finalLoss.Failed,"No scripted handoff can turn the final loss into a win");
         check(!HallGauntletRules.DistinctTeams(new[]{new[]{1,2,3,4,5,6},new[]{1,2,3,4,5,6},new[]{1,2,3,4,5,6}}),"Reusing one party is not an authentic three-group plan");
         var basic=new CombatAction(0,1,100,true,false,0,100,255,true);
         var magic=new CombatAction(1,2,150,false,true,0,100,3,true);

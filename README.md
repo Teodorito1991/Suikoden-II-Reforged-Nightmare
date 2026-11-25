@@ -1,13 +1,14 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development milestone: v1.50 — Final Encounters.**
-21 Hall definitions and 21 optional Nightmare profiles now include the native
-Worm/Moth transformation and coordinated multipart final-boss controllers. A missing
-final-boss texture load was found in live testing and corrected through the original
-loader, preserving ordinary encounter ownership. New complex entries remain
-experimental; rendered combat is distinct from complete victory/return acceptance.
-Luca has a private HP-view/stage foundation, **not a playable gauntlet**.
-[Implementation, evidence and exclusions](docs/FINAL-ENCOUNTERS-V150.md).
+**Latest development checkpoint: v1.51 — Luca's first complete Hall gauntlet.**
+The owner completed Original Luca with three distinct teams, native HP carry,
+original handoffs, final earned victory and party restoration on the exact DLL.
+Protected flags/war/selected progression matched after every stage. The Guild
+reopened and controls worked. Nightmare, defeat and a second full run remain
+experimental; this is not full-campaign certification.
+Player-facing Spoiler Mode offers reversible, confirmed story-lock bypass without
+changing campaign flags. The catalogue has22 definitions /22 optional Nightmare
+profiles. [Evidence and limits](docs/LAST-CHALLENGE-V151.md).
 
 The separate **Full Content Preview** selects ten Hunts and compatible Hall content.
 The [v1.48 Fresh Campaign baseline](docs/FRESH-CAMPAIGN-V148.md) and v1.49 fallback

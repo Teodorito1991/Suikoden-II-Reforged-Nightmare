@@ -22,10 +22,16 @@ internal sealed class Settings
     internal readonly ConfigEntry<bool> EnableHallOfEchoes, EnableHallHarpy, EnableHallPestRat, EnableHallGoldenWolf, EnableHallSierra, EnableHallHarpySecond, EnableHallStoneGolem, EnableHallAbomination, EnableHallWorm;
     internal readonly Dictionary<string,ConfigEntry<bool>> AdditionalHallTrials = new();
     internal readonly ConfigEntry<HallUnlockPolicy> HallUnlockPolicy;
+    internal readonly ConfigEntry<bool> UnlockAllBosses;
+    internal readonly ConfigEntry<string> LucaPartyDraft;
+    internal readonly ConfigFile PreferenceFile;
     internal readonly ConfigEntry<bool> EnableNightmareEchoes, EnableNightmareStoneRewards;
 
     internal Settings(ConfigFile config)
     {
+        PreferenceFile=config;
+        LucaPartyDraft=config.Bind("Hall of Echoes",nameof(LucaPartyDraft),"","Optional prepared team IDs. Always revalidated against the current native roster; not campaign progression.");
+        UnlockAllBosses=config.Bind("Hall of Echoes",nameof(UnlockAllBosses),false,"Player-facing Spoiler Mode. Bypasses story locks only; preserves disabled trials and all safety guards.");
         foreach(var trial in HallTrialCatalogue.Entries.Skip(8))
             AdditionalHallTrials.Add(trial.Id, config.Bind("Hall of Echoes", "EnableHall_"+trial.Id.Replace('-','_'), false,
                 "Optional "+trial.Name+" rematch. Exact original source and read-only story unlock required. Restart required."));

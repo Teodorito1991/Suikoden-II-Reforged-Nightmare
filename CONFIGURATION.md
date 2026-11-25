@@ -1,5 +1,20 @@
 # Configuration
 
+## v1.51 current checkpoint
+
+Original Luca's three-team gauntlet now has one exact-build owner completion,
+private HP carry, final earned win, clean returns and original-party restoration.
+22 Hall definitions/22 optional Nightmare profiles; Nightmare Luca and failure/
+repeat-run acceptance remain open. `EnableHall_luca_gauntlet` is an opt-in.
+**Unlock All Bosses** is a reversible CFG preference (default OFF), with an explicit
+spoiler warning and second confirmation. It changes availability only, preserving
+per-entry opt-outs. Use **Restore Story Progression** to reverse it. Party drafts
+store revalidated IDs, not progression. Training's new native-save checks remain
+experimental/default OFF; no commander XP. Beast Rune victory remains unverified.
+[Exact evidence and limits](docs/LAST-CHALLENGE-V151.md).
+
+The sections below retain their milestone-specific historical evidence.
+
 ## v1.49 Full Content Preview
 
 Run `tools/prepare-full-content.ps1 -OutputDirectory <empty-folder>` to generate

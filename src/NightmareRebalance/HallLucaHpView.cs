@@ -21,6 +21,7 @@ internal sealed class HallLucaHpView : IDisposable
         if(View.game_data.Pointer==game.game_data.Pointer)throw new InvalidOperationException("HP view aliases campaign data.");
         View.game_data.luka_hp=(short)hp;
         View.sys_work=game.sys_work;View.party_data=game.party_data;View.chara_data=game.chara_data;
+        View.g_hd_mode=game.g_hd_mode;View.have_data=game.have_data;View.arms_data=game.arms_data;View.magi_data=game.magi_data;View.ovit_data=game.ovit_data;
         View.event_flag=new Il2CppStructArray<byte>(game.event_flag.ToArray());
         View.chara_flag=new Il2CppStructArray<byte>(game.chara_flag.ToArray());
         View.town_flag=new Il2CppStructArray<byte>(game.town_flag.ToArray());

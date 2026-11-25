@@ -12,7 +12,7 @@ internal static class HallContentProbe
     }
     internal static void Inspect(BATTLE_DATA table)
     {
-        var definition=HallTrialCatalogue.Entries.Single(x=>x.TableId==table.id);
+        var definition=HallTrialCatalogue.AllSources.Single(x=>x.TableId==table.id);
         var audit=HallTrialSources.Get(table.id);
         var source=HallEchoesProbe.ValidateSource(table,audit);
         var boss=Array.IndexOf(BattleLoader.btl_bos_data.ToArray(),table.id);

@@ -20,9 +20,22 @@ internal static class HallFirstContact
 
     internal static bool Request(int selection = 0, bool nightmare = false)
     {
+        if(HallLucaSession.Active){CastleGuildRuntime.Status="Finish or cancel gauntlet preparation first.";return false;}
+        if(selection>=0&&selection<HallTrialCatalogue.Entries.Length&&HallTrialCatalogue.Entries[selection].Id=="luca-gauntlet")
+        {
+            if(!HallAvailability.CanSelect(selection)||!Available)return false;
+            if(HallLucaSession.Begin(nightmare))CastleGuildRuntime.Menu.BeginLuca(HallLucaSession.ChoiceCount);
+            return false;
+        }
+        return RequestCore(selection>=0&&selection<HallTrialCatalogue.Entries.Length?HallTrialCatalogue.Entries[selection]:null,nightmare);
+    }
+    internal static bool RequestStage(HallTrialDefinition definition,bool nightmare)=>HallLucaSession.Active&&RequestCore(definition,nightmare);
+    static bool RequestCore(HallTrialDefinition? definition,bool nightmare)
+    {
+        int selection=definition==null?-1:Array.FindIndex(HallTrialCatalogue.Entries,d=>d.Id==(HallLucaSession.IsStage(definition.Id)?"luca-gauntlet":definition.Id));
         if (selection < 0 || selection >= HallTrialCatalogue.Entries.Length ||
             !HallAvailability.CanSelect(selection) || (nightmare && !HallNightmareRuntime.CanSelect(selection)) ||
-            !Available || !CastleGuildRuntime.Context || !Plugin.CheckCompatibility() ||
+            !Available || (!CastleGuildRuntime.Context&&!HallLucaSession.OwnsIdleRequest(definition)) || !Plugin.CheckCompatibility() ||
             CastleGuildRuntime.Owner is not { ano: 10, vno: 6, mno: 3, _mstep: 20 } field ||
             CastleGuildRuntime.Field is not {} events ||
             CastleGuildRuntime.Copy is not {} map || MachiLoader.GetMachiID(field.ano, field.vno) != "vk07" ||
@@ -31,11 +44,24 @@ internal static class HallFirstContact
             sys.mcon?.Pointer != field.Pointer || sys.game_mode != 1 || sys.now_save != 0 ||
             HuntAccess.Ticket.Armed || HuntLaunchProof.PendingWalkingRequest || TrainingWar.Active)
         {
-            Plugin.Logger.LogWarning("HallFirstContact: Guild request was rejected before acquiring resources.");
+            var live=Framework.Singleton<GAME_WORK>.instance;
+            Plugin.Logger.LogWarning("HallFirstContact: request admission refused: "+System.Text.Json.JsonSerializer.Serialize(new {
+                Definition=definition?.Id,Selection=selection,Configured=HallAvailability.CanSelect(selection),
+                Available,EnabledAtStartup,Faulted=faulted,TrialPresent=trial!=null,Driver=HallFirstContactDriver.Instance!=null,
+                ModalContext=CastleGuildRuntime.Context,GauntletContext=HallLucaSession.OwnsIdleRequest(definition),
+                Idle=CastleGuildRuntime.Idle,Near=CastleGuildRuntime.Near,Modal=CastleGuildRuntime.Modal,
+                RenderFault=HuntGuildRuntime.RenderFaulted,MapStep=CastleGuildRuntime.Owner?._mstep,
+                EventStep=CastleGuildRuntime.Field?.mstep,Area=CastleGuildRuntime.Owner?.ano,Town=CastleGuildRuntime.Owner?.vno,Variant=CastleGuildRuntime.Owner?.mno,
+                CopyPresent=CastleGuildRuntime.Copy!=null,EventsPresent=CastleGuildRuntime.Field!=null,
+                SystemOwner=live?.sys_work?.mcon?.Pointer==CastleGuildRuntime.Owner?.Pointer,
+                Mode=live?.sys_work?.game_mode,Difficulty=live?.game_data?.difficulty,NowSave=live?.sys_work?.now_save,
+                HuntArmed=HuntAccess.Ticket.Armed,PendingWalking=HuntLaunchProof.PendingWalkingRequest,Training=TrainingWar.Active,
+                Gauntlet=HallLucaSession.AdmissionStatus
+            }));
             return false;
         }
 
-        trial = new Trial(HallTrialCatalogue.Entries[selection], nightmare, game, sys, field, events, map);
+        trial = new Trial(definition!, nightmare, game, sys, field, events, map);
         Plugin.Logger.LogInfo($"HallFirstContact: Guild confirmed {trial.Definition.Name}.");
         return true;
     }
@@ -64,6 +90,7 @@ internal static class HallFirstContact
         internal bool SceneUnloading;
         internal BATTLE_DATA? Table;
         internal MONSTER_PARTY_DATA? Formation;
+        internal bool StageHandoff;
         internal bool Abort, Committed, Setup, ActorBound, Win, Loss, Released, HpChanged, RatLookup, OutcomeRecorded;
         internal int ActorHp;
         internal readonly HashSet<string> MainStates=new();
@@ -99,7 +126,7 @@ internal static class HallFirstContact
         return System.Text.Json.JsonSerializer.Serialize(new
         {
             d.base_lv, d.star_bit, d.hanyou_po, d.luka_hp, d.save_num, d.save_slot, d.load_count,
-            HonFlags = d.hon_flag?.ToArray(), Party = g.party_data.party_cha_no?.ToArray(),
+            HonFlags = d.hon_flag?.ToArray(), Party = HallLucaSession.OriginalMembers??g.party_data.party_cha_no?.ToArray(),
             EventItems = g.party_data.event_item?.ToArray()
         });
     }
@@ -168,8 +195,8 @@ internal static class HallFirstContact
         index = Math.Max(index, 1);
         if (index >= 0xF0 || t.Sys.yobi == null || t.Sys.yobi.Length == 0 || t.Sys.yobi[0] != 0 ||
             !CastleGuildRuntime.HuntEntryCompatible || !Plugin.CheckCompatibility() ||
-            !HallAvailability.CanSelect(Array.IndexOf(HallTrialCatalogue.Entries, t.Definition)) ||
-            (t.Nightmare&&!HallNightmareRuntime.CanSelect(Array.IndexOf(HallTrialCatalogue.Entries,t.Definition))))
+            !HallAvailability.CanSelect(Array.FindIndex(HallTrialCatalogue.Entries,d=>d.Id==(HallLucaSession.IsStage(t.Definition.Id)?"luca-gauntlet":t.Definition.Id))) ||
+            (t.Nightmare&&!HallNightmareRuntime.CanSelect(Array.FindIndex(HallTrialCatalogue.Entries,d=>d.Id==(HallLucaSession.IsStage(t.Definition.Id)?"luca-gauntlet":t.Definition.Id)))))
             throw new InvalidOperationException("Ordinary request preconditions rejected.");
         var extended = new Il2CppReferenceArray<BATTLE_DATA>(index + 1);
         if (tables != null)
@@ -205,13 +232,14 @@ internal static class HallFirstContact
 
     internal static void Tick()
     {
+        try{HallLucaSession.Tick();}catch(Exception e){HallLucaSession.Fail(e.ToString());}
         if (trial is not {} t || faulted) return;
         try
         {
             if (!t.Committed)
             {
                 t.Abort |= !SafeField(t) || !HallAvailability.CanSelect(
-                    Array.IndexOf(HallTrialCatalogue.Entries, t.Definition));
+                    Array.FindIndex(HallTrialCatalogue.Entries,d=>d.Id==(HallLucaSession.IsStage(t.Definition.Id)?"luca-gauntlet":t.Definition.Id)));
                 if (!t.Handle.IsDone) return;
                 if (t.Abort && !t.SourcePrepared) { Finish(t); return; }
                 if (t.Handle.Status != AsyncOperationStatus.Succeeded)
@@ -236,12 +264,13 @@ internal static class HallFirstContact
                 Framework.Singleton<BATTLE_WORK>.instance != null ||
                 GRChapterManager.GRInstance?.activeChapter is BattleChapter)
                 return;
-            bool fieldReturn = t.TerminalResult == 1 && !t.Loss && t.NativeFieldReturn &&
+            bool fieldReturn = t.TerminalResult == 1 && (!t.Loss||HallLucaSession.IsStage(t.Definition.Id)) && t.NativeFieldReturn &&
                 t.Sys.game_mode == 1 && GRChapterManager.GRInstance?.activeChapter is MapChapter;
-            bool victoryReturn = fieldReturn && t.Win;
-            bool nonVictoryReturn = fieldReturn && !t.Win;
+            bool victoryReturn = fieldReturn && t.Win && !t.Loss;
+            bool nonVictoryReturn = fieldReturn && !victoryReturn;
             bool defeat = t.Loss && GRChapterManager.GRInstance?.activeChapter is GameOverChapter;
             if (!fieldReturn && !defeat) return;
+            if(HallLucaSession.IsStage(t.Definition.Id))HallLucaSession.RestoreParty();
             bool flags = SameCampaign(t) && t.Flags!.Zip(Flags(t.Game), (a,b) => a.SequenceEqual(b)).All(x => x);
             bool war = SameCampaign(t) && t.War == LitJson.JsonMapper.ToJson(t.Game.war_data);
             bool progress = SameCampaign(t) && t.Progress == Progress(t.Game);
@@ -249,19 +278,20 @@ internal static class HallFirstContact
             {
                 t.OutcomeRecorded = true;
                 var itemDeltas = CountRewardItems(t).Select((after, i) => $"{t.RewardIds[i]}:{after - t.RewardCounts[i]}");
-                Plugin.Logger.LogInfo($"HallFirstContact: outcome victoryReturn={victoryReturn} nonVictoryReturn={nonVictoryReturn} gameOver={defeat} guildPosition={t.AtGuildPosition} flagsUnchanged={flags} warUnchanged={war} progressionUnchanged={progress} potchDelta={(long)t.Game.party_data.gold-t.Potch} itemSlotDeltas={string.Join(",",itemDeltas)}.");
+                Plugin.Logger.LogInfo($"HallFirstContact: outcome stageHandoff={t.StageHandoff} victoryReturn={victoryReturn} nonVictoryReturn={nonVictoryReturn} gameOver={defeat} guildPosition={t.AtGuildPosition} flagsUnchanged={flags} warUnchanged={war} progressionUnchanged={progress} potchDelta={(long)t.Game.party_data.gold-t.Potch} itemSlotDeltas={string.Join(",",itemDeltas)}.");
             }
             Finish(t);
-            if (trial == null && defeat)
+            if(trial==null&&HallLucaSession.IsStage(t.Definition.Id))HallLucaSession.Disposed(t.Definition.TableId,victoryReturn||fieldReturn&&t.StageHandoff,flags&&war&&progress&&t.AtGuildPosition);
+            if (trial == null && (defeat || fieldReturn && t.StageHandoff))
             {
-                // Stock Game Over can bypass BattleEndWait. Retire only the
+                // Stock Game Over and Luca command handoff can bypass BattleEndWait. Retire only the
                 // combat state associated with this released Hall work owner.
                 if (t.Work != null && Combat.State?.Work == t.Work.Pointer)
                 {
                     Combat.Clear();
-                    Plugin.Logger.LogInfo("HallFirstContact: retired the defeated trial's combat state before Retry.");
+                    Plugin.Logger.LogInfo("HallFirstContact: retired the released trial's combat state after native termination.");
                 }
-                if (CastleGuildRuntime.Owner?.Pointer == t.Field.Pointer)
+                if (defeat && CastleGuildRuntime.Owner?.Pointer == t.Field.Pointer)
                     CastleGuildRuntime.Detach();
             }
             if (!flags || !war || !progress || !t.ActorBound || !t.Setup ||
@@ -357,7 +387,7 @@ internal static class HallFirstContact
     internal static void PrepareStone(BATTLE_WORK work,EXIT_WORK? exit)
     {
         if(exit==null||trial is not {} t||!Owns(work)||!SameCampaign(t)||!t.Setup)return;
-        try{t.Stone.Prepare(t.Game,exit,t.Nightmare&&t.Win&&!t.Loss&&Plugin.Options.EnableNightmareStoneRewards.Value,HallNightmareRules.Find(t.Definition.Id)?.RewardId??"power-stone");}
+        try{t.Stone.Prepare(t.Game,exit,t.Nightmare&&t.Win&&!t.Loss&&(!HallLucaSession.IsStage(t.Definition.Id)||HallLucaSession.FinalStage)&&Plugin.Options.EnableNightmareStoneRewards.Value,HallNightmareRules.Find(t.Definition.Id)?.RewardId??"power-stone");}
         catch(Exception e){Plugin.Logger.LogWarning("Nightmare bonus retained native loot: "+e.Message);}
     }
 
@@ -421,6 +451,7 @@ internal static class HallFirstContact
         var actor = work.pm_data?.FirstOrDefault(a => a != null && !a.IsPlayer && a.hp > 0);
         t.Work = work;
         t.ActorBound = actor != null && work.pm_data!.Count(a=>a!=null && !a.IsPlayer && a.hp>0)==t.Formation!.monster_kazu;
+        if(HallLucaSession.IsStage(t.Definition.Id))HallLucaSession.VerifyActors(work);
         t.ActorHp = actor?.hp ?? 0;
         Plugin.Logger.LogInfo($"HallFirstContact: Field.Setup completed; liveMonster={t.ActorBound}; tier={(t.Nightmare?"Nightmare":"Original")}; HP={t.ActorHp}.");
     }
@@ -452,6 +483,13 @@ internal static class HallFirstContact
         }
     }
 
+    internal static void BeforeFieldReturn(MACHICON field)
+    {
+        if(trial is {Committed:true,Released:true,TerminalResult:1} t&&t.Destroyed>=0&&field.Pointer==t.Field.Pointer&&
+           t.Sys.mcon?.Pointer==field.Pointer&&Framework.Singleton<BATTLE_WORK>.instance==null&&HallLucaSession.IsStage(t.Definition.Id))
+            HallLucaSession.RestoreParty();
+    }
+
     internal static void FieldReturned(MACHICON field)
     {
         if (trial is not {Committed:true, Released:true, TerminalResult:1} t ||
@@ -467,8 +505,9 @@ internal static class HallFirstContact
     internal static void Outcome(BATTLE_WORK work, bool win)
     {
         if (!Owns(work) || trial is not {} t) return;
+        if(HallLucaSession.IsStage(t.Definition.Id))t.StageHandoff|=HallLucaSession.Outcome(work,win);
         t.Win |= win;
-        t.Loss |= !win;
+        t.Loss |= !win&&!t.StageHandoff;
         Plugin.Logger.LogInfo($"HallFirstContact: original terminal handler; win={win}.");
     }
 
@@ -515,6 +554,7 @@ internal static class HallFirstContactScene
 [HallTrialPatch]
 internal static class HallFirstContactFieldReturn
 {
+    static void Prefix(MACHICON __instance)=>HallFirstContact.BeforeFieldReturn(__instance);
     static void Postfix(MACHICON __instance) => HallFirstContact.FieldReturned(__instance);
 }
 

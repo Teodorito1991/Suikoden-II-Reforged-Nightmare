@@ -16,7 +16,7 @@ internal static class HallUnlockProbe
         var previous=Framework.Singleton<GAME_WORK>.instance;
         var o=Plugin.Options;
         var policy=o.HallUnlockPolicy.Value;
-        bool hall=o.EnableHallOfEchoes.Value;
+        bool hall=o.EnableHallOfEchoes.Value,spoilers=o.UnlockAllBosses.Value;
         var trialOptions=new[]{o.EnableHallPestRat,o.EnableHallHarpy,o.EnableHallGoldenWolf,
             o.EnableHallStoneGolem,o.EnableHallAbomination}.Concat(o.AdditionalHallTrials.Values).ToArray();
         var trialValues=trialOptions.Select(x=>x.Value).ToArray();
@@ -27,7 +27,7 @@ internal static class HallUnlockProbe
             var scratch=new GAME_WORK(IL2CPP.il2cpp_object_new(Il2CppClassPointerStore<GAME_WORK>.NativeClassPtr));
             scratch.event_flag=new Il2CppStructArray<byte>(256);
             Framework.Singleton<GAME_WORK>.instance=scratch;
-            o.HallUnlockPolicy.Value=HallUnlockPolicy.StoryProgression;
+            o.HallUnlockPolicy.Value=HallUnlockPolicy.StoryProgression;o.UnlockAllBosses.Value=false;
             o.EnableHallOfEchoes.Value=true;
             foreach(var option in trialOptions)option.Value=true;
             var witnessed=HallTrialCatalogue.Entries.Select((d,i)=>(d,i))
@@ -48,6 +48,11 @@ internal static class HallUnlockProbe
             o.EnableHallOfEchoes.Value=false;Check(All(false));o.EnableHallOfEchoes.Value=true;
             scratch.event_flag=new Il2CppStructArray<byte>(256);
             Check(All(false)); // Current state is reread; no previous selection can authorize handoff.
+            byte[] blank=scratch.event_flag.ToArray();
+            o.UnlockAllBosses.Value=true;
+            Check(witnessed.All(HallAvailability.CanSelect));
+            o.EnableHallGoldenWolf.Value=false;Check(!HallAvailability.CanSelect(2));o.EnableHallGoldenWolf.Value=true;
+            o.UnlockAllBosses.Value=false;Check(All(false)&&blank.SequenceEqual(scratch.event_flag));
             Check(!HallAvailability.CanSelect(-1)&&!HallAvailability.CanSelect(HallTrialCatalogue.Entries.Length));
             ProductionAssetAudit.Rows.Add(new {Kind="HallNativeUnlockGuard",EarlyLocked=true,
                 CorrectWitnessesUnlocked=true,OldWitnessesRejected=true,ResetRevokedEligibility=true,
@@ -57,7 +62,7 @@ internal static class HallUnlockProbe
         finally
         {
             Framework.Singleton<GAME_WORK>.instance=previous;
-            o.HallUnlockPolicy.Value=policy;o.EnableHallOfEchoes.Value=hall;
+            o.HallUnlockPolicy.Value=policy;o.EnableHallOfEchoes.Value=hall;o.UnlockAllBosses.Value=spoilers;
             for(int i=0;i<trialOptions.Length;i++)trialOptions[i].Value=trialValues[i];
         }
     }

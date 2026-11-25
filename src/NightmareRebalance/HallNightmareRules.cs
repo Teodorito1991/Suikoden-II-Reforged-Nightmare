@@ -24,9 +24,10 @@ internal static class HallNightmareRules
         new("lucia-castle",49,135,1.10,"A short physical duel. Respect the one native magic use.","stone-of-speed"),
         new("rowd-patrol",25,130,1.08,"Break the Highland line before committing to its commander.","magic-protection-stone"),
         new("worm-moth",47,120,1.08,"Original transformation and command rules. Prepare status protection and recovery.","magic-protection-stone"),
+        new("luca-gauntlet",54,115,1.08,"Three distinct teams, native phase thresholds and unscaled HP carry between stages.","power-stone"),
         new("beast-rune",11,120,1.08,"Original coordinated controller. Plan target order and group healing.","stone-of-magic")
     };
-    internal static HallNightmareProfile? Find(string id)=>Profiles.FirstOrDefault(x=>x.Id==id);
+    internal static HallNightmareProfile? Find(string id)=>Profiles.FirstOrDefault(x=>x.Id==(id is "luca-stage-2" or "luca-stage-3"?"luca-gauntlet":id));
     internal static int Hp(int native,HallNightmareProfile p)=>Math.Clamp(native*p.HpPercent/100,1,32767);
     internal static int DamageAmount(int native,double factor)=>Math.Clamp((int)Math.Round(native*factor,MidpointRounding.AwayFromZero),0,9999);
     // Scores apply only after the existing original range, silence, target and use checks.

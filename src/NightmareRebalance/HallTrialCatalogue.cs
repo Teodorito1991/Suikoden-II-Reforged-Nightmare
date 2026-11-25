@@ -7,6 +7,10 @@ internal sealed record HallTrialDefinition(string Id, string Name, string TableI
 internal static class HallTrialCatalogue
 {
     // Stable IDs and original source data; no campaign boss records are modified.
+    internal static readonly HallTrialDefinition[] LucaStages={
+        new("luca-gauntlet","Luca Blight Gauntlet","boss_luc1","boss_luc1_00",6500,"luc","bgd6","Three distinct six-character teams. Original damage thresholds and HP handoff.","Native battle rewards; final Nightmare stone offer only",RetainCommand:true),
+        new("luca-stage-2","Luca · Second Group","boss_luc2","boss_luc2_00",6500,"luc","bgd6","Second group; native carried HP.","Native rewards",RetainCommand:true),
+        new("luca-stage-3","Luca · Final Group","boss_luc3","boss_luc3_00",6500,"luc","bgd6","Riou's final group; native carried HP.","Final native rewards")};
     internal static readonly HallTrialDefinition[] Entries =
     {
         new("rat", "Pest Rat", "boss_rat", "boss_rat_00", 5200, "rat", "bgh3",
@@ -59,7 +63,9 @@ internal static class HallTrialCatalogue
             "Native rewards · One conditional Nightmare stone offer", true, true, true),
         new("beast-rune", "Beast Rune Incarnation", "boss_las", "boss_las_00", 5700, "las", "bgx0",
             "Five coordinated body parts. Native barriers, phase changes and targeting remain active.",
-            "Native rewards · One conditional Nightmare stone offer", true, true, true)
+            "Native rewards · One conditional Nightmare stone offer", true, true, true),
+        LucaStages[0]
     };
 
+    internal static HallTrialDefinition[] AllSources=>Entries.Concat(LucaStages.Skip(1)).ToArray();
 }

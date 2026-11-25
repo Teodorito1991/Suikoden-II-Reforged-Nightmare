@@ -1,0 +1,41 @@
+{
+  "Version": "1.51.0-last-challenge.1",
+  "DllSha256": "7D368B2E115082BEDA83AF7F2590E733114512C73A49487619F64A496705534B",
+  "SourceParent": "f8dc217626183d7c5daddf9fb6b4f579c0ac1412",
+  "Status": "Development checkpoint; broader v1.51 goals remain open",
+  "HallDefinitions": 22,
+  "NightmareProfiles": 22,
+  "SourceTables": 24,
+  "ManagedPassed": true,
+  "NativeSourceAuditPassed": true,
+  "Gameplay": {
+    "Tier": "Original",
+    "OwnerPlayed": true,
+    "DistinctTeams": 3,
+    "DistinctCombatants": 18,
+    "NativeCommandHandoffs": 2,
+    "FinalEarnedVictory": true,
+    "CarryHp": [
+      6500,
+      4318,
+      1707
+    ],
+    "FiveFlagsUnchangedEachReturn": true,
+    "WarSnapshotUnchangedEachReturn": true,
+    "SelectedProgressionUnchangedEachReturn": true,
+    "CleanupCompleteEachStage": true,
+    "OriginalPartyRestored": true,
+    "GuildReopenedPreparationCancelledMovementWorked": true,
+    "ObservedPotchCredit": 0
+  },
+  "NotAccepted": [
+    "Luca Nightmare",
+    "Luca defeat/interruption",
+    "second complete gauntlet",
+    "Beast Rune earned victory",
+    "new training save fault/outcome paths"
+  ],
+  "CommanderXp": false,
+  "ProductionSteamModified": false,
+  "ReleasePublished": false
+}

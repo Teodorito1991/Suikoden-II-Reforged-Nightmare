@@ -1,6 +1,19 @@
 # Known issues and validation limits
 
-## Current v1.50 limits
+## Current v1.51 limits
+
+- One complete Original Luca gauntlet passed on the recorded exact DLL, including
+  native HP carry, three distinct parties, final win, party restore and Guild
+  reopening. No claim of Nightmare, defeat/interruption or second full-run acceptance.
+- Luca remains an independently configurable opt-in. Spoiler Mode bypasses only
+  story availability and never enables a disabled implementation.
+- Beast Rune earned victory and the new direct training-save fault paths are still
+  open. Normal-build training remains default OFF; no persistent commander XP.
+- The complete campaign and every Hall encounter are not certified. Historical
+  evidence belongs to its original DLL. No beta/release has been published.
+- [Current evidence and boundaries](docs/LAST-CHALLENGE-V151.md).
+
+## Historical v1.50 limits
 
 - Twenty-one definitions are implemented; source/setup checks are not21 earned
   rematches. The new final-boss loader fix permits real combat and stock defeat;

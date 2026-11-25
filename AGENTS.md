@@ -46,7 +46,22 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
-## Current v1.50 Final Encounters
+## Current v1.51 Luca checkpoint
+
+Development `1.51.0-last-challenge.1`, SHA256
+7D368B2E115082BEDA83AF7F2590E733114512C73A49487619F64A496705534B.
+Owner completed Original Luca with18 distinct combatants across three teams:
+native handoffs, HP6500→4318→1707, final earned victory, protected5flags/war/
+selected-progression equality each stage, cleanup, original party restoration,
+Guild reopening/preparation cancel and movement. Not Nightmare/defeat/second-run
+acceptance. Source31 tables:24 used by22 definitions/profiles; unsafe/mirror records
+excluded. Spoiler preference defaultOFF, second confirmation and reversible CFG;
+per-entry opt-outs remain. Normal-build training direct-save experiment defaultOFF,
+new fault/outcome gameplay pending. No commander XP. Beast Rune win still unproven.
+Do not rebuild the accepted DLL for Git metadata. No Steam install, original-save,
+release or beta change. See docs/LAST-CHALLENGE-V151.md.
+
+## Historical v1.50 Final Encounters
 
 Development `1.50.0-final-encounters.2`, SHA256
 EAF67EB039F569149C9AB811AE770C82EC48DCB6D466AD070458C39D1D5338DF.

@@ -169,6 +169,9 @@ public sealed class HuntGuildOverlay:MonoBehaviour
        "", "", status, focus == Services.Length-1 ? "Leave" : "Open", back, preview), pageSize:6);
   }
 
+  if(page==GuildPage.LucaParties)return HallLucaSession.View(focus);
+  if(page==GuildPage.SpoilerWarning)return HallSpoilerMode.View(focus,Plugin.Options.UnlockAllBosses.Value,preview);
+
   if (page == GuildPage.Echoes)
   {
    if(preview)
@@ -176,7 +179,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
         "Preview · Sample availability, not a campaign observation.",back,true);
    if(!developer&&HallFirstContact.Available)
     return HallPresentation.View(focus,HallAvailability.Unlocked,HallAvailability.Configured,
-        HallAvailability.Reason(focus),back,false);
+        HallAvailability.Reason(focus),back,false,Plugin.Options.UnlockAllBosses.Value);
    return new("HALL OF ECHOES",new[]{new GuildMenuRow("Boss rematches","Unavailable")},0,
        "Hall of Echoes","Unavailable","Enable the Hall in settings to recall your story memories.",
        "","",status,"Back",back,false);
@@ -187,7 +190,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    int echo=preview?drillIndex:CastleGuildRuntime.Menu.Echo;
    return HallPresentation.Difficulty(echo,focus,preview||HallAvailability.Unlocked(echo),
        preview||HallAvailability.Configured(echo),preview||HallNightmareRuntime.CanSelect(echo),
-       preview||Plugin.Options.EnableNightmareStoneRewards.Value,preview);
+       preview||Plugin.Options.EnableNightmareStoneRewards.Value,preview,preview?"":CastleGuildRuntime.Status);
   }
 
   if (page == GuildPage.Strategy)

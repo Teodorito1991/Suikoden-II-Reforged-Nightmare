@@ -27,7 +27,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   try
   {
    if(Combat.State!=null||WarRuntime.Active||WarTacticsRuntime.Armed)throw new InvalidOperationException("Audit requires unloaded launcher.");
-   if(tables==null){previousBackground=Application.runInBackground;Application.runInBackground=true;tables=LucaHpOnly?lucaSources.Select(x=>x.Data.TableId).ToArray():CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Concat(RpgEvolutionRuntime.Audit.Formations).Select(x=>x.TableId).Concat(bossSources.Concat(lucaSources).Concat(LegendaryBossRuntime.Audit).Select(x=>x.Data.TableId)).Concat(BossTacticsRuntime.RevolutionAudit.Select(a=>a.TableId)).Concat(CombatReforgedRuntime.Audit.Enemies.Select(x=>x.Id.Substring(0,x.Id.LastIndexOf('_')))).Concat(HuntRuntime.Definitions.Select(x=>x.Audit.TableId)).Concat(HallTrialCatalogue.Entries.Select(x=>x.TableId)).Distinct().ToArray();started=Time.realtimeSinceStartup;}
+   if(tables==null){previousBackground=Application.runInBackground;Application.runInBackground=true;tables=LucaHpOnly?lucaSources.Select(x=>x.Data.TableId).ToArray():CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Concat(RpgEvolutionRuntime.Audit.Formations).Select(x=>x.TableId).Concat(bossSources.Concat(lucaSources).Concat(LegendaryBossRuntime.Audit).Select(x=>x.Data.TableId)).Concat(BossTacticsRuntime.RevolutionAudit.Select(a=>a.TableId)).Concat(CombatReforgedRuntime.Audit.Enemies.Select(x=>x.Id.Substring(0,x.Id.LastIndexOf('_')))).Concat(HuntRuntime.Definitions.Select(x=>x.Audit.TableId)).Concat(HallTrialCatalogue.AllSources.Select(x=>x.TableId)).Distinct().ToArray();started=Time.realtimeSinceStartup;}
    if(Time.realtimeSinceStartup-started>40)throw new TimeoutException("Production resource audit timed out before resource completion.");
    // HD UI font/material bundles require the graphics player; never load in -nographics.
    // The explicit unloaded render smoke verifies them separately.
@@ -50,7 +50,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   if(table.id=="vb07_00")GuildNativeProbe.ReissueTable=table;
   if (HallEchoesProbe.Requested && table.id=="boss_rat")
       HallEchoesProbe.Inspect(table,bossSources.Single(b=>b.Data.TableId==table.id).Data);
-  if (HallTrialCatalogue.Entries.Any(d=>d.TableId==table.id))
+  if (HallTrialCatalogue.AllSources.Any(d=>d.TableId==table.id))
   {
    HallContentProbe.Inspect(table);
    HallNightmareProbe.Inspect(table);

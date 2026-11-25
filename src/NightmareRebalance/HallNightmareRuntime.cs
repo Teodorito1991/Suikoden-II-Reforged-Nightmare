@@ -21,7 +21,7 @@ internal static class HallNightmareRuntime
         return copy;
     }
     internal static CombatUnitPlan? Plan(BATTLE_WORK w,PM_DATA actor)=>
-        HallFirstContact.NightmareId(w,actor) is {} id && id is not ("worm-moth" or "beast-rune")?new(actor.monster_data.id,"Adaptive",true,null,HallNightmareRules.Find(id)!.Damage):null;
+        HallFirstContact.NightmareId(w,actor) is {} id && id is not ("worm-moth" or "beast-rune" or "luca-gauntlet" or "luca-stage-2" or "luca-stage-3")?new(actor.monster_data.id,"Adaptive",true,null,HallNightmareRules.Find(id)!.Damage):null;
     internal static int Target(IReadOnlyList<CombatTarget> legal,int original,int round)
     {
         // Only candidates returned by the existing native sampler; avoid repeated wounded focus.

@@ -1,5 +1,21 @@
 # Development history
 
+## v1.51 — Last Challenge (development checkpoint)
+
+- Connected the three native Luca encounters to distinct native-roster teams and
+  a private HP handoff. Exact-build owner Original completion, party restoration,
+  Guild reopening/cancel and movement passed. All three protected snapshots matched.
+- Fixed reserve model/equipment initialization, command-ended cleanup and dispatch
+  at native idle step20 instead of the earlier return step17.
+- Added confirmed, reversible Unlock All Bosses preferences; per-entry opt-outs
+  and safety guards remain authoritative. Beast Rune uses a disclosed late bonus.
+- Added experimental direct native training-save payload checks; default OFF,
+  new gameplay/fault acceptance pending. No commander XP. Beast Rune win, Luca
+  Nightmare/defeat and a second full gauntlet remain unverified.
+- Build `1.51.0-last-challenge.1`, SHA256
+  `7D368B2E115082BEDA83AF7F2590E733114512C73A49487619F64A496705534B`.
+  [Evidence](docs/LAST-CHALLENGE-V151.md). No public beta/release.
+
 ## v1.50 — Final Encounters (development)
 
 - Added original Worm/Moth and multipart final-boss controller families, bringing

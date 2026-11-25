@@ -103,7 +103,8 @@ internal static class CastleGuildRuntime
   // native window invalidates Idle and keeps the Guild closed.
   if(Modal||ReleaseFence||Field?.Pointer!=e.Pointer||!Idle||!Near||!FacingClerk||HuntGuildRuntime.RenderFaulted)return;
   Modal=true;
-  Menu.EchoCount = HallTrialCatalogue.Entries.Length;
+  Menu.EchoCount = HallTrialCatalogue.Entries.Length+1;
+  Menu.SpoilerRow=HallTrialCatalogue.Entries.Length;
   Menu.Open(Quest.State==GuildQuestState.AwaitingReport,HuntRuntime.BrowseOrder.Length);
   HuntGuildRuntime.Visible=true;
   HuntGuildRuntime.LastRenderFrame=-1;
@@ -112,6 +113,7 @@ internal static class CastleGuildRuntime
  internal static bool Tick(EVENTCON e)
  {
   if(Field?.Pointer!=e.Pointer)return true;
+  if(GuildGauntletInput.CanHold(HallLucaSession.HoldsFieldControls,Idle,ReleaseFence,Owner?._mstep??-1,e.mstep)){e.EventPlayerDisp(false);return false;}
   if(!Idle||!Near){Close(false);return true;}
   if(inputFrame==Time.frameCount&&Modal&&HuntGuildRuntime.RenderReady){e.EventPlayerDisp(false);return false;}inputFrame=Time.frameCount;
   bool decide=Press(GRInputManager.Type.Decide),cancel=Press(GRInputManager.Type.Cancel);
@@ -122,6 +124,7 @@ internal static class CastleGuildRuntime
   Menu.Move(Press(GRInputManager.Type.Up),Press(GRInputManager.Type.Down));
   if(cancel)
   {
+    if(Menu.Page==GuildPage.LucaParties)HallLucaSession.Cancel();
    if(!Menu.Back())Close(true);
    e.EventPlayerDisp(false);
    return false;
@@ -139,6 +142,8 @@ internal static class CastleGuildRuntime
    GuildChoice.Accept when Menu.Focus<HuntRuntime.BrowseOrder.Length => AcceptContract(HuntRuntime.BrowseOrder[Menu.Focus].Id),
    GuildChoice.Start => TrainingWar.Request((TrainingWar.Drill)Menu.Drill,Menu.Focus==1),
    GuildChoice.StartEcho => HallFirstContact.Request(Menu.Echo, Menu.Focus==1),
+   GuildChoice.SetSpoilers => SetSpoilerPreference(),
+   GuildChoice.ChooseLuca => HallLucaSession.Choose(Menu.Focus),
    GuildChoice.Report => ReportContract(),
    GuildChoice.Withdraw => WithdrawContract(),
    GuildChoice.Leave => true,
@@ -147,7 +152,8 @@ internal static class CastleGuildRuntime
   if(leave)Close(true);
   e.EventPlayerDisp(false);return false;
  }
- internal static void Close(bool fence){if(Modal){Closes++;HuntGuildRuntime.Visible=false;HuntGuildRuntime.LastRenderFrame=-1;}Modal=false;ReleaseFence=fence;releaseFrames=0;}
+ static bool SetSpoilerPreference(){if(HallSpoilerMode.Set(!Plugin.Options.UnlockAllBosses.Value))Menu.Back();return false;}
+ internal static void Close(bool fence){if(HallLucaSession.Selecting)HallLucaSession.Cancel();if(Modal){Closes++;HuntGuildRuntime.Visible=false;HuntGuildRuntime.LastRenderFrame=-1;}Modal=false;ReleaseFence=fence;releaseFrames=0;}
  internal static void Detach(){Close(false);if(Owner!=null&&Copy!=null&&Owner.mdat?.Pointer==Copy.Pointer)Owner.mdat=Source;if(Copy!=null)UnityEngine.Object.Destroy(Copy);Owner=null;Source=null;Copy=null;Field=null;Clerk=null;Party=IntPtr.Zero;ObjectIndex=-1;}
  internal static string FeedbackText="";static long feedbackUntil;
  internal static bool FeedbackVisible=>Environment.TickCount64<feedbackUntil&&HuntFieldContext.Active&&Combat.State==null&&!WarRuntime.Active&&!HuntGuildRuntime.PartyMenuOpen&&WindowManager.instance!=null&&!WindowManager.instance.IsUseMessageWindow&&!WindowManager.instance.IsOpenCommonDialogWindow();

@@ -22,7 +22,7 @@ internal static class HallAvailability
     internal static bool Unlocked(int selection)
     {
         if (selection < 0 || selection >= HallTrialCatalogue.Entries.Length) return false;
-        if (Testing) return true;
+        if (Testing || Plugin.Options.UnlockAllBosses.Value) return true;
         var game = Framework.Singleton<GAME_WORK>.instance;
         if (game?.event_flag == null) return false;
         return HallUnlockRules.StoryUnlocked(HallTrialCatalogue.Entries[selection].Id,
@@ -32,12 +32,12 @@ internal static class HallAvailability
     internal static bool CanSelect(int selection) => HallUnlockRules.CanLaunch(
         Plugin.Options.EnableHallOfEchoes.Value, Configured(selection), Unlocked(selection));
 
-    internal static string Reason(int selection) => !Unlocked(selection)
+    internal static string Reason(int selection) => selection<0||selection>=HallTrialCatalogue.Entries.Length ? "Review Spoiler Mode preferences." : !Unlocked(selection)
         ? HallUnlockRules.HasWitness(HallTrialCatalogue.Entries[selection].Id)
             ? "A memory yet to be made. Continue your journey."
             : "This echo is not available in normal play yet."
         : !Configured(selection) ? "This rematch is disabled in the Hall settings."
-        : Testing ? "Testing availability · Story flags are unchanged." :
+        : Plugin.Options.UnlockAllBosses.Value ? "Spoiler Mode · Story flags are unchanged." : Testing ? "Testing availability · Story flags are unchanged." :
           HallUnlockRules.IsBonus(HallTrialCatalogue.Entries[selection].Id)
             ? $"Bonus Echo · After {HallUnlockRules.BonusMilestone(HallTrialCatalogue.Entries[selection].Id)}. Not an individual boss-clear claim."
             : "Story memory recalled · Rematch available.";
