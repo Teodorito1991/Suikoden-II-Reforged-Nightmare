@@ -46,7 +46,26 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
-## v1.53 acceptance pending — no new gameplay build
+## Current v1.53 gameplay acceptance
+
+Exact accepted `1.53.0-army-training.1`, SHA256
+54144F2F61644F6B632F4513B2A4F30C240033AFD68F6F80CE1453051F7BA286.
+Gameplay code commit2e24ddca54d1993616ea1580bdf22f1cc1236c76; do NOT rebuild for Git metadata.
+Owner Commander Rout Standard win, normal vk07/10/6/3 return232,240, Guild/movement,
+real autosave write/readback and title→Continue reload passed. Flags5 + full war/
+character/party saved records match pre-war live fingerprints; no campaign mutation.
+Earned750/credited0 at999999. Save fence retired with verified-return message;
+no save-lock fault. Native save14→file-write/16→idle/reload observed; callback boolean
+not separately intercepted. Do not claim every drill/tier or new defeat acceptance.
+Full Preview now selects4drills/Veteran/rewards; original story gates retained,
+defeat redirect OFF. Fresh/public defaults remain OFF. No commander XP. No code/DLL
+changes during acceptance; all22Hall/10Hunts/RPG/storywars preserved. Copied runtime
+normally closed, evidence private and testing disarmed; original Steam14saves/config
+unchanged. Earlier preparation denial did not recur on the expressly requested,
+verified same-copy attempt through the normal execution tool; no alternate route.
+See docs/ARMY-TRAINING-RESULTS-V153.md. No more drill victory required for this path.
+
+## Historical v1.53 pre-implementation acceptance plan
 
 The only missing target remains one genuine Standard Commander Rout outcome and
 restored native autosave/readback. Available session controls provide no execution
@@ -57,7 +76,7 @@ all accepted fallbacks, normal-training OFF and the22Hall/10Hunt preview. No v1.
 success/tag/build claim. See docs/ARMY-TRAINING-ACCEPTANCE-V153.md for the bounded
 future test and the exact evidence needed before enabling four drills.
 
-## Current v1.52 Army Legacy
+## Historical v1.52 Army Legacy
 
 Build `1.52.0-army-legacy.1`, SHA256
 0840237D7ECB736BABADBD0C35F105954B1447AB757883ADB66D8099F6238895.

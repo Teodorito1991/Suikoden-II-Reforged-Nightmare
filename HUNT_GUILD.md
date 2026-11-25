@@ -1,5 +1,10 @@
 # The Castle Hunt Guild
 
+Current v1.53: Army Training's normal-build Commander Rout Standard victory,
+autosave/readback/reload and Guild reopening passed. Full Preview selects four
+independent drills and supported tiers/rewards; defeat redirect stays OFF. No
+Guild/Hunt/Hall implementation changed. [Results](docs/ARMY-TRAINING-RESULTS-V153.md).
+
 No Guild/Hunt/Hall behavior changed in v1.52. The Full Content Preview retains all22
 supported Original echoes and10 Hunts. Normal-build Army Training remains default
 OFF after its save-contract fixes, pending a genuine restored autosave check.

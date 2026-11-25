@@ -1,0 +1,87 @@
+{
+  "Build": "1.53.0-army-training.1",
+  "DllSha256": "54144F2F61644F6B632F4513B2A4F30C240033AFD68F6F80CE1453051F7BA286",
+  "GameplayCodeCommit": "2e24ddca54d1993616ea1580bdf22f1cc1236c76",
+  "DllRebuiltForAcceptance": false,
+  "Gameplay": {
+    "Scenario": "Commander Rout",
+    "Tier": "Standard",
+    "NativeWar": 1,
+    "EarnedVictory": true,
+    "NativeResult": 1,
+    "Ending": 1,
+    "CastleReturn": true,
+    "Location": "vk07, area10/town6/variant3",
+    "ReturnPosition": [
+      232,
+      240
+    ],
+    "MovementAndGuildReopened": true,
+    "SaveFenceRetired": true,
+    "SaveLockFaultObserved": false,
+    "PotchEarned": 750,
+    "PotchCredited": 0,
+    "Purse": 999999,
+    "GameOver": false
+  },
+  "Persistence": {
+    "ActualAutosaveWritten": true,
+    "NativeSaveStep": 14,
+    "FileChangeObservedAtStep": 16,
+    "ReadbackDecoded": true,
+    "SavedFiveFlagsMatchPreWarLive": true,
+    "SavedWarMatchesPreWarLive": true,
+    "SavedCharactersMatchPreWarLive": true,
+    "SavedPartyMatchesPreWarLive": true,
+    "SavedPartyInventoryUnchanged": true,
+    "MapAndClockDifferencesOnly": true,
+    "ReloadedWrittenAutosave": true,
+    "AfterReloadMovementPartyGuildWork": true,
+    "SaveFileUnchangedThroughReload": true,
+    "CallbackBooleanSeparatelyLogged": false,
+    "CallbackCompletionEvidence": "Native progression beyond save step, completed file write/readback, idle control and successful reload",
+    "WholeSavedObjectCompared": true,
+    "OnlyAdditionalRootDifferences": [
+      "date_time_now",
+      "px",
+      "py"
+    ]
+  },
+  "Environment": {
+    "ProtectedCopy": true,
+    "OnlyIndependentIoGuard": true,
+    "LegacyStockTransitionHarnessUsed": false,
+    "DeveloperTools": false,
+    "ForcedOutcomeOrReward": false,
+    "DebugProtection": false,
+    "DefeatRedirect": false,
+    "OriginalSteamInstallationChanged": false,
+    "OriginalSavesChanged": false,
+    "CopiedTestingDisarmed": true
+  },
+  "FullContentPreview": {
+    "Hunts": 10,
+    "OriginalHallEntries": 22,
+    "TrainingDrills": [
+      "War1 Training",
+      "Fort Defense",
+      "Commander Rout",
+      "War3 Training"
+    ],
+    "SupportedVeteranAndRewards": true,
+    "DefeatReturn": false,
+    "StoryPrerequisitesRetained": true,
+    "SpoilerDefault": false,
+    "NightmareDefault": false
+  },
+  "Limitations": [
+    "Only Commander Rout Standard played on this exact DLL",
+    "Other drills/tiers retain historical evidence and shared-boundary source review",
+    "Current-build defeat/interruption and permanent-death conversion not newly exercised",
+    "No below-cap positive Potch credit on this test",
+    "No commander XP or persistent military stat bonuses",
+    "Full campaign remains experimental"
+  ],
+  "ReleasePublished": false,
+  "OriginalSaveFilesCheckedUnchanged": 14
+}

@@ -1,6 +1,21 @@
 # Configuration
 
-## Current v1.52 Army Legacy decision
+## Current v1.53 Army Training acceptance
+
+Exact1.53.0-army-training.1 now has an owner-earned Standard Commander Rout victory,
+correct castle return, movement/Guild reopening, a real native autosave, protected
+saved-data readback and successful reload. All five flags, war, character and party
+records match the pre-war live fingerprint. Earned750 Potch, credited0 at999,999.
+The production save restriction retired at the verified return; no save-lock fault.
+Full Content Preview selects four independent drills plus supported Veteran/rewards;
+original completion gates remain and defeat return stays OFF (native Game Over).
+Only Commander Rout Standard was played on this DLL. Other drill/tier evidence is
+historical, not new exact-hash acceptance. Fresh defaults remain conservative.
+No commander XP. No Hall/Hunt/RPG/story-war code change, new DLL or Steam install.
+[Exact evidence and limits](docs/ARMY-TRAINING-RESULTS-V153.md).
+
+
+## Historical v1.52 Army Legacy decision
 
 The training save fence now completes rejected native save callbacks, keeps refused
 intent separate from actual writes, and rejects stale/malformed protected payloads.

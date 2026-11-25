@@ -1,26 +1,20 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development checkpoint: v1.52 — Army Legacy save-contract fixes.**
-v1.53 is awaiting the single real Commander Rout/restored-autosave acceptance run;
-execution approval is unavailable in the current session. No new DLL or default
-training enablement. [Short acceptance plan](docs/ARMY-TRAINING-ACCEPTANCE-V153.md).
+**Latest accepted development checkpoint: v1.53 — Army Training.**
+Standard Commander Rout passed an earned victory, correct castle return, real
+native autosave/readback and reload on the exact recorded DLL. Full Content
+Preview now selects four independent native drills with supported Standard/Veteran
+choices and750/1,500-Potch qualifying rewards, alongside22 Original Hall entries,
+10 Hunts and the RPG/original story-war overhaul. Only Commander Rout Standard was
+played on this DLL; other drills/tiers retain historical evidence. Original campaign
+prerequisites remain. Defeat return and Spoiler Mode are OFF; Nightmare is optional.
+Commander XP is unimplemented. [Exact acceptance](docs/ARMY-TRAINING-RESULTS-V153.md).
 
-Rejected training saves now finish their native failure callbacks and cannot
-invalidate a good return just by being attempted. Native-entry/component checks
-passed; a current-build played drill/restored autosave remains unobserved after
-automatic approval review blocked the test-copy setup. Normal-build training stays
-OFF; persistent commander XP remains unimplemented. The Full Content Preview
-retains22 supported Original echoes,10 Hunts and the RPG/original story-war overhaul.
-[Exact evidence and remaining limits](docs/ARMY-LEGACY-V152.md).
-Original Luca and boosted-party Beast Rune evidence retain their historical DLLs.
-
-The separate **Full Content Preview** selects ten Hunts and compatible Hall content.
-The [v1.48 Fresh Campaign baseline](docs/FRESH-CAMPAIGN-V148.md) and v1.49 fallback
-are preserved. [Generate configurations](profiles/full-content/README.md).
-Army Training retains its default-off normal-build ownership contract. Historical
-Commander Rout return/autosave evidence and current native-entry rejection tests
-are separate. One genuine v1.52 restored autosave check remains pending. There is
-no commander XP or persistent training stat system.
+Generate the [Full Content Preview](profiles/full-content/README.md) to a new folder;
+it does not install a DLL or overwrite personal settings. The separate conservative
+Fresh Campaign profile remains unchanged. No whole-campaign certification or beta
+publication. Original Luca and boosted-party Beast Rune evidence retain their own
+historical DLL hashes; they were not replayed for this training acceptance.
 
 **Campaign development baseline** is v1.40, with DLL
 `1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional
@@ -61,14 +55,16 @@ hunting rewards preparation and grinding without becoming mandatory.
 
 ## Castle Army Training
 
-The existing original-engine system offers four drills on three maps, with
-Standard/Veteran choices and qualifying750/1,500-Potch rewards. Historical native
-wins, defeats and returns retain their recorded DLLs. v1.50's normal-contract
-Commander Rout win/return and copied autosave comparison passed; v1.52 adds real
-native-entry rejection/failure-callback fixtures. It has no new played drill or
-restored autosave after the test-copy preparation was blocked. Normal-build training
-therefore remains OFF in generated campaign profiles. Commander XP/story-war
-training bonuses are unimplemented. [Current evidence](docs/ARMY-LEGACY-V152.md).
+The native Guild offers War1 Training, Fort Defense, Commander Rout and War3
+Training, gated by their original story completions and audited definitions.
+Standard/Veteran qualifying victories earn750/1,500 Potch through the native purse.
+Defeat, timed endings without a commander rout and invalid returns do not pay.
+The v1.53 normal-build return/save mechanism passed Commander Rout Standard, actual
+autosave readback and reload. It does not require a developer gameplay harness.
+Independent test I/O protection was used only to preserve the Steam install/saves.
+Full Preview selects the four drills; individual opt-outs remain. Native defeat is
+unchanged with the optional redirect OFF. No commander XP or training stat bonus.
+[Results and remaining limits](docs/ARMY-TRAINING-RESULTS-V153.md).
 
 ## Working from source
 

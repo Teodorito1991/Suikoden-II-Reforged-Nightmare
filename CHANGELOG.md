@@ -1,5 +1,22 @@
 # Development history
 
+## v1.53 — Army Training gameplay acceptance and Full Content integration
+
+- Owner-earned Commander Rout Standard victory, native castle return, movement,
+  Guild reopen, actual autosave write/readback and reload passed on the exact DLL.
+- Saved five flags/war/character/party records match pre-war live fingerprints.
+  Earned750 Potch; credited0 at the native999999 cap. No injected outcome/reward.
+- Save fence retired after verified restoration. Callback progress past native
+  save and usable saved/reloaded data observed; boolean callback not separately logged.
+- Full Preview selects four drills, supported Veteran tactics and native rewards;
+  each original story prerequisite/independent switch retained. Defeat redirect OFF.
+- Other drill/tier/death-conversion paths were not newly played. No commander XP.
+  No Hall/Hunt retest, gameplay code change, rebuild, Steam install or beta release.
+- Reuses accepted build `1.53.0-army-training.1`, SHA256
+  `54144F2F61644F6B632F4513B2A4F30C240033AFD68F6F80CE1453051F7BA286`.
+  [Exact results](docs/ARMY-TRAINING-RESULTS-V153.md).
+
+
 ## v1.53 — Army Training save contract simplified (development; owner playtest pending)
 
 - Lift training save protection at the verified return instead of re-verifying

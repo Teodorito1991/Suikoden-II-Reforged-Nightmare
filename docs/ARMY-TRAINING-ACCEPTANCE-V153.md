@@ -1,3 +1,14 @@
+# Current result — v1.53 acceptance passed
+
+One Commander Rout Standard victory, native castle return, real autosave readback
+and reload passed on the exact recorded DLL. No second victory or intentional
+defeat is required. [Complete results and limits](ARMY-TRAINING-RESULTS-V153.md).
+
+The implementation handoff below is preserved as historical pre-acceptance evidence;
+its pending status and extra proposed runs do not describe the current result.
+
+---
+
 # Army Training v1.53 — simplified save contract, owner playtest pending
 
 **Normal-build training remains default OFF until the owner playtest below passes.**
