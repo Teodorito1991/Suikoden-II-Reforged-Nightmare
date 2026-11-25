@@ -1,5 +1,16 @@
 # Development history
 
+## v1.53 acceptance preparation — documentation only, gameplay pending
+
+- Added the single Commander Rout Standard outcome/autosave/readback procedure,
+  protected-record and native reward acceptance criteria; no repeated boss/drill run.
+- Reviewed existing v1.52 save hooks without code changes. No new DLL or game launch.
+- No execution-escalation route is exposed for the prior denied copied-runtime
+  setup. Did not retry/bypass it. Training remains default OFF; XP unimplemented.
+- Latest verified gameplay code/build stays1.52.0-army-legacy.1. Full22 Original
+  Hall/10Hunt/RPG/story-war configuration and unpublished beta remain unchanged.
+- [Acceptance handoff](docs/ARMY-TRAINING-ACCEPTANCE-V153.md). No gameplay tag.
+
 ## v1.52 — Army Legacy (development; training acceptance incomplete)
 
 - Complete native failure callbacks when training rejects SystemSave.Save,

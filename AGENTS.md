@@ -46,6 +46,17 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
+## v1.53 acceptance pending — no new gameplay build
+
+The only missing target remains one genuine Standard Commander Rout outcome and
+restored native autosave/readback. Available session controls provide no execution
+escalation for the prior automatic-review denial. Do not resubmit denied setup,
+change paths/tools or ask the owner to execute it as a workaround. No new launch,
+code/DLL/config/save change or native fixture run. Preserve exact v1.52 DLL/hash,
+all accepted fallbacks, normal-training OFF and the22Hall/10Hunt preview. No v1.53
+success/tag/build claim. See docs/ARMY-TRAINING-ACCEPTANCE-V153.md for the bounded
+future test and the exact evidence needed before enabling four drills.
+
 ## Current v1.52 Army Legacy
 
 Build `1.52.0-army-legacy.1`, SHA256

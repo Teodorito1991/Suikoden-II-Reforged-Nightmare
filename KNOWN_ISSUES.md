@@ -1,5 +1,14 @@
 # Known issues and validation limits
 
+## v1.53 acceptance blocker (documentation only)
+
+The real Commander Rout/restored-autosave check remains unobserved. The current
+session exposes no execution-escalation route for the previously denied copied
+runtime setup; the denied action was not retried or routed through another tool.
+This is not a gameplay failure or acceptance. Keep normal-build training OFF in
+both generated profiles. The exact v1.52 DLL and all gameplay/configuration remain
+unchanged. [One bounded test](docs/ARMY-TRAINING-ACCEPTANCE-V153.md).
+
 ## Current v1.52 Army Legacy decision
 
 The training save fence now completes rejected native save callbacks, keeps refused

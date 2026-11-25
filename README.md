@@ -1,6 +1,10 @@
 # Suikoden II: Reforged Nightmare
 
 **Latest development checkpoint: v1.52 — Army Legacy save-contract fixes.**
+v1.53 is awaiting the single real Commander Rout/restored-autosave acceptance run;
+execution approval is unavailable in the current session. No new DLL or default
+training enablement. [Short acceptance plan](docs/ARMY-TRAINING-ACCEPTANCE-V153.md).
+
 Rejected training saves now finish their native failure callbacks and cannot
 invalidate a good return just by being attempted. Native-entry/component checks
 passed; a current-build played drill/restored autosave remains unobserved after
