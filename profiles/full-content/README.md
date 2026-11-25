@@ -1,4 +1,4 @@
-# Full Content Preview — v1.51.1
+# Full Content Preview — v1.52
 
 Configuration proposal, not an installation or whole-campaign certificate.
 Choose Normal. Generate to a new empty directory:
@@ -27,10 +27,12 @@ and choose the tier in the Hall. Conditional stone offers respect original loot
 priority and native inventory capacity. Contracts reset on load/restart.
 
 Developer tools, damage protection, unsafe scripted switches, the retired arena
-and normal-build Army Training stay OFF. The new training direct-save contract
-still needs current-build outcome/autosave/fault-path evidence. No commander XP.
+and normal-build Army Training stay OFF. The training direct-save contract now has native-entry rejection/callback and
+synthetic fault checks. A genuine outcome/restored autosave remains unobserved;
+automatic approval review blocked preparing that test. No commander XP.
 Existing native training code and prior evidence are preserved.
 
 No DLL installation, save modification or overwrite occurs when generating this
 profile. The separate Fresh Campaign baseline remains unchanged.
-[Exact evidence and limitations](../../docs/FEATURE-COMPLETION-V1511.md).
+[Current save-contract evidence and limits](../../docs/ARMY-LEGACY-V152.md).
+[Historical Hall integration evidence](../../docs/FEATURE-COMPLETION-V1511.md).

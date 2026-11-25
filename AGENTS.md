@@ -46,7 +46,23 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
-## Current v1.51.1 integration
+## Current v1.52 Army Legacy
+
+Build `1.52.0-army-legacy.1`, SHA256
+0840237D7ECB736BABADBD0C35F105954B1447AB757883ADB66D8099F6238895.
+Fixes rejected-save callback completion and refused-intent write counting; protected
+payload comparison now rejects duplicate/missing/stale values and live verification
+exceptions fail closed. Native5071 audit +12 synthetic-session actual native entry
+checks passed. NOT a played drill/autosave. Auto approval review blocked campaign
+copy preparation twice (second after owner approval), giving only blocked by policy.
+Do not route around that rejection or claim real outcome acceptance. Normal training
+stays OFF in Fresh/Full profiles. Existing4drills/Veteran/rewards and historical
+outcomes preserved; no XP/sidecar/spare-byte storage. Full22 Original Hall/10Hunts
+unchanged, accepted DLLs preserved. No Steam/original-save/release change.
+See docs/ARMY-LEGACY-V152.md. Further implementation scope is closed; only genuine
+save-boundary acceptance or owner campaign bugs justify more work here.
+
+## Historical v1.51.1 integration
 
 Build `1.51.1-feature-completion.1`, SHA256
 DB2EA401C0F3C0DCC30E4F079AF8A29A2D5C8B70A31E42ABAE68E75998282AE9.

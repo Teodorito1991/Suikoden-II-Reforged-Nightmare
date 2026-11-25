@@ -1,22 +1,22 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest development checkpoint: v1.51.1 — Full Content integration.**
-One preview configuration now selects all22 supported Original Hall encounters,
-including the accepted Original Luca gauntlet, alongside all10 Hunts and the RPG/
-original story-war overhaul. Beast Rune's native victory/return and cleanup passed
-with an explicitly boosted disposable test party; normal-party balance remains
-unproven. Original Luca's accepted DLL and unchanged implementation are preserved.
-Spoiler Mode remains reversible, confirmed and OFF by default. Normal-build
-training remains OFF pending its direct-save acceptance; no commander XP.
-[Evidence and limits](docs/FEATURE-COMPLETION-V1511.md).
+**Latest development checkpoint: v1.52 — Army Legacy save-contract fixes.**
+Rejected training saves now finish their native failure callbacks and cannot
+invalidate a good return just by being attempted. Native-entry/component checks
+passed; a current-build played drill/restored autosave remains unobserved after
+automatic approval review blocked the test-copy setup. Normal-build training stays
+OFF; persistent commander XP remains unimplemented. The Full Content Preview
+retains22 supported Original echoes,10 Hunts and the RPG/original story-war overhaul.
+[Exact evidence and remaining limits](docs/ARMY-LEGACY-V152.md).
+Original Luca and boosted-party Beast Rune evidence retain their historical DLLs.
 
 The separate **Full Content Preview** selects ten Hunts and compatible Hall content.
 The [v1.48 Fresh Campaign baseline](docs/FRESH-CAMPAIGN-V148.md) and v1.49 fallback
 are preserved. [Generate configurations](profiles/full-content/README.md).
-Army Training has a new default-off normal-build ownership contract; it is still
-experimental: an exact-build Commander Rout win/return and protected autosave
-comparison passed, but direct-write fault handling and other outcomes remain open. There is no commander XP
-or persistent training system.
+Army Training retains its default-off normal-build ownership contract. Historical
+Commander Rout return/autosave evidence and current native-entry rejection tests
+are separate. One genuine v1.52 restored autosave check remains pending. There is
+no commander XP or persistent training stat system.
 
 **Campaign development baseline** is v1.40, with DLL
 `1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional
@@ -57,16 +57,14 @@ hunting rewards preparation and grinding without becoming mandatory.
 
 ## Castle Army Training
 
-The opt-in training system uses three original scenarios and offers four
-drills through the Guild. Choose a drill and then Standard or Veteran.
-Historical tests in the copied runtime returned to Leona's tavern. On v1.32,
-Veteran War 3 returned after
-its timer and Veteran Commander Rout returned after an earned victory.
-Commander Rout earned 1,500 Potch at the purse cap. A below-cap payout,
-War 3 defeat return, and a second consecutive War 3 entry remain unverified.
-Commander experience remains deferred. v1.36 captures the player's real
-standing point at the new Guild corridor. A live training return there has yet
-to be observed. [Current controls and evidence](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).
+The existing original-engine system offers four drills on three maps, with
+Standard/Veteran choices and qualifying750/1,500-Potch rewards. Historical native
+wins, defeats and returns retain their recorded DLLs. v1.50's normal-contract
+Commander Rout win/return and copied autosave comparison passed; v1.52 adds real
+native-entry rejection/failure-callback fixtures. It has no new played drill or
+restored autosave after the test-copy preparation was blocked. Normal-build training
+therefore remains OFF in generated campaign profiles. Commander XP/story-war
+training bonuses are unimplemented. [Current evidence](docs/ARMY-LEGACY-V152.md).
 
 ## Working from source
 

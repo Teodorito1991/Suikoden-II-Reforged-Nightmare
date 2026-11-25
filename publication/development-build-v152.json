@@ -1,0 +1,48 @@
+{
+  "Version": "1.52.0-army-legacy.1",
+  "DllSha256": "0840237D7ECB736BABADBD0C35F105954B1447AB757883ADB66D8099F6238895",
+  "BaseCommit": "e085f51751a2b48ebefa3c94bc55db29d5069d2e",
+  "Implemented": [
+    "Complete rejected native save callbacks",
+    "Separate refused save intent from actual writes",
+    "Arm protection before private flag publication",
+    "Fail-closed live verification",
+    "Protected payload structural comparison and duplicate-property refusal"
+  ],
+  "Evidence": {
+    "ReleaseBuild": "PASS; no warnings/errors; no debug paths",
+    "Managed": "PASS; targeted payload tests plus retained suite",
+    "NativeProductionAudit": {
+      "Passed": true,
+      "Assertions": 5071,
+      "Scope": "Startup original asset/setup/helper audit; no earned battle or campaign save"
+    },
+    "SaveEntryProbe": {
+      "Passed": true,
+      "Checks": 12,
+      "Scope": "Synthetic owner/session with actual SystemSave.Save, UISaveLoad2.Save and GSD2SaveData.SaveFile entry hooks and native failure callbacks",
+      "FixtureCampaignWrite": false
+    },
+    "GenuineTrainingOutcome": false,
+    "GenuineRestoredAutosave": false,
+    "NewRenderedGameplay": false
+  },
+  "NormalBuildTrainingDefault": false,
+  "FullContentPreview": {
+    "OriginalHall": 22,
+    "Hunts": 10,
+    "RpgAndStoryWarLayers": "unchanged",
+    "ArmyTraining": false,
+    "SpoilerModeDefault": false,
+    "NightmareDefault": false
+  },
+  "PersistentCommanderProgression": {
+    "Implemented": false,
+    "Reason": "Native war persistence stores roster assignments; no verified progression extension or reliable save/branch identity. Existing training Potch persists through original saves."
+  },
+  "ExecutionBlocker": "Automatic approval review rejected copied-campaign runtime preparation twice, including after explicit owner confirmation, with only blocked by policy. No bypass attempted.",
+  "SteamInstallationChanged": false,
+  "OriginalSavesChanged": false,
+  "AcceptedFallbacksPreserved": true,
+  "ReleasePublished": false
+}

@@ -1,5 +1,24 @@
 # Development history
 
+## v1.52 — Army Legacy (development; training acceptance incomplete)
+
+- Complete native failure callbacks when training rejects SystemSave.Save,
+  UISaveLoad2.Save or GSD2SaveData.SaveFile; callers no longer wait without a result.
+- Do not count a refused save intent as a completed write or invalidate the native
+  return for that reason. Arm ownership before publishing the private flag arrays.
+- Fail closed on live-ownership verification exceptions; compare all five flag
+  arrays/four records and reject missing/duplicate/stale protected JSON values.
+- Native-entry rejection/fault tests and managed/native regressions passed. No new
+  player-earned drill/autosave result: automatic approval review blocked preparing
+  the campaign copy. Normal-build training remains default OFF in both profiles.
+- Commander XP remains deferred: no native progression extension or demonstrated
+  campaign/branch identity. Existing750/1,500 Potch victory rewards are preserved.
+- Hall/RPG/Hunts/story wars unchanged. No Steam install, save change or beta release.
+- Build `1.52.0-army-legacy.1`, SHA256
+  `0840237D7ECB736BABADBD0C35F105954B1447AB757883ADB66D8099F6238895`.
+  [Evidence and practical decision](docs/ARMY-LEGACY-V152.md).
+
+
 ## v1.51.1 — Full Content integration (development)
 
 - Preview selects all22 supported Original Hall entries, including accepted Luca;

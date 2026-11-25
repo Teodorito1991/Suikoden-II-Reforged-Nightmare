@@ -1,6 +1,21 @@
 # Features and evidence levels
 
-## Current v1.51.1 integration
+## Current v1.52 Army Legacy decision
+
+The training save fence now completes rejected native save callbacks, keeps refused
+intent separate from actual writes, and rejects stale/malformed protected payloads.
+Managed checks and original-engine save-entry hooks passed in disposable synthetic
+sessions; this is not a played drill or a successful autosave. Automatic approval
+review blocked preparing the campaign test copy, even after owner confirmation.
+Normal-build Army Training therefore remains default OFF and excluded from Full
+Content Preview. Existing native drills, Veteran tactics and earned Potch remain
+implemented. No commander XP or story-war stat progression was added: no trustworthy
+native extension or save/branch identity has been established. All22 supported
+Original Hall entries,10 Hunts and RPG/story-war features are preserved.
+[Evidence and finish-line decision](docs/ARMY-LEGACY-V152.md).
+
+
+## Historical v1.51.1 integration
 
 Full Content Preview selects all22 supported Original Hall definitions and10 Hunts.
 Original Luca's accepted implementation is unchanged and its exact DLL preserved.
@@ -14,7 +29,7 @@ OFF pending current-build restored autosave and fault-path acceptance. No XP.
 
 Earlier sections below retain their milestone-specific historical claims.
 
-## v1.51 current checkpoint
+## Historical v1.51 checkpoint
 
 Original Luca's three-team gauntlet now has one exact-build owner completion,
 private HP carry, final earned win, clean returns and original-party restoration.
@@ -87,8 +102,8 @@ Story-war changes use original maps, units, animations, combat and interpreter.
 Castle Army Training uses the original engine. The new default-off normal-build
 contract passed one Commander Rout win/return in the copy, with a post-return native
 autosave whose protected flags/war/party data were subsequently verified unchanged.
-Other outcomes and direct-write fault handling remain experimental. Commander
-experience remains deferred.
+v1.52 native-entry rejection/callback fixtures passed; its genuine outcome and
+restored autosave remain pending. Commander experience remains deferred.
 The retired custom arena is absent from the plugin; archived pure test inputs
 preserve regression coverage only.
 

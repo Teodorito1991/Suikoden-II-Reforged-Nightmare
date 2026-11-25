@@ -1,6 +1,21 @@
 # Configuration
 
-## Current v1.51.1 integration
+## Current v1.52 Army Legacy decision
+
+The training save fence now completes rejected native save callbacks, keeps refused
+intent separate from actual writes, and rejects stale/malformed protected payloads.
+Managed checks and original-engine save-entry hooks passed in disposable synthetic
+sessions; this is not a played drill or a successful autosave. Automatic approval
+review blocked preparing the campaign test copy, even after owner confirmation.
+Normal-build Army Training therefore remains default OFF and excluded from Full
+Content Preview. Existing native drills, Veteran tactics and earned Potch remain
+implemented. No commander XP or story-war stat progression was added: no trustworthy
+native extension or save/branch identity has been established. All22 supported
+Original Hall entries,10 Hunts and RPG/story-war features are preserved.
+[Evidence and finish-line decision](docs/ARMY-LEGACY-V152.md).
+
+
+## Historical v1.51.1 integration
 
 Full Content Preview selects all22 supported Original Hall definitions and10 Hunts.
 Original Luca's accepted implementation is unchanged and its exact DLL preserved.
@@ -14,7 +29,7 @@ OFF pending current-build restored autosave and fault-path acceptance. No XP.
 
 Earlier sections below retain their milestone-specific historical claims.
 
-## v1.51 current checkpoint
+## Historical v1.51 checkpoint
 
 Original Luca's three-team gauntlet now has one exact-build owner completion,
 private HP carry, final earned win, clean returns and original-party restoration.
@@ -176,10 +191,13 @@ attendant separately with castle-guild.json's Enabled=false. Disable custom fall
 item preparation with EnableVictoryItems=false. Native drops still belong to the
 game. Reporting pays nothing again. Contracts are session-only; selector preference
 persistence is not campaign quest persistence. Castle Army Training has its own
-opt-in and does not award commander XP. Its copied-runtime requirement uses the
-stock transition trace marker and the active disposable save-root redirect.
-The Guild menu lists campaign prerequisites for the four drills.
-[Current training controls](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).
+opt-in and does not award commander XP. The normal-build contract uses
+EnableTrainingNormalBuild plus EnableTrainingWar and EnableTrainingDefeatReturn;
+all remain default OFF. The older protected-copy path is preserved separately.
+The Guild lists campaign prerequisites for the four drills. EnableTrainingWar2,
+EnableTrainingWar3 and EnableTrainingChallenge select the additional drills.
+EnableTrainingVeteran and EnableTrainingRewards remain independent switches.
+[Current save-contract limits](docs/ARMY-LEGACY-V152.md).
 
 ## Development-only war bridge
 

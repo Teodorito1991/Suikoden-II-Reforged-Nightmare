@@ -92,10 +92,10 @@ internal sealed class Settings
         EnableTrainingWar = config.Bind("Native War", nameof(EnableTrainingWar), false, "Optional native War 1 training. Requires the normal-build ownership contract or protected harness.");
         EnableTrainingWar2 = config.Bind("Native War", nameof(EnableTrainingWar2), false, "Optional native War 2 fort defense; training ownership and original completion required.");
         EnableTrainingWar3 = config.Bind("Native War", nameof(EnableTrainingWar3), false, "Optional original War 3; training ownership and original completion required.");
-        EnableTrainingChallenge = config.Bind("Native War", nameof(EnableTrainingChallenge), false, "Experimental War 1 commander-rout challenge in the disposable copy.");
+        EnableTrainingChallenge = config.Bind("Native War", nameof(EnableTrainingChallenge), false, "Optional native War 1 Commander Rout drill; training ownership and original completion required.");
         EnableTrainingVeteran = config.Bind("Native War", nameof(EnableTrainingVeteran), true, "Offer Veteran tactics for audited training drills.");
         EnableTrainingRewards = config.Bind("Native War", nameof(EnableTrainingRewards), true, "Award native Potch once for routing the enemy commander in a completed training drill.");
-        EnableTrainingDefeatReturn = config.Bind("Native War", nameof(EnableTrainingDefeatReturn), false, "Experimental return after native training defeat in the disposable copy.");
+        EnableTrainingDefeatReturn = config.Bind("Native War", nameof(EnableTrainingDefeatReturn), false, "Training-only return after a verified native defeat. Normal story-war defeat is unchanged.");
         EnableNativeWarRemix = config.Bind("Native War", nameof(EnableNativeWarRemix), true, "Audited scenario remixes for native wars 1,2,3,6,13. Original ending/campaign scripts retained; per-war configuration and experimental acceptance limits in docs.");
         RunNativeWarSelfTest = config.Bind("Native War", nameof(RunNativeWarSelfTest), false, "Developer startup-only native outcome probe on disposable armies. Restores all replaced globals. Does not launch a map or load a save. Leave false for normal play.");
         EnableEnemyTargeting = config.Bind("Features", nameof(EnableEnemyTargeting), true, "Raider ordinary enemies prefer wounded legal candidates in the native normal single-target fallback selector. No boss/action-table edits.");

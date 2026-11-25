@@ -134,8 +134,8 @@ internal static class TrainingWar
         if(!session.NormalContract)return;
         if(session.OriginalFlags.Any(a=>a==null||a.Length==0||a.Length>4096))throw new InvalidOperationException("Incomplete training flag ownership.");
         session.PrivateFlags=session.OriginalFlags.Select(a=>new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<byte>(a.ToArray())).ToArray();
-        SetFlags(session.Game,session.PrivateFlags);
         protectedSession=session;
+        SetFlags(session.Game,session.PrivateFlags);
     }
     static bool RestoreFlags(Session session)
     {
@@ -481,9 +481,13 @@ internal static class TrainingWar
     internal static bool AllowSaveIntent()
     {
         if(protectedSession is not {} s)return true;
-        bool allowed=current==null&&!faulted&&RestoredState(s);
-        if(!allowed)Plugin.Logger.LogWarning($"Training {s.Identity}: refused save intent while transient, faulted or unverified.");
-        return allowed;
+        try
+        {
+            bool allowed=current==null&&!faulted&&RestoredState(s);
+            if(!allowed)Plugin.Logger.LogWarning($"Training {s.Identity}: refused save intent while transient, faulted or unverified.");
+            return allowed;
+        }
+        catch(Exception error){return FaultSave(s,"live ownership verification: "+error.GetType().Name);}
     }
     internal static bool AllowNativeSave(string path,string json)
     {
@@ -491,17 +495,8 @@ internal static class TrainingWar
         try
         {
             if(!AllowSaveIntent())return false;
-            using var payload=JsonDocument.Parse(json);var root=payload.RootElement;
-            string[] names={"chara_flag","town_flag","event_flag","scpoi_flag","t_box_flag"};
-            for(int i=0;i<5;i++)if(!root.TryGetProperty(names[i],out var array)||array.ValueKind!=JsonValueKind.Array||
-                !array.EnumerateArray().Select(v=>v.GetByte()).SequenceEqual(s.Flags[i]))return FaultSave(s,"payload flag ownership");
-            var live=Serialize(s.Game);string[] records={"game_data","war_data","chara_data","party_data"};
-            for(int i=0;i<4;i++)
-            {
-                if(!root.TryGetProperty(records[i],out var record))return FaultSave(s,"missing payload record");
-                using var expected=JsonDocument.Parse(live[i]);var diff=new List<string>();Compare(expected.RootElement,record,records[i],diff);
-                if(diff.Count!=0)return FaultSave(s,"payload differs from restored live records");
-            }
+            if(!TrainingPersistenceRules.PayloadMatches(json,s.Flags,Serialize(s.Game),out string reason))
+                return FaultSave(s,reason);
             Plugin.Logger.LogInfo($"Training {s.Identity}: allowed native restored-state autosave payload; five flags and four records verified.");
             return true;
         }
@@ -512,15 +507,17 @@ internal static class TrainingWar
     [HarmonyPatch(typeof(GSD2SaveData), nameof(GSD2SaveData.SaveFile))]
     static class SaveWitness
     {
-        [HarmonyPrefix] static bool Prefix()
+        [HarmonyPrefix] static bool Prefix(Il2CppSystem.Action<bool, GSD2SaveData.TmpSave>? callback, ref bool __result)
         {
-            if(current is {} session)
+            // Rejected intent is not a disk write and must not invalidate an
+            // otherwise intact native training return.
+            if (!AllowSaveIntent())
             {
-                session.SaveCalls++;
-                if(session.NormalContract){Plugin.Logger.LogWarning("Training session refused an unexpected save request.");return false;}
+                __result=false;
+                TrainingSaveFailure.Complete(callback);
+                return false;
             }
-            if(faulted&&Plugin.Options.EnableTrainingNormalBuild.Value)
-            {Plugin.Logger.LogWarning("Training detected an unsafe return; restart and reload before saving.");return false;}
+            if(current is {} session) session.SaveCalls++;
             return true;
         }
     }

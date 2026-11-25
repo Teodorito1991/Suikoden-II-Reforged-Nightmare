@@ -1,5 +1,10 @@
 # The Castle Hunt Guild
 
+No Guild/Hunt/Hall behavior changed in v1.52. The Full Content Preview retains all22
+supported Original echoes and10 Hunts. Normal-build Army Training remains default
+OFF after its save-contract fixes, pending a genuine restored autosave check.
+[Army Legacy decision](docs/ARMY-LEGACY-V152.md).
+
 ## Current v1.51.1 integration
 
 Full Content Preview selects all22 supported Original Hall definitions and10 Hunts.
