@@ -46,6 +46,19 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
+## Current v1.55 story-boss coverage
+
+Development1.55.0-story-bosses.1. Hash/evidence: publication/development-build-v155.json.
+Full Content selects MajorBosses and four Legendary groups:22 policy records vs13.
+This is native/component/launcher evidence, not rendered story-boss acceptance.
+New StoryBossSelectionScope gates only Lucia1/2 and final Neclord: entry0, matching
+owner/callbacks; scripted/nested/stale/unknown contexts retain native choices.
+No HP/damage increase or BossProfiles/ScriptedBossOverrides activation. Do not
+weaken guards or extend them to Luca. Luca/Beast native controllers and Hall
+implementation preserved. Seven stat plans:4 core + both Wolves + second Harpy;
+first Worm is AI-only. Read docs/STORY-BOSS-COVERAGE-V155.md before further changes.
+Original Steam,14 saves, personal configs and accepted DLLs preserved; no beta.
+
 ## Current v1.54 balance audit
 
 Development1.54.0-balance-audit.1; exact hash/evidence in publication/development-build-v154.json.

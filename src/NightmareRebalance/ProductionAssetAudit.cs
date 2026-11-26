@@ -27,7 +27,7 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   try
   {
    if(Combat.State!=null||WarRuntime.Active||WarTacticsRuntime.Armed)throw new InvalidOperationException("Audit requires unloaded launcher.");
-   if(tables==null){previousBackground=Application.runInBackground;Application.runInBackground=true;tables=LucaHpOnly?lucaSources.Select(x=>x.Data.TableId).ToArray():CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Concat(RpgEvolutionRuntime.Audit.Formations).Select(x=>x.TableId).Concat(bossSources.Concat(lucaSources).Concat(LegendaryBossRuntime.Audit).Select(x=>x.Data.TableId)).Concat(BossTacticsRuntime.RevolutionAudit.Select(a=>a.TableId)).Concat(CombatReforgedRuntime.Audit.Enemies.Select(x=>x.Id.Substring(0,x.Id.LastIndexOf('_')))).Concat(HuntRuntime.Definitions.Select(x=>x.Audit.TableId)).Concat(HallTrialCatalogue.AllSources.Select(x=>x.TableId)).Distinct().ToArray();started=Time.realtimeSinceStartup;}
+   if(tables==null){previousBackground=Application.runInBackground;Application.runInBackground=true;tables=LucaHpOnly?lucaSources.Select(x=>x.Data.TableId).ToArray():CombatEvolutionRuntime.Audit.Formations.Concat(CombatMasteryRuntime.Audit.Formations).Concat(CombatRealityRuntime.Audit.Formations).Concat(RpgEvolutionRuntime.Audit.Formations).Select(x=>x.TableId).Concat(bossSources.Concat(lucaSources).Concat(LegendaryBossRuntime.Audit).Select(x=>x.Data.TableId)).Concat(BossTacticsRuntime.RevolutionAudit.Select(a=>a.TableId)).Concat(CombatReforgedRuntime.Audit.Enemies.Select(x=>x.Id.Substring(0,x.Id.LastIndexOf('_')))).Concat(HuntRuntime.Definitions.Select(x=>x.Audit.TableId)).Concat(HallTrialCatalogue.AllSources.Select(x=>x.TableId)).Concat(Environment.GetCommandLineArgs().Contains("--reforged-story-boss-audit")?new[]{"boss_rau2"}:Array.Empty<string>()).Distinct().ToArray();started=Time.realtimeSinceStartup;}
    if(Time.realtimeSinceStartup-started>40)throw new TimeoutException("Production resource audit timed out before resource completion.");
    // HD UI font/material bundles require the graphics player; never load in -nographics.
    // The explicit unloaded render smoke verifies them separately.
@@ -48,6 +48,9 @@ public sealed class ProductionAssetAudit : MonoBehaviour
   if(LucaHpOnly){InspectBoss(table,lucaSources.Where(x=>x.Data.TableId==table.id).ToArray());HallLucaHpProbe.Inspect(table);return;}
   if(table==null||table.monster_data==null||table.monster_party==null)throw new InvalidOperationException("Native battle table arrays");
   BalanceAuditProbe.Setup(table);
+  if(Environment.GetCommandLineArgs().Contains("--reforged-story-boss-audit") && table.id.StartsWith("boss_",StringComparison.Ordinal))
+   Rows.Add(new{Kind="StoryBossSourceInventory",Table=table.id,Monsters=table.monster_data.Select((d,i)=>new{Data=d,Index=i}).Where(x=>x.Data!=null).Select(x=>new{Index=x.Index,Id=x.Data.id,Hp=x.Data.hp,Level=x.Data.level,Name=x.Data.name_id}).ToArray(),Parties=table.monster_party.Select((p,i)=>new{Data=p,Index=i}).Where(x=>x.Data?.data!=null).Select(x=>new{Index=x.Index,Id=x.Data.id,NativeCommands=x.Data.data.be_data?.command_num??-1,Hooks=CombatEvolutionRuntime.Hooks(x.Data.data)}).ToArray(),SceneLoaded=false});
+
   if(table.id=="vb07_00")GuildNativeProbe.ReissueTable=table;
   if (HallEchoesProbe.Requested && table.id=="boss_rat")
       HallEchoesProbe.Inspect(table,bossSources.Single(b=>b.Data.TableId==table.id).Data);

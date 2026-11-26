@@ -67,3 +67,5 @@ Hall Original preserves its original HP source instead of applying the global ac
 The final report adds complete character/spell appendices, economy/war analysis, ranked risks, coordinated changes and final verification. This baseline remains a separate historical pre-change document.
 
 Subsequent v1.54 native setup cross-check: six original BattleDataSetup calls (Normal/Hard on va01_00,vc12_00,va11_00),22 monster rows, confirm native HP and unchanged remaining combat parameters. This supports the baseline path; it is final-build component evidence, not an earlier accepted battle.
+
+Correction from the focused v1.55 native-source review: the seven admitted stat plans are the four core bosses, both Golden Wolf records and second Harpy. First Worm remains native HP/damage with AI-only Boss Revolution; its1.0 result was not a dedicated stat plan. This note preserves the original audit conclusions. See [current story coverage](STORY-BOSS-COVERAGE-V155.md).

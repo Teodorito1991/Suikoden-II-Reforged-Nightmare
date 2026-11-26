@@ -1,5 +1,24 @@
 # Development history
 
+## v1.55 — Story Boss Difficulty Completion
+
+- Inventoried all31 named native boss-table IDs, with mandatory/variant/scripted
+  records distinguished from optional Hall rematches. Corrected v1.54's additional
+  stat-plan label: both Golden Wolves plus second Harpy; first Worm is AI-only.
+- Full Content selects22 existing policy records instead of13: Lucia1/2, final
+  Neclord and six Legendary records newly selected. No HP/damage/action inflation.
+- Added a narrow legacy-major dispatcher command/owner/callback fence. Scripted
+  entries, fallthrough, nesting, stale generations and unknown callbacks retain
+  native choices. Existing Luca dispatcher/gauntlet implementation unchanged.
+- Legacy BossProfiles/ScriptedBossOverrides remain OFF; empty lists add no tactics.
+  Early Neclord, scripted Moth, Rowd variants, campaign Luca and Beast Rune retain
+  original controllers/outcomes. Fresh/personal settings are not migrated.
+- Managed/config/native-selector/stat/guard checks and copied launcher verified;
+  no new earned story-boss victory, phase animation or ending acceptance.
+- No regular/rune/Hunt/Hall/training/war/save changes, original installation or
+  save overwrite, beta/release publication. Exact hash/evidence in milestone record.
+
+
 ## v1.54 — Great Balance Audit
 
 - Traced actual Normal/Hard HP, damage precedence, seven boss stat plans, independent

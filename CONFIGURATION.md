@@ -1,5 +1,16 @@
 # Configuration
 
+## Current v1.55 Full Content story tactics
+
+The Full profile now sets boss-tactics.json EnableMajorBosses=true (Lucia1/2 and
+final Neclord only), plus all four supported Legendary groups=true. Per-boss
+Enabled, Normal, legality, source/callback and compatibility guards still apply.
+EnableBossProfiles and EnableScriptedBossOverrides stay false; their supplied
+legacy lists are empty and neither is an AI activation switch. Fresh Campaign,
+embedded defaults and personal configs are unchanged. RuneRecoveryMaxLevel remains2
+in Full Content. Unknown callback transitions retain native selection.
+[Dependencies and exclusions](docs/STORY-BOSS-COVERAGE-V155.md).
+
 ## Current v1.54 balance selection
 
 `Rune Regeneration / RuneRecoveryMaxLevel` accepts1–4, default4 (legacy).

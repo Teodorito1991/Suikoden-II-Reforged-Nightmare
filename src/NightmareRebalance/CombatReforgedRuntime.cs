@@ -80,6 +80,7 @@ internal static class CombatReforgedRuntime
         if(w?.pm_data is {} hallUnits&&slot>=0&&slot<hallUnits.Length&&hallUnits[slot] is {} hallActor&&
             HallNightmareRuntime.Plan(w,hallActor) is {} hallPlan&&!Faulted.Contains(hallActor.Pointer))return new(w,hallActor,hallPlan);
         if(!AiActive(w)||w!.pm_data==null||slot<0||slot>=w.pm_data.Length||w.pm_data[slot] is not {} u||u.IsPlayer||u.IsDead||!(Plans.TryGetValue(u.Pointer,out var p)||BossTacticsRuntime.Plan(u,out p))||Faulted.Contains(u.Pointer))return null;
+        if(!StoryBossSelectionScope.Allows(u))return null;
         return new(w,u,CombatEvolutionRuntime.Plan(u,p));
     }
     internal static BATTLE_WORK? ActiveWork=>Probe?ProbeWork:Framework.Singleton<BATTLE_WORK>.instance;

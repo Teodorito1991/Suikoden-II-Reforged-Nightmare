@@ -1,5 +1,16 @@
 # Features and evidence levels
 
+## Current v1.55 story-boss coverage
+
+Full Content selects22 source-audited encounter records:10 BossTactics,6 Boss
+Revolution and6 Legendary. Nine previously disabled records gain legal tactical
+choices. The three legacy majors now require an immutable discretionary entry
+command and matching battle/callback ownership. No new HP, damage or turns.
+Original Luca, Beast Rune, early Neclord, scripted Moth and Rowd variants remain
+outside these new activations. Hall behavior and all other systems are preserved.
+[Native inventory, actual factors and risks](docs/STORY-BOSS-COVERAGE-V155.md).
+Native/component-tested; no current-hash rendered story acceptance.
+
 ## Current v1.54 balance audit
 
 Full Content Preview explicitly selects RuneRecoveryMaxLevel=2; total recovery remains

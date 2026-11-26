@@ -1,5 +1,19 @@
 # Known issues and validation limits
 
+## Current v1.55 story-tactic limits
+
+- The Full profile activates nine more source-audited policy records. Native
+  selector/stat/guard tests passed; full scripted encounters/phase transitions
+  were not replayed. These are not nine newly player-accepted victories.
+- Unknown callback changes, including unobserved final-Neclord main-delegate
+  transitions, fail closed to native choices. No unknown transition is guessed.
+- Campaign Luca and Beast Rune remain native-controlled. Hall acceptance is
+  separate; legacy stat/script overrides, early invulnerable Neclord, separately
+  scripted Moth and Rowd variants remain excluded.
+- No whole-campaign balance certificate. Original moves can still defeat an
+  unprepared party; no HP/damage/extra-turn inflation was introduced.
+[Effective before/after and evidence](docs/STORY-BOSS-COVERAGE-V155.md).
+
 ## Current v1.54 balance limitations
 
 - Whole-campaign difficulty is uneven/unproven; native fixture calculations and

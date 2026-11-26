@@ -1,6 +1,15 @@
-# Full Content Preview — v1.54
+# Full Content Preview — v1.55
 
 Configuration proposal, not an installation or whole-campaign certificate.
+
+Story tactics now select22 audited encounter records, up from13. This includes
+Lucia1/2, final Neclord and the six supported Legendary records. They use original
+legal moves, Normal/source/callback guards and native endings. HP/damage factors
+are unchanged. Original campaign Luca and Beast Rune controllers remain native.
+These activations are native/component-tested, with rendered story acceptance
+still pending the owner's campaign. Individual JSON switches remain reversible.
+[Before/after and exclusions](../../docs/STORY-BOSS-COVERAGE-V155.md).
+
 Victory rune recovery restores one missing level1–2 charge per eligible survivor.
 Level3–4 spells retain their native resource cost; inns/other native recovery remain.
 This explicit profile uses RuneRecoveryMaxLevel=2; existing configurations retain

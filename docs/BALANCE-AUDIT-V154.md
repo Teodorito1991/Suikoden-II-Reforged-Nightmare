@@ -150,3 +150,5 @@ Final exact-hash verification is recorded in [the sanitized milestone record](..
 Reproduce managed checks with `dotnet run --project tests -c Release`, `./tools/test-fresh-campaign.ps1`, `./tools/test-full-content.ps1` and `python tools/audit-publication.py`. Native verification requires the supported locally owned game/interop plus explicit unloaded production-audit flags; those proprietary files and private native traces are not in this repository.
 
 Copied test runtime closed normally. Automatic approval review rejected its reset with only “blocked by policy”; no reset retry or alternate route was used. The closed copy retains the candidate/Full profile under its startup-only guard. Steam, original saves and personal settings remain untouched.
+
+Correction from the focused v1.55 native-source review: the seven admitted stat plans are the four core bosses, both Golden Wolf records and second Harpy. First Worm remains native HP/damage with AI-only Boss Revolution; its1.0 result was not a dedicated stat plan. This note preserves the original audit conclusions. See [current story coverage](STORY-BOSS-COVERAGE-V155.md).

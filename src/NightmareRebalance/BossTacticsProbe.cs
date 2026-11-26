@@ -13,7 +13,7 @@ internal static class BossTacticsProbe
  {
   var a=luca??legendary??BossTacticsRuntime.Audit.Concat(BossTacticsRuntime.RevolutionAudit).FirstOrDefault(x=>x.TableId==table.id);if(a==null)return;
   var game=Framework.Singleton<GAME_WORK>.instance;var work=Framework.Singleton<BATTLE_WORK>.instance;var state=Combat.State;var rng=UnityEngine.Random.state;bool quality=BossTacticsRuntime.Config.EnableCombatQuality;bool strict=DifficultyProvenance.StrictProbe,ai=CombatReforgedRuntime.Config.EnableEnemyAi,suppress=BossTacticsRuntime.Suppress;
-  var copies=new List<MONSTER_DATA>();
+  var copies=new List<MONSTER_DATA>();bool majorScope=false;StoryBossSelectionScope? outerScope=null;
   try{
    var g=Alloc<GAME_WORK>();g.game_data=Alloc<GAME_DATA>();g.chara_data=Alloc<CHARA_DATA>();g.chara_data.c_varia_dat=new Il2CppReferenceArray<C_VARIA_DAT>(1);Framework.Singleton<GAME_WORK>.instance=g;
    var manager=Alloc<BattleManager>();var native=manager.Cast<IBattleManager>();var w=Alloc<BATTLE_WORK>();Framework.Singleton<BATTLE_WORK>.instance=w;
@@ -32,6 +32,7 @@ internal static class BossTacticsProbe
    w.monster_be_func=(BattleOverlayDelegate)(Func<BATTLE_WORK,int>)(_=>throw new Exception("Forbidden story callback"));
    if(a.Hooks[5]!=0)w.monster_bm_func=(BattleOverlayDelegate)(Func<BATTLE_WORK,int>)(_=>throw new Exception("Forbidden main callback"));
    if(a.Hooks[4]!=0)w.monster_cm_func=(BattleOverlayDelegate)(Func<BATTLE_WORK,int>)(_=>throw new Exception("Forbidden command callback"));
+   if(BossTacticsRules.Major(a.TableId))UseOriginalBindings(w,a);
    CombatReforgedRuntime.Probe=true;CombatReforgedRuntime.ProbeWork=w;var s=new BattleState(manager){Ready=true};Combat.State=s;
    CombatReforgedRuntime.Ready(s,w,true);CombatEvolutionRuntime.Ready(s,w,true);CombatReforgedRuntime.Config.EnableEnemyAi=true;
    BossTacticsRuntime.Suppress=false;BossTacticsRuntime.Ready(w,true);
@@ -53,6 +54,12 @@ internal static class BossTacticsProbe
    int localIndex=actor.chara_id;var observed=w.monster_data[localIndex];var unobserved=table.monster_data[localIndex].ShallowCopy();copies.Add(unobserved);w.monster_data[localIndex]=unobserved;Check(!BossTacticsRuntime.Source(w,a),"Unobserved identical copy rejected");w.monster_data[localIndex]=observed;
    BossTacticsRuntime.Ready(w,false);Check(!BossTacticsRuntime.Bound(actor),"Compatibility exclusion");g.game_data.difficulty=2;BossTacticsRuntime.Ready(w,true);Check(!BossTacticsRuntime.Bound(actor),"Hard major/tactics excluded without weakening regular admission");g.game_data.difficulty=0;
    bool on=pattern.Enabled;pattern.Enabled=false;BossTacticsRuntime.Ready(w,true);Check(!BossTacticsRuntime.Bound(actor),"Per-boss opt-out");pattern.Enabled=on;BossTacticsRuntime.Ready(w,true);
+   if(BossTacticsRules.Major(table.id))
+   {
+    VerifyMajorCommandScope(w,actor);
+    StoryBossDispatchGuard.Prefix(actor,out outerScope);majorScope=true;
+    Check(StoryBossSelectionScope.Allows(actor),"Major discretionary production scope admitted");
+   }
    bool revolution=BossRevolutionRules.Supports(table.id);
    if(revolution)
    {
@@ -98,8 +105,73 @@ internal static class BossTacticsProbe
     budgets.Add(new{Mode=mode,attack.attack,attack.attack_prob,attack.kaisu,attack.status,Physical=(attack.attack_zokusei&16)!=0,Defense=w.pm_data[0].calc_para[2],MagicDefense=w.pm_data[0].calc_para[3],MeanRaw=values.Average(),MaxRaw=values.Max(),DamageFactorAddedByThisModule=1,ExecutedAction=false});
    }s.StatsAllowed=statScope;
    foreach(var m in a.Monsters)Check(CombatReforgedRuntime.Signature(table.monster_data[m.Index]).SequenceEqual(m.Signature),"Source asset untouched");
+   EffectiveStoryStats(w,s);
    Rows.Add(new{a.TableId,NativeSelectorDifferences=changed,Selections=windows.Values.Sum(),Windows=windows,ArmoredSelection=builds[0],WardedSelection=builds[1],BuildChangedSelection=builds[0]!=builds[1],ExhaustedSelection=depleted,NativeRawDamageBudgets=budgets,AdmissionProductionPath=true,StoryCallbacksInvoked=false,RenderedBossPlayed=false});
-  }finally{BossTacticsRuntime.Config.EnableCombatQuality=quality;DifficultyProvenance.StrictProbe=strict;CombatReforgedRuntime.Config.EnableEnemyAi=ai;BossTacticsRuntime.Suppress=suppress;CombatReforgedRuntime.Probe=false;CombatReforgedRuntime.ProbeWork=null;CombatReforgedRuntime.Clear();Combat.State=state;Framework.Singleton<GAME_WORK>.instance=game;Framework.Singleton<BATTLE_WORK>.instance=work;UnityEngine.Random.state=rng;foreach(var copy in copies)UnityEngine.Object.Destroy(copy);}
+  }finally{if(majorScope)StoryBossDispatchGuard.Finalizer(outerScope,null);BossTacticsRuntime.Config.EnableCombatQuality=quality;DifficultyProvenance.StrictProbe=strict;CombatReforgedRuntime.Config.EnableEnemyAi=ai;BossTacticsRuntime.Suppress=suppress;CombatReforgedRuntime.Probe=false;CombatReforgedRuntime.ProbeWork=null;CombatReforgedRuntime.Clear();Combat.State=state;Framework.Singleton<GAME_WORK>.instance=game;Framework.Singleton<BATTLE_WORK>.instance=work;UnityEngine.Random.state=rng;foreach(var copy in copies)UnityEngine.Object.Destroy(copy);}
+ }
+ static void EffectiveStoryStats(BATTLE_WORK work,BattleState state)
+ {
+  foreach(var actor in work.pm_data.Where(x=>x!=null&&!x.IsPlayer).Select(x=>x.Cast<BattleMonsterCharacter>()))
+  {
+   int beforeHp=actor.max_hp;
+   Combat.ScaleEnemy(actor);int finalHp=actor.max_hp;Combat.ScaleEnemy(actor);
+   Check(actor.max_hp==finalHp,"Story HP applies once per actor");
+   double hpFactor=state.StatsAllowed?CombatReforgedRuntime.Factor(state,actor,Plugin.Options.EnemyHpMultiplier.Value,true):1;
+   Check(finalHp==Rules.Scale(beforeHp,hpFactor,32767),"Actual story HP path matches selected replacement factor");
+   int mode=Enumerable.Range(0,4).First(i=>actor.monster_data.attack_data[i].attack>0&&actor.monster_data.attack_data[i].attack_type is 1 or 2);
+   bool allowed=state.StatsAllowed;int raw,modified;
+   try
+   {
+    state.StatsAllowed=false;UnityEngine.Random.InitState(6221);raw=actor.CalcMonsterDamage(0,mode);
+    state.StatsAllowed=allowed;UnityEngine.Random.InitState(6221);modified=actor.CalcMonsterDamage(0,mode);
+   }
+   finally{state.StatsAllowed=allowed;}
+   double damageFactor=allowed?CombatReforgedRuntime.Factor(state,actor,Plugin.Options.EnemyDamageMultiplier.Value,false):1;
+   Check(modified==Rules.Scale(raw,damageFactor,9999),"Actual native story damage uses one factor, not stacked globals");
+   Rows.Add(new{Kind="EffectiveStoryStats",Table=work.battle_data.id,Enemy=actor.monster_data.id,
+    SourceActorHp=beforeHp,FinalActorHp=finalHp,HpFactor=hpFactor,RawNativeDamage=raw,FinalNativeDamage=modified,
+    DamageFactor=damageFactor,StatsEligible=allowed,NativeDamageHookExecuted=true,StoryCallbacksInvoked=false,RenderedBattle=false});
+  }
+ }
+
+ static void VerifyMajorCommandScope(BATTLE_WORK work,BattleMonsterCharacter actor)
+ {
+  int command=actor.c_koudou;var ending=work.monster_be_func;
+  try
+  {
+   actor.c_koudou=0;
+   Check(!StoryBossSelectionScope.Allows(actor),"Major selector outside native dispatch remains native");
+   foreach(sbyte entry in new sbyte[]{0,7,11})
+   {
+    actor.c_koudou=entry;StoryBossDispatchGuard.Prefix(actor,out var saved);
+    try
+    {
+     actor.c_koudou=0;
+     Check(StoryBossSelectionScope.Allows(actor)==(entry==0),"Immutable major entry classification survives fallthrough");
+     int native,selected;BossTacticsRuntime.Suppress=true;UnityEngine.Random.InitState(351);native=actor.SelectAttackMode();var rng=UnityEngine.Random.state;
+     BossTacticsRuntime.Suppress=false;UnityEngine.Random.InitState(351);selected=actor.SelectAttackMode();
+     Check(Same(rng,UnityEngine.Random.state),"Major command fence adds no RNG");
+     if(entry!=0)Check(selected==native,"Scripted entry leaves actual native selector unchanged");
+     StoryBossDispatchGuard.Prefix(actor,out var nested);
+     try{Check(!StoryBossSelectionScope.Allows(actor),"Nested major dispatch cannot reuse owner");}
+     finally{StoryBossDispatchGuard.Finalizer(nested,null);}
+     Check(StoryBossSelectionScope.Allows(actor)==(entry==0),"Nested cleanup restores prior major owner");
+     if(entry==0)
+     {
+      work.monster_be_func=null;Check(!StoryBossSelectionScope.Allows(actor),"Changed ending callback refuses major selection");work.monster_be_func=ending;
+      work.monster_be_func=work.monster_single_func;Check(!StoryBossSelectionScope.Allows(actor),"Wrong non-null ending method refuses major selection");work.monster_be_func=ending;
+      var opening=work.monster_single_func;work.monster_single_func=null;Check(StoryBossSelectionScope.Allows(actor),"Native opening completion keeps discretionary choices");work.monster_single_func=opening;
+      var main=work.monster_bm_func;work.monster_bm_func=ending;Check(!StoryBossSelectionScope.Allows(actor),"Unknown main callback remains native");work.monster_bm_func=main;
+      var state=Combat.State;Combat.State=new BattleState(actor.manager.Cast<BattleManager>()){Ready=true};
+      Check(!StoryBossSelectionScope.Allows(actor),"New battle generation rejects stale command owner");Combat.State=state;
+     }
+    }
+    finally{StoryBossDispatchGuard.Finalizer(saved,null);}
+   }
+   Check(StoryBossSelectionScope.Current==null,"Major finalizer clears scope");
+   Rows.Add(new{Kind="StoryBossCommandGuard",Table=work.battle_data.id,Discretionary=true,ScriptedEntriesRetained=true,NestedAndStaleRejected=true,NativeSelectors=true,DispatcherInvoked=false,StoryCallbacksInvoked=false});
+  }
+  finally{actor.c_koudou=(sbyte)command;work.monster_be_func=ending;}
  }
  internal static readonly List<object> LucaRows = new();
  internal static readonly List<object> LegendaryRows = new();
@@ -131,6 +203,7 @@ internal static class BossTacticsProbe
   }
   actor.action_kaisu = 0;
   actor.position = 2;
+  EffectiveStoryStats(work,state);
   int changes = 0;
   var phases = new Dictionary<string,int>();
   foreach (var phase in source.Monsters.Where(m => LegendaryBossRules.AcceptsPhase(source.TableId, m.Index)))

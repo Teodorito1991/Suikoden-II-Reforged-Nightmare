@@ -1,5 +1,15 @@
 # Suikoden II: Reforged Nightmare
 
+**Latest development: v1.55 — Story Boss Difficulty Completion.**
+Full Content on Normal now selects22 audited story-boss encounter policies (up
+from13). Lucia's two earlier records, final Neclord, Mist Shade, Gorudo, Worm/Moth
+and three later Lucia variants gain existing tactical choices. A new command/owner/
+callback guard protects the legacy major policies. No HP/damage increase. Original
+Luca and Beast Rune controllers remain native; Hall rematches are separate.
+[Before/after, exclusions and native evidence](docs/STORY-BOSS-COVERAGE-V155.md).
+This is native/component and launcher verification, not new story-battle acceptance.
+Personal settings are not migrated; generate the separate Full Content profile.
+
 **Latest development: v1.54 — Great Balance Audit.** Native/source comparison finds
 uneven campaign pressure, with role-based enemy scaling rather than stacked global
 multipliers. Full Content now recovers one level1–2 rune charge per eligible victory;

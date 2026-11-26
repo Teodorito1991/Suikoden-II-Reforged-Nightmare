@@ -1,12 +1,12 @@
 {
   "boss-tactics.json": {
-    "EnableMajorBosses": false
+    "EnableMajorBosses": true
   },
   "legendary-bosses.json": {
-    "EnableMistShade": false,
-    "EnableGorudo": false,
-    "EnableWormMoth": false,
-    "EnableLaterLucia": false
+    "EnableMistShade": true,
+    "EnableGorudo": true,
+    "EnableWormMoth": true,
+    "EnableLaterLucia": true
   },
   "castle-guild.json": {
     "Enabled": true,

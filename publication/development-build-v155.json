@@ -1,0 +1,76 @@
+{
+  "Version": "1.55.0-story-bosses.1",
+  "DllSha256": "C5BE2F48118E205083096599F0C2B2285DF2CE4E2807DA26B5E3EB561497055E",
+  "BuiltFromCommitPlusReviewedChanges": "cc0bb1c02de5037de7d15f707915daa7c90694b1",
+  "NormalFullContentPolicyRecordsBefore": 13,
+  "NormalFullContentPolicyRecordsAfter": 22,
+  "NewlySelectedRecords": [
+    "boss_lus1",
+    "boss_lus2",
+    "boss_nec3",
+    "boss_ki1",
+    "boss_gor",
+    "boss_imo2",
+    "boss_lus3",
+    "boss_lus4",
+    "boss_lus5"
+  ],
+  "StatsChanged": false,
+  "RewardOrSaveChanges": false,
+  "NewProductionGuard": "Only legacy-major entry0 choices; immutable entry, battle/manager/actor and callback identity; non-discretionary/nested/stale/unknown contexts retain native",
+  "LucaDispatcherOrGauntletCodeChanged": false,
+  "BeastControllerChanged": false,
+  "LegacyBossProfilesEnabled": false,
+  "LegacyScriptedStatOverridesEnabled": false,
+  "Verification": {
+    "ReleaseBuild": "pass; zero warnings/errors",
+    "DeterministicRepeatBuildSameHash": true,
+    "ManagedSuite": "pass",
+    "FreshAndFullProfileChecks": "pass",
+    "NativeProductionAudit": "pass",
+    "NativeAuditConfiguration": "new Full profile plus explicit selftest/developer flags in startup-only copied runtime; no war selftest",
+    "NativeSourceBossTables": 31,
+    "NamedBossIndexIdsMissing": [],
+    "ActualNativeActorHpAndDamageCases": 31,
+    "LegacyMajorCommandGuardCases": [
+      "boss_lus1",
+      "boss_lus2",
+      "boss_nec3"
+    ],
+    "GuardScopeInputsSynthetic": true,
+    "OriginalMajorDispatcherInvokedByThoseGuardCases": false,
+    "NativeMajorSelectorsExecuted": true,
+    "MajorSelectorDifferences": {
+      "boss_lus1": 78,
+      "boss_lus2": 94,
+      "boss_nec3": 94
+    },
+    "LegendaryNativeSelectorDifferences": 233,
+    "NativeRngAndUsesChecks": "pass",
+    "StoryCallbacksExecuted": false,
+    "RenderedStoryBattlesPlayed": false,
+    "StoryOutcomeOrBalanceAccepted": false,
+    "FullProfileGraphicsStartup": "pass; MajorBosses true, developer/selftests false, no campaign reads/writes",
+    "StartupBepinexErrors": 0,
+    "NativeAuditBepinexErrors": 0,
+    "KnownShutdownWarnings": "one TMP_SubMeshUI NullReferenceException and one JobTempAlloc warning, historical baseline issue",
+    "PrivatePathsInDll": false,
+    "CodeViewRecordPresent": false
+  },
+  "Preservation": {
+    "OriginalSteamTouched": false,
+    "OriginalSavesChecked": 14,
+    "OriginalSavesChanged": 0,
+    "AcceptedV153Sha256": "54144F2F61644F6B632F4513B2A4F30C240033AFD68F6F80CE1453051F7BA286",
+    "V154FallbackSha256": "9A6643D7955E0F9B39B681950BABBA2F29CA4B30231AFF1B5D9320A38F8DDB40",
+    "PersonalConfigurationsMigrated": false,
+    "CopiedRuntime": "normally closed; candidate/Full configuration retained, no campaign loaded",
+    "BetaRelease": "unchanged draft; no release/asset publication"
+  },
+  "PriorMilestoneCiReconciled": {
+    "HeadSha": "cc0bb1c02de5037de7d15f707915daa7c90694b1",
+    "Run": 45856427956,
+    "Conclusion": "success"
+  },
+  "CurrentCi": "verify exact completed milestone commit after source synchronization; final receipt retained with local artifact"
+}
