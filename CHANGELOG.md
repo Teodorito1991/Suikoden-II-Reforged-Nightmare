@@ -1,5 +1,20 @@
 # Development history
 
+## v1.55 final installation — full gameplay playtest, no rebuild
+
+- Installed the exact accepted C5BE2F48…7055E DLL into the supported Steam game
+  while closed. One Reforged plugin loaded; original launcher reached and normal
+  shutdown completed without loading/starting a campaign.
+- Applied generated Full Content plus the owner's selectable Nightmare/stone and
+  experimental training defeat-return opt-ins. Spoiler Mode starts OFF and retains
+  warning/second confirmation. Developer/selftests/legacy overrides remain OFF.
+- Reviewed defeat-return's native-ending/session dependencies and unchanged save
+  fences. Eligible War1/War3 return remains unverified on v1.55; Fort Defense keeps
+  native Game Over. No new gameplay acceptance is claimed.
+- Added an optional configuration overlay and sanitized installation record. Safe
+  generator defaults unchanged;14 original saves unchanged; no additional backups,
+  new DLL/version, release asset or beta publication.
+
 ## Pre-campaign integration review — documentation only, v1.55 retained
 
 - Rechecked Full Content selection, native evidence and story-command/save ownership

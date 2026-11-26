@@ -1,5 +1,11 @@
 # Full Content Preview — v1.55
 
+The owner's installed full-playtest selection also merges
+[`full-playtest-opt-in.cfg`](full-playtest-opt-in.cfg): selectable Nightmare,
+conditional growth-stone rewards and **unverified** eligible training defeat
+return. Spoiler Mode still starts OFF. This separate overlay does not change the
+generator's safer defaults below. [Installation evidence](../../docs/INSTALLATION-STATUS-V155.md).
+
 Configuration proposal, not an installation or whole-campaign certificate.
 
 Story tactics now select22 audited encounter records, up from13. This includes

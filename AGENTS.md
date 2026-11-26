@@ -46,6 +46,20 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
+## Owner installation — exact v1.55 retained
+
+On 26 November 2026 the owner explicitly authorized installing C5BE…7055E into the
+actual Steam game with generated Full Content and full-playtest-opt-in.cfg.
+Nightmare/conditional stones and experimental training defeat return are ON;
+Spoiler Mode starts OFF with normal warning/second confirmation. Defeat return
+has intact session/ending/save fences but NO v1.55 earned-defeat acceptance;
+Fort Defense remains native Game Over. Developer/selftests/harness/legacy overrides
+OFF. Actual launcher/plugin startup and normal shutdown observed; fourteen original saves
+unchanged, no additional backups, no campaign start or rebuild. See
+docs/INSTALLATION-STATUS-V155.md and publication/installation-v155.json. Preserve
+this deliberate selection; do not silently revert opt-ins or call it full gameplay
+acceptance. No new version/tag or player-facing release is authorized.
+
 ## First campaign readiness — retain exact v1.55
 
 Final review is documentation/config-validation only: no gameplay change or rebuild.

@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-26",
+  "kind": "owner-authorized installation; documentation/configuration only",
+  "version": "1.55.0-story-bosses.1",
+  "dllSha256": "C5BE2F48118E205083096599F0C2B2285DF2CE4E2807DA26B5E3EB561497055E",
+  "gameplaySourceCommit": "c46873505f3899230cbf84782873207887645fc8",
+  "newDllBuilt": false,
+  "target": "existing supported Steam/BepInEx installation",
+  "profile": "full-content + full-playtest-opt-in.cfg",
+  "selected": {
+    "huntContracts": 10,
+    "originalHallDefinitions": 22,
+    "nightmareProfilesSelectable": 22,
+    "storyBossPolicyRecords": 22,
+    "armyTrainingDrills": 4,
+    "runeRecoveryMaxLevel": 2,
+    "trainingDefeatReturn": true,
+    "trainingDefeatReturnGameplayVerifiedOnThisHash": false,
+    "spoilerModeInitiallyEnabled": false,
+    "debugProtection": false,
+    "optionalSelftests": false,
+    "privateHarness": false,
+    "legacyOverrides": false
+  },
+  "checks": {
+    "supportedNativeBinaryPair": true,
+    "installedDllExactHash": true,
+    "oneReforgedDll": true,
+    "onePluginLoaded": true,
+    "allGeneratedJsonParseAndMatch": true,
+    "boundConfigurationRetainedAfterStartup": true,
+    "originalLauncherObserved": true,
+    "normalShutdownObserved": true,
+    "pluginOrCompatibilityErrorsObserved": 0,
+    "knownInteropSignatureSubstitutionWarnings": 1,
+    "originalSaveFilesCompared": 14,
+    "originalSaveFilesChanged": 0,
+    "additionalBackupsCreated": 0,
+    "campaignStarted": false,
+    "campaignLoaded": false,
+    "gameplayAcceptancePerformed": false,
+    "knownTextMeshProShutdownNullReferenceExceptions": 1,
+    "fatalErrorsObserved": 0
+  },
+  "scopeNotes": [
+    "Startup smoke only; no new battle, defeat, autosave or full-campaign acceptance.",
+    "Existing binary emits its unconditional commander-copy sanity check; optional selftests remain OFF.",
+    "War1 and audited War3 defeat-return only; Fort Defense retains native Game Over.",
+    "Existing fallback DLLs retained; no beta or GitHub Release changed.",
+    "Normal shutdown reproduced the previously observed TMP_SubMeshUI.UpdateMaterial/OnDisable exception; no application-wide error-free claim."
+  ],
+  "installedConfigurationFiles": [
+    {
+      "path": "BepInEx/config/nightmare.suikoden2.reforged.cfg",
+      "sha256": "77A8438EEF60B671355BDFCB199A26CC0776F8C1748DA1742512AFD2C552C4B0"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/boss-revolution.json",
+      "sha256": "B8827A162446248E172A10DA47AA6FF4A6D24741D01F0704343912EAC0310952"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/boss-tactics.json",
+      "sha256": "BB8C70517906BFCF571AA622664032B4E863207D626C0CEE808A94BEF31ADE4A"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/castle-guild.json",
+      "sha256": "EC4BDC260D0BBCCA7A391F5DD47903B0679C12CD4ACCB938B1E4A89CA83D50AA"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/characters.json",
+      "sha256": "E63BBA246C6E958BE418490027E607DCA1917BFF11BA1BC48EC190AF30E50E56"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/combat-evolution.json",
+      "sha256": "D530D5A8EEFF33DBB4B78B5B4BF7A7B61345904384E29937A08FB904DFC21932"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/combat-mastery.json",
+      "sha256": "1E9612A791C04C08CEAA6A95632DF2EE42F814A20A912F4CF1FE5099FFB6A744"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/combat-reality.json",
+      "sha256": "42F53F580C91FCB61F82174FC9931DD1ADA98C2225E8C9BD94D09B5279530D40"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/combat-reforged.json",
+      "sha256": "E758F9CD44C2EAA486950F691978B37789A74C61DE989B4D7A242724CE5AD99A"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/enemy-profiles.json",
+      "sha256": "3B8E3F210981FE5F89382914E5DD854C2065428C7B313DAF1232011E669E495B"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/first-expansion.json",
+      "sha256": "5B169E4D6A2C53BA256B94BD247B4EB32ADC3D9E6BCFC5488406726340DCE514"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/hunt-catalogue.json",
+      "sha256": "1878368951AC6BA1E3B67C194ED7F52371B45EB394CE87B3379311664C01E13E"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/hunt-guild.json",
+      "sha256": "A63916CB54ED9975BB9526C8E0D0FF051EB5F3EF27C56F90B187B1B23009A4F2"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/legendary-bosses.json",
+      "sha256": "A02207E095555DC71F5250D938B0F73A7035B3461DA4C71E210D77E58A5EF8E5"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/magic.json",
+      "sha256": "8127B24A8D0EE7CF1D660DECFF5303BB87B3FCED8B5D183394DFC1511E256244"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/native-war-rules.json",
+      "sha256": "189E3D06B1C09121F2472807051BF497367E7C64462D1618F5A147FCDA1493CE"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/native-war-witness.json",
+      "sha256": "99C68942888425BF58F04BCF997CEEA3C5B7C4140962CD53B0855351E2B27796"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/rpg-evolution.json",
+      "sha256": "7519DD15AA3A3D946C00DCF0B3436250900B02FE6DD02A52739FC7C6EE505467"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/total-war-rules.json",
+      "sha256": "A1F4962A524806F9E9C4A5778AE2FA3A692955FB54899BE3511EDFCD0A912C5C"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/war-specializations.json",
+      "sha256": "5DD3E37DC8AD707F6B1968A08C009674F81B20080F55B54F86F0983A16C20924"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/war-tactics.json",
+      "sha256": "4CF0248188A244ED62B16B279658A808EE104E77F09CB2C7021EA7E35A09EBA8"
+    },
+    {
+      "path": "BepInEx/config/ReforgedNightmare/war-unit-profiles.json",
+      "sha256": "900710627F01F8B7604A8436CF249D4B860E973107AF24BD334C3D105FA3D471"
+    }
+  ]
+}

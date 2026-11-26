@@ -1,7 +1,14 @@
 # First campaign setup — recommended v1.55
 
-This is a setup guide, not an installer. No installation or campaign start was
-performed. Use exact `1.55.0-story-bosses.1`, SHA256
+**Owner installation completed on 26 November 2026:** exact v1.55, Full Content plus
+selectable Nightmare/growth rewards and experimental training defeat return.
+Spoiler Mode remains OFF. The owner's explicit no-additional-backups instruction
+was followed; all fourteen original saves are unchanged. See the
+[installed selection and startup evidence](INSTALLATION-STATUS-V155.md).
+The general steps below describe a future manual setup; they were not rerun as
+backup operations. No campaign has been started for the owner.
+
+This is a setup guide, not an installer. Use exact `1.55.0-story-bosses.1`, SHA256
 `C5BE2F48118E205083096599F0C2B2285DF2CE4E2807DA26B5E3EB561497055E`.
 Keep [the readiness report](FIRST-CAMPAIGN-READINESS.md) with it.
 

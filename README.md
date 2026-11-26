@@ -1,12 +1,21 @@
 # Suikoden II: Reforged Nightmare
 
+**Installed for the owner's full gameplay playtest: exact v1.55.** Full Content
+plus selectable Nightmare/growth rewards and the explicitly unverified training
+defeat-return opt-in are applied. Spoiler Mode starts OFF; its normal warning and
+second confirmation remain required. The actual Steam launcher loaded the plugin
+and closed normally; all fourteen original saves are unchanged. No campaign was started.
+[Installed modules, evidence and limitations](docs/INSTALLATION-STATUS-V155.md).
+No new DLL/version, installable beta or GitHub Release was produced.
+
 **First campaign recommendation: unchanged v1.55 + Full Content, in-game Normal.**
 [Readiness decision and challenge watchlist](docs/FIRST-CAMPAIGN-READINESS.md) ·
 [Short setup and fallback guide](docs/FIRST-CAMPAIGN-SETUP.md). No new DLL or tuning
 was justified in the final review. Full managed/config checks passed; exact-C5
 native evidence is preserved. The candidate is ready for owner campaign feedback,
-not certified for every boss/optional path. Installation/campaign start was not
-performed. Note the supported castle variant, session-only contracts and three
+not certified for every boss/optional path. The later installation is recorded
+above; campaign start remains the owner's action. Note the supported castle
+variant, session-only contracts and three
 Hall entries without automatic story witnesses. No developer tools are required.
 
 **Latest development: v1.55 — Story Boss Difficulty Completion.**
