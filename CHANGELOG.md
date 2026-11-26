@@ -1,5 +1,18 @@
 # Development history
 
+## Pre-campaign integration review — documentation only, v1.55 retained
+
+- Rechecked Full Content selection, native evidence and story-command/save ownership
+  rules. No confirmed new defect or defensible boss HP retune; exact C5 DLL retained.
+- Added a first-campaign readiness decision, explicitly assumed early/middle boss
+  duration budgets, limitations and short setup/fallback/log guide.
+- Fresh managed/config tests and comprehensive generated-profile validation passed.
+  Exact-v1.55 native/startup evidence reused; no new native/gameplay/save test claim.
+- Selected10 Hunts/22 Hall definitions/22 story policies/4 drills; preserved all
+  opt-ins/defaults, first-campaign source and original14 saves/Steam/personal config.
+- No new gameplay version, rebuild, installer, campaign start or beta/release.
+
+
 ## v1.55 — Story Boss Difficulty Completion
 
 - Inventoried all31 named native boss-table IDs, with mandatory/variant/scripted

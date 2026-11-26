@@ -1,5 +1,14 @@
 # Suikoden II: Reforged Nightmare
 
+**First campaign recommendation: unchanged v1.55 + Full Content, in-game Normal.**
+[Readiness decision and challenge watchlist](docs/FIRST-CAMPAIGN-READINESS.md) ·
+[Short setup and fallback guide](docs/FIRST-CAMPAIGN-SETUP.md). No new DLL or tuning
+was justified in the final review. Full managed/config checks passed; exact-C5
+native evidence is preserved. The candidate is ready for owner campaign feedback,
+not certified for every boss/optional path. Installation/campaign start was not
+performed. Note the supported castle variant, session-only contracts and three
+Hall entries without automatic story witnesses. No developer tools are required.
+
 **Latest development: v1.55 — Story Boss Difficulty Completion.**
 Full Content on Normal now selects22 audited story-boss encounter policies (up
 from13). Lucia's two earlier records, final Neclord, Mist Shade, Gorudo, Worm/Moth

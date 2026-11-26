@@ -1,0 +1,29 @@
+{
+  "RecommendedVersion": "1.55.0-story-bosses.1",
+  "DllSha256": "C5BE2F48118E205083096599F0C2B2285DF2CE4E2807DA26B5E3EB561497055E",
+  "GameplaySourceCommit": "c46873505f3899230cbf84782873207887645fc8",
+  "GameplayOrConfigChanges": false,
+  "NewVersionOrRebuild": false,
+  "FreshManagedAndProfileTests": "pass",
+  "ComprehensiveGeneratedFullProfileCheck": "pass",
+  "EnabledHunts": 10,
+  "SelectedOriginalHallDefinitions": 22,
+  "EnabledStoryPolicyRecords": 22,
+  "SelectedArmyDrills": 4,
+  "DeveloperControlsRequired": false,
+  "NormalDifficultyMustBeChosenInGame": true,
+  "NativeEvidence": "reused exact C5 build component/startup evidence; no new native execution or gameplay claimed",
+  "CampaignReadiness": "ready for first owner campaign with known optional limitations; full balance/stability not certified",
+  "KnownOptionalLimits": [
+    "Guild source variant vk07/3 only",
+    "Session-only Hunts reset on load/restart",
+    "Sierra, second Harpy and first Worm lack automatic Hall story witnesses",
+    "Final Neclord unknown callbacks fall back to native",
+    "Luca defeat/interruption and some training tiers retain incomplete live acceptance"
+  ],
+  "SourceSaveReview": "no optional session: native save pass-through; protected session: refuses campaign save until verified return or fresh native load",
+  "OriginalCampaignStarted": false,
+  "SteamInstalled": false,
+  "OutputContainsInstallerOrDll": false,
+  "VerificationScope": "Fresh managed/config checks; existing exact-C5 native/launcher evidence reused without claiming a new run"
+}

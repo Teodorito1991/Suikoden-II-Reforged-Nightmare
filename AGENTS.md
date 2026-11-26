@@ -46,6 +46,19 @@ source references and player-facing artifacts.
 - Preserve installed development DLLs, configurations and original saves unless
   the current task explicitly authorizes changing them.
 
+## First campaign readiness — retain exact v1.55
+
+Final review is documentation/config-validation only: no gameplay change or rebuild.
+Recommend exact C5BE2F48118E205083096599F0C2B2285DF2CE4E2807DA26B5E3EB561497055E
+with Full Content and in-game Normal. Read docs/FIRST-CAMPAIGN-READINESS.md and
+FIRST-CAMPAIGN-SETUP.md. No demonstrated critical defect/undertuning justifies more
+pre-emptive engineering. Unknown Neclord callbacks remain native; do not weaken.
+Guild variant vk07/3, session-only contracts and three no-witness Hall entries
+remain explicit optional limits. Ordinary unowned saves pass through. Preserve
+v1.53/v1.54 fallbacks and personal settings. Do not start the owner's campaign or
+install unless separately requested. Fix actual campaign reports; no compulsory
+Luca/Beast/training replay or new version merely for documentation.
+
 ## Current v1.55 story-boss coverage
 
 Development1.55.0-story-bosses.1. Hash/evidence: publication/development-build-v155.json.
