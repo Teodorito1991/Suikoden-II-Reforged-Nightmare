@@ -108,8 +108,31 @@ internal static class ArmyProgressionRuntime
             boundCampaignOwner = game!.game_data.Pointer;
             ArmyProgressionRules.BindSnapshot(index, hash, Current, DateTime.UtcNow.Ticks);
             PersistIndexLocked();
+            ExportChronicleLocked();
         }
         Plugin.Debug($"Army progression ledger bound to save fingerprint {hash[..12]}...");
+    }
+
+    internal static string ExportChronicle()
+    {
+        lock (Sync)
+            return ExportChronicleLocked();
+    }
+
+    static string ExportChronicleLocked()
+    {
+        try
+        {
+            string dir = Path.GetDirectoryName(LedgerPath)!;
+            Directory.CreateDirectory(dir);
+            string path = Path.Combine(dir, "chronicle.md");
+            File.WriteAllText(path, Reforged5Rules.BuildChronicleMarkdown(Current));
+            return "Campaign Chronicle exported to BepInEx/NightmareRebalance/chronicle.md!";
+        }
+        catch (Exception ex)
+        {
+            return "Chronicle export failed: " + ex.Message;
+        }
     }
 
     internal static void ObserveCampaignLoad()

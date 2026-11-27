@@ -2,6 +2,8 @@ namespace NightmareRebalance;
 
 internal enum CharacterTalent { None = 0, Berserker = 1, Arcanist = 2, Bulwark = 3, Tactician = 4 }
 
+internal enum TalentSetBonus { None = 0, BalancedVanguard = 1, WarbandFury = 2, ArcaneConclave = 3, IronCitadel = 4 }
+
 internal enum WarBranchOverride { Default = 0, Infantry = 1, Archer = 2, Magicians = 3 }
 
 internal sealed class CharacterMastery
@@ -201,5 +203,93 @@ internal static class Reforged5Rules
             pool.RemoveAt(idx);
         }
         return result.ToArray();
+    }
+
+    internal static readonly TowerRelicSpec[] LegendaryRelics =
+    {
+        new("bright-shield-echo", "★ Bright Shield Echo", "LEGENDARY · -20% all incoming damage & +15% post-floor party HP heal."),
+        new("black-sword-echo", "★ Black Sword Echo", "LEGENDARY · +30% all party physical and magic damage."),
+        new("true-rune-surge", "★ True Rune Surge", "LEGENDARY · Start every Tower floor at 100% Momentum (Dunan Overdrive!).")
+    };
+
+    internal static bool IsWardenFloor(int floor) => floor > 0 && floor % 5 == 0;
+
+    internal static TowerRelicSpec[] DraftRelicsForFloor(int clearedFloor, IReadOnlyCollection<string> ownedIds, int seed)
+    {
+        if (IsWardenFloor(clearedFloor))
+        {
+            var legPool = LegendaryRelics.Where(r => !ownedIds.Contains(r.Id)).ToArray();
+            if (legPool.Length > 0) return legPool;
+        }
+        return DraftRelics(ownedIds, seed);
+    }
+
+    internal static int TowerCashOutPotch(int floorsCleared, bool goldenChalice, bool bloodOath)
+    {
+        int raw = TowerCashOutPotch(floorsCleared, goldenChalice);
+        return bloodOath ? (int)Math.Round(raw * 1.5, MidpointRounding.AwayFromZero) : raw;
+    }
+
+    internal static int TowerCashOutCommendations(int floorsCleared, bool goldenChalice, bool bloodOath) =>
+        TowerCashOutCommendations(floorsCleared, goldenChalice) + (bloodOath && floorsCleared > 0 ? 2 : 0);
+
+    internal static TalentSetBonus EvaluateTalentSet(IReadOnlyList<CharacterTalent> partyTalents)
+    {
+        int zerk = 0, arc = 0, bul = 0, tac = 0;
+        for (int i = 0; i < partyTalents.Count; i++)
+        {
+            switch (partyTalents[i])
+            {
+                case CharacterTalent.Berserker: zerk++; break;
+                case CharacterTalent.Arcanist: arc++; break;
+                case CharacterTalent.Bulwark: bul++; break;
+                case CharacterTalent.Tactician: tac++; break;
+            }
+        }
+        if (zerk >= 1 && arc >= 1 && bul >= 1 && tac >= 1) return TalentSetBonus.BalancedVanguard;
+        if (zerk >= 3) return TalentSetBonus.WarbandFury;
+        if (arc >= 3) return TalentSetBonus.ArcaneConclave;
+        if (bul >= 3) return TalentSetBonus.IronCitadel;
+        return TalentSetBonus.None;
+    }
+
+    internal static string TalentSetTitle(TalentSetBonus set) => set switch
+    {
+        TalentSetBonus.BalancedVanguard => "Balanced Vanguard (+8% DMG · +15 Mom)",
+        TalentSetBonus.WarbandFury => "Warband Fury (+10% Phys · +3% Leech)",
+        TalentSetBonus.ArcaneConclave => "Arcane Conclave (+12% Magic · +8 Mom)",
+        TalentSetBonus.IronCitadel => "Iron Citadel (-10% All DMG Taken)",
+        _ => ""
+    };
+
+    internal static int NemesisAmbushChance(int battlesSinceSeen) =>
+        Math.Clamp(20 + Math.Max(0, battlesSinceSeen) * 10, 20, 80);
+
+    internal static string BuildChronicleMarkdown(ArmyLedgerState ledger)
+    {
+        var sb = new System.Text.StringBuilder(1024);
+        sb.AppendLine("# Suikoden II: Reforged Nightmare — Campaign Chronicle");
+        sb.AppendLine();
+        sb.AppendLine($"- **Dunan Commendations:** {ledger.Commendations}");
+        sb.AppendLine($"- **Highest Tower of Dunan Floor:** {ledger.HighestTowerFloor}");
+        sb.AppendLine($"- **Dunan Honors Unlocked:** {ledger.UnlockedHonors?.Count ?? 0} / {Reforged2Rules.Honors.Length}");
+        sb.AppendLine($"- **Castle Upgrades Unlocked:** {ledger.CastleUpgrades?.Count ?? 0} / {Reforged2Rules.CastleUpgrades.Length}");
+        sb.AppendLine($"- **Army Drills Won:** {ledger.TotalDrillsWon} ({ledger.TotalVeteranDrillsWon} Veteran) · Story Wars: {ledger.TotalStoryWarsWon}");
+        sb.AppendLine($"- **Hunter's Bestiary:** {ledger.Bestiary?.Count ?? 0} species · Apex Packs Cleared: {ledger.ApexPacksCleared} · Nemeses Slain: {ledger.NemesesSlain}");
+        sb.AppendLine($"- **Combat Feats:** {ledger.TotalCombosLanded} Combos · {ledger.TotalOverdrivesTriggered} Overdrives · {ledger.TotalSRanks} S-Ranks");
+        if (ledger.ActiveNemesis is {} nem)
+            sb.AppendLine($"- **Active Nemesis:** {nem.Name} {nem.Title} (Tier {nem.Tier}, {Reforged2Rules.ApexAffixShort(nem.Affix)})");
+        sb.AppendLine();
+        sb.AppendLine("## Top Army Commanders");
+        foreach (var c in ledger.Commanders.Values.OrderByDescending(x => x.Xp).Take(8))
+            sb.AppendLine($"- **{c.Name}** — {ArmyProgressionRules.RankTitle(ArmyProgressionRules.RankForXp(c.Xp))} ({c.Xp} XP, {ArmyProgressionRules.DoctrineTitle(c.Doctrine)}, {BranchOverrideTitle(c.BranchOverride)})");
+        if (ledger.PartyMastery != null && ledger.PartyMastery.Count > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("## Party Character Talents");
+            foreach (var m in ledger.PartyMastery.Values.OrderByDescending(x => x.Xp).Take(10))
+                sb.AppendLine($"- **{m.Name}** — Mastery Rank {MasteryRankForXp(m.Xp)} ({m.Xp} XP, {TalentTitle(m.Talent)})");
+        }
+        return sb.ToString();
     }
 }

@@ -32,6 +32,19 @@
   6 lore-driven **Star Bonds** (10 total: *Genkaku's Legacy*, *Mercenary
   Veterans*, *Arcane Resonance*, *Vampire Hunters*, *Wandering Blades*, and
   *Rokaku Shadows*).
+- Added **Reforged 6.0: Synergy, Warden Floors & Chronicle** (opt-in):
+  - **Party Talent Set Bonuses** (*Balanced Vanguard*, *Warband Fury*, *Arcane
+    Conclave*, *Iron Citadel*) activating automatically from party Talents and
+    displayed live on the `F4` Party Buff Strip.
+  - **Tower of Dunan Warden Boss Floors (5 / 10 / 15)** dropping **3 Legendary
+    Relics** (*Bright Shield Echo*, *Black Sword Echo*, *True Rune Surge*) plus
+    an optional **Blood Oath Risk Pact** (`+15%` enemy DMG for `1.5x` Potch &
+    `+2` bonus Commendations on Cash-Out).
+  - **War Squad Branch Builder UI** (`Codex → War Squads`) with live War
+    Synergy Partner inspector, **Escalating Nemesis Ambush Tension**
+    (`20% → 80%`) with `F3` Wanted Poster, and **Campaign Chronicle Exporter**
+    (`BepInEx/NightmareRebalance/chronicle.md`, auto-exported on save or via
+    `Codex → Row 0`).
 - Added **Reforged 5.0: Legends of Dunan** (opt-in):
   - **Endless "Tower of Dunan" Roguelite Mode** (`Codex → Tower of Dunan`):
     escalating floors atop verified Hall encounters, **12 stackable Roguelite

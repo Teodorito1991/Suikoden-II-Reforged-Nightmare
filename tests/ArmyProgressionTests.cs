@@ -331,6 +331,25 @@ internal static class ArmyProgressionTests
         Check(Confirm() == GuildChoice.None && menu.Page == GuildPage.TowerOfDunan, "Codex row 7 opens Tower of Dunan");
         Check(Confirm() == GuildChoice.TowerAction, "Confirm inside Tower triggers TowerAction");
 
-        Console.WriteLine($"PASS: Reforged 5.0 full suite {checks} checks.");
+        // 17. Reforged 6.0: Party Talent Sets, Tower Warden Legendary Relics, Blood Oath, Nemesis Escalation, War Squads & Chronicle
+        Check(Reforged5Rules.EvaluateTalentSet(new[] { CharacterTalent.Berserker, CharacterTalent.Arcanist, CharacterTalent.Bulwark, CharacterTalent.Tactician }) == TalentSetBonus.BalancedVanguard, "Balanced Vanguard set bonus activates with 1 of each Talent");
+        Check(Reforged5Rules.EvaluateTalentSet(new[] { CharacterTalent.Berserker, CharacterTalent.Berserker, CharacterTalent.Berserker }) == TalentSetBonus.WarbandFury, "Warband Fury activates with 3+ Berserkers");
+        Check(Reforged5Rules.EvaluateTalentSet(new[] { CharacterTalent.Arcanist, CharacterTalent.Arcanist, CharacterTalent.Arcanist }) == TalentSetBonus.ArcaneConclave, "Arcane Conclave activates with 3+ Arcanists");
+        Check(Reforged5Rules.EvaluateTalentSet(new[] { CharacterTalent.Bulwark, CharacterTalent.Bulwark, CharacterTalent.Bulwark }) == TalentSetBonus.IronCitadel, "Iron Citadel activates with 3+ Bulwarks");
+        Check(Reforged5Rules.IsWardenFloor(5) && !Reforged5Rules.IsWardenFloor(4) && Reforged5Rules.LegendaryRelics.Length == 3, "Warden Floors every 5th floor with 3 Legendary Relics");
+        var wardenDraft = Reforged5Rules.DraftRelicsForFloor(5, Array.Empty<string>(), 1);
+        Check(wardenDraft.Length == 3 && wardenDraft.All(r => r.Name.Contains("★")), "Warden Floor 5 drafts Legendary Relics");
+        Check(Reforged5Rules.TowerCashOutPotch(5, false, bloodOath: true) == 3750 && Reforged5Rules.TowerCashOutCommendations(5, false, bloodOath: true) == 7, "Blood Oath grants 1.5x Potch and +2 bonus Commendations");
+        Check(Reforged5Rules.NemesisAmbushChance(0) == 20 && Reforged5Rules.NemesisAmbushChance(3) == 50 && Reforged5Rules.NemesisAmbushChance(10) == 80, "Nemesis ambush chance escalates 20% -> 80%");
+        string chronicle = Reforged5Rules.BuildChronicleMarkdown(ledger);
+        Check(chronicle.Contains("# Suikoden II: Reforged Nightmare") && chronicle.Contains("Dunan Honors"), "Campaign Chronicle exports valid Markdown summary");
+        menu.OpenDirect(GuildPage.Codex, 10);
+        for (int i = 0; i < 5; i++) menu.Move(false, true);
+        Check(Confirm() == GuildChoice.ExportChronicle, "Codex row 5 exports Campaign Chronicle");
+        for (int i = 0; i < 3; i++) menu.Move(false, true);
+        Check(Confirm() == GuildChoice.None && menu.Page == GuildPage.WarSquads, "Codex row 8 opens War Squads Branch Builder");
+        Check(Confirm() == GuildChoice.CycleBranch, "Confirm inside War Squads cycles branch override");
+
+        Console.WriteLine($"PASS: Reforged 6.0 full suite {checks} checks.");
     }
 }

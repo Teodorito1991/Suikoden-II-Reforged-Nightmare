@@ -9,6 +9,7 @@ internal static class TowerOfDunanRuntime
 
     internal static bool RunActive { get; private set; }
     internal static bool BattleInProgress { get; private set; }
+    internal static bool BloodOathActive { get; private set; }
     internal static int CurrentFloor { get; private set; }
     internal static int FloorsCleared { get; private set; }
     internal static readonly HashSet<string> ActiveRelics = new(StringComparer.Ordinal);
@@ -16,12 +17,13 @@ internal static class TowerOfDunanRuntime
 
     internal static bool HasRelic(string id) => RunActive && ActiveRelics.Contains(id);
     internal static bool PendingRelicDraft => RunActive && DraftChoices.Length > 0;
+    internal static void ToggleBloodOath() { if (!RunActive) BloodOathActive = !BloodOathActive; }
 
     internal static double ActiveHpMultiplier =>
         BattleInProgress ? Reforged5Rules.TowerFloorHpMultiplier(CurrentFloor) : 1.0;
 
     internal static double ActiveDamageMultiplier =>
-        BattleInProgress ? Reforged5Rules.TowerFloorDamageMultiplier(CurrentFloor) : 1.0;
+        BattleInProgress ? Reforged5Rules.TowerFloorDamageMultiplier(CurrentFloor) * (BloodOathActive ? 1.15 : 1.0) : 1.0;
 
     internal static bool LaunchNextFloor(out string feedback)
     {
@@ -83,8 +85,9 @@ internal static class TowerOfDunanRuntime
 
         FloorsCleared++;
         ArmyProgressionRuntime.RecordTowerFloor(FloorsCleared);
-        DraftChoices = Reforged5Rules.DraftRelics(ActiveRelics, rng.Next());
-        CastleGuildRuntime.TrainingFeedback($"Tower Floor {FloorsCleared} Cleared! Return to the Guild to draft a Relic or Cash Out.");
+        DraftChoices = Reforged5Rules.DraftRelicsForFloor(FloorsCleared, ActiveRelics, rng.Next());
+        string wardenTag = Reforged5Rules.IsWardenFloor(FloorsCleared) ? " ★ LEGENDARY Relic Draft ready!" : " Return to the Guild to draft a Relic or Cash Out.";
+        CastleGuildRuntime.TrainingFeedback($"Tower Floor {FloorsCleared} Cleared!{wardenTag}");
     }
 
     internal static bool PickRelic(int index, out string feedback)
@@ -110,8 +113,8 @@ internal static class TowerOfDunanRuntime
             return true;
         }
         bool chalice = HasRelic("golden-chalice");
-        int potch = Reforged5Rules.TowerCashOutPotch(FloorsCleared, chalice);
-        int comm = Reforged5Rules.TowerCashOutCommendations(FloorsCleared, chalice);
+        int potch = Reforged5Rules.TowerCashOutPotch(FloorsCleared, chalice, BloodOathActive);
+        int comm = Reforged5Rules.TowerCashOutCommendations(FloorsCleared, chalice, BloodOathActive);
         int cleared = FloorsCleared;
 
         if (Framework.Singleton<GAME_WORK>.instance?.party_data != null && potch > 0)

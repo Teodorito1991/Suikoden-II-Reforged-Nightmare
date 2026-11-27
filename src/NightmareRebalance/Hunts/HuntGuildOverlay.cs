@@ -444,6 +444,31 @@ public sealed class HuntGuildOverlay:MonoBehaviour
        status, "Cycle Talent", back, preview, GuildMenuNavigation.Breadcrumb(page), pFrac));
   }
 
+  if (page == GuildPage.WarSquads)
+  {
+   var roster = ArmyProgressionRuntime.RosterSnapshot();
+   if (roster.Length == 0)
+   {
+    return new("WAR SQUADS", new[] { new GuildMenuRow("No commanders enlisted", "Win a drill first") }, 0,
+        "Custom War Squad Branch Builder", "Applies to Custom Skirmishes & Drills",
+        "Customize any enlisted commander's unit branch (Infantry / Archer / Magicians) on disposable clones.",
+        "War Synergy Pairs: Flik+Viktor · Shu+Apple · Luc+Mazus · Humphrey+Georg",
+        "Complete a qualifying Army Training drill to enlist commanders.",
+        status, "Back", back, preview);
+   }
+   focus = Math.Clamp(focus, 0, roster.Length - 1);
+   var rows = roster.Select(c => new GuildMenuRow(c.Name, Reforged5Rules.BranchOverrideTitle(c.BranchOverride))).ToArray();
+   var sel = roster[focus];
+   var syn = ArmyProgressionRules.WarSynergies.FirstOrDefault(s => s.FirstNameId == sel.NameId || s.SecondNameId == sel.NameId);
+   string synLine = syn != null ? $"War Synergy Pair: {syn.Title} (+{syn.AtkBonus} ATK, +{syn.DefBonus} DEF when grouped together)" : "No named War Synergy pair for this commander.";
+   return GuildRebornScreen.Paginate(new("WAR SQUADS", rows, focus, sel.Name,
+       $"{Reforged5Rules.BranchOverrideTitle(sel.BranchOverride)}  ·  {ArmyProgressionRules.DoctrineTitle(sel.Doctrine)}",
+       synLine,
+       "Branch overrides reshape your squad's tactical role during Custom Skirmishes without touching native story data.",
+       "Confirm cycles Branch: Default -> Infantry -> Archer -> Magicians.",
+       status, "Cycle Branch", back, preview, GuildMenuNavigation.Breadcrumb(page)));
+  }
+
   if (page == GuildPage.TowerOfDunan)
   {
    var led = ArmyProgressionRuntime.Current;
@@ -451,36 +476,43 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    {
     var choices = TowerOfDunanRuntime.DraftChoices;
     focus = Math.Clamp(focus, 0, choices.Length - 1);
-    var rows = choices.Select(r => new GuildMenuRow(r.Name, "Roguelite Relic")).ToArray();
+    var rows = choices.Select(r => new GuildMenuRow(r.Name, Reforged5Rules.IsWardenFloor(TowerOfDunanRuntime.FloorsCleared) ? "★ LEGENDARY Relic" : "Roguelite Relic")).ToArray();
     var sel = choices[focus];
     return new("TOWER RELIC DRAFT", rows, focus, sel.Name,
         $"Floor {TowerOfDunanRuntime.FloorsCleared} Cleared  ·  Active Relics: {TowerOfDunanRuntime.ActiveRelics.Count}",
         sel.Summary,
         $"Next Floor: Floor {TowerOfDunanRuntime.FloorsCleared + 1} (HP x{Reforged5Rules.TowerFloorHpMultiplier(TowerOfDunanRuntime.FloorsCleared + 1):0.00})",
-        "Choose 1 of 3 Relics for this Tower run. Relics stack until you Cash Out or fall.",
+        "Choose 1 of 3 Relics for this Tower run. Floor 5/10/15 Warden clears grant Legendary Relics!",
         status, "Draft Relic", back, preview);
    }
    bool active = TowerOfDunanRuntime.RunActive;
    int nextFloor = active ? TowerOfDunanRuntime.FloorsCleared + 1 : 1;
+   int cashPotch = Reforged5Rules.TowerCashOutPotch(TowerOfDunanRuntime.FloorsCleared, TowerOfDunanRuntime.HasRelic("golden-chalice"), TowerOfDunanRuntime.BloodOathActive);
+   int cashComm = Reforged5Rules.TowerCashOutCommendations(TowerOfDunanRuntime.FloorsCleared, TowerOfDunanRuntime.HasRelic("golden-chalice"), TowerOfDunanRuntime.BloodOathActive);
    var tRows = active
        ? new[]
        {
         new GuildMenuRow($"Ascend to Floor {nextFloor}", $"HP x{Reforged5Rules.TowerFloorHpMultiplier(nextFloor):0.00} · DMG x{Reforged5Rules.TowerFloorDamageMultiplier(nextFloor):0.00}"),
-        new GuildMenuRow("Cash Out & Claim Spoils", $"{Reforged5Rules.TowerCashOutPotch(TowerOfDunanRuntime.FloorsCleared, TowerOfDunanRuntime.HasRelic("golden-chalice")):N0} Potch · +{Reforged5Rules.TowerCashOutCommendations(TowerOfDunanRuntime.FloorsCleared, TowerOfDunanRuntime.HasRelic("golden-chalice"))} Comm.")
+        new GuildMenuRow("Cash Out & Claim Spoils", $"{cashPotch:N0} Potch · +{cashComm} Comm.")
        }
-       : new[] { new GuildMenuRow("Begin Tower Ascent", $"Floor 1 · Record: Floor {led.HighestTowerFloor}") };
+       : new[]
+       {
+        new GuildMenuRow("Begin Tower Ascent", $"Floor 1 · Record: Floor {led.HighestTowerFloor}"),
+        new GuildMenuRow("Tower Pact: " + (TowerOfDunanRuntime.BloodOathActive ? "Blood Oath ON" : "Standard"), TowerOfDunanRuntime.BloodOathActive ? "+15% Enemy DMG · 1.5x Potch & +2 Comm." : "Confirm to toggle Blood Oath")
+       };
    focus = Math.Clamp(focus, 0, tRows.Length - 1);
+   var allRelics = Reforged5Rules.TowerRelics.Concat(Reforged5Rules.LegendaryRelics);
    string relicsText = TowerOfDunanRuntime.ActiveRelics.Count > 0
-       ? "Active Relics: " + string.Join(", ", Reforged5Rules.TowerRelics.Where(r => TowerOfDunanRuntime.ActiveRelics.Contains(r.Id)).Select(r => r.Name))
-       : "No Relics drafted yet. Clear floors to draft powerful run-only blessings!";
+       ? "Active Relics: " + string.Join(", ", allRelics.Where(r => TowerOfDunanRuntime.ActiveRelics.Contains(r.Id)).Select(r => r.Name))
+       : "No Relics drafted yet. Clear floors to draft Relics; every 5th floor is a Warden Boss dropping a Legendary Relic!";
    return new("TOWER OF DUNAN", tRows, focus,
-       active && focus == 1 ? "Cash Out Tower Run" : $"Tower of Dunan · Floor {nextFloor}",
-       $"Highest Floor Record: {led.HighestTowerFloor}  ·  Floors Cleared: {TowerOfDunanRuntime.FloorsCleared}",
+       active && focus == 1 ? "Cash Out Tower Run" : !active && focus == 1 ? "Tower Risk Pact (Blood Oath)" : $"Tower of Dunan · Floor {nextFloor}",
+       $"Highest Floor Record: {led.HighestTowerFloor}  ·  Pact: {(TowerOfDunanRuntime.BloodOathActive ? "Blood Oath" : "Standard")}",
        relicsText,
-       active ? $"Current Spoils: {Reforged5Rules.TowerCashOutPotch(TowerOfDunanRuntime.FloorsCleared, TowerOfDunanRuntime.HasRelic("golden-chalice")):N0} Potch · +{Reforged5Rules.TowerCashOutCommendations(TowerOfDunanRuntime.FloorsCleared, TowerOfDunanRuntime.HasRelic("golden-chalice"))} Comm."
-              : "Endless Roguelite Gauntlet · Draft 1 of 3 Relics after every floor.",
+       active ? $"Current Spoils: {cashPotch:N0} Potch · +{cashComm} Commendation(s)"
+              : "Endless Roguelite Gauntlet · 12 Relics + 3 Legendary Warden Relics.",
        "Requires Hall of Echoes enabled. Losing a floor ends the run with no Cash-Out!",
-       status, active && focus == 1 ? "Cash Out" : "Ascend", back, preview);
+       status, active && focus == 1 ? "Cash Out" : !active && focus == 1 ? "Toggle Pact" : "Ascend", back, preview);
   }
 
   if (page == GuildPage.Codex)
@@ -499,7 +531,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     new GuildMenuRow("War Mutator", Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)),
     new GuildMenuRow("Dunan Honors", $"{ledger.UnlockedHonors?.Count ?? 0} / {Reforged2Rules.Honors.Length} unlocked"),
     new GuildMenuRow("Party Talents", $"{ledger.PartyMastery?.Count ?? 0} heroes · Build Trees"),
-    new GuildMenuRow("Tower of Dunan", TowerOfDunanRuntime.PendingRelicDraft ? "★ Relic Draft Ready!" : TowerOfDunanRuntime.RunActive ? $"Floor {TowerOfDunanRuntime.FloorsCleared} Active" : $"Endless · Best Fl.{ledger.HighestTowerFloor}")
+    new GuildMenuRow("Tower of Dunan", TowerOfDunanRuntime.PendingRelicDraft ? "★ Relic Draft Ready!" : TowerOfDunanRuntime.RunActive ? $"Floor {TowerOfDunanRuntime.FloorsCleared} Active" : $"Endless · Best Fl.{ledger.HighestTowerFloor}"),
+    new GuildMenuRow("War Squads", $"{ledger.Commanders.Count} commanders · Branches")
    };
    focus = Math.Clamp(focus, 0, codexRows.Length - 1);
    var (cTitle, cArea, cDesc, cReward, cCond) = focus switch
@@ -533,13 +566,17 @@ public sealed class HuntGuildOverlay:MonoBehaviour
           "Assign Berserker, Arcanist, Bulwark, or Tactician builds to any of the 108 Stars. Rank III (250 XP) empowers every Talent!",
           "Makes every favorite Suikoden II character viable for Nightmare endgame.",
           "Confirm opens the Party Talents builder."),
-    _ => ("Tower of Dunan · Endless Roguelite", $"Highest Floor: {ledger.HighestTowerFloor}  ·  Active Relics: {TowerOfDunanRuntime.ActiveRelics.Count}",
-          "Battle through escalating floors, draft 1 of 3 Roguelite Relics after every floor, and Cash Out for massive Potch & Commendations!",
-          "12 stackable Relics (Vampiric Fang, Arcane Battery, Overdrive Core, Aegis Crest, and more).",
-          "Confirm opens the Tower of Dunan.")
+    7 => ("Tower of Dunan · Endless Roguelite", $"Highest Floor: {ledger.HighestTowerFloor}  ·  Active Relics: {TowerOfDunanRuntime.ActiveRelics.Count}",
+          "Battle through escalating floors, draft 1 of 3 Relics after every floor (Legendary Relics on Floor 5/10/15!), and Cash Out for Potch & Commendations!",
+          "12 Relics + 3 Legendary Warden Relics + optional Blood Oath Risk Pact.",
+          "Confirm opens the Tower of Dunan."),
+    _ => ("War Squad Branch Builder", $"{ledger.Commanders.Count} Enlisted Commanders",
+          "Reassign any enlisted commander's unit branch (Infantry / Archer / Magicians) for Custom Skirmishes and inspect War Synergy pairs.",
+          "Synergy Pairs: Flik+Viktor · Shu+Apple · Luc+Mazus · Humphrey+Georg.",
+          "Confirm opens the War Squads customizer.")
    };
    return GuildRebornScreen.Paginate(new("TACTICIAN'S CODEX", codexRows, focus, cTitle, cArea, cDesc, cReward, cCond, status,
-       focus == 1 ? "Cycle Stance" : focus == 2 && ArmyProgressionRuntime.HuntModifiersEnabled ? "Cycle Modifier" : focus == 4 ? "Cycle Mutator" : focus is 6 or 7 ? "Open" : "Back", back, preview));
+       focus == 1 ? "Cycle Stance" : focus == 2 && ArmyProgressionRuntime.HuntModifiersEnabled ? "Cycle Modifier" : focus == 4 ? "Cycle Mutator" : focus == 5 ? "Export Chronicle" : focus is 6 or 7 or 8 ? "Open" : "Back", back, preview));
   }
 
   if (page == GuildPage.Training && focus >= GuildMenuNavigation.TrainingDrillCount)
@@ -688,11 +725,11 @@ public sealed class HuntGuildOverlay:MonoBehaviour
      float hw=490,hh=298;
      var hbox=new Rect(Screen.width-hw-18,66,hw,hh);
      Window(hbox);
-     Label(new(new(18,12,hw-36,26),"REFORGED 4.0 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
+     Label(new(new(18,12,hw-36,26),"REFORGED 6.0 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
      Label(new(new(18,44,hw-36,124),
-         "F2   Toggle Clean HUD Mode\nF4   Toggle Battle Tactical Scanner & Party Buffs\nF5   Cycle Bestiary -> Honors -> Army Dossier -> Off\nF6   Accept Local Field Hunt\n←/→  Fast Page-Flip in Castle Guild",15),hbox.x,hbox.y,1);
-     Label(new(new(18,172,hw-36,44),
-         $"Bounty: {bounty.Title} ({led.ActiveBountyProgress}/{bounty.Target}) — {bounty.Description}",14,"gold"),hbox.x,hbox.y,1);
+         "F2   Toggle Clean HUD Mode\nF4   Battle Scanner · Turn Order · Buffs · Live DPS\nF5   Cycle Bestiary -> Honors -> Army Dossier -> Off\nF6   Accept Local Field Hunt\n←/→  Fast Page-Flip in Castle Guild",15),hbox.x,hbox.y,1);
+     string nemLine=led.ActiveNemesis is {} an?$"☠ Wanted: {an.Name} {an.Title} (T{an.Tier} · +{Reforged5Rules.NemesisCommendationReward(an.Tier)} Comm.)":$"Bounty: {bounty.Title} ({led.ActiveBountyProgress}/{bounty.Target})";
+     Label(new(new(18,172,hw-36,44),nemLine,14,led.ActiveNemesis!=null?"alert":"gold"),hbox.x,hbox.y,1);
      Label(new(new(18,220,hw-36,68),
          $"Commendations: {led.Commendations}  ·  {Reforged2Rules.HunterRankTitle(hr)}  ·  Honors: {led.UnlockedHonors?.Count??0}/{Reforged2Rules.Honors.Length}\nStance: {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)}  ·  Mutator: {Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)}\nUpgrades: {led.CastleUpgrades?.Count??0}/{Reforged2Rules.CastleUpgrades.Length}  ·  Streak: {Reforged2Runtime.WinStreak}  ·  Bestiary: {led.Bestiary?.Count??0}",14,"success"),hbox.x,hbox.y,1);
     }
@@ -837,6 +874,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
        var formTags=new List<string>(3);
        if(frontAlive>=3)formTags.Add("Phalanx (-6% Front DMG)");
        if(backAlive>=3)formTags.Add("Crossfire (+6% Back DMG)");
+       if(Reforged2Runtime.ActiveTalentSet!=TalentSetBonus.None)formTags.Add("★ "+Reforged5Rules.TalentSetTitle(Reforged2Runtime.ActiveTalentSet));
        if(Reforged2Rules.IsLastStandActive(Reforged2Runtime.KoAllyCount(bwInst)))formTags.Add("LAST STAND (+15% ATK/-10% Taken)");
        if(formTags.Count>0||partyBuffs.Length>0||turnOrder.Length>0||dpsList.Length>0)
        {

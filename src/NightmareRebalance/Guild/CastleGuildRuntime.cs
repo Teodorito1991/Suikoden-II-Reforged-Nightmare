@@ -190,7 +190,7 @@ internal static class CastleGuildRuntime
   Menu.SpoilerRow=HallTrialCatalogue.Entries.Length;
   Menu.ArmyRosterCount = Math.Max(1, ArmyProgressionRuntime.RosterSnapshot().Length);
   Menu.PartyMasteryCount = Math.Max(1, ArmyProgressionRuntime.PartyMasterySnapshot().Length);
-  Menu.TowerRowCount = TowerOfDunanRuntime.PendingRelicDraft ? TowerOfDunanRuntime.DraftChoices.Length : (TowerOfDunanRuntime.RunActive ? 2 : 1);
+  Menu.TowerRowCount = TowerOfDunanRuntime.PendingRelicDraft ? TowerOfDunanRuntime.DraftChoices.Length : 2;
   if(ActiveNpc==CastleNpcRole.DrillSergeant)Menu.OpenDirect(GuildPage.Training,HuntRuntime.BrowseOrder.Length);
   else if(ActiveNpc==CastleNpcRole.EchoArchivist)Menu.OpenDirect(GuildPage.Echoes,HuntRuntime.BrowseOrder.Length);
   else if(ActiveNpc==CastleNpcRole.Quartermaster)Menu.OpenDirect(GuildPage.Quartermaster,HuntRuntime.BrowseOrder.Length);
@@ -230,7 +230,7 @@ internal static class CastleGuildRuntime
    Status=HallAvailability.Reason(Menu.Focus);
   Menu.ArmyRosterCount = Math.Max(1, ArmyProgressionRuntime.RosterSnapshot().Length);
   Menu.PartyMasteryCount = Math.Max(1, ArmyProgressionRuntime.PartyMasterySnapshot().Length);
-  Menu.TowerRowCount = TowerOfDunanRuntime.PendingRelicDraft ? TowerOfDunanRuntime.DraftChoices.Length : (TowerOfDunanRuntime.RunActive ? 2 : 1);
+  Menu.TowerRowCount = TowerOfDunanRuntime.PendingRelicDraft ? TowerOfDunanRuntime.DraftChoices.Length : 2;
   var prevPage=Menu.Page;
   var choice=Menu.Confirm(decide,Held(GRInputManager.Type.Decide),Quest.State,restriction.Length==0
       ,HallFirstContact.Available && HallAvailability.CanSelect(Menu.Page==GuildPage.EchoDifficulty?Menu.Echo:Menu.Focus),
@@ -250,6 +250,8 @@ internal static class CastleGuildRuntime
    GuildChoice.CycleStance => CycleArmyStance(),
    GuildChoice.CycleMutator => CycleWarMutator(),
    GuildChoice.CycleTalent => CyclePartyTalent(Menu.Focus),
+   GuildChoice.CycleBranch => CycleCommanderBranch(Menu.Focus),
+   GuildChoice.ExportChronicle => ExportCampaignChronicle(),
    GuildChoice.TowerAction => HandleTowerAction(Menu.Focus),
    GuildChoice.BuyQuartermaster => BuyQuartermasterItem(Menu.Focus),
    GuildChoice.Report => ReportContract(),
@@ -306,12 +308,34 @@ internal static class CastleGuildRuntime
   Status=$"{m.Name}: Talent set to {Reforged5Rules.TalentTitle(next)}. Save your game to bind.";
   return false;
  }
+ static bool CycleCommanderBranch(int index)
+ {
+  var roster=ArmyProgressionRuntime.RosterSnapshot();
+  if(index<0||index>=roster.Length){Status="Complete a qualifying Army Training drill to enlist commanders.";return false;}
+  var c=roster[index];
+  var next=ArmyProgressionRuntime.CycleBranchOverride(c.NameId);
+  Status=$"{c.Name}: Skirmish Branch set to {Reforged5Rules.BranchOverrideTitle(next)}. Save your game to bind.";
+  return false;
+ }
+ static bool ExportCampaignChronicle()
+ {
+  Status=ArmyProgressionRuntime.ExportChronicle();
+  return false;
+ }
  static bool HandleTowerAction(int index)
  {
   if(TowerOfDunanRuntime.PendingRelicDraft)
   {
    TowerOfDunanRuntime.PickRelic(index,out string msg);
    Status=msg;
+   return false;
+  }
+  if(!TowerOfDunanRuntime.RunActive&&index==1)
+  {
+   TowerOfDunanRuntime.ToggleBloodOath();
+   Status=TowerOfDunanRuntime.BloodOathActive
+       ?"Tower Pact: Blood Oath ON (+15% Enemy DMG · 1.5x Potch & +2 Bonus Commendations)!"
+       :"Tower Pact: Standard Rules.";
    return false;
   }
   if(TowerOfDunanRuntime.RunActive&&index==1)

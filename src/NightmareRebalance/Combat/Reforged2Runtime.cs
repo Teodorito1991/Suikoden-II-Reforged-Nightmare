@@ -25,6 +25,8 @@ internal static class Reforged2Runtime
     internal static int Momentum;
     internal static int OverdriveUntilTurn = -1;
     internal static int WinStreak;
+    internal static TalentSetBonus ActiveTalentSet;
+    static int battlesWithoutNemesis;
 
     static readonly List<CombatFeedEntry> feed = new(4);
     static int lastTurn = -1;
@@ -92,6 +94,7 @@ internal static class Reforged2Runtime
         ApexBattleActive = false;
         ActiveApexAffix = ApexAffix.None;
         NemesisBattleActive = false;
+        ActiveTalentSet = TalentSetBonus.None;
         Momentum = 0;
         OverdriveUntilTurn = -1;
         bossPhases.Clear();
@@ -109,12 +112,29 @@ internal static class Reforged2Runtime
         NemesisBattleActive = false;
         OverdriveUntilTurn = -1;
 
+        var partyTalents = new List<CharacterTalent>(6);
+        if (w.pm_data != null)
+            for (int i = 0; i < w.pm_data.Length && i < 6; i++)
+                if (w.pm_data[i] is { IsPlayer: true, chara_id: > 0 } u)
+                    partyTalents.Add(ArmyProgressionRuntime.GetCharacterTalent(u.chara_id).Talent);
+        ActiveTalentSet = Reforged5Rules.EvaluateTalentSet(partyTalents);
+
         if (MomentumEnabled)
         {
-            int startMom = (ArmyProgressionRuntime.HasUpgrade("tactical-reserve") ? 35 : 0)
-                + (TowerOfDunanRuntime.HasRelic("overdrive-core") ? 60 : 0)
-                + Reforged2Rules.StreakStartingMomentum(WinStreak);
-            Momentum = Math.Clamp(startMom, 0, Reforged2Rules.OverdriveThreshold - 1);
+            if (TowerOfDunanRuntime.HasRelic("true-rune-surge"))
+            {
+                Momentum = Reforged2Rules.OverdriveThreshold;
+                OverdriveUntilTurn = 1;
+                FlashBanner("★ True Rune Surge: Dunan Overdrive Engaged!", 3200, "gold");
+            }
+            else
+            {
+                int startMom = (ArmyProgressionRuntime.HasUpgrade("tactical-reserve") ? 35 : 0)
+                    + (TowerOfDunanRuntime.HasRelic("overdrive-core") ? 60 : 0)
+                    + (ActiveTalentSet == TalentSetBonus.BalancedVanguard ? 15 : 0)
+                    + Reforged2Rules.StreakStartingMomentum(WinStreak);
+                Momentum = Math.Clamp(startMom, 0, Reforged2Rules.OverdriveThreshold - 1);
+            }
         }
 
         bool hasBoss = w.pm_data != null && w.pm_data.Any(u => u != null && !u.IsPlayer && u.max_hp >= 1200);
@@ -127,13 +147,19 @@ internal static class Reforged2Runtime
         if (!ApexEnabled || !s.Allowed || !s.StatsAllowed || HuntRuntime.Active != null || HallFirstContact.UsesOriginalHp() || hasBoss)
             return;
 
-        if (ArmyProgressionRuntime.Current.ActiveNemesis is {} nem && Reforged5Rules.ShouldAmbushWithNemesis(rng.Next(100)))
+        if (ArmyProgressionRuntime.Current.ActiveNemesis is {} nem)
         {
-            NemesisBattleActive = true;
-            ActiveApexAffix = nem.Affix;
-            FlashBanner($"☠ NEMESIS AMBUSH: {nem.Name} {nem.Title} (Tier {nem.Tier})!", 4600, "alert");
-            Plugin.Logger.LogInfo($"Reforged 5.0: Nemesis ambush triggered ({nem.Name} Tier {nem.Tier}).");
-            return;
+            int nemChance = Reforged5Rules.NemesisAmbushChance(battlesWithoutNemesis);
+            if (rng.Next(100) < nemChance)
+            {
+                battlesWithoutNemesis = 0;
+                NemesisBattleActive = true;
+                ActiveApexAffix = nem.Affix;
+                FlashBanner($"☠ NEMESIS AMBUSH: {nem.Name} {nem.Title} (Tier {nem.Tier})!", 4600, "alert");
+                Plugin.Logger.LogInfo($"Reforged 6.0: Nemesis ambush triggered ({nem.Name} Tier {nem.Tier}, chance={nemChance}%).");
+                return;
+            }
+            battlesWithoutNemesis++;
         }
 
         int chance = ArmyProgressionRuntime.HasUpgrade("scout-network") ? 18 : Reforged2Rules.ApexChancePercent;
@@ -171,6 +197,10 @@ internal static class Reforged2Runtime
             result = Reforged2Rules.ApplyLastStandDefense(result, kos);
         if (TowerOfDunanRuntime.HasRelic("aegis-crest") && result > 1)
             result = Math.Max(1, (int)Math.Round(result * 0.85, MidpointRounding.AwayFromZero));
+        if (TowerOfDunanRuntime.HasRelic("bright-shield-echo") && result > 1)
+            result = Math.Max(1, (int)Math.Round(result * 0.80, MidpointRounding.AwayFromZero));
+        if (ActiveTalentSet == TalentSetBonus.IronCitadel && result > 1)
+            result = Math.Max(1, (int)Math.Round(result * 0.90, MidpointRounding.AwayFromZero));
         if (TowerOfDunanRuntime.HasRelic("blood-pact") && result > 1)
             result = Math.Max(result + 1, (int)Math.Round(result * 1.10, MidpointRounding.AwayFromZero));
         return result;
@@ -363,7 +393,7 @@ internal static class Reforged2Runtime
                         string pName = G2_SYS.G2_name_get(unit.chara_id)?.Trim() ?? ("Hero #" + unit.chara_id);
                         ArmyProgressionRuntime.AwardPartyMastery(unit.chara_id, pName, masteryXp);
                     }
-                    double healPct = (fieldMedic ? 0.10 : 0.0) + (towerTome ? 0.20 : 0.0);
+                    double healPct = (fieldMedic ? 0.10 : 0.0) + (towerTome ? 0.20 : 0.0) + (TowerOfDunanRuntime.HasRelic("bright-shield-echo") ? 0.15 : 0.0);
                     if (healPct > 0 && unit.TryCast<BattlePlayerCharacter>()?.c_varia_dat is {} data && data.max_hp > 0 && data.now_hp > 0 && data.now_hp < data.max_hp)
                     {
                         int heal = Math.Max(1, (int)Math.Round(data.max_hp * healPct, MidpointRounding.AwayFromZero));
@@ -492,11 +522,20 @@ internal static class Reforged2Runtime
 
         var (talent, mRank) = ArmyProgressionRuntime.GetCharacterTalent(attacker.chara_id);
         result = Reforged5Rules.ApplyTalentPhysical(result, talent, mRank, out int talentHeal);
+        if (ActiveTalentSet == TalentSetBonus.BalancedVanguard)
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.08, MidpointRounding.AwayFromZero));
+        else if (ActiveTalentSet == TalentSetBonus.WarbandFury)
+        {
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.10, MidpointRounding.AwayFromZero));
+            talentHeal += Math.Max(1, (int)Math.Round(result * 0.03, MidpointRounding.AwayFromZero));
+        }
         int relicHeal = TowerOfDunanRuntime.HasRelic("vampiric-fang") ? Math.Max(1, (int)Math.Round(result * 0.10, MidpointRounding.AwayFromZero)) : 0;
         if (talentHeal + relicHeal > 0 && attacker.hp > 0 && attacker.hp < attacker.max_hp)
             attacker.hp = (short)Math.Min(attacker.max_hp, attacker.hp + talentHeal + relicHeal);
         if (TowerOfDunanRuntime.HasRelic("blood-pact"))
             result = Math.Max(result + 1, (int)Math.Round(result * 1.25, MidpointRounding.AwayFromZero));
+        if (TowerOfDunanRuntime.HasRelic("black-sword-echo"))
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.30, MidpointRounding.AwayFromZero));
 
         if (attacker.chara_no is >= 3 and < 6)
         {
@@ -587,10 +626,19 @@ internal static class Reforged2Runtime
 
         var (mTalent, mRank) = ArmyProgressionRuntime.GetCharacterTalent(caster.chara_id);
         result = Reforged5Rules.ApplyTalentMagic(result, mTalent, mRank);
+        if (ActiveTalentSet == TalentSetBonus.BalancedVanguard)
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.08, MidpointRounding.AwayFromZero));
+        else if (ActiveTalentSet == TalentSetBonus.ArcaneConclave)
+        {
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.12, MidpointRounding.AwayFromZero));
+            GainMomentum(8, w);
+        }
         if (TowerOfDunanRuntime.HasRelic("arcane-battery"))
             result = Math.Max(result + 1, (int)Math.Round(result * 1.25, MidpointRounding.AwayFromZero));
         if (TowerOfDunanRuntime.HasRelic("blood-pact"))
             result = Math.Max(result + 1, (int)Math.Round(result * 1.25, MidpointRounding.AwayFromZero));
+        if (TowerOfDunanRuntime.HasRelic("black-sword-echo"))
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.30, MidpointRounding.AwayFromZero));
         if (caster.chara_no is >= 3 and < 6)
         {
             var (_, backAlive) = FormationCounts(w);
