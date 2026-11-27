@@ -9,25 +9,82 @@ namespace NightmareRebalance;
 internal static class Reforged2Runtime
 {
     internal static bool ScannerVisible;
+    internal static bool HelpCardVisible;
+    internal static bool ApexBattleActive;
     internal static string BannerText = "";
     static long bannerUntil;
     static int lastTurn = -1;
     static int spellsThisTurn;
+    static int battleCombos, battleSurges;
     static readonly Dictionary<IntPtr, int> bossPhases = new();
+    static readonly HashSet<IntPtr> surgedPlayers = new();
+    static readonly System.Random apexRng = new();
 
     internal static bool BannerVisible => Environment.TickCount64 < bannerUntil && !string.IsNullOrEmpty(BannerText);
     internal static bool CombosEnabled => Plugin.Options?.EnableCombatCombos.Value == true;
     internal static bool PerksEnabled => Plugin.Options?.EnableWeaponMilestonePerks.Value == true;
     internal static bool TelegraphsEnabled => Plugin.Options?.EnableBossTelegraphs.Value == true;
+    internal static bool ApexEnabled => Plugin.Options?.EnableApexEncounters.Value == true;
+    internal static bool SurgeEnabled => Plugin.Options?.EnableDesperationSurge.Value == true;
 
     internal static void ClearBattle()
     {
         lastTurn = -1;
         spellsThisTurn = 0;
+        battleCombos = 0;
+        battleSurges = 0;
+        ApexBattleActive = false;
         bossPhases.Clear();
+        surgedPlayers.Clear();
         BannerText = "";
         bannerUntil = 0;
     }
+
+    internal static void TryArmApexBattle(BattleState s, BATTLE_WORK w)
+    {
+        ApexBattleActive = false;
+        if (!ApexEnabled || !s.Allowed || !s.StatsAllowed || HuntRuntime.Active != null || HallFirstContact.UsesOriginalHp())
+            return;
+        if (w.pm_data == null || w.pm_data.Any(u => u != null && !u.IsPlayer && u.max_hp >= 1200))
+            return;
+        if (Reforged2Rules.ShouldSpawnApex(apexRng.Next(100)))
+        {
+            ApexBattleActive = true;
+            FlashBanner("⚠ APEX PACK ENCOUNTERED! (2x Potch · +1 Commendation)", 4200);
+            Plugin.Logger.LogInfo("Reforged 2.0: Apex Pack spawned for ordinary dungeon encounter.");
+        }
+    }
+
+    internal static void ObservePlayerHit(BATTLE_WORK? w, int defenderSlot, int incomingDamage)
+    {
+        if (!SurgeEnabled || incomingDamage <= 0 || w?.pm_data == null || defenderSlot < 0 || defenderSlot >= w.pm_data.Length)
+            return;
+        var player = w.pm_data[defenderSlot];
+        if (player == null || !player.IsPlayer || player.IsDead) return;
+        int projectedHp = player.hp - incomingDamage;
+        if (Reforged2Rules.ShouldArmDesperation(projectedHp, player.max_hp) && surgedPlayers.Add(player.Pointer))
+        {
+            string pName = player.chara_id > 0 ? G2_SYS.G2_name_get(player.chara_id) : "Ally";
+            FlashBanner($"★ {pName}: Desperation Surge Ready! (+25% DMG)", 2800);
+        }
+    }
+
+    internal static void OnBattleVictory(int restoredCharges)
+    {
+        bool wasApex = ApexBattleActive;
+        if (wasApex) ArmyProgressionRuntime.AwardCommendations(1);
+        if (wasApex || battleCombos > 0 || battleSurges > 0)
+        {
+            var parts = new List<string>(4);
+            if (wasApex) parts.Add("Apex Cleared (+1 Commendation)");
+            if (battleCombos > 0) parts.Add($"{battleCombos} Combo(s)");
+            if (battleSurges > 0) parts.Add($"{battleSurges} Surge(s)");
+            if (restoredCharges > 0) parts.Add($"+{restoredCharges} Rune");
+            CastleGuildRuntime.TrainingFeedback("Victory · " + string.Join(" · ", parts));
+        }
+    }
+
+    internal static void ToggleHelpCard() => HelpCardVisible = !HelpCardVisible;
 
     internal static void FlashBanner(string text, int durationMs = 3400)
     {
@@ -90,6 +147,14 @@ internal static class Reforged2Runtime
         if (PerksEnabled && attacker.c_varia_dat is {} data)
             result = Reforged2Rules.ApplyWeaponAttackPerk(result, data.buki_lv);
 
+        if (SurgeEnabled && surgedPlayers.Remove(attacker.Pointer))
+        {
+            int before = result;
+            result = Reforged2Rules.ApplyDesperationSurge(result);
+            battleSurges++;
+            FlashBanner($"★ Desperation Surge! (+{result - before})", 2400);
+        }
+
         if (CombosEnabled && StarBondRuntime.Enemy(w, mokuhyo) is {} enemy)
         {
             bool sleeping = (enemy.status & b_game_h.STATUS_SLEEP) != 0;
@@ -98,6 +163,7 @@ internal static class Reforged2Runtime
             if (combo.BonusDamage > 0)
             {
                 result += combo.BonusDamage;
+                battleCombos++;
                 FlashBanner($"★ {combo.Name}! (+{combo.BonusDamage})", 2200);
             }
         }
@@ -106,22 +172,32 @@ internal static class Reforged2Runtime
 
     internal static int ApplyPlayerMagic(BattlePlayerCharacter caster, int damage)
     {
-        if (damage <= 0 || !CombosEnabled || Combat.State is not { Ready: true }) return damage;
+        if (damage <= 0 || Combat.State is not { Ready: true }) return damage;
         var w = Framework.Singleton<BATTLE_WORK>.instance;
         if (w == null) return damage;
+        int result = damage;
+        if (SurgeEnabled && surgedPlayers.Remove(caster.Pointer))
+        {
+            int before = result;
+            result = Reforged2Rules.ApplyDesperationSurge(result);
+            battleSurges++;
+            FlashBanner($"★ Desperation Surge! (+{result - before})", 2400);
+        }
+        if (!CombosEnabled) return result;
         if (w.battle_kaisuu != lastTurn)
         {
             lastTurn = w.battle_kaisuu;
             spellsThisTurn = 0;
         }
         spellsThisTurn++;
-        var combo = Reforged2Rules.EvaluateArcaneChain(damage, spellsThisTurn);
+        var combo = Reforged2Rules.EvaluateArcaneChain(result, spellsThisTurn);
         if (combo.BonusDamage > 0)
         {
+            battleCombos++;
             FlashBanner($"★ {combo.Name}! (+{combo.BonusDamage})", 2200);
-            return damage + combo.BonusDamage;
+            return result + combo.BonusDamage;
         }
-        return damage;
+        return result;
     }
 
     internal static int ApplyDefenderWeaponPerk(BATTLE_WORK? w, int defenderSlot, int damage)

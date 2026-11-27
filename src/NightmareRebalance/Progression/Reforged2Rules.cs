@@ -2,6 +2,8 @@ namespace NightmareRebalance;
 
 internal enum HunterRank { Unranked = 0, Bronze = 1, Silver = 2, Gold = 3, Master = 4 }
 
+internal enum ArmyStance { Balanced = 0, AllOutAssault = 1, IronPhalanx = 2, SwiftMarch = 3 }
+
 internal sealed record SkirmishSpec(
     string Id,
     string Name,
@@ -166,5 +168,77 @@ internal static class Reforged2Rules
             return $"{bossName}'s fury rises — High Pressure!";
         }
         return "";
+    }
+
+    internal const double ApexHpMultiplier = 1.30;
+    internal const double ApexDamageMultiplier = 1.15;
+    internal const double ApexPotchMultiplier = 2.00;
+    internal const int ApexChancePercent = 10;
+
+    internal static bool ShouldSpawnApex(int roll0To99, int chancePercent = ApexChancePercent) =>
+        roll0To99 >= 0 && roll0To99 < Math.Clamp(chancePercent, 0, 100);
+
+    internal static bool ShouldArmDesperation(int hpAfterHit, int maxHp) =>
+        maxHp > 0 && hpAfterHit > 0 && hpAfterHit * 4 <= maxHp;
+
+    internal static int ApplyDesperationSurge(int damage) =>
+        damage <= 0 ? damage : Math.Max(damage + 1, (int)Math.Round(damage * 1.25, MidpointRounding.AwayFromZero));
+
+    internal static string TacticalWeaknessHint(int pdf, int mdf)
+    {
+        if (pdf >= mdf + 15) return "Weak: Magic";
+        if (mdf >= pdf + 15) return "Weak: Phys";
+        return "Balanced";
+    }
+
+    internal static string StanceTitle(ArmyStance stance) => stance switch
+    {
+        ArmyStance.AllOutAssault => "All-Out Assault",
+        ArmyStance.IronPhalanx => "Iron Phalanx",
+        ArmyStance.SwiftMarch => "Swift March",
+        _ => "Balanced Formation"
+    };
+
+    internal static string StanceDescription(ArmyStance stance) => stance switch
+    {
+        ArmyStance.AllOutAssault => "Allied war units gain +1 ATK and -1 DEF.",
+        ArmyStance.IronPhalanx => "Allied war units gain +1 DEF and -1 ATK.",
+        ArmyStance.SwiftMarch => "Allied war units gain +1 active ability use (max 3).",
+        _ => "Standard allied war formation with no trade-offs."
+    };
+
+    internal static CommanderProfile ApplyStance(CommanderProfile source, ArmyStance stance)
+    {
+        if (stance == ArmyStance.Balanced) return source;
+        int atk = source.Attack, def = source.Defense;
+        var uses = source.Uses.ToArray();
+        switch (stance)
+        {
+            case ArmyStance.AllOutAssault:
+                atk++; def--;
+                break;
+            case ArmyStance.IronPhalanx:
+                def++; atk--;
+                break;
+            case ArmyStance.SwiftMarch:
+                for (int i = 0; i < source.Abilities.Length && i < uses.Length; i++)
+                {
+                    int id = Array.IndexOf(OverhaulRules.Abilities, source.Abilities[i]);
+                    if (OverhaulRules.ActiveAbility(id) && uses[i] < 3) { uses[i]++; break; }
+                }
+                break;
+        }
+        return new CommanderProfile
+        {
+            NameId = source.NameId,
+            Name = source.Name,
+            Branch = source.Branch,
+            Attack = (byte)Math.Clamp(atk, 0, 20),
+            Defense = (byte)Math.Clamp(def, 0, 20),
+            AssistAttack = source.AssistAttack,
+            AssistDefense = source.AssistDefense,
+            Abilities = source.Abilities.ToArray(),
+            Uses = uses
+        };
     }
 }

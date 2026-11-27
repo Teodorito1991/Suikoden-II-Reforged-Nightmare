@@ -54,6 +54,10 @@ internal static class GuildPresentation
         {
             return ("Echo Archivist", "Memories of past battles stir in the Hall of Echoes. Speak to challenge an Echo.");
         }
+        if (role == CastleNpcRole.Quartermaster)
+        {
+            return ("Castle Quartermaster", "Bring me Dunan Commendations from Hunts, Skirmishes, or the Hall for rare Runes and Growth Stones.");
+        }
         if (state == GuildQuestState.AwaitingReport)
         {
             string name = string.IsNullOrEmpty(contractId) ? "your quarry" : GuildScreenRules.Card(contractId).Name;

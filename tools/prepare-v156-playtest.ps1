@@ -31,6 +31,8 @@ EnableBattleTacticalHud = true
 EnableCombatCombos = true
 EnableWeaponMilestonePerks = true
 EnableBossTelegraphs = true
+EnableApexEncounters = true
+EnableDesperationSurge = true
 "@
 
 Add-Content -LiteralPath $cfgPath -Value $overlay -Encoding UTF8

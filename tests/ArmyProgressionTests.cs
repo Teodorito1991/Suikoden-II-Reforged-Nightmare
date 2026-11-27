@@ -233,6 +233,19 @@ internal static class ArmyProgressionTests
         Check(Confirm() == GuildChoice.BuyQuartermaster, "Confirm inside Quartermaster triggers BuyQuartermaster");
         Check(menu.Back() && menu.Page == GuildPage.Training && menu.Focus == GuildMenuNavigation.QuartermasterRow, "Back from Quartermaster restores focus");
 
+        // 11. Apex Encounters, Desperation Surge, Allied War Stances, Weakness Hints & Quartermaster NPC
+        Check(Reforged2Rules.ShouldSpawnApex(0) && Reforged2Rules.ShouldSpawnApex(9) && !Reforged2Rules.ShouldSpawnApex(10), "Apex 10% roll boundary");
+        Check(Reforged2Rules.ShouldArmDesperation(25, 100) && !Reforged2Rules.ShouldArmDesperation(26, 100) && !Reforged2Rules.ShouldArmDesperation(0, 100), "Desperation Surge arms on surviving <= 25% HP");
+        Check(Reforged2Rules.ApplyDesperationSurge(100) == 125, "Desperation Surge +25% damage");
+        Check(Reforged2Rules.TacticalWeaknessHint(120, 80) == "Weak: Magic" && Reforged2Rules.TacticalWeaknessHint(80, 120) == "Weak: Phys" && Reforged2Rules.TacticalWeaknessHint(90, 95) == "Balanced", "Tactical weakness hints");
+        var assaultFlik = Reforged2Rules.ApplyStance(flik, ArmyStance.AllOutAssault);
+        Check(assaultFlik.Attack == flik.Attack + 1 && assaultFlik.Defense == flik.Defense - 1, "All-Out Assault stance +1 ATK / -1 DEF");
+        var (qmHeader, qmGreeting) = GuildPresentation.NpcBanner(GuildQuestState.NoContract, null, 0, 0, true, CastleNpcRole.Quartermaster);
+        Check(qmHeader == "Castle Quartermaster" && qmGreeting.Contains("Commendations"), "Castle Quartermaster NPC banner");
+        menu.OpenDirect(GuildPage.Codex, 10);
+        menu.Move(false, true);
+        Check(Confirm() == GuildChoice.CycleStance, "Codex row 1 cycles Allied War Stance");
+
         Console.WriteLine($"PASS: Reforged 2.0 full suite {checks} checks.");
     }
 }

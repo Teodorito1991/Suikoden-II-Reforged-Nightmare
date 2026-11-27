@@ -18,6 +18,7 @@ internal sealed class Settings
     internal readonly ConfigEntry<bool> EnableArmyProgression, EnableDrillDirectives, EnableCrossTheaterSynergy, EnableExpandedCastleNpcs;
     internal readonly ConfigEntry<bool> EnableHuntModifiers, EnableBattleTacticalHud, EnableGuildMenuAudio;
     internal readonly ConfigEntry<bool> EnableCombatCombos, EnableWeaponMilestonePerks, EnableBossTelegraphs;
+    internal readonly ConfigEntry<bool> EnableApexEncounters, EnableDesperationSurge;
     internal readonly ConfigEntry<int> GuildAudioMoveId, GuildAudioConfirmId, GuildAudioCancelId;
     internal readonly ConfigEntry<bool> EnableNativeWarRemix,RunNativeWarSelfTest,ExportNativeWarResearch,EnableNativeWarAI,EnableWarSpecializations,EnableWarTactics,EnableWarManeuvers;
 
@@ -61,6 +62,10 @@ internal sealed class Settings
             "Grants passive combat milestones at Weapon Lv 8 (Keen Edge), Lv 12 (Battle Tempo), and Lv 16 (Masterwork).");
         EnableBossTelegraphs=config.Bind("Combat Reforged",nameof(EnableBossTelegraphs),false,
             "Flashes classic Suikoden II phase banners when bosses cross 50% and 25% HP thresholds.");
+        EnableApexEncounters=config.Bind("Combat Reforged",nameof(EnableApexEncounters),false,
+            "Gives ordinary dungeon encounters a 10% chance to spawn as an Apex Pack (+30% HP, +15% DMG) paying 2x Potch and +1 Dunan Commendation.");
+        EnableDesperationSurge=config.Bind("Combat Reforged",nameof(EnableDesperationSurge),false,
+            "Surviving an enemy hit at 25% HP or lower arms a one-turn Desperation Surge (+25% damage on that character's next attack or spell).");
         EnableGuildMenuAudio=config.Bind("Castle Guild",nameof(EnableGuildMenuAudio),false,
             "Enables native OldSrcBase.SD_call audio chimes for Castle Guild menu navigation when valid sound IDs are configured.");
         GuildAudioMoveId=config.Bind("Castle Guild",nameof(GuildAudioMoveId),-1,"Native SD_call sound ID for Guild cursor move (-1 disables).");

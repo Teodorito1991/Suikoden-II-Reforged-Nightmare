@@ -42,9 +42,13 @@
     Medals for 10 audited rare Runes, Growth Stones, and supplies delivered
     directly to your bag).
   - **In-Battle RPG Overhaul:** **Elemental & Status Combos** (*Shatter Strike*,
-    *Venom Rend*, *Arcane Chain*), **Weapon Milestone Perks** (Weapon Lv 8/12/16),
-    **Boss Phase Telegraphs** (50% & 25% HP banners), and **F4 Enemy Tactical
-    Scanner** with live HP bars and enemy roles.
+    *Venom Rend*, *Arcane Chain*), **Desperation Surge** (`<= 25%` HP survival
+    arms `+25%` next-turn burst), **Dynamic Wild Apex Encounters** (`10%` chance
+    for `+30%` HP / `+15%` DMG / `2x` Potch / `+1` Commendation), **Weapon
+    Milestone Perks** (Weapon Lv 8/12/16), **Boss Phase Telegraphs** (50% & 25%
+    HP), **F4 Enemy Tactical Scanner** (real names, levels, roles, defense
+    weakness hints & HP bars), **F3 Quick-Reference Guide**, **Allied War
+    Stances**, and a dedicated **Castle Quartermaster NPC** in the corridor.
   - **Classic Suikoden II Guild UI Redesign:** royal-blue vertical gradients,
     drop-shadowed serif text, layered Spoils plaques, and floating Speaker
     Nameplate NPC dialogue boxes.

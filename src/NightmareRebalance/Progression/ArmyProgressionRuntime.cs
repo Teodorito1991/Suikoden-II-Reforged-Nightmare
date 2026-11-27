@@ -13,6 +13,7 @@ internal static class ArmyProgressionRuntime
     internal static ArmyLedgerState Current { get; private set; } = new();
     internal static DrillDirective ActiveDirective { get; set; } = DrillDirective.None;
     internal static HuntRiskModifier ActiveHuntModifier { get; set; } = HuntRiskModifier.None;
+    internal static ArmyStance ActiveStance { get; set; } = ArmyStance.Balanced;
     internal static string LastAwardNotice { get; private set; } = "";
     static string LedgerPath => Path.Combine(Paths.BepInExRootPath, "NightmareRebalance", "army-ledger.json");
 
@@ -185,15 +186,18 @@ internal static class ArmyProgressionRuntime
         var skirmish = TrainingWar.ActiveSkirmish;
         bool applySkirmish = training && isEnemy && skirmish != null;
         bool applyDirective = training && DirectivesEnabled && ActiveDirective != DrillDirective.None;
+        bool applyStance = !isEnemy && ActiveStance != ArmyStance.Balanced;
         bool applyProg = Enabled && !isEnemy && Current.Commanders.TryGetValue(original.name, out var progress) && ArmyProgressionRules.RankForXp(progress.Xp) > ArmyRank.Recruit;
         var synergy = Enabled && !isEnemy ? ActiveUnitSynergy(original.name) : null;
-        if (!applySkirmish && !applyDirective && !applyProg && synergy == null) return existingProfile;
+        if (!applySkirmish && !applyDirective && !applyStance && !applyProg && synergy == null) return existingProfile;
 
         var profile = existingProfile ?? BuildBaseProfile(original);
         if (applyProg && Current.Commanders.TryGetValue(original.name, out var prog))
             profile = ArmyProgressionRules.ApplyProgression(profile, prog);
         if (synergy != null)
             profile = ArmyProgressionRules.ApplyWarSynergy(profile, synergy);
+        if (applyStance)
+            profile = Reforged2Rules.ApplyStance(profile, ActiveStance);
         if (applySkirmish)
             profile = Reforged2Rules.ApplySkirmishEnemyBoost(profile, skirmish!);
         if (applyDirective)
@@ -317,6 +321,12 @@ internal static class ArmyProgressionRuntime
     {
         ActiveHuntModifier = (HuntRiskModifier)(((int)ActiveHuntModifier + 1) % 3);
         return ActiveHuntModifier;
+    }
+
+    internal static ArmyStance CycleStance()
+    {
+        ActiveStance = (ArmyStance)(((int)ActiveStance + 1) % 4);
+        return ActiveStance;
     }
 
     internal static void RecordHallClear(string bossId, bool nightmare, int turns, bool noKo)

@@ -16,6 +16,7 @@ internal static class DamageScope
             if (state != null && work?.pm_data is { } units && attacker >= 0 && attacker < units.Length && units[attacker] is { } unit)
                 factor = state.EnemyPlans.GetValueOrDefault(unit.Pointer)?.DamageMultiplier ?? BossRuntime.Plan(state, unit)?.DamageMultiplier ?? factor;
             if (state != null && work?.pm_data is {} live && attacker>=0 && attacker<live.Length && live[attacker] is {} acting) factor=CombatReforgedRuntime.Factor(state,acting,factor,false);
+            if (Reforged2Runtime.ApexBattleActive) factor *= Reforged2Rules.ApexDamageMultiplier;
             if (DamageScaling.Apply(outer, eligible, ref result, factor))
             {
                 CombatReforgedDiagnostics.Calculated(attacker,target,before,result,factor);
@@ -56,6 +57,7 @@ internal static class EnemyDamagePatch
             __result=TacticalTeamwork.ArcaneGuard(before);
             MaintenanceRuntime.Ai("ArcaneGuard",__instance.chara_no,new{Target=mokuhyo,Before=before,After=__result});
         }
+        if (__state && eligible && __result > 0) Reforged2Runtime.ObservePlayerHit(w, mokuhyo, __result);
     }
     [HarmonyFinalizer] internal static Exception? Finalizer(Exception? __exception) => DamageScope.Exit(__exception);
 }
@@ -105,7 +107,8 @@ internal static class PotchPatch
         if (exit != null)
         {
             int before = exit.monster_okane;
-            exit.monster_okane = Rules.Scale(exit.monster_okane, Plugin.Options.PotchMultiplier.Value, int.MaxValue);
+            double potchFactor = Plugin.Options.PotchMultiplier.Value * (Reforged2Runtime.ApexBattleActive ? Reforged2Rules.ApexPotchMultiplier : 1.0);
+            exit.monster_okane = Rules.Scale(exit.monster_okane, potchFactor, int.MaxValue);
             int configured=exit.monster_okane;
             HuntRuntime.Reward(battle_work,exit);
             try{HuntRuntime.ObserveCalculation(battle_work,before,configured);}catch(Exception e){Plugin.Debug("Hunt reward observation unavailable: "+e.Message);}

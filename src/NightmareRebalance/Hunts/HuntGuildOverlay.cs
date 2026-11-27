@@ -6,7 +6,7 @@ namespace NightmareRebalance;
 public sealed class HuntGuildOverlay:MonoBehaviour
 {
  readonly Stopwatch timer=Stopwatch.StartNew();
- Font? fallbackFont;readonly Dictionary<int,GUIStyle> styles=new();bool faulted;readonly StableHotkeyEdge request=new(),scannerKey=new();
+ Font? fallbackFont;readonly Dictionary<int,GUIStyle> styles=new();bool faulted;readonly StableHotkeyEdge request=new(),scannerKey=new(),helpKey=new();
  bool smokeExitRequested,smokeCapturePending;
  int smokeCaptureFrame;
  HuntDefinition? fieldOffer;
@@ -59,13 +59,19 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    UpdateRenderSmoke();
    return;
   }
-  if(!faulted&&Combat.State is {Ready:true})
+  if(!faulted)
   {
    GetWindowThreadProcessId(GetForegroundWindow(),out uint fg);
-   bool focusedBattle=fg==(uint)Environment.ProcessId;
-   short f4=GetAsyncKeyState(0x73);
-   if(scannerKey.Poll(focusedBattle,(f4&0x8000)!=0,(f4&1)!=0,timer.ElapsedMilliseconds))
-    Reforged2Runtime.ToggleScanner();
+   bool focusedApp=fg==(uint)Environment.ProcessId;
+   short f3=GetAsyncKeyState(0x72);
+   if(helpKey.Poll(focusedApp,(f3&0x8000)!=0,(f3&1)!=0,timer.ElapsedMilliseconds))
+    Reforged2Runtime.ToggleHelpCard();
+   if(Combat.State is {Ready:true})
+   {
+    short f4=GetAsyncKeyState(0x73);
+    if(scannerKey.Poll(focusedApp,(f4&0x8000)!=0,(f4&1)!=0,timer.ElapsedMilliseconds))
+     Reforged2Runtime.ToggleScanner();
+   }
   }
   fieldOffer=null;
   if(!faulted&&CastleGuildRuntime.Config.EnableFieldReissue&&!HuntGuildRuntime.Visible)
@@ -391,7 +397,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    var codexRows = new[]
    {
     new GuildMenuRow("Army Campaign", $"{ledger.TotalDrillsWon} drills · {ledger.Commendations} Commendations"),
-    new GuildMenuRow("Cross-Theater", $"{ledger.MoraleBonusCharges} morale · {ledger.HallNightmareClears} Nightmare"),
+    new GuildMenuRow("Allied Stance", Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)),
     new GuildMenuRow("Hunt Guild", $"{Reforged2Rules.HunterRankTitle(hRank)} · {ArmyProgressionRules.HuntModifierTitle(ArmyProgressionRuntime.ActiveHuntModifier)}"),
     new GuildMenuRow("Active Star Bonds", $"{activeBonds} active in current party")
    };
@@ -402,10 +408,10 @@ public sealed class HuntGuildOverlay:MonoBehaviour
           $"Tracked commanders: {ledger.Commanders.Count}. Active Directive: {ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective)}.",
           ArmyProgressionRuntime.Enabled ? "Army Progression ON · Spend Commendations at Quartermaster" : "Army Progression OFF (EnableArmyProgression)",
           "Progress binds automatically to your save fingerprint whenever you save."),
-    1 => ("Cross-Theater Synergy", ArmyProgressionRuntime.SynergyEnabled ? "Synergy ON" : "Synergy OFF (EnableCrossTheaterSynergy)",
-          "Veteran drills arm +1 morale rune charge for your next RPG victory. Hall Nightmare clears grant +35 War XP and +2 Commendations.",
-          $"Armed Morale Charges: {ledger.MoraleBonusCharges}   ·   Nightmare Clears: {ledger.HallNightmareClears}",
-          "Respects RuneRecoveryMaxLevel and all native save/combat guards."),
+    1 => ($"Allied War Stance · {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)}", $"Morale Charges: {ledger.MoraleBonusCharges}  ·  Hall Nightmare: {ledger.HallNightmareClears}",
+          Reforged2Rules.StanceDescription(ArmyProgressionRuntime.ActiveStance) + "\nVeteran drills arm +1 morale rune charge; Hall Nightmare clears grant +35 War XP.",
+          "Confirm cycles Stance (Balanced / All-Out Assault / Iron Phalanx / Swift March).",
+          "Applied cleanly to allied war units on disposable clones."),
     2 => ($"Hunt Guild · {Reforged2Rules.HunterRankTitle(hRank)}", $"Cleared: {ledger.HuntsCompleted}  ·  Potch Bonus: x{Reforged2Rules.HunterPotchBonusMultiplier(hRank):0.00}",
           ArmyProgressionRules.HuntModifierDescription(ArmyProgressionRuntime.ActiveHuntModifier) + "\n" + CastleGuildRuntime.QuestSummary,
           ArmyProgressionRuntime.HuntModifiersEnabled ? "Confirm cycles Hunt Risk Modifier (+35% bonus Potch)." : "Enable EnableHuntModifiers in settings to toggle Hunt modifiers.",
@@ -416,7 +422,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
           "All bond partners must be alive and able to act.")
    };
    return new("TACTICIAN'S CODEX", codexRows, focus, cTitle, cArea, cDesc, cReward, cCond, status,
-       focus == 2 && ArmyProgressionRuntime.HuntModifiersEnabled ? "Cycle Modifier" : "Back", back, preview);
+       focus == 1 ? "Cycle Stance" : focus == 2 && ArmyProgressionRuntime.HuntModifiersEnabled ? "Cycle Modifier" : "Back", back, preview);
   }
 
   if (page == GuildPage.Training && focus >= GuildMenuNavigation.TrainingDrillCount)
@@ -527,13 +533,28 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   bool prompt=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.Idle&&CastleGuildRuntime.Near;
   bool feedback=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.FeedbackVisible;
   bool battleHud=!previewSmoke&&Combat.State is {Ready:true}&&(Plugin.Options?.EnableBattleTacticalHud.Value==true||Reforged2Runtime.BannerVisible||Reforged2Runtime.ScannerVisible);
-  if(smokeExitRequested||faulted||(!previewSmoke&&!battleHud&&!prompt&&!feedback&&offer==null&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
+  bool helpCard=!previewSmoke&&Reforged2Runtime.HelpCardVisible;
+  if(smokeExitRequested||faulted||(!previewSmoke&&!helpCard&&!battleHud&&!prompt&&!feedback&&offer==null&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
   try
   {
    var matrix=GUI.matrix;var color=GUI.color;
    try
    {
     GUI.matrix=Matrix4x4.identity;GUI.color=Color.white;
+    if(helpCard)
+    {
+     var led=ArmyProgressionRuntime.Current;
+     var hr=Reforged2Rules.HunterRankForClears(led.HuntsCompleted);
+     float hw=460,hh=252;
+     var hbox=new Rect(Screen.width-hw-18,66,hw,hh);
+     Window(hbox);
+     Label(new(new(18,12,hw-36,26),"REFORGED 2.0 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
+     Label(new(new(18,44,hw-36,112),
+         "F4   Toggle Battle Tactical Scanner\nF6   Accept Local Field Hunt\n←/→  Fast Page-Flip in Castle Guild\nCorridor NPCs: Quartermaster · Sergeant · Attendant · Archivist",16),hbox.x,hbox.y,1);
+     Label(new(new(18,162,hw-36,76),
+         $"Commendations: {led.Commendations}   ·   {Reforged2Rules.HunterRankTitle(hr)}\nStance: {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)}   ·   Directive: {ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective)}\nMorale Charges: {led.MoraleBonusCharges}   ·   Combos & Surges Active",15,"success"),hbox.x,hbox.y,1);
+     if(!battleHud&&!prompt&&!feedback&&offer==null&&!HuntGuildRuntime.Visible)return;
+    }
     if(battleHud)
     {
      if(Plugin.Options?.EnableBattleTacticalHud.Value==true)
@@ -541,15 +562,16 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       int[] party=StarBondRuntime.FieldParty();
       var active=StarBondRules.Catalogue.Where(b=>StarBondRules.Includes(b,party)).Select(b=>b.Title).ToArray();
       int morale=ArmyProgressionRuntime.Current.MoraleBonusCharges;
-      string text=(active.Length>0?"★ "+string.Join(" · ",active.Take(2)):"F4: Tactical Scanner")+(morale>0?$"   Morale +{morale}":"");
-      float w=Math.Min(480,Math.Max(220,text.Length*10+36));
+      string apexTag=Reforged2Runtime.ApexBattleActive?"⚠ APEX · ":"";
+      string text=apexTag+(active.Length>0?"★ "+string.Join(" · ",active.Take(2)):"F4 Scanner · F3 Guide")+(morale>0?$"   Morale +{morale}":"");
+      float w=Math.Min(520,Math.Max(240,text.Length*10+36));
       var pill=new Rect(Screen.width-w-18,16,w,40);
       Window(pill);
       Label(new(new(14,9,w-28,24),text,16,"gold"),pill.x,pill.y,1);
      }
      if(Reforged2Runtime.BannerVisible)
      {
-      float bw=Math.Min(640,Math.Max(300,Reforged2Runtime.BannerText.Length*12+48));
+      float bw=Math.Min(680,Math.Max(300,Reforged2Runtime.BannerText.Length*12+48));
       var banner=new Rect((Screen.width-bw)/2,18,bw,46);
       Window(banner);
       Label(new(new(18,11,bw-36,26),Reforged2Runtime.BannerText,19,"gold"),banner.x,banner.y,1);
@@ -559,21 +581,25 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       var enemies=pmUnits.Where(u=>u!=null&&!u.IsPlayer&&u.hp>0&&!u.IsDead).Take(6).ToArray();
       if(enemies.Length>0)
       {
-       float sw=470,sh=50+enemies.Length*48;
+       float sw=500,sh=52+enemies.Length*56;
        var scanBox=new Rect(18,16,sw,sh);
        Window(scanBox);
-       Label(new(new(18,10,sw-36,28),"TACTICAL SCANNER   (F4 to hide)",18,"gold"),scanBox.x,scanBox.y,1);
+       string scanHeader=Reforged2Runtime.ApexBattleActive?"TACTICAL SCANNER  [APEX PACK]   (F4)":"TACTICAL SCANNER   (F4 to hide)";
+       Label(new(new(18,10,sw-36,28),scanHeader,18,"gold"),scanBox.x,scanBox.y,1);
        for(int i=0;i<enemies.Length;i++)
        {
         var e=enemies[i]!;
         string displayName=Reforged2Runtime.ResolveEnemyDisplayName(e,out string role);
+        int lv=e.monster_data?.level??0;
+        string weak=e.calc_para is {Length:>3}?Reforged2Rules.TacticalWeaknessHint(e.calc_para[2],e.calc_para[3]):"Balanced";
         string statusTag=((e.status&b_game_h.STATUS_SLEEP)!=0?" [SLP]":"")+((e.status&b_game_h.STATUS_POISON)!=0?" [PSN]":"");
         float hpFrac=e.max_hp>0?Math.Clamp((float)e.hp/e.max_hp,0f,1f):0f;
-        float ry=44+i*48;
-        Label(new(new(18,ry,sw-170,24),$"{displayName}  ({role}){statusTag}",17),scanBox.x,scanBox.y,1);
+        float ry=44+i*56;
+        Label(new(new(18,ry,sw-170,24),$"{displayName}{(lv>0?$" Lv{lv}":"")}{statusTag}",17),scanBox.x,scanBox.y,1);
         Label(new(new(sw-152,ry+1,134,22),$"{e.hp} / {e.max_hp}",16,"gold"),scanBox.x,scanBox.y,1);
-        Fill(new Rect(scanBox.x+18,scanBox.y+ry+27,sw-36,10),new Color(.04f,.07f,.16f,.95f));
-        Fill(new Rect(scanBox.x+20,scanBox.y+ry+29,(sw-40)*hpFrac,6),hpFrac<=0.25f?new Color(.95f,.35f,.30f,.98f):hpFrac<=0.50f?new Color(.96f,.76f,.32f,.98f):new Color(.38f,.90f,.58f,.98f));
+        Label(new(new(18,ry+21,sw-36,18),$"{role}  ·  {weak}",14,"muted"),scanBox.x,scanBox.y,1);
+        Fill(new Rect(scanBox.x+18,scanBox.y+ry+40,sw-36,9),new Color(.04f,.07f,.16f,.95f));
+        Fill(new Rect(scanBox.x+20,scanBox.y+ry+42,(sw-40)*hpFrac,5),hpFrac<=0.25f?new Color(.95f,.35f,.30f,.98f):hpFrac<=0.50f?new Color(.96f,.76f,.32f,.98f):new Color(.38f,.90f,.58f,.98f));
        }
       }
      }

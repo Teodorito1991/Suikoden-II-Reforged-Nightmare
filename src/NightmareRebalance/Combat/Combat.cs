@@ -102,6 +102,7 @@ internal static class Combat
                 catch (Exception ex) { CoverageRuntime.WarnInspection($"Boss inspection unavailable; Stage A factors retained: {ex.Message}"); }
             }
         Plugin.Debug($"Battle initialized: party={w.monster_party_data?.id}, allowed={s.Allowed}, players={w.player_kazu}, enemies={w.monster_kazu}");
+        Reforged2Runtime.TryArmApexBattle(s, w);
         if (s.StatsAllowed && w.pm_data != null) foreach (var unit in w.pm_data) ScaleEnemy(unit);
         MaintenanceRuntime.BaselineHp(w);
         CoverageRuntime.Emit(s.Report, "initialized");
@@ -118,6 +119,7 @@ internal static class Combat
         int beforeHp = unit.hp, beforeMax = unit.max_hp;
         double factor = OverhaulRuntime.Register(s, unit)?.HpMultiplier ?? BossRuntime.Plan(s, unit)?.HpMultiplier ?? Plugin.Options.EnemyHpMultiplier.Value;
         factor = CombatReforgedRuntime.Factor(s,unit,factor,true);
+        if (Reforged2Runtime.ApexBattleActive) factor *= Reforged2Rules.ApexHpMultiplier;
         unit.max_hp = (ushort)Math.Max(1, Rules.Scale(unit.max_hp, factor, short.MaxValue));
         unit.hp = (short)Math.Clamp(Rules.Scale(unit.hp, factor, short.MaxValue), 1, unit.max_hp);
         s.Report?.Applied("EnemyMaxHp", unit.chara_no, beforeMax, unit.max_hp, factor);
@@ -183,6 +185,7 @@ internal static class Combat
         }
         MaintenanceRuntime.Charges("BeforeRegeneration",manager.battle_work);
         int chargeBudget = Plugin.Options.RuneChargesPerVictory.Value + (ArmyProgressionRuntime.ConsumeMoraleBonus() ? 1 : 0);
+        int totalRestored = 0;
         Span<byte> values = stackalloc byte[4];
         foreach (var data in State.Eligible)
         {
@@ -191,12 +194,14 @@ internal static class Combat
             for (int i = 0; i < 4; i++) values[i] = mp[i];
             int restored = Rules.Recover(values, chargeBudget, Plugin.Options.RuneRecoveryPriority.Value, Plugin.Options.RuneRecoveryMaxLevel.Value);
             if (restored == 0) continue;
+            totalRestored += restored;
             CombatReforgedDiagnostics.RuneRestored+=restored;
             CombatRealityRuntime.Event("RuneRegeneration","Applied","victory",new{Restored=restored,Priority=Plugin.Options.RuneRecoveryPriority.Value.ToString(),MaximumLevel=Plugin.Options.RuneRecoveryMaxLevel.Value});
             for (int i = 0; i < 4; i++) mp[i] = values[i];
             State.Report?.Applied("RuneChargesRestored", -1, 0, restored, 1);
             Plugin.Debug($"Victory charge recovery: character={data.Pointer}, restored={restored}");
         }
+        Reforged2Runtime.OnBattleVictory(totalRestored);
         MaintenanceRuntime.Charges("AfterRegeneration",manager.battle_work);
         if (publish) CoverageRuntime.Emit(report, "reward-pipeline-completed");
     }
