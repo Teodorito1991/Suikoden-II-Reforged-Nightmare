@@ -84,6 +84,9 @@ internal sealed class ArmyLedgerState
     public Dictionary<string, BestiaryEntry> Bestiary { get; set; } = new(StringComparer.Ordinal);
     public int BestiaryMilestonesClaimed { get; set; }
     public int ApexPacksCleared { get; set; }
+    public int TotalCombosLanded { get; set; }
+    public int TotalOverdrivesTriggered { get; set; }
+    public int TotalSRanks { get; set; }
     public int ActiveBountyIndex { get; set; }
     public int ActiveBountyProgress { get; set; }
     public int BountiesCompleted { get; set; }
@@ -103,6 +106,9 @@ internal sealed class ArmyLedgerState
             SchemaVersion = SchemaVersion,
             BestiaryMilestonesClaimed = BestiaryMilestonesClaimed,
             ApexPacksCleared = ApexPacksCleared,
+            TotalCombosLanded = TotalCombosLanded,
+            TotalOverdrivesTriggered = TotalOverdrivesTriggered,
+            TotalSRanks = TotalSRanks,
             ActiveBountyIndex = ActiveBountyIndex,
             ActiveBountyProgress = ActiveBountyProgress,
             BountiesCompleted = BountiesCompleted,

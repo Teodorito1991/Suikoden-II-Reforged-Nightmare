@@ -185,7 +185,9 @@ internal static class Combat
             return;
         }
         MaintenanceRuntime.Charges("BeforeRegeneration",manager.battle_work);
-        int chargeBudget = Plugin.Options.RuneChargesPerVictory.Value + (ArmyProgressionRuntime.ConsumeMoraleBonus() ? 1 : 0);
+        int chargeBudget = Plugin.Options.RuneChargesPerVictory.Value
+            + (ArmyProgressionRuntime.ConsumeMoraleBonus() ? 1 : 0)
+            + Reforged2Runtime.ExtraRuneChargesForVictory(manager.battle_work);
         int totalRestored = 0;
         Span<byte> values = stackalloc byte[4];
         foreach (var data in State.Eligible)

@@ -14,7 +14,8 @@ internal static class Reforged2Runtime
 {
     internal static bool ScannerVisible;
     internal static bool HelpCardVisible;
-    internal static bool BestiaryVisible;
+    internal static int BestiaryViewMode; // 0 = Off, 1 = Bestiary, 2 = Dunan Honors
+    internal static bool BestiaryVisible => BestiaryViewMode > 0;
     internal static bool CleanHudMode;
     internal static bool ApexBattleActive;
     internal static ApexAffix ActiveApexAffix;
@@ -29,6 +30,7 @@ internal static class Reforged2Runtime
     static bool bossEnragedInBattle;
     static int battleCombos, battleSurges, battleOverdrives;
     static readonly Dictionary<IntPtr, int> bossPhases = new();
+    static readonly Dictionary<IntPtr, int> armorBreaks = new();
     static readonly HashSet<IntPtr> surgedPlayers = new();
     static readonly HashSet<IntPtr> ripostePlayers = new();
     static readonly Dictionary<int, int> battleDamageByChara = new();
@@ -89,6 +91,7 @@ internal static class Reforged2Runtime
         Momentum = 0;
         OverdriveUntilTurn = -1;
         bossPhases.Clear();
+        armorBreaks.Clear();
         surgedPlayers.Clear();
         ripostePlayers.Clear();
         battleDamageByChara.Clear();
@@ -170,6 +173,32 @@ internal static class Reforged2Runtime
         }
     }
 
+    internal static int ArmorBreakStacksFor(PM_DATA? enemy) =>
+        enemy != null && armorBreaks.TryGetValue(enemy.Pointer, out int s) ? s : 0;
+
+    internal static (int FrontAlive, int BackAlive) FormationCounts(BATTLE_WORK? w)
+    {
+        int front = 0, back = 0;
+        if (w?.pm_data == null) return (0, 0);
+        for (int i = 0; i < w.pm_data.Length && i < 6; i++)
+        {
+            var u = w.pm_data[i];
+            if (u == null || !u.IsPlayer || u.hp <= 0 || u.IsDead) continue;
+            if (i < 3) front++; else back++;
+        }
+        return (front, back);
+    }
+
+    internal static bool IsSRankVictory(BATTLE_WORK? w)
+    {
+        if (w?.pm_data == null) return false;
+        int kos = w.pm_data.Count(u => u != null && u.IsPlayer && (u.hp <= 0 || u.IsDead));
+        return Reforged2Rules.BattleGrade(kos, w.battle_kaisuu, battleCombos, battleSurges) == "S";
+    }
+
+    internal static int ExtraRuneChargesForVictory(BATTLE_WORK? w) =>
+        ArmyProgressionRuntime.HasUpgrade("arcane-academy") && IsSRankVictory(w) ? 1 : 0;
+
     internal static bool IsBossEnraged(PM_DATA? unit) =>
         TelegraphsEnabled && unit != null && bossPhases.GetValueOrDefault(unit.Pointer, 0) >= 2;
 
@@ -237,6 +266,7 @@ internal static class Reforged2Runtime
         }
 
         string grade = Reforged2Rules.BattleGrade(kos, w?.battle_kaisuu ?? 1, battleCombos, battleSurges);
+        ArmyProgressionRuntime.RecordBattleStats(battleCombos, battleOverdrives, grade == "S");
         string mvpText = "";
         if (battleDamageByChara.Count > 0)
         {
@@ -265,7 +295,7 @@ internal static class Reforged2Runtime
     }
 
     internal static void ToggleHelpCard() => HelpCardVisible = !HelpCardVisible;
-    internal static void ToggleBestiary() => BestiaryVisible = !BestiaryVisible;
+    internal static void ToggleBestiary() => BestiaryViewMode = (BestiaryViewMode + 1) % 3;
     internal static void ToggleCleanHud()
     {
         CleanHudMode = !CleanHudMode;
@@ -337,6 +367,14 @@ internal static class Reforged2Runtime
         if (PerksEnabled && attacker.c_varia_dat is {} data)
             result = Reforged2Rules.ApplyWeaponAttackPerk(result, data.buki_lv, ArmyProgressionRuntime.HasUpgrade("master-blacksmiths"));
 
+        result = Reforged2Rules.ApplyGrandArmory(result, ArmyProgressionRuntime.HasUpgrade("grand-armory"));
+
+        if (attacker.chara_no is >= 3 and < 6)
+        {
+            var (_, backAlive) = FormationCounts(w);
+            result = Reforged2Rules.ApplyCrossfireAttack(result, backAlive);
+        }
+
         if (ApexBattleActive && ActiveApexAffix == ApexAffix.Armored)
             result = Reforged2Rules.ApplyApexIncomingReduction(result, ActiveApexAffix, isMagic: false);
 
@@ -376,6 +414,14 @@ internal static class Reforged2Runtime
 
         if (CombosEnabled && StarBondRuntime.Enemy(w, mokuhyo) is {} enemy)
         {
+            int stacks = armorBreaks.GetValueOrDefault(enemy.Pointer, 0);
+            if (stacks > 0) result = Reforged2Rules.ApplyArmorBreak(result, stacks);
+            if (stacks < Reforged2Rules.MaxArmorBreakStacks)
+            {
+                armorBreaks[enemy.Pointer] = stacks + 1;
+                if (stacks + 1 == Reforged2Rules.MaxArmorBreakStacks)
+                    FlashBanner("⚔ Armor Shattered! (Max Break +15% DMG)", 2100, "alert");
+            }
             bool sleeping = (enemy.status & b_game_h.STATUS_SLEEP) != 0;
             bool poisoned = (enemy.status & b_game_h.STATUS_POISON) != 0;
             var combo = Reforged2Rules.EvaluatePhysicalCombo(result, sleeping, false, poisoned);
@@ -402,6 +448,13 @@ internal static class Reforged2Runtime
         var w = Framework.Singleton<BATTLE_WORK>.instance;
         if (w == null) return damage;
         int result = damage;
+
+        result = Reforged2Rules.ApplyGrandArmory(result, ArmyProgressionRuntime.HasUpgrade("grand-armory"));
+        if (caster.chara_no is >= 3 and < 6)
+        {
+            var (_, backAlive) = FormationCounts(w);
+            result = Reforged2Rules.ApplyCrossfireAttack(result, backAlive);
+        }
 
         if (ApexBattleActive && ActiveApexAffix == ApexAffix.WardBlessed)
             result = Reforged2Rules.ApplyApexIncomingReduction(result, ActiveApexAffix, isMagic: true);
@@ -461,7 +514,13 @@ internal static class Reforged2Runtime
             return damage;
         var player = w.pm_data[defenderSlot]?.TryCast<BattlePlayerCharacter>();
         if (player?.c_varia_dat is not {} data) return damage;
-        return Reforged2Rules.ApplyWeaponDefensePerk(damage, data.buki_lv, ArmyProgressionRuntime.HasUpgrade("master-blacksmiths"));
+        int result = Reforged2Rules.ApplyWeaponDefensePerk(damage, data.buki_lv, ArmyProgressionRuntime.HasUpgrade("master-blacksmiths"));
+        if (defenderSlot < 3)
+        {
+            var (frontAlive, _) = FormationCounts(w);
+            result = Reforged2Rules.ApplyPhalanxDefense(result, frontAlive);
+        }
+        return result;
     }
 
     internal static bool TryPurchaseQuartermaster(int rowIndex, out string feedback)

@@ -440,8 +440,16 @@ internal static class ArmyProgressionRuntime
     internal static void RecordApexClear()
     {
         lock (Sync)
-        {
             Current.ApexPacksCleared++;
+    }
+
+    internal static void RecordBattleStats(int combos, int overdrives, bool sRank)
+    {
+        lock (Sync)
+        {
+            if (combos > 0) Current.TotalCombosLanded += combos;
+            if (overdrives > 0) Current.TotalOverdrivesTriggered += overdrives;
+            if (sRank) Current.TotalSRanks++;
         }
     }
 

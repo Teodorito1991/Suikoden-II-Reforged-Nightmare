@@ -32,6 +32,20 @@
   6 lore-driven **Star Bonds** (10 total: *Genkaku's Legacy*, *Mercenary
   Veterans*, *Arcane Resonance*, *Vampire Hunters*, *Wandering Blades*, and
   *Rokaku Shadows*).
+- Added **Reforged 3.5 Tactical Depth & Endgame Finale** (opt-in):
+  - **Armor Break (Focus Fire)**: Repeated hits on the same enemy stack
+    `[BRK x1..x3]` (`+5%` / `+10%` / `+15%` bonus damage) displayed live on the
+    `F4` Tactical Scanner.
+  - **Party Formation Synergies**: **Phalanx** (3 living front-row allies take
+    `-6%` physical damage) and **Crossfire** (3 living back-row allies deal
+    `+6%` damage).
+  - **Tier III Permanent Castle Upgrades** (*Arcane Academy* `+1` Rune Charge on
+    `S`-Rank victories, *Grand Armory* `+5%` permanent damage — 8 total).
+  - **15 Persistent Dunan Honors** (added *Combo Master*, *Overdrive Legend*,
+    *S-Rank Virtuoso*, *Grand Architect*, *Bestiary Scholar*) and a **3-state
+    `F5` Cycler** (`Off → Hunter's Bestiary → Dunan Honors Checklist → Off`).
+  - **Custom Skirmishes IX & X** (*Twin Blades* & *Dunan Finale* — 10 total
+    custom war skirmishes up to `+8` Commendations).
 - Added **Reforged 3.0 Endgame & Honors Expansion** (opt-in):
   - **Custom Skirmishes VI–VIII** (*Iron Vanguard*, *Fortress Bastion*,
     *Imperial Apex* — 8 total custom war skirmishes up to `+6` Commendations).

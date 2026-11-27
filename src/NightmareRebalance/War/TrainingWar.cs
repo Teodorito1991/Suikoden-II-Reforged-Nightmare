@@ -6,7 +6,7 @@ namespace NightmareRebalance;
 
 internal static class TrainingWar
 {
-    internal enum Drill { Standard, FortDefense, CommanderRout, War3, War6, War13, SkirmishCrimson, SkirmishIronSiege, SkirmishGrandArmy, SkirmishBlitz, SkirmishNightmare, SkirmishIronVanguard, SkirmishBastion, SkirmishImperialApex }
+    internal enum Drill { Standard, FortDefense, CommanderRout, War3, War6, War13, SkirmishCrimson, SkirmishIronSiege, SkirmishGrandArmy, SkirmishBlitz, SkirmishNightmare, SkirmishIronVanguard, SkirmishBastion, SkirmishImperialApex, SkirmishTwinBlades, SkirmishDunanFinale }
 
     sealed class Session(GAME_WORK game, SYS_WORK system, MACHICON field, EVENTCON events, EVENT_HUMAN player, Drill drill, bool veteran)
     {
@@ -45,14 +45,16 @@ internal static class TrainingWar
             Drill.SkirmishIronVanguard => Reforged2Rules.Skirmishes[5],
             Drill.SkirmishBastion => Reforged2Rules.Skirmishes[6],
             Drill.SkirmishImperialApex => Reforged2Rules.Skirmishes[7],
+            Drill.SkirmishTwinBlades => Reforged2Rules.Skirmishes[8],
+            Drill.SkirmishDunanFinale => Reforged2Rules.Skirmishes[9],
             _ => null
         };
         internal readonly sbyte[]? OriginalSubToLeader = game.war_data?.sub_to_leader?.ToArray();
         internal readonly byte WarNumber = drill switch
         {
             Drill.FortDefense or Drill.SkirmishIronSiege or Drill.SkirmishBastion => 2,
-            Drill.War3 or Drill.SkirmishGrandArmy => 3,
-            Drill.War6 or Drill.SkirmishBlitz => 6,
+            Drill.War3 or Drill.SkirmishGrandArmy or Drill.SkirmishDunanFinale => 3,
+            Drill.War6 or Drill.SkirmishBlitz or Drill.SkirmishTwinBlades => 6,
             Drill.War13 or Drill.SkirmishNightmare or Drill.SkirmishImperialApex => 13,
             _ => 1
         };
@@ -95,8 +97,8 @@ internal static class TrainingWar
         int war = drill switch
         {
             Drill.FortDefense or Drill.SkirmishIronSiege or Drill.SkirmishBastion => 2,
-            Drill.War3 or Drill.SkirmishGrandArmy => 3,
-            Drill.War6 or Drill.SkirmishBlitz => 6,
+            Drill.War3 or Drill.SkirmishGrandArmy or Drill.SkirmishDunanFinale => 3,
+            Drill.War6 or Drill.SkirmishBlitz or Drill.SkirmishTwinBlades => 6,
             Drill.War13 or Drill.SkirmishNightmare or Drill.SkirmishImperialApex => 13,
             _ => 1
         };
@@ -130,15 +132,16 @@ internal static class TrainingWar
             Drill.War13 when !ExtendedWarAvailable(13) => "War 13 native battlefield definitions were not verified.",
             Drill.SkirmishCrimson when !ChallengeAvailable => "Requires verified War 1 battlefield definitions.",
             Drill.SkirmishIronSiege when !FortDefenseAvailable => "Requires completed War 2 and verified Fort battlefield.",
-            Drill.SkirmishGrandArmy when !War3Available => "Requires completed War 3 and verified battlefield.",
-            Drill.SkirmishBlitz when !ExtendedWarAvailable(6) => "Requires extended war drills and verified War 6 battlefield.",
+            Drill.SkirmishGrandArmy or Drill.SkirmishDunanFinale when !War3Available => "Requires completed War 3 and verified battlefield.",
+            Drill.SkirmishBlitz or Drill.SkirmishTwinBlades when !ExtendedWarAvailable(6) => "Requires extended war drills and verified War 6 battlefield.",
             Drill.SkirmishNightmare or Drill.SkirmishImperialApex when !ExtendedWarAvailable(13) => "Requires extended war drills and verified War 13 battlefield.",
             Drill.SkirmishIronVanguard when !ChallengeAvailable => "Requires verified War 1 battlefield definitions.",
             Drill.SkirmishBastion when !FortDefenseAvailable => "Requires completed War 2 and verified Fort battlefield.",
             Drill.FortDefense or Drill.CommanderRout or Drill.War3 or Drill.War6 or Drill.War13
                 or Drill.SkirmishCrimson or Drill.SkirmishIronSiege or Drill.SkirmishGrandArmy
                 or Drill.SkirmishBlitz or Drill.SkirmishNightmare or Drill.SkirmishIronVanguard
-                or Drill.SkirmishBastion or Drill.SkirmishImperialApex => "",
+                or Drill.SkirmishBastion or Drill.SkirmishImperialApex
+                or Drill.SkirmishTwinBlades or Drill.SkirmishDunanFinale => "",
             _ => "This drill is unavailable."
         };
     }

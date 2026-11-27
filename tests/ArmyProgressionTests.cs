@@ -206,7 +206,7 @@ internal static class ArmyProgressionTests
             Check(TrainingResultRules.VictoryPotch(w, true, 2, 1, -1, false, false, false) == 0, $"War {w} defeat pays 0");
         }
 
-        Check(Reforged2Rules.Skirmishes.Length == 8, "8 Custom Skirmish scenarios defined");
+        Check(Reforged2Rules.Skirmishes.Length == 10, "10 Custom Skirmish scenarios defined");
         var grandBoost = Reforged2Rules.ApplySkirmishEnemyBoost(flik, Reforged2Rules.Skirmishes[2]);
         Check(grandBoost.Attack == flik.Attack + 2 && grandBoost.Defense == flik.Defense + 2 && grandBoost.Abilities.Contains("SP_CRITICAL"), "Grand Army Skirmish boosts enemy commanders within caps");
 
@@ -263,7 +263,7 @@ internal static class ArmyProgressionTests
         var bloodMoonFlik = Reforged2Rules.ApplyMutator(flik, WarMutator.BloodMoon);
         Check(bloodMoonFlik.Attack == flik.Attack + 2 && bloodMoonFlik.Defense == flik.Defense - 1, "Blood Moon War Mutator +2 ATK / -1 DEF");
         Check(Reforged2Rules.BestiaryMilestonesFor(9) == 0 && Reforged2Rules.BestiaryMilestonesFor(10) == 1 && Reforged2Rules.BestiaryMilestonesFor(25) == 2, "Bestiary Commendation milestones every 10 species");
-        Check(Reforged2Rules.CastleUpgrades.Length == 6 && Reforged2Rules.FieldBounties.Length == 5, "6 Castle Upgrades and 5 rotating Field Bounties");
+        Check(Reforged2Rules.CastleUpgrades.Length == 8 && Reforged2Rules.FieldBounties.Length == 5, "8 Castle Upgrades and 5 rotating Field Bounties");
         menu.OpenDirect(GuildPage.Codex, 10);
         for (int i = 0; i < 4; i++) menu.Move(false, true);
         Check(Confirm() == GuildChoice.CycleMutator, "Codex row 4 cycles War Mutator");
@@ -279,7 +279,7 @@ internal static class ArmyProgressionTests
         var fs = Reforged2Rules.EvaluateFirstStrike(100, turn: 0, firstActionUsed: false);
         Check(fs.Name == "First Strike" && fs.BonusDamage == 12, "First Strike grants +12% opener bonus on turn 0/1");
         Check(Reforged2Rules.EvaluateFirstStrike(100, turn: 0, firstActionUsed: true).BonusDamage == 0, "First Strike only triggers once per battle");
-        Check(Reforged2Rules.Honors.Length == 10, "10 Dunan Honors defined");
+        Check(Reforged2Rules.Honors.Length == 15, "15 Dunan Honors defined");
         ledger.TotalDrillsWon = 5;
         ledger.ApexPacksCleared = 3;
         int commBefore = ledger.Commendations;
@@ -288,6 +288,17 @@ internal static class ArmyProgressionTests
         Check(Reforged2Rules.EvaluateNewHonors(ledger, currentWinStreak: 10).Count == 0, "Dunan Honors do not double-award");
         Check(Reforged2Rules.BossEnrageDamageMultiplier == 1.10 && Reforged2Rules.BossEnragePotchMultiplier == 1.15, "Boss Enrage 25% HP mechanical multipliers");
 
-        Console.WriteLine($"PASS: Reforged 3.0 full suite {checks} checks.");
+        // 14. Reforged 3.5: Armor Break Focus Fire, Formation Synergies, Grand Armory & Tier III Honors
+        Check(Reforged2Rules.ApplyArmorBreak(100, 1) == 105 && Reforged2Rules.ApplyArmorBreak(100, 3) == 115 && Reforged2Rules.ApplyArmorBreak(100, 5) == 115, "Armor Break stacks 1..3 (+5%..+15%)");
+        Check(Reforged2Rules.ApplyPhalanxDefense(100, 3) == 94 && Reforged2Rules.ApplyPhalanxDefense(100, 2) == 100, "Phalanx front-row defense requires 3 living front allies");
+        Check(Reforged2Rules.ApplyCrossfireAttack(100, 3) == 106 && Reforged2Rules.ApplyCrossfireAttack(100, 2) == 100, "Crossfire back-row offense requires 3 living back allies");
+        Check(Reforged2Rules.ApplyGrandArmory(100, true) == 105 && Reforged2Rules.ApplyGrandArmory(100, false) == 100, "Grand Armory permanent +5% damage");
+        ledger.TotalCombosLanded = 25;
+        ledger.TotalOverdrivesTriggered = 10;
+        ledger.TotalSRanks = 15;
+        var tier3Honors = Reforged2Rules.EvaluateNewHonors(ledger, currentWinStreak: 0);
+        Check(tier3Honors.Count == 3, "Combo Master, Overdrive Legend & S-Rank Virtuoso honors unlock");
+
+        Console.WriteLine($"PASS: Reforged 3.5 full suite {checks} checks.");
     }
 }

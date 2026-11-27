@@ -219,7 +219,9 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   new("Skirmish V: Nightmare", "Custom War · +5 Commendations"),
   new("Skirmish VI: Iron", "Custom War · +4 Commendations"),
   new("Skirmish VII: Bastion", "Custom War · +5 Commendations"),
-  new("Skirmish VIII: Apex", "Custom War · +6 Commendations")
+  new("Skirmish VIII: Apex", "Custom War · +6 Commendations"),
+  new("Skirmish IX: Blades", "Custom War · +6 Commendations"),
+  new("Skirmish X: Finale", "Custom War · +8 Commendations")
  };
 
  [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
@@ -516,6 +518,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    TrainingWar.Drill.SkirmishIronVanguard => Reforged2Rules.Skirmishes[5].Description,
    TrainingWar.Drill.SkirmishBastion => Reforged2Rules.Skirmishes[6].Description,
    TrainingWar.Drill.SkirmishImperialApex => Reforged2Rules.Skirmishes[7].Description,
+   TrainingWar.Drill.SkirmishTwinBlades => Reforged2Rules.Skirmishes[8].Description,
+   TrainingWar.Drill.SkirmishDunanFinale => Reforged2Rules.Skirmishes[9].Description,
    _ => "Practice on the original War 1 battlefield. The story timer can end the drill."
   };
   var trainingRows = page == GuildPage.Training ? Drills.Select((row,i) =>
@@ -600,9 +604,9 @@ public sealed class HuntGuildOverlay:MonoBehaviour
      float hw=490,hh=298;
      var hbox=new Rect(Screen.width-hw-18,66,hw,hh);
      Window(hbox);
-     Label(new(new(18,12,hw-36,26),"REFORGED 3.0 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
+     Label(new(new(18,12,hw-36,26),"REFORGED 3.5 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
      Label(new(new(18,44,hw-36,124),
-         "F2   Toggle Clean HUD Mode\nF4   Toggle Battle Tactical Scanner\nF5   Toggle Hunter's Bestiary\nF6   Accept Local Field Hunt\n←/→  Fast Page-Flip in Castle Guild",15),hbox.x,hbox.y,1);
+         "F2   Toggle Clean HUD Mode\nF4   Toggle Battle Tactical Scanner\nF5   Cycle Bestiary -> Dunan Honors -> Off\nF6   Accept Local Field Hunt\n←/→  Fast Page-Flip in Castle Guild",15),hbox.x,hbox.y,1);
      Label(new(new(18,172,hw-36,44),
          $"Bounty: {bounty.Title} ({led.ActiveBountyProgress}/{bounty.Target}) — {bounty.Description}",14,"gold"),hbox.x,hbox.y,1);
      Label(new(new(18,220,hw-36,68),
@@ -610,29 +614,49 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     }
     if(bestiaryCard)
     {
-     var entries=ArmyProgressionRuntime.BestiarySnapshot();
      var led=ArmyProgressionRuntime.Current;
-     int totalSpecies=entries.Length;
-     int totalKills=entries.Sum(e=>e.Kills);
-     int totalApex=entries.Sum(e=>e.ApexKills);
-     int nextMilestone=(totalSpecies/10+1)*10;
-     int shown=Math.Min(7,totalSpecies);
-     float bw=500,bh=94+Math.Max(1,shown)*34;
-     var bbox=new Rect(18,66,bw,bh);
-     Window(bbox);
-     Label(new(new(18,12,bw-36,26),$"HUNTER'S BESTIARY  ({totalSpecies} Species · Next +1 Comm: {totalSpecies}/{nextMilestone})",16,"gold"),bbox.x,bbox.y,1);
-     Label(new(new(18,38,bw-36,20),$"Lifetime Kills: {totalKills:N0}  ·  Apex Kills: {totalApex}  ·  Honors: {led.UnlockedHonors?.Count??0}/{Reforged2Rules.Honors.Length}  (F5)",13,"muted"),bbox.x,bbox.y,1);
-     if(shown==0)
-      Label(new(new(18,66,bw-36,24),"No enemies catalogued yet. Win battles to fill your Bestiary!",15),bbox.x,bbox.y,1);
+     if(Reforged2Runtime.BestiaryViewMode==2)
+     {
+      int unlockedCount=led.UnlockedHonors?.Count??0;
+      float hw2=560,hh2=82+((Reforged2Rules.Honors.Length+1)/2)*30;
+      var hbox2=new Rect(18,66,hw2,hh2);
+      Window(hbox2);
+      Label(new(new(18,12,hw2-36,26),$"DUNAN HONORS  ({unlockedCount}/{Reforged2Rules.Honors.Length} Unlocked · +2 Comm. Each)",16,"gold"),hbox2.x,hbox2.y,1);
+      Label(new(new(18,38,hw2-36,20),"Press F5 to hide · Combos: "+led.TotalCombosLanded+" · S-Ranks: "+led.TotalSRanks+" · Overdrives: "+led.TotalOverdrivesTriggered,13,"muted"),hbox2.x,hbox2.y,1);
+      for(int hi=0;hi<Reforged2Rules.Honors.Length;hi++)
+      {
+       var h=Reforged2Rules.Honors[hi];
+       bool got=led.UnlockedHonors?.Contains(h.Id)==true;
+       float colX=(hi%2==0)?18:hw2/2+6;
+       float rowY=66+(hi/2)*30;
+       Label(new(new(colX,rowY,hw2/2-24,24),(got?"★ ":"○ ")+h.Title,14,got?"success":"muted"),hbox2.x,hbox2.y,1);
+      }
+     }
      else
      {
-      for(int i=0;i<shown;i++)
+      var entries=ArmyProgressionRuntime.BestiarySnapshot();
+      int totalSpecies=entries.Length;
+      int totalKills=entries.Sum(e=>e.Kills);
+      int totalApex=entries.Sum(e=>e.ApexKills);
+      int nextMilestone=(totalSpecies/10+1)*10;
+      int shown=Math.Min(8,totalSpecies);
+      float bw=500,bh=94+Math.Max(1,shown)*34;
+      var bbox=new Rect(18,66,bw,bh);
+      Window(bbox);
+      Label(new(new(18,12,bw-36,26),$"HUNTER'S BESTIARY  ({totalSpecies} Species · Next +1 Comm: {totalSpecies}/{nextMilestone})",16,"gold"),bbox.x,bbox.y,1);
+      Label(new(new(18,38,bw-36,20),$"Lifetime Kills: {totalKills:N0}  ·  Apex: {totalApex}  ·  F5 again for Honors",13,"muted"),bbox.x,bbox.y,1);
+      if(shown==0)
+       Label(new(new(18,66,bw-36,24),"No enemies catalogued yet. Win battles to fill your Bestiary!",15),bbox.x,bbox.y,1);
+      else
       {
-       var be=entries[i];
-       float ry=66+i*34;
-       string apexStr=be.ApexKills>0?$"  ★{be.ApexKills} Apex":"";
-       Label(new(new(18,ry,bw-150,22),$"{be.Name}{(be.HighestLevel>0?$" Lv{be.HighestLevel}":"")}  ({be.WeaknessHint})",15),bbox.x,bbox.y,1);
-       Label(new(new(bw-132,ry,114,22),$"{be.Kills} kills{apexStr}",14,"success"),bbox.x,bbox.y,1);
+       for(int i=0;i<shown;i++)
+       {
+        var be=entries[i];
+        float ry=66+i*34;
+        string apexStr=be.ApexKills>0?$"  ★{be.ApexKills} Apex":"";
+        Label(new(new(18,ry,bw-150,22),$"{be.Name}{(be.HighestLevel>0?$" Lv{be.HighestLevel}":"")}  ({be.WeaknessHint})",15),bbox.x,bbox.y,1);
+        Label(new(new(bw-132,ry,114,22),$"{be.Kills} kills{apexStr}",14,"success"),bbox.x,bbox.y,1);
+       }
       }
      }
     }
@@ -684,6 +708,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
         int lv=e.monster_data?.level??0;
         string weak=e.calc_para is {Length:>3}?Reforged2Rules.TacticalWeaknessHint(e.calc_para[2],e.calc_para[3]):"Balanced";
         string statusTag=((e.status&b_game_h.STATUS_SLEEP)!=0?" [SLP]":"")+((e.status&b_game_h.STATUS_POISON)!=0?" [PSN]":"");
+        int brk=Reforged2Runtime.ArmorBreakStacksFor(e);
+        if(brk>0)statusTag+=$" [BRK x{brk}]";
         float hpFrac=e.max_hp>0?Math.Clamp((float)e.hp/e.max_hp,0f,1f):0f;
         float ry=44+i*56;
         Label(new(new(18,ry,sw-170,24),$"{displayName}{(lv>0?$" Lv{lv}":"")}{statusTag}",17),scanBox.x,scanBox.y,1);

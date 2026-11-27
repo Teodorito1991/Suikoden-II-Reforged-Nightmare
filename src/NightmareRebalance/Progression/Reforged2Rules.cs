@@ -72,7 +72,13 @@ internal static class Reforged2Rules
             BaseWarNumber: 2, EnemyAtkBonus: 2, EnemyDefBonus: 4, GrantEnemyCritical: true, BasePotch: 3800, Commendations: 5),
         new("imperial-apex", "Skirmish VIII: Apex", "Custom War · Map 8",
             "Ultimate endgame Highland Imperial Army showdown (+4 ATK / +4 DEF, Critical). Highest Commendation payout.",
-            BaseWarNumber: 13, EnemyAtkBonus: 4, EnemyDefBonus: 4, GrantEnemyCritical: true, BasePotch: 5000, Commendations: 6)
+            BaseWarNumber: 13, EnemyAtkBonus: 4, EnemyDefBonus: 4, GrantEnemyCritical: true, BasePotch: 5000, Commendations: 6),
+        new("twin-blades", "Skirmish IX: Blades", "Custom War · Map 11",
+            "Relentless Kiba elite strike force (+4 ATK / +3 DEF, Critical). Survive the charge and shatter their flank.",
+            BaseWarNumber: 6, EnemyAtkBonus: 4, EnemyDefBonus: 3, GrantEnemyCritical: true, BasePotch: 4600, Commendations: 6),
+        new("dunan-finale", "Skirmish X: Finale", "Custom War · Map 9",
+            "Grand Championship showdown on Muse Plain (+5 ATK / +5 DEF, Critical). Ultimate test for Marshal-rank armies.",
+            BaseWarNumber: 3, EnemyAtkBonus: 5, EnemyDefBonus: 5, GrantEnemyCritical: true, BasePotch: 6000, Commendations: 8)
     };
 
     internal static readonly QuartermasterOffer[] QuartermasterStock =
@@ -293,7 +299,11 @@ internal static class Reforged2Rules
         new("war-college", "Castle: War College", 7,
             "Permanent Upgrade · Commanders earn +25% bonus War XP on every Drill, Skirmish, and Story War victory."),
         new("imperial-treasury", "Castle: Imperial Treasury", 7,
-            "Permanent Upgrade · Permanently increases all RPG battle Potch by +15% (stacks with S-Rank, Streak, and Apex).")
+            "Permanent Upgrade · Permanently increases all RPG battle Potch by +15% (stacks with S-Rank, Streak, and Apex)."),
+        new("arcane-academy", "Castle: Arcane Academy", 8,
+            "Permanent Upgrade · Recovers +1 extra Rune Charge per surviving ally on every S-Rank victory."),
+        new("grand-armory", "Castle: Grand Armory", 8,
+            "Permanent Upgrade · Permanently grants +5% bonus physical and magic damage to all party members.")
     };
 
     internal sealed record HonorSpec(string Id, string Title, string Requirement);
@@ -309,7 +319,12 @@ internal static class Reforged2Rules
         new("unstoppable-force", "Unstoppable Force", "Reach a 10-battle Victory Streak."),
         new("grand-hunter", "Grand Hunter", "Reach Gold Hunter Rank (8+ Hunts)."),
         new("echo-conqueror", "Echo Conqueror", "Clear 3 Hall of Echoes Nightmare battles."),
-        new("marshal-of-dunan", "Marshal of Dunan", "Promote any Commander to Marshal (900+ XP).")
+        new("marshal-of-dunan", "Marshal of Dunan", "Promote any Commander to Marshal (900+ XP)."),
+        new("combo-master", "Combo Master", "Land 25 total Combat Combos."),
+        new("overdrive-legend", "Overdrive Legend", "Trigger 10 Dunan Overdrives."),
+        new("s-rank-virtuoso", "S-Rank Virtuoso", "Achieve 15 S-Rank Battle Victories."),
+        new("grand-architect", "Grand Architect", "Unlock all 8 Permanent Castle Upgrades."),
+        new("bestiary-scholar", "Bestiary Scholar", "Catalogue 30 unique Bestiary species.")
     };
 
     internal static List<HonorSpec> EvaluateNewHonors(ArmyLedgerState ledger, int currentWinStreak)
@@ -328,6 +343,11 @@ internal static class Reforged2Rules
             "grand-hunter" => ledger.HuntsCompleted >= 8,
             "echo-conqueror" => ledger.HallNightmareClears >= 3,
             "marshal-of-dunan" => ledger.Commanders.Values.Any(c => ArmyProgressionRules.RankForXp(c.Xp) == ArmyRank.Marshal),
+            "combo-master" => ledger.TotalCombosLanded >= 25,
+            "overdrive-legend" => ledger.TotalOverdrivesTriggered >= 10,
+            "s-rank-virtuoso" => ledger.TotalSRanks >= 15,
+            "grand-architect" => (ledger.CastleUpgrades?.Count ?? 0) >= CastleUpgrades.Length,
+            "bestiary-scholar" => (ledger.Bestiary?.Count ?? 0) >= 30,
             _ => false
         };
         foreach (var h in Honors)
@@ -341,6 +361,24 @@ internal static class Reforged2Rules
         }
         return newlyUnlocked;
     }
+
+    internal const int MaxArmorBreakStacks = 3;
+
+    internal static int ApplyArmorBreak(int damage, int stacks)
+    {
+        if (damage <= 0 || stacks <= 0) return damage;
+        int clamped = Math.Clamp(stacks, 0, MaxArmorBreakStacks);
+        return Math.Max(damage + 1, (int)Math.Round(damage * (1.0 + clamped * 0.05), MidpointRounding.AwayFromZero));
+    }
+
+    internal static int ApplyPhalanxDefense(int damage, int livingFrontRowAllies) =>
+        damage <= 1 || livingFrontRowAllies < 3 ? damage : Math.Max(1, (int)Math.Round(damage * 0.94, MidpointRounding.AwayFromZero));
+
+    internal static int ApplyCrossfireAttack(int damage, int livingBackRowAllies) =>
+        damage <= 0 || livingBackRowAllies < 3 ? damage : Math.Max(damage + 1, (int)Math.Round(damage * 1.06, MidpointRounding.AwayFromZero));
+
+    internal static int ApplyGrandArmory(int damage, bool hasGrandArmory) =>
+        damage <= 0 || !hasGrandArmory ? damage : Math.Max(damage + 1, (int)Math.Round(damage * 1.05, MidpointRounding.AwayFromZero));
 
     internal static readonly FieldBountySpec[] FieldBounties =
     {
