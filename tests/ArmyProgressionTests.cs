@@ -246,6 +246,33 @@ internal static class ArmyProgressionTests
         menu.Move(false, true);
         Check(Confirm() == GuildChoice.CycleStance, "Codex row 1 cycles Allied War Stance");
 
-        Console.WriteLine($"PASS: Reforged 2.0 full suite {checks} checks.");
+        // 12. Reforged 2.5: Momentum/Overdrive, Execute, Riposte, Affixes, Castle Upgrades, Mutators, Grade, Streak, Bestiary & Bounties
+        int mom = Reforged2Rules.AddMomentum(75, 25, out bool triggeredOd);
+        Check(mom == 100 && triggeredOd, "Momentum reaches 100 and triggers Dunan Overdrive");
+        Check(Reforged2Rules.ApplyOverdriveAttack(100) == 120 && Reforged2Rules.ApplyOverdriveDefense(100) == 85, "Overdrive +20% ATK / -15% damage taken");
+        var exec = Reforged2Rules.EvaluateExecuteFinisher(100, 18, 100);
+        Check(exec.Name == "Execute Finisher" && exec.BonusDamage == 15, "Execute Finisher +15% on targets <= 20% HP");
+        Check(Reforged2Rules.EvaluateExecuteFinisher(100, 21, 100).BonusDamage == 0, "Execute Finisher does not proc above 20% HP");
+        Check(Reforged2Rules.ShouldArmRiposte(20, 80, 100) && !Reforged2Rules.ShouldArmRiposte(19, 81, 100), "Riposte arms on heavy hit >= 20% max HP");
+        Check(Reforged2Rules.ApplyRiposte(100) == 120, "Riposte grants +20% counter damage");
+        Check(Reforged2Rules.WeaponPerk(6, masterBlacksmiths: true).TierName == "Keen Edge" && Reforged2Rules.WeaponPerk(14, masterBlacksmiths: true).TierName == "Masterwork", "Master Blacksmiths shifts weapon perks 2 levels earlier");
+        Check(Reforged2Rules.ApexAffixDamageMultiplier(ApexAffix.Frenzied) == 1.10 && Reforged2Rules.ApexAffixPotchMultiplier(ApexAffix.Golden) == 2.50, "Apex Elite Affix multipliers");
+        Check(Reforged2Rules.ApplyApexIncomingReduction(100, ApexAffix.Armored, false) == 90 && Reforged2Rules.ApplyApexIncomingReduction(100, ApexAffix.WardBlessed, true) == 90, "Armored & Ward-Blessed Apex reductions");
+        Check(Reforged2Rules.BattleGrade(0, 2, 0, 0) == "S" && Reforged2Rules.BattleGrade(0, 5, 0, 0) == "A" && Reforged2Rules.BattleGrade(1, 3, 2, 0) == "B" && Reforged2Rules.BattleGrade(2, 3, 0, 0) == "C", "Battle Grade S/A/B/C calculation");
+        Check(Reforged2Rules.StreakPotchMultiplier(4) == 1.0 && Reforged2Rules.StreakPotchMultiplier(5) == 1.10 && Reforged2Rules.StreakPotchMultiplier(10) == 1.20 && Reforged2Rules.StreakStartingMomentum(10) == 10, "Victory Streak Potch & Momentum bonuses");
+        var bloodMoonFlik = Reforged2Rules.ApplyMutator(flik, WarMutator.BloodMoon);
+        Check(bloodMoonFlik.Attack == flik.Attack + 2 && bloodMoonFlik.Defense == flik.Defense - 1, "Blood Moon War Mutator +2 ATK / -1 DEF");
+        Check(Reforged2Rules.BestiaryMilestonesFor(9) == 0 && Reforged2Rules.BestiaryMilestonesFor(10) == 1 && Reforged2Rules.BestiaryMilestonesFor(25) == 2, "Bestiary Commendation milestones every 10 species");
+        Check(Reforged2Rules.CastleUpgrades.Length == 4 && Reforged2Rules.FieldBounties.Length == 5, "4 Castle Upgrades and 5 rotating Field Bounties");
+        menu.OpenDirect(GuildPage.Codex, 10);
+        for (int i = 0; i < 4; i++) menu.Move(false, true);
+        Check(Confirm() == GuildChoice.CycleMutator, "Codex row 4 cycles War Mutator");
+        var ledger = new ArmyLedgerState();
+        ledger.CastleUpgrades.Add("field-medic-corps");
+        ledger.Bestiary["m01"] = new BestiaryEntry { Name = "Highland Soldier", Kills = 3, HighestLevel = 12, WeaknessHint = "Balanced" };
+        var clonedLedger = ledger.Clone();
+        Check(clonedLedger.CastleUpgrades.Contains("field-medic-corps") && clonedLedger.Bestiary["m01"].Kills == 3, "Ledger Clone preserves CastleUpgrades and Bestiary");
+
+        Console.WriteLine($"PASS: Reforged 2.5 full suite {checks} checks.");
     }
 }

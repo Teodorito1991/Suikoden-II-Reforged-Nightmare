@@ -14,6 +14,7 @@ internal static class ArmyProgressionRuntime
     internal static DrillDirective ActiveDirective { get; set; } = DrillDirective.None;
     internal static HuntRiskModifier ActiveHuntModifier { get; set; } = HuntRiskModifier.None;
     internal static ArmyStance ActiveStance { get; set; } = ArmyStance.Balanced;
+    internal static WarMutator ActiveMutator { get; set; } = WarMutator.Standard;
     internal static string LastAwardNotice { get; private set; } = "";
     static string LedgerPath => Path.Combine(Paths.BepInExRootPath, "NightmareRebalance", "army-ledger.json");
 
@@ -187,9 +188,10 @@ internal static class ArmyProgressionRuntime
         bool applySkirmish = training && isEnemy && skirmish != null;
         bool applyDirective = training && DirectivesEnabled && ActiveDirective != DrillDirective.None;
         bool applyStance = !isEnemy && ActiveStance != ArmyStance.Balanced;
+        bool applyMutator = training && ActiveMutator != WarMutator.Standard;
         bool applyProg = Enabled && !isEnemy && Current.Commanders.TryGetValue(original.name, out var progress) && ArmyProgressionRules.RankForXp(progress.Xp) > ArmyRank.Recruit;
         var synergy = Enabled && !isEnemy ? ActiveUnitSynergy(original.name) : null;
-        if (!applySkirmish && !applyDirective && !applyStance && !applyProg && synergy == null) return existingProfile;
+        if (!applySkirmish && !applyDirective && !applyStance && !applyMutator && !applyProg && synergy == null) return existingProfile;
 
         var profile = existingProfile ?? BuildBaseProfile(original);
         if (applyProg && Current.Commanders.TryGetValue(original.name, out var prog))
@@ -200,6 +202,8 @@ internal static class ArmyProgressionRuntime
             profile = Reforged2Rules.ApplyStance(profile, ActiveStance);
         if (applySkirmish)
             profile = Reforged2Rules.ApplySkirmishEnemyBoost(profile, skirmish!);
+        if (applyMutator)
+            profile = Reforged2Rules.ApplyMutator(profile, ActiveMutator);
         if (applyDirective)
             profile = ArmyProgressionRules.ApplyDirective(profile, ActiveDirective, isEnemy);
         return profile;
@@ -327,6 +331,101 @@ internal static class ArmyProgressionRuntime
     {
         ActiveStance = (ArmyStance)(((int)ActiveStance + 1) % 4);
         return ActiveStance;
+    }
+
+    internal static WarMutator CycleMutator()
+    {
+        ActiveMutator = (WarMutator)(((int)ActiveMutator + 1) % 3);
+        return ActiveMutator;
+    }
+
+    internal static bool HasUpgrade(string upgradeId)
+    {
+        lock (Sync)
+            return Current.CastleUpgrades != null && Current.CastleUpgrades.Contains(upgradeId);
+    }
+
+    internal static bool TryUnlockUpgrade(CastleUpgradeSpec spec, out string feedback)
+    {
+        lock (Sync)
+        {
+            Current.CastleUpgrades ??= new HashSet<string>(StringComparer.Ordinal);
+            if (Current.CastleUpgrades.Contains(spec.Id))
+            {
+                feedback = $"{spec.Name} is already unlocked.";
+                return false;
+            }
+            if (Current.Commendations < spec.CostCommendations)
+            {
+                feedback = $"Need {spec.CostCommendations} Commendation(s) (you have {Current.Commendations}).";
+                return false;
+            }
+            Current.Commendations -= spec.CostCommendations;
+            Current.CastleUpgrades.Add(spec.Id);
+            var game = Framework.Singleton<GAME_WORK>.instance;
+            if (game?.game_data != null) boundCampaignOwner = game.game_data.Pointer;
+            feedback = $"Unlocked {spec.Name}! Save at an inn or orb to bind.";
+            return true;
+        }
+    }
+
+    internal static (bool IsNewSpecies, int MilestoneCommendations) RecordBestiaryKill(string speciesKey, string displayName, int level, string weaknessHint, bool apex)
+    {
+        if (string.IsNullOrWhiteSpace(speciesKey)) return (false, 0);
+        lock (Sync)
+        {
+            Current.Bestiary ??= new Dictionary<string, BestiaryEntry>(StringComparer.Ordinal);
+            bool isNew = false;
+            if (!Current.Bestiary.TryGetValue(speciesKey, out var entry))
+            {
+                entry = new BestiaryEntry { Name = displayName, WeaknessHint = weaknessHint };
+                Current.Bestiary[speciesKey] = entry;
+                isNew = true;
+            }
+            entry.Kills++;
+            if (apex) entry.ApexKills++;
+            if (level > entry.HighestLevel) entry.HighestLevel = level;
+            if (!string.IsNullOrWhiteSpace(weaknessHint)) entry.WeaknessHint = weaknessHint;
+
+            int milestones = Reforged2Rules.BestiaryMilestonesFor(Current.Bestiary.Count);
+            int delta = Math.Max(0, milestones - Current.BestiaryMilestonesClaimed);
+            if (delta > 0)
+            {
+                Current.BestiaryMilestonesClaimed = milestones;
+                Current.Commendations = Math.Min(999, Current.Commendations + delta);
+            }
+            return (isNew, delta);
+        }
+    }
+
+    internal static BestiaryEntry[] BestiarySnapshot()
+    {
+        lock (Sync)
+        {
+            if (Current.Bestiary == null || Current.Bestiary.Count == 0) return Array.Empty<BestiaryEntry>();
+            return Current.Bestiary.Values
+                .OrderByDescending(e => e.Kills)
+                .ThenBy(e => e.Name, StringComparer.Ordinal)
+                .Select(e => e.Clone())
+                .ToArray();
+        }
+    }
+
+    internal static string? AdvanceBounty(FieldBountyKind kind, int amount = 1)
+    {
+        if (amount <= 0 || Plugin.Options?.EnableFieldBounties.Value != true) return null;
+        lock (Sync)
+        {
+            var spec = Reforged2Rules.ActiveBounty(Current.ActiveBountyIndex);
+            if (spec.Kind != kind) return null;
+            Current.ActiveBountyProgress += amount;
+            if (Current.ActiveBountyProgress < spec.Target) return null;
+            Current.BountiesCompleted++;
+            Current.Commendations = Math.Min(999, Current.Commendations + 1);
+            Current.ActiveBountyIndex = (Current.ActiveBountyIndex + 1) % Reforged2Rules.FieldBounties.Length;
+            Current.ActiveBountyProgress = 0;
+            return $"Bounty Complete: {spec.Title}! (+1 Commendation)";
+        }
     }
 
     internal static void RecordHallClear(string bossId, bool nightmare, int turns, bool noKo)

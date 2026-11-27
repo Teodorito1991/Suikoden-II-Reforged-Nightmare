@@ -16,7 +16,8 @@ internal static class DamageScope
             if (state != null && work?.pm_data is { } units && attacker >= 0 && attacker < units.Length && units[attacker] is { } unit)
                 factor = state.EnemyPlans.GetValueOrDefault(unit.Pointer)?.DamageMultiplier ?? BossRuntime.Plan(state, unit)?.DamageMultiplier ?? factor;
             if (state != null && work?.pm_data is {} live && attacker>=0 && attacker<live.Length && live[attacker] is {} acting) factor=CombatReforgedRuntime.Factor(state,acting,factor,false);
-            if (Reforged2Runtime.ApexBattleActive) factor *= Reforged2Rules.ApexDamageMultiplier;
+            if (Reforged2Runtime.ApexBattleActive)
+                factor *= Reforged2Rules.ApexDamageMultiplier * Reforged2Rules.ApexAffixDamageMultiplier(Reforged2Runtime.ActiveApexAffix);
             if (DamageScaling.Apply(outer, eligible, ref result, factor))
             {
                 CombatReforgedDiagnostics.Calculated(attacker,target,before,result,factor);
@@ -57,7 +58,11 @@ internal static class EnemyDamagePatch
             __result=TacticalTeamwork.ArcaneGuard(before);
             MaintenanceRuntime.Ai("ArcaneGuard",__instance.chara_no,new{Target=mokuhyo,Before=before,After=__result});
         }
-        if (__state && eligible && __result > 0) Reforged2Runtime.ObservePlayerHit(w, mokuhyo, __result);
+        if (__state && eligible && __result > 0)
+        {
+            __result = Reforged2Runtime.ApplyOverdriveDefense(__result);
+            Reforged2Runtime.ObservePlayerHit(w, __instance.chara_no, mokuhyo, __result);
+        }
     }
     [HarmonyFinalizer] internal static Exception? Finalizer(Exception? __exception) => DamageScope.Exit(__exception);
 }
@@ -107,7 +112,9 @@ internal static class PotchPatch
         if (exit != null)
         {
             int before = exit.monster_okane;
-            double potchFactor = Plugin.Options.PotchMultiplier.Value * (Reforged2Runtime.ApexBattleActive ? Reforged2Rules.ApexPotchMultiplier : 1.0);
+            double apexPotch = Reforged2Runtime.ApexBattleActive ? Reforged2Rules.ApexAffixPotchMultiplier(Reforged2Runtime.ActiveApexAffix) : 1.0;
+            double bonusPotch = Reforged2Runtime.VictoryPotchMultiplier(battle_work);
+            double potchFactor = Plugin.Options.PotchMultiplier.Value * apexPotch * bonusPotch;
             exit.monster_okane = Rules.Scale(exit.monster_okane, potchFactor, int.MaxValue);
             int configured=exit.monster_okane;
             HuntRuntime.Reward(battle_work,exit);

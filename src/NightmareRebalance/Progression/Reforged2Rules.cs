@@ -4,6 +4,24 @@ internal enum HunterRank { Unranked = 0, Bronze = 1, Silver = 2, Gold = 3, Maste
 
 internal enum ArmyStance { Balanced = 0, AllOutAssault = 1, IronPhalanx = 2, SwiftMarch = 3 }
 
+internal enum WarMutator { Standard = 0, BloodMoon = 1, IronAttrition = 2 }
+
+internal enum ApexAffix { None = 0, Frenzied = 1, Armored = 2, WardBlessed = 3, Golden = 4 }
+
+internal enum FieldBountyKind { Combos = 0, SRanks = 1, ApexPacks = 2, BestiaryEntries = 3, OverdrivesOrSurges = 4 }
+
+internal sealed record CastleUpgradeSpec(
+    string Id,
+    string Name,
+    int CostCommendations,
+    string Description);
+
+internal sealed record FieldBountySpec(
+    FieldBountyKind Kind,
+    string Title,
+    int Target,
+    string Description);
+
 internal sealed record SkirmishSpec(
     string Id,
     string Name,
@@ -241,4 +259,164 @@ internal static class Reforged2Rules
             Uses = uses
         };
     }
+
+    internal static readonly CastleUpgradeSpec[] CastleUpgrades =
+    {
+        new("field-medic-corps", "Castle: Field Medic Corps", 4,
+            "Permanent Upgrade · Living party members recover 10% max HP after every battle victory."),
+        new("master-blacksmiths", "Castle: Master Blacksmiths", 5,
+            "Permanent Upgrade · Weapon Milestone Perks unlock 2 levels earlier (Lv 6 / 10 / 14)."),
+        new("scout-network", "Castle: Scout Network", 4,
+            "Permanent Upgrade · Raises Apex Pack spawn rate (10% -> 18%) and auto-opens F4 Scanner on bosses."),
+        new("tactical-reserve", "Castle: Tactical Reserve", 6,
+            "Permanent Upgrade · Start every battle with 35% Party Momentum pre-charged.")
+    };
+
+    internal static readonly FieldBountySpec[] FieldBounties =
+    {
+        new(FieldBountyKind.Combos, "Combo Tactician", 5, "Land 5 Combat Combos (Shatter, Venom, Arcane, Execute)."),
+        new(FieldBountyKind.SRanks, "Flawless Commander", 3, "Achieve 3 S-Rank Battle Victories."),
+        new(FieldBountyKind.ApexPacks, "Apex Hunter", 1, "Defeat 1 Apex Pack encounter."),
+        new(FieldBountyKind.BestiaryEntries, "Field Naturalist", 3, "Catalogue 3 new enemy species in the Bestiary."),
+        new(FieldBountyKind.OverdrivesOrSurges, "Unstoppable Spirit", 2, "Trigger 2 Dunan Overdrives or Desperation Surges.")
+    };
+
+    internal static FieldBountySpec ActiveBounty(int index) =>
+        FieldBounties[Math.Abs(index) % FieldBounties.Length];
+
+    internal static WeaponPerkBonus WeaponPerk(int weaponLevel, bool masterBlacksmiths) =>
+        WeaponPerk(masterBlacksmiths ? weaponLevel + 2 : weaponLevel);
+
+    internal static int ApplyWeaponAttackPerk(int damage, int weaponLevel, bool masterBlacksmiths) =>
+        ApplyWeaponAttackPerk(damage, masterBlacksmiths ? weaponLevel + 2 : weaponLevel);
+
+    internal static int ApplyWeaponDefensePerk(int damage, int weaponLevel, bool masterBlacksmiths) =>
+        ApplyWeaponDefensePerk(damage, masterBlacksmiths ? weaponLevel + 2 : weaponLevel);
+
+    internal static CombatComboResult EvaluateExecuteFinisher(int baseDamage, int targetHp, int targetMaxHp)
+    {
+        if (baseDamage <= 0 || targetMaxHp <= 0 || targetHp <= 0 || targetHp * 5 > targetMaxHp)
+            return default;
+        return new("Execute Finisher", Math.Clamp((int)Math.Round(baseDamage * 0.15, MidpointRounding.AwayFromZero), 5, 75));
+    }
+
+    internal static bool ShouldArmRiposte(int incomingDamage, int hpAfterHit, int maxHp) =>
+        maxHp > 0 && hpAfterHit > 0 && incomingDamage * 5 >= maxHp;
+
+    internal static int ApplyRiposte(int damage) =>
+        damage <= 0 ? damage : Math.Max(damage + 1, (int)Math.Round(damage * 1.20, MidpointRounding.AwayFromZero));
+
+    internal const int OverdriveThreshold = 100;
+
+    internal static int AddMomentum(int current, int delta, out bool triggeredOverdrive)
+    {
+        triggeredOverdrive = false;
+        if (delta <= 0) return Math.Clamp(current, 0, OverdriveThreshold);
+        int next = Math.Clamp(current + delta, 0, OverdriveThreshold);
+        if (next >= OverdriveThreshold)
+        {
+            triggeredOverdrive = true;
+            return OverdriveThreshold;
+        }
+        return next;
+    }
+
+    internal static int ApplyOverdriveAttack(int damage) =>
+        damage <= 0 ? damage : Math.Max(damage + 1, (int)Math.Round(damage * 1.20, MidpointRounding.AwayFromZero));
+
+    internal static int ApplyOverdriveDefense(int damage) =>
+        damage <= 1 ? damage : Math.Max(1, (int)Math.Round(damage * 0.85, MidpointRounding.AwayFromZero));
+
+    internal static ApexAffix RollApexAffix(int roll0To3) => (Math.Abs(roll0To3) % 4) switch
+    {
+        0 => ApexAffix.Frenzied,
+        1 => ApexAffix.Armored,
+        2 => ApexAffix.WardBlessed,
+        _ => ApexAffix.Golden
+    };
+
+    internal static string ApexAffixTitle(ApexAffix affix) => affix switch
+    {
+        ApexAffix.Frenzied => "Frenzied (+10% DMG)",
+        ApexAffix.Armored => "Armored (-10% Phys Taken)",
+        ApexAffix.WardBlessed => "Ward-Blessed (-10% Magic Taken)",
+        ApexAffix.Golden => "Golden (2.5x Potch)",
+        _ => ""
+    };
+
+    internal static string ApexAffixShort(ApexAffix affix) => affix switch
+    {
+        ApexAffix.Frenzied => "FRENZIED",
+        ApexAffix.Armored => "ARMORED",
+        ApexAffix.WardBlessed => "WARDED",
+        ApexAffix.Golden => "GOLDEN",
+        _ => ""
+    };
+
+    internal static double ApexAffixDamageMultiplier(ApexAffix affix) =>
+        affix == ApexAffix.Frenzied ? 1.10 : 1.00;
+
+    internal static double ApexAffixPotchMultiplier(ApexAffix affix) =>
+        affix == ApexAffix.Golden ? 2.50 : ApexPotchMultiplier;
+
+    internal static int ApplyApexIncomingReduction(int damage, ApexAffix affix, bool isMagic)
+    {
+        if (damage <= 1) return damage;
+        if ((!isMagic && affix == ApexAffix.Armored) || (isMagic && affix == ApexAffix.WardBlessed))
+            return Math.Max(1, (int)Math.Round(damage * 0.90, MidpointRounding.AwayFromZero));
+        return damage;
+    }
+
+    internal static string BattleGrade(int koCount, int turns, int combos, int surges)
+    {
+        if (koCount == 0 && (turns <= 3 || combos + surges >= 2)) return "S";
+        if (koCount == 0) return "A";
+        if (koCount == 1) return "B";
+        return "C";
+    }
+
+    internal static double StreakPotchMultiplier(int streak) => streak switch
+    {
+        >= 10 => 1.20,
+        >= 5 => 1.10,
+        _ => 1.00
+    };
+
+    internal static int StreakStartingMomentum(int streak) => streak >= 10 ? 10 : 0;
+
+    internal static string MutatorTitle(WarMutator mutator) => mutator switch
+    {
+        WarMutator.BloodMoon => "Blood Moon",
+        WarMutator.IronAttrition => "Iron Attrition",
+        _ => "Standard Battlefield"
+    };
+
+    internal static string MutatorDescription(WarMutator mutator) => mutator switch
+    {
+        WarMutator.BloodMoon => "All war units gain +2 ATK and -1 DEF. Awards +1 bonus Commendation on victory.",
+        WarMutator.IronAttrition => "All war units gain +2 DEF for prolonged sieges. Awards +1 bonus Commendation on victory.",
+        _ => "Standard war rules with no battlefield mutator."
+    };
+
+    internal static CommanderProfile ApplyMutator(CommanderProfile source, WarMutator mutator)
+    {
+        if (mutator == WarMutator.Standard) return source;
+        int atk = source.Attack, def = source.Defense;
+        if (mutator == WarMutator.BloodMoon) { atk += 2; def -= 1; }
+        else if (mutator == WarMutator.IronAttrition) { def += 2; }
+        return new CommanderProfile
+        {
+            NameId = source.NameId,
+            Name = source.Name,
+            Branch = source.Branch,
+            Attack = (byte)Math.Clamp(atk, 0, 20),
+            Defense = (byte)Math.Clamp(def, 0, 20),
+            AssistAttack = source.AssistAttack,
+            AssistDefense = source.AssistDefense,
+            Abilities = source.Abilities.ToArray(),
+            Uses = source.Uses.ToArray()
+        };
+    }
+
+    internal static int BestiaryMilestonesFor(int uniqueSpecies) => Math.Max(0, uniqueSpecies) / 10;
 }

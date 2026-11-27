@@ -167,6 +167,7 @@ internal static class Combat
         s.Teamwork=null;
         s.Bonds=false;
         s.Victory.MarkNonVictory();
+        Reforged2Runtime.OnBattleNonVictory();
         CombatReforgedDiagnostics.Outcome="NonVictorySignal";
         var report=Observe(nameof(BattleManager.NotWinEnd),manager.battle_work);
         if(report!=null)report.OutcomeSignal="NotWinEnd-observed";
@@ -201,7 +202,7 @@ internal static class Combat
             State.Report?.Applied("RuneChargesRestored", -1, 0, restored, 1);
             Plugin.Debug($"Victory charge recovery: character={data.Pointer}, restored={restored}");
         }
-        Reforged2Runtime.OnBattleVictory(totalRestored);
+        Reforged2Runtime.OnBattleVictory(manager.battle_work, totalRestored);
         MaintenanceRuntime.Charges("AfterRegeneration",manager.battle_work);
         if (publish) CoverageRuntime.Emit(report, "reward-pipeline-completed");
     }

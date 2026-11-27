@@ -1,7 +1,7 @@
 namespace NightmareRebalance;
 
 internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy, Echoes, EchoDifficulty, SpoilerWarning, LucaParties, ArmyRoster, Codex, Quartermaster }
-internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave, StartEcho, SetSpoilers, RestoreStory, ChooseLuca, CycleDoctrine, CycleDirective, CycleHuntModifier, BuyQuartermaster, CycleStance }
+internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave, StartEcho, SetSpoilers, RestoreStory, ChooseLuca, CycleDoctrine, CycleDirective, CycleHuntModifier, BuyQuartermaster, CycleStance, CycleMutator }
 internal enum CastleNpcRole { GuildAttendant, DrillSergeant, EchoArchivist, Quartermaster }
 
 internal static class GuildApproach
@@ -73,8 +73,8 @@ internal sealed class GuildMenuNavigation
         GuildPage.Services => Services.Length + 1,
         GuildPage.Training => 15,
         GuildPage.ArmyRoster => Math.Max(1, ArmyRosterCount),
-        GuildPage.Quartermaster => Reforged2Rules.QuartermasterStock.Length,
-        GuildPage.Codex => 4,
+        GuildPage.Quartermaster => Reforged2Rules.CastleUpgrades.Length + Reforged2Rules.QuartermasterStock.Length,
+        GuildPage.Codex => 5,
         GuildPage.Strategy => StarBondRules.Catalogue.Length,
         GuildPage.Hunts => HuntCount,
         GuildPage.LucaParties=>LucaChoiceCount,
@@ -201,6 +201,8 @@ internal sealed class GuildMenuNavigation
                 return GuildChoice.CycleStance;
             case GuildPage.Codex when Focus == 2:
                 return GuildChoice.CycleHuntModifier;
+            case GuildPage.Codex when Focus == 4:
+                return GuildChoice.CycleMutator;
             case GuildPage.Codex:
                 Back();
                 return GuildChoice.None;

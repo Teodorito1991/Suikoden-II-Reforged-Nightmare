@@ -21,6 +21,7 @@ EnableTrainingExtendedWars = true
 [Castle Guild]
 EnableExpandedCastleNpcs = true
 EnableHuntModifiers = true
+EnableFieldBounties = true
 EnableGuildMenuAudio = false
 GuildAudioMoveId = -1
 GuildAudioConfirmId = -1
@@ -33,6 +34,7 @@ EnableWeaponMilestonePerks = true
 EnableBossTelegraphs = true
 EnableApexEncounters = true
 EnableDesperationSurge = true
+EnableMomentumOverdrive = true
 "@
 
 Add-Content -LiteralPath $cfgPath -Value $overlay -Encoding UTF8

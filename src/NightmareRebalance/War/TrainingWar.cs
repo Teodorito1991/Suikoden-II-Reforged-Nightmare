@@ -430,6 +430,7 @@ internal static class TrainingWar
         {
             xpSummary = ArmyProgressionRuntime.RecordTrainingVictory(session.Participants, session.Veteran, session.Directive, session.TurnCount);
             commendations = session.Skirmish != null ? session.Skirmish.Commendations : (session.Veteran ? 2 : 1);
+            if (ArmyProgressionRuntime.ActiveMutator != WarMutator.Standard) commendations++;
             ArmyProgressionRuntime.AwardCommendations(commendations);
         }
 

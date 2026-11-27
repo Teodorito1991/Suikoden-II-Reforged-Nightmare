@@ -3,29 +3,75 @@ using UnityEngine;
 
 namespace NightmareRebalance;
 
-// Reforged 2.0 live RPG combat overhaul: Weapon Milestone Perks, Elemental/Status
-// Combos, Boss Phase Telegraphs, Toggleable Enemy Tactical Scanner (F4), and
-// Castle Quartermaster Commendation Shop delivery.
+internal readonly record struct CombatFeedEntry(string Text, long ExpiresAt, string Tone);
+
+// Reforged 2.5 live RPG combat overhaul: Party Momentum & Dunan Overdrive,
+// Weapon Milestone Perks, Elemental/Status/Execute Combos, Riposte & Desperation
+// Surges, Boss Phase Telegraphs, Apex Packs with Elite Affixes, Battle Grade &
+// MVP, Victory Streak, Hunter's Bestiary, Field Bounties, and Quartermaster
+// Permanent Castle Upgrades + Item Shop.
 internal static class Reforged2Runtime
 {
     internal static bool ScannerVisible;
     internal static bool HelpCardVisible;
+    internal static bool BestiaryVisible;
+    internal static bool CleanHudMode;
     internal static bool ApexBattleActive;
-    internal static string BannerText = "";
-    static long bannerUntil;
+    internal static ApexAffix ActiveApexAffix;
+    internal static int Momentum;
+    internal static int OverdriveUntilTurn = -1;
+    internal static int WinStreak;
+
+    static readonly List<CombatFeedEntry> feed = new(4);
     static int lastTurn = -1;
     static int spellsThisTurn;
-    static int battleCombos, battleSurges;
+    static int battleCombos, battleSurges, battleOverdrives;
     static readonly Dictionary<IntPtr, int> bossPhases = new();
     static readonly HashSet<IntPtr> surgedPlayers = new();
-    static readonly System.Random apexRng = new();
+    static readonly HashSet<IntPtr> ripostePlayers = new();
+    static readonly Dictionary<int, int> battleDamageByChara = new();
+    static readonly System.Random rng = new();
 
-    internal static bool BannerVisible => Environment.TickCount64 < bannerUntil && !string.IsNullOrEmpty(BannerText);
     internal static bool CombosEnabled => Plugin.Options?.EnableCombatCombos.Value == true;
     internal static bool PerksEnabled => Plugin.Options?.EnableWeaponMilestonePerks.Value == true;
     internal static bool TelegraphsEnabled => Plugin.Options?.EnableBossTelegraphs.Value == true;
     internal static bool ApexEnabled => Plugin.Options?.EnableApexEncounters.Value == true;
     internal static bool SurgeEnabled => Plugin.Options?.EnableDesperationSurge.Value == true;
+    internal static bool MomentumEnabled => Plugin.Options?.EnableMomentumOverdrive.Value == true;
+    internal static bool BountiesEnabled => Plugin.Options?.EnableFieldBounties.Value == true;
+
+    internal static bool OverdriveActive(BATTLE_WORK? w = null)
+    {
+        if (!MomentumEnabled || OverdriveUntilTurn < 0) return false;
+        int turn = (w ?? Framework.Singleton<BATTLE_WORK>.instance)?.battle_kaisuu ?? 0;
+        if (turn > OverdriveUntilTurn)
+        {
+            OverdriveUntilTurn = -1;
+            Momentum = 0;
+            return false;
+        }
+        return true;
+    }
+
+    internal static CombatFeedEntry[] ActiveFeed()
+    {
+        long now = Environment.TickCount64;
+        for (int i = feed.Count - 1; i >= 0; i--)
+            if (feed[i].ExpiresAt <= now) feed.RemoveAt(i);
+        return feed.Count == 0 ? Array.Empty<CombatFeedEntry>() : feed.ToArray();
+    }
+
+    internal static bool BannerVisible => ActiveFeed().Length > 0;
+
+    internal static void FlashBanner(string text, int durationMs = 3200, string tone = "gold")
+    {
+        if (string.IsNullOrWhiteSpace(text)) return;
+        long now = Environment.TickCount64;
+        for (int i = feed.Count - 1; i >= 0; i--)
+            if (feed[i].ExpiresAt <= now) feed.RemoveAt(i);
+        if (feed.Count >= 3) feed.RemoveAt(0);
+        feed.Add(new CombatFeedEntry(text, now + durationMs, tone));
+    }
 
     internal static void ClearBattle()
     {
@@ -33,70 +79,188 @@ internal static class Reforged2Runtime
         spellsThisTurn = 0;
         battleCombos = 0;
         battleSurges = 0;
+        battleOverdrives = 0;
         ApexBattleActive = false;
+        ActiveApexAffix = ApexAffix.None;
+        Momentum = 0;
+        OverdriveUntilTurn = -1;
         bossPhases.Clear();
         surgedPlayers.Clear();
-        BannerText = "";
-        bannerUntil = 0;
+        ripostePlayers.Clear();
+        battleDamageByChara.Clear();
+        feed.Clear();
     }
 
     internal static void TryArmApexBattle(BattleState s, BATTLE_WORK w)
     {
         ApexBattleActive = false;
-        if (!ApexEnabled || !s.Allowed || !s.StatsAllowed || HuntRuntime.Active != null || HallFirstContact.UsesOriginalHp())
+        ActiveApexAffix = ApexAffix.None;
+        OverdriveUntilTurn = -1;
+
+        if (MomentumEnabled)
+        {
+            int startMom = (ArmyProgressionRuntime.HasUpgrade("tactical-reserve") ? 35 : 0)
+                + Reforged2Rules.StreakStartingMomentum(WinStreak);
+            Momentum = Math.Clamp(startMom, 0, Reforged2Rules.OverdriveThreshold - 1);
+        }
+
+        bool hasBoss = w.pm_data != null && w.pm_data.Any(u => u != null && !u.IsPlayer && u.max_hp >= 1200);
+        if (hasBoss && ArmyProgressionRuntime.HasUpgrade("scout-network") && !ScannerVisible)
+        {
+            ScannerVisible = true;
+            FlashBanner("Scout Network: Tactical Scanner auto-engaged!", 2600, "success");
+        }
+
+        if (!ApexEnabled || !s.Allowed || !s.StatsAllowed || HuntRuntime.Active != null || HallFirstContact.UsesOriginalHp() || hasBoss)
             return;
-        if (w.pm_data == null || w.pm_data.Any(u => u != null && !u.IsPlayer && u.max_hp >= 1200))
-            return;
-        if (Reforged2Rules.ShouldSpawnApex(apexRng.Next(100)))
+        int chance = ArmyProgressionRuntime.HasUpgrade("scout-network") ? 18 : Reforged2Rules.ApexChancePercent;
+        if (Reforged2Rules.ShouldSpawnApex(rng.Next(100), chance))
         {
             ApexBattleActive = true;
-            FlashBanner("⚠ APEX PACK ENCOUNTERED! (2x Potch · +1 Commendation)", 4200);
-            Plugin.Logger.LogInfo("Reforged 2.0: Apex Pack spawned for ordinary dungeon encounter.");
+            ActiveApexAffix = Reforged2Rules.RollApexAffix(rng.Next(4));
+            string affixLabel = Reforged2Rules.ApexAffixTitle(ActiveApexAffix);
+            FlashBanner($"⚠ APEX PACK · {affixLabel} (+1 Commendation)", 4400, "alert");
+            Plugin.Logger.LogInfo($"Reforged 2.5: Apex Pack ({ActiveApexAffix}) spawned for ordinary encounter.");
         }
     }
 
-    internal static void ObservePlayerHit(BATTLE_WORK? w, int defenderSlot, int incomingDamage)
+    static void GainMomentum(int delta, BATTLE_WORK? w)
     {
-        if (!SurgeEnabled || incomingDamage <= 0 || w?.pm_data == null || defenderSlot < 0 || defenderSlot >= w.pm_data.Length)
+        if (!MomentumEnabled || delta <= 0 || OverdriveActive(w)) return;
+        Momentum = Reforged2Rules.AddMomentum(Momentum, delta, out bool triggered);
+        if (triggered)
+        {
+            int turn = w?.battle_kaisuu ?? 0;
+            OverdriveUntilTurn = turn + 1;
+            battleOverdrives++;
+            FlashBanner("★ DUNAN OVERDRIVE! (+20% DMG · -15% Taken)", 3800, "gold");
+            if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.OverdrivesOrSurges) is {} msg)
+                FlashBanner("★ " + msg, 3600, "success");
+        }
+    }
+
+    internal static int ApplyOverdriveDefense(int incomingDamage) =>
+        OverdriveActive() ? Reforged2Rules.ApplyOverdriveDefense(incomingDamage) : incomingDamage;
+
+    internal static void ObservePlayerHit(BATTLE_WORK? w, int attackerSlot, int defenderSlot, int incomingDamage)
+    {
+        if (incomingDamage <= 0 || w?.pm_data == null || defenderSlot < 0 || defenderSlot >= w.pm_data.Length)
             return;
         var player = w.pm_data[defenderSlot];
         if (player == null || !player.IsPlayer || player.IsDead) return;
         int projectedHp = player.hp - incomingDamage;
+
+        if (attackerSlot >= 0 && attackerSlot < w.pm_data.Length && w.pm_data[attackerSlot] is { max_hp: >= 1200 })
+            GainMomentum(10, w);
+
+        if (!SurgeEnabled) return;
         if (Reforged2Rules.ShouldArmDesperation(projectedHp, player.max_hp) && surgedPlayers.Add(player.Pointer))
         {
             string pName = player.chara_id > 0 ? G2_SYS.G2_name_get(player.chara_id) : "Ally";
-            FlashBanner($"★ {pName}: Desperation Surge Ready! (+25% DMG)", 2800);
+            FlashBanner($"★ {pName}: Desperation Surge Ready! (+25% DMG)", 2800, "gold");
+        }
+        else if (Reforged2Rules.ShouldArmRiposte(incomingDamage, projectedHp, player.max_hp) && ripostePlayers.Add(player.Pointer))
+        {
+            string pName = player.chara_id > 0 ? G2_SYS.G2_name_get(player.chara_id) : "Ally";
+            FlashBanner($"⚔ {pName}: Riposte Armed! (+20% Next Strike)", 2400, "success");
         }
     }
 
-    internal static void OnBattleVictory(int restoredCharges)
+    internal static double VictoryPotchMultiplier(BATTLE_WORK? w)
     {
+        double mult = Reforged2Rules.StreakPotchMultiplier(WinStreak + 1);
+        if (w?.pm_data != null)
+        {
+            int kos = w.pm_data.Count(u => u != null && u.IsPlayer && (u.hp <= 0 || u.IsDead));
+            string grade = Reforged2Rules.BattleGrade(kos, w.battle_kaisuu, battleCombos, battleSurges);
+            if (grade == "S") mult *= 1.15;
+        }
+        return mult;
+    }
+
+    internal static void OnBattleNonVictory()
+    {
+        WinStreak = 0;
+    }
+
+    internal static void OnBattleVictory(BATTLE_WORK? w, int restoredCharges)
+    {
+        WinStreak++;
         bool wasApex = ApexBattleActive;
         if (wasApex) ArmyProgressionRuntime.AwardCommendations(1);
-        if (wasApex || battleCombos > 0 || battleSurges > 0)
+
+        int kos = 0;
+        int healedAllies = 0;
+        int newSpecies = 0;
+        int milestoneComm = 0;
+        if (w?.pm_data != null)
         {
-            var parts = new List<string>(4);
-            if (wasApex) parts.Add("Apex Cleared (+1 Commendation)");
-            if (battleCombos > 0) parts.Add($"{battleCombos} Combo(s)");
-            if (battleSurges > 0) parts.Add($"{battleSurges} Surge(s)");
-            if (restoredCharges > 0) parts.Add($"+{restoredCharges} Rune");
-            CastleGuildRuntime.TrainingFeedback("Victory · " + string.Join(" · ", parts));
+            bool fieldMedic = ArmyProgressionRuntime.HasUpgrade("field-medic-corps");
+            foreach (var unit in w.pm_data)
+            {
+                if (unit == null) continue;
+                if (unit.IsPlayer)
+                {
+                    if (unit.hp <= 0 || unit.IsDead) { kos++; continue; }
+                    if (fieldMedic && unit.TryCast<BattlePlayerCharacter>()?.c_varia_dat is {} data && data.max_hp > 0 && data.now_hp > 0 && data.now_hp < data.max_hp)
+                    {
+                        int heal = Math.Max(1, (int)Math.Round(data.max_hp * 0.10, MidpointRounding.AwayFromZero));
+                        data.now_hp = (ushort)Math.Min(data.max_hp, data.now_hp + heal);
+                        healedAllies++;
+                    }
+                }
+                else
+                {
+                    string key = unit.monster_data?.id ?? "";
+                    string name = ResolveEnemyDisplayName(unit, out _);
+                    if (string.IsNullOrWhiteSpace(key)) key = name;
+                    int lv = unit.monster_data?.level ?? 0;
+                    string weak = unit.calc_para is { Length: > 3 } ? Reforged2Rules.TacticalWeaknessHint(unit.calc_para[2], unit.calc_para[3]) : "Balanced";
+                    var (isNew, mDelta) = ArmyProgressionRuntime.RecordBestiaryKill(key, name, lv, weak, wasApex);
+                    if (isNew) newSpecies++;
+                    milestoneComm += mDelta;
+                }
+            }
         }
+
+        string grade = Reforged2Rules.BattleGrade(kos, w?.battle_kaisuu ?? 1, battleCombos, battleSurges);
+        string mvpText = "";
+        if (battleDamageByChara.Count > 0)
+        {
+            var top = battleDamageByChara.OrderByDescending(kv => kv.Value).First();
+            string mvpName = top.Key > 0 ? G2_SYS.G2_name_get(top.Key) : "";
+            if (!string.IsNullOrWhiteSpace(mvpName)) mvpText = $"MVP: {mvpName.Trim()}";
+        }
+
+        var bountyNotices = new List<string>(2);
+        if (wasApex && ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.ApexPacks) is {} b1) bountyNotices.Add(b1);
+        if (grade == "S" && ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.SRanks) is {} b2) bountyNotices.Add(b2);
+        if (newSpecies > 0 && ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.BestiaryEntries, newSpecies) is {} b3) bountyNotices.Add(b3);
+
+        var parts = new List<string>(6) { $"Grade {grade}" };
+        if (mvpText.Length > 0) parts.Add(mvpText);
+        if (WinStreak >= 3) parts.Add($"Streak x{WinStreak}");
+        if (wasApex) parts.Add("Apex +1 Commendation");
+        if (milestoneComm > 0) parts.Add($"Bestiary +{milestoneComm} Comm.");
+        if (healedAllies > 0) parts.Add("Medic +10% HP");
+        if (restoredCharges > 0) parts.Add($"+{restoredCharges} Rune");
+        foreach (var bn in bountyNotices) parts.Add(bn);
+
+        CastleGuildRuntime.TrainingFeedback("Victory · " + string.Join(" · ", parts));
     }
 
     internal static void ToggleHelpCard() => HelpCardVisible = !HelpCardVisible;
-
-    internal static void FlashBanner(string text, int durationMs = 3400)
+    internal static void ToggleBestiary() => BestiaryVisible = !BestiaryVisible;
+    internal static void ToggleCleanHud()
     {
-        if (string.IsNullOrWhiteSpace(text)) return;
-        BannerText = text;
-        bannerUntil = Environment.TickCount64 + durationMs;
+        CleanHudMode = !CleanHudMode;
+        FlashBanner(CleanHudMode ? "Clean HUD Mode ON (F2 to restore)" : "Tactical HUD Restored (F2)", 1800, "muted");
     }
 
     internal static void ToggleScanner()
     {
         ScannerVisible = !ScannerVisible;
-        if (ScannerVisible) FlashBanner("Tactical Scanner ON (F4 to hide)", 1800);
+        if (ScannerVisible) FlashBanner("Tactical Scanner ON (F4 to hide)", 1800, "muted");
     }
 
     internal static string ResolveEnemyDisplayName(PM_DATA unit, out string role)
@@ -132,9 +296,15 @@ internal static class Reforged2Runtime
             if (next != prev)
             {
                 bossPhases[unit.Pointer] = next;
-                if (msg.Length > 0) FlashBanner(msg, 3800);
+                if (msg.Length > 0) FlashBanner(msg, 3800, "alert");
             }
         }
+    }
+
+    static void RecordDamage(BattlePlayerCharacter actor, int amount)
+    {
+        if (amount <= 0 || actor.chara_id <= 0) return;
+        battleDamageByChara[actor.chara_id] = battleDamageByChara.GetValueOrDefault(actor.chara_id) + amount;
     }
 
     internal static int ApplyPlayerPhysical(BattlePlayerCharacter attacker, int mokuhyo, int damage)
@@ -145,14 +315,31 @@ internal static class Reforged2Runtime
         int result = damage;
 
         if (PerksEnabled && attacker.c_varia_dat is {} data)
-            result = Reforged2Rules.ApplyWeaponAttackPerk(result, data.buki_lv);
+            result = Reforged2Rules.ApplyWeaponAttackPerk(result, data.buki_lv, ArmyProgressionRuntime.HasUpgrade("master-blacksmiths"));
+
+        if (ApexBattleActive && ActiveApexAffix == ApexAffix.Armored)
+            result = Reforged2Rules.ApplyApexIncomingReduction(result, ActiveApexAffix, isMagic: false);
+
+        if (OverdriveActive(w))
+            result = Reforged2Rules.ApplyOverdriveAttack(result);
 
         if (SurgeEnabled && surgedPlayers.Remove(attacker.Pointer))
         {
             int before = result;
             result = Reforged2Rules.ApplyDesperationSurge(result);
             battleSurges++;
-            FlashBanner($"★ Desperation Surge! (+{result - before})", 2400);
+            FlashBanner($"★ Desperation Surge! (+{result - before})", 2400, "gold");
+            GainMomentum(30, w);
+            if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.OverdrivesOrSurges) is {} bm)
+                FlashBanner("★ " + bm, 3200, "success");
+        }
+        else if (SurgeEnabled && ripostePlayers.Remove(attacker.Pointer))
+        {
+            int before = result;
+            result = Reforged2Rules.ApplyRiposte(result);
+            battleSurges++;
+            FlashBanner($"⚔ Riposte Counter! (+{result - before})", 2300, "success");
+            GainMomentum(15, w);
         }
 
         if (CombosEnabled && StarBondRuntime.Enemy(w, mokuhyo) is {} enemy)
@@ -160,13 +347,20 @@ internal static class Reforged2Runtime
             bool sleeping = (enemy.status & b_game_h.STATUS_SLEEP) != 0;
             bool poisoned = (enemy.status & b_game_h.STATUS_POISON) != 0;
             var combo = Reforged2Rules.EvaluatePhysicalCombo(result, sleeping, false, poisoned);
+            if (combo.BonusDamage == 0)
+                combo = Reforged2Rules.EvaluateExecuteFinisher(result, enemy.hp, enemy.max_hp);
             if (combo.BonusDamage > 0)
             {
                 result += combo.BonusDamage;
                 battleCombos++;
-                FlashBanner($"★ {combo.Name}! (+{combo.BonusDamage})", 2200);
+                FlashBanner($"★ {combo.Name}! (+{combo.BonusDamage})", 2200, "gold");
+                GainMomentum(25, w);
+                if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.Combos) is {} bm)
+                    FlashBanner("★ " + bm, 3200, "success");
             }
         }
+
+        RecordDamage(attacker, result);
         return result;
     }
 
@@ -176,27 +370,44 @@ internal static class Reforged2Runtime
         var w = Framework.Singleton<BATTLE_WORK>.instance;
         if (w == null) return damage;
         int result = damage;
+
+        if (ApexBattleActive && ActiveApexAffix == ApexAffix.WardBlessed)
+            result = Reforged2Rules.ApplyApexIncomingReduction(result, ActiveApexAffix, isMagic: true);
+
+        if (OverdriveActive(w))
+            result = Reforged2Rules.ApplyOverdriveAttack(result);
+
         if (SurgeEnabled && surgedPlayers.Remove(caster.Pointer))
         {
             int before = result;
             result = Reforged2Rules.ApplyDesperationSurge(result);
             battleSurges++;
-            FlashBanner($"★ Desperation Surge! (+{result - before})", 2400);
+            FlashBanner($"★ Desperation Surge! (+{result - before})", 2400, "gold");
+            GainMomentum(30, w);
+            if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.OverdrivesOrSurges) is {} bm)
+                FlashBanner("★ " + bm, 3200, "success");
         }
-        if (!CombosEnabled) return result;
-        if (w.battle_kaisuu != lastTurn)
+        if (CombosEnabled)
         {
-            lastTurn = w.battle_kaisuu;
-            spellsThisTurn = 0;
+            if (w.battle_kaisuu != lastTurn)
+            {
+                lastTurn = w.battle_kaisuu;
+                spellsThisTurn = 0;
+            }
+            spellsThisTurn++;
+            var combo = Reforged2Rules.EvaluateArcaneChain(result, spellsThisTurn);
+            if (combo.BonusDamage > 0)
+            {
+                battleCombos++;
+                result += combo.BonusDamage;
+                FlashBanner($"★ {combo.Name}! (+{combo.BonusDamage})", 2200, "gold");
+                GainMomentum(25, w);
+                if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.Combos) is {} bm)
+                    FlashBanner("★ " + bm, 3200, "success");
+            }
         }
-        spellsThisTurn++;
-        var combo = Reforged2Rules.EvaluateArcaneChain(result, spellsThisTurn);
-        if (combo.BonusDamage > 0)
-        {
-            battleCombos++;
-            FlashBanner($"★ {combo.Name}! (+{combo.BonusDamage})", 2200);
-            return result + combo.BonusDamage;
-        }
+
+        RecordDamage(caster, result);
         return result;
     }
 
@@ -206,11 +417,16 @@ internal static class Reforged2Runtime
             return damage;
         var player = w.pm_data[defenderSlot]?.TryCast<BattlePlayerCharacter>();
         if (player?.c_varia_dat is not {} data) return damage;
-        return Reforged2Rules.ApplyWeaponDefensePerk(damage, data.buki_lv);
+        return Reforged2Rules.ApplyWeaponDefensePerk(damage, data.buki_lv, ArmyProgressionRuntime.HasUpgrade("master-blacksmiths"));
     }
 
-    internal static bool TryPurchaseQuartermaster(int offerIndex, out string feedback)
+    internal static bool TryPurchaseQuartermaster(int rowIndex, out string feedback)
     {
+        int upgradeCount = Reforged2Rules.CastleUpgrades.Length;
+        if (rowIndex >= 0 && rowIndex < upgradeCount)
+            return ArmyProgressionRuntime.TryUnlockUpgrade(Reforged2Rules.CastleUpgrades[rowIndex], out feedback);
+
+        int offerIndex = rowIndex - upgradeCount;
         if (offerIndex < 0 || offerIndex >= Reforged2Rules.QuartermasterStock.Length)
         {
             feedback = "Invalid Quartermaster item.";

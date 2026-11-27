@@ -32,6 +32,23 @@
   6 lore-driven **Star Bonds** (10 total: *Genkaku's Legacy*, *Mercenary
   Veterans*, *Arcane Resonance*, *Vampire Hunters*, *Wandering Blades*, and
   *Rokaku Shadows*).
+- Added **Reforged 2.5 Expansion Systems** (opt-in):
+  - **Party Momentum & Dunan Overdrive** (`EnableMomentumOverdrive = false`):
+    combos, surges, and boss exchanges fill a `0–100%` Momentum gauge; at `100%`,
+    the party triggers **Dunan Overdrive** (`+20%` damage dealt, `-15%` taken).
+  - **Execute Finisher (`<= 20%` HP), Riposte Counter (`>= 20%` max HP hit), &
+    3-Line Fading Combat Feed** so simultaneous procs stack cleanly.
+  - **Permanent Castle Upgrades** at the Quartermaster (*Field Medic Corps*,
+    *Master Blacksmiths*, *Scout Network*, *Tactical Reserve*) stored in the
+    save-bound ledger.
+  - **Skirmish War Mutators** (*Blood Moon*, *Iron Attrition*, `+1` bonus
+    Commendation) and a **Live War Command Bar** during army battles.
+  - **Hunter's Bestiary (`F5`)** with automatic kill/Apex/weakness tracking and
+    `+1` Commendation every 10 unique species catalogued.
+  - **Battle Grade (`S/A/B/C`) & MVP**, **Victory Streak** Potch/Momentum
+    bonuses, **Apex Pack Elite Affixes** (*Frenzied*, *Armored*, *Ward-Blessed*,
+    *Golden*), **Rotating Field Bounties** (`EnableFieldBounties = false`), and
+    **Clean HUD Toggle (`F2`)**.
 - Added **Reforged 2.0 Overhaul Systems** (opt-in):
   - **3 True Custom Skirmishes** (*Skirmish I: Crimson Vanguard*, *Skirmish II:
     Ironclad Siege*, *Skirmish III: Highland Grand Army*) replacing scripted-only

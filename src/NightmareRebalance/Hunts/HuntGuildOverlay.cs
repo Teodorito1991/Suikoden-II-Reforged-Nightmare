@@ -6,7 +6,7 @@ namespace NightmareRebalance;
 public sealed class HuntGuildOverlay:MonoBehaviour
 {
  readonly Stopwatch timer=Stopwatch.StartNew();
- Font? fallbackFont;readonly Dictionary<int,GUIStyle> styles=new();bool faulted;readonly StableHotkeyEdge request=new(),scannerKey=new(),helpKey=new();
+ Font? fallbackFont;readonly Dictionary<int,GUIStyle> styles=new();bool faulted;readonly StableHotkeyEdge request=new(),scannerKey=new(),helpKey=new(),bestiaryKey=new(),cleanHudKey=new();
  bool smokeExitRequested,smokeCapturePending;
  int smokeCaptureFrame;
  HuntDefinition? fieldOffer;
@@ -63,9 +63,15 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   {
    GetWindowThreadProcessId(GetForegroundWindow(),out uint fg);
    bool focusedApp=fg==(uint)Environment.ProcessId;
+   short f2=GetAsyncKeyState(0x71);
+   if(cleanHudKey.Poll(focusedApp,(f2&0x8000)!=0,(f2&1)!=0,timer.ElapsedMilliseconds))
+    Reforged2Runtime.ToggleCleanHud();
    short f3=GetAsyncKeyState(0x72);
    if(helpKey.Poll(focusedApp,(f3&0x8000)!=0,(f3&1)!=0,timer.ElapsedMilliseconds))
     Reforged2Runtime.ToggleHelpCard();
+   short f5=GetAsyncKeyState(0x74);
+   if(bestiaryKey.Poll(focusedApp,(f5&0x8000)!=0,(f5&1)!=0,timer.ElapsedMilliseconds))
+    Reforged2Runtime.ToggleBestiary();
    if(Combat.State is {Ready:true})
    {
     short f4=GetAsyncKeyState(0x73);
@@ -373,25 +379,44 @@ public sealed class HuntGuildOverlay:MonoBehaviour
 
   if (page == GuildPage.Quartermaster)
   {
+   var upgrades = Reforged2Rules.CastleUpgrades;
    var stock = Reforged2Rules.QuartermasterStock;
-   focus = Math.Clamp(focus, 0, stock.Length - 1);
+   int total = upgrades.Length + stock.Length;
+   focus = Math.Clamp(focus, 0, total - 1);
    int balance = ArmyProgressionRuntime.Current.Commendations;
-   var qRows = stock.Select(o => new GuildMenuRow(o.Name,
-       balance >= o.CostCommendations ? $"{o.CostCommendations} Commendation(s) · Ready" : $"{o.CostCommendations} Commendation(s) · Locked")).ToArray();
-   var sel = stock[focus];
-   bool canAfford = balance >= sel.CostCommendations;
+   var qRows = upgrades.Select(u =>
+   {
+    bool owned = ArmyProgressionRuntime.HasUpgrade(u.Id);
+    return new GuildMenuRow(u.Name, owned ? "OWNED · Active" : balance >= u.CostCommendations ? $"{u.CostCommendations} Comm. · Unlock" : $"{u.CostCommendations} Comm. · Locked");
+   }).Concat(stock.Select(o => new GuildMenuRow(o.Name,
+       balance >= o.CostCommendations ? $"{o.CostCommendations} Comm. · Ready" : $"{o.CostCommendations} Comm. · Locked"))).ToArray();
+   if (focus < upgrades.Length)
+   {
+    var u = upgrades[focus];
+    bool owned = ArmyProgressionRuntime.HasUpgrade(u.Id);
+    bool canAfford = !owned && balance >= u.CostCommendations;
+    return GuildRebornScreen.Paginate(new("QUARTERMASTER", qRows, focus, u.Name,
+        $"Permanent Castle Upgrade  ·  Balance: {balance} Commendation(s)",
+        u.Description,
+        owned ? "Already Unlocked (Active across all battles)" : $"Cost: {u.CostCommendations} Dunan Commendation(s)",
+        "Stored permanently in your save-bound ledger. Save at an inn or orb after unlocking.",
+        status, owned ? "Owned" : canAfford ? "Unlock Upgrade" : "Insufficient", back, preview));
+   }
+   var sel = stock[focus - upgrades.Length];
+   bool canAffordItem = balance >= sel.CostCommendations;
    return GuildRebornScreen.Paginate(new("QUARTERMASTER", qRows, focus, sel.Name,
        $"{sel.Category}  ·  Balance: {balance} Commendation(s)",
        sel.Description,
        $"Cost: {sel.CostCommendations} Dunan Commendation(s)",
-       "Earn Commendations from Hunts, Army Drills, Custom Skirmishes, and Hall of Echoes clears. Delivered straight to your bag.",
-       status, canAfford ? "Exchange" : "Insufficient", back, preview));
+       "Earn Commendations from Hunts, Skirmishes, Apex Packs, Bestiary Milestones, and Field Bounties.",
+       status, canAffordItem ? "Exchange" : "Insufficient", back, preview));
   }
 
   if (page == GuildPage.Codex)
   {
    var ledger = ArmyProgressionRuntime.Current;
    var hRank = Reforged2Rules.HunterRankForClears(ledger.HuntsCompleted);
+   var bounty = Reforged2Rules.ActiveBounty(ledger.ActiveBountyIndex);
    int[] party = preview ? new[]{7,8,30,26,33,32} : StarBondRuntime.FieldParty();
    int activeBonds = StarBondRules.Catalogue.Count(b => StarBondRules.Includes(b, party));
    var codexRows = new[]
@@ -399,13 +424,14 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     new GuildMenuRow("Army Campaign", $"{ledger.TotalDrillsWon} drills · {ledger.Commendations} Commendations"),
     new GuildMenuRow("Allied Stance", Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)),
     new GuildMenuRow("Hunt Guild", $"{Reforged2Rules.HunterRankTitle(hRank)} · {ArmyProgressionRules.HuntModifierTitle(ArmyProgressionRuntime.ActiveHuntModifier)}"),
-    new GuildMenuRow("Active Star Bonds", $"{activeBonds} active in current party")
+    new GuildMenuRow("Active Star Bonds", $"{activeBonds} active · Bestiary: {ledger.Bestiary?.Count ?? 0}"),
+    new GuildMenuRow("War Mutator", Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator))
    };
    focus = Math.Clamp(focus, 0, codexRows.Length - 1);
    var (cTitle, cArea, cDesc, cReward, cCond) = focus switch
    {
     0 => ("Army Campaign Record", $"Drills: {ledger.TotalDrillsWon} ({ledger.TotalVeteranDrillsWon} Veteran) · Commendations: {ledger.Commendations}",
-          $"Tracked commanders: {ledger.Commanders.Count}. Active Directive: {ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective)}.",
+          $"Tracked commanders: {ledger.Commanders.Count}. Castle Upgrades: {ledger.CastleUpgrades?.Count ?? 0}/{Reforged2Rules.CastleUpgrades.Length}.\nActive Bounty: {bounty.Title} ({ledger.ActiveBountyProgress}/{bounty.Target}).",
           ArmyProgressionRuntime.Enabled ? "Army Progression ON · Spend Commendations at Quartermaster" : "Army Progression OFF (EnableArmyProgression)",
           "Progress binds automatically to your save fingerprint whenever you save."),
     1 => ($"Allied War Stance · {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)}", $"Morale Charges: {ledger.MoraleBonusCharges}  ·  Hall Nightmare: {ledger.HallNightmareClears}",
@@ -416,13 +442,17 @@ public sealed class HuntGuildOverlay:MonoBehaviour
           ArmyProgressionRules.HuntModifierDescription(ArmyProgressionRuntime.ActiveHuntModifier) + "\n" + CastleGuildRuntime.QuestSummary,
           ArmyProgressionRuntime.HuntModifiersEnabled ? "Confirm cycles Hunt Risk Modifier (+35% bonus Potch)." : "Enable EnableHuntModifiers in settings to toggle Hunt modifiers.",
           "Reporting completed hunts grants +1 Dunan Commendation and advances Hunter Rank."),
-    _ => ("Party Star Bonds", $"{activeBonds} of {StarBondRules.Catalogue.Length} active",
-          "Check Party Strategy from the main Guild menu for exact triggers and bonuses.",
-          "Normal battles without scripted commands.",
-          "All bond partners must be alive and able to act.")
+    3 => ("Star Bonds & Hunter's Bestiary", $"{activeBonds}/{StarBondRules.Catalogue.Length} Bonds · {ledger.Bestiary?.Count ?? 0} Species Catalogued",
+          "Press F5 anytime to inspect your Hunter's Bestiary. Every 10 unique species catalogued pays +1 Dunan Commendation.",
+          $"Bounties Completed: {ledger.BountiesCompleted}   ·   Bestiary Milestones: {ledger.BestiaryMilestonesClaimed}",
+          "Check Party Strategy from the main Guild menu for exact Star Bond triggers."),
+    _ => ($"War Mutator · {Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)}", "Applies to Army Training & Custom Skirmishes",
+          Reforged2Rules.MutatorDescription(ArmyProgressionRuntime.ActiveMutator),
+          ArmyProgressionRuntime.ActiveMutator != WarMutator.Standard ? "+1 Bonus Dunan Commendation on Drill/Skirmish Victory!" : "No extra bonus under Standard Battlefield.",
+          "Confirm cycles Mutator (Standard / Blood Moon / Iron Attrition).")
    };
    return new("TACTICIAN'S CODEX", codexRows, focus, cTitle, cArea, cDesc, cReward, cCond, status,
-       focus == 1 ? "Cycle Stance" : focus == 2 && ArmyProgressionRuntime.HuntModifiersEnabled ? "Cycle Modifier" : "Back", back, preview);
+       focus == 1 ? "Cycle Stance" : focus == 2 && ArmyProgressionRuntime.HuntModifiersEnabled ? "Cycle Modifier" : focus == 4 ? "Cycle Mutator" : "Back", back, preview);
   }
 
   if (page == GuildPage.Training && focus >= GuildMenuNavigation.TrainingDrillCount)
@@ -532,49 +562,94 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       ? HuntRuntime.BrowseOrder.FirstOrDefault() :fieldOffer;
   bool prompt=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.Idle&&CastleGuildRuntime.Near;
   bool feedback=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.FeedbackVisible;
-  bool battleHud=!previewSmoke&&Combat.State is {Ready:true}&&(Plugin.Options?.EnableBattleTacticalHud.Value==true||Reforged2Runtime.BannerVisible||Reforged2Runtime.ScannerVisible);
+  bool battleHud=!previewSmoke&&Combat.State is {Ready:true}&&((!Reforged2Runtime.CleanHudMode&&Plugin.Options?.EnableBattleTacticalHud.Value==true)||Reforged2Runtime.BannerVisible||Reforged2Runtime.ScannerVisible);
+  bool warHud=!previewSmoke&&WarRuntime.Active&&!Reforged2Runtime.CleanHudMode&&Plugin.Options?.EnableBattleTacticalHud.Value==true;
   bool helpCard=!previewSmoke&&Reforged2Runtime.HelpCardVisible;
-  if(smokeExitRequested||faulted||(!previewSmoke&&!helpCard&&!battleHud&&!prompt&&!feedback&&offer==null&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
+  bool bestiaryCard=!previewSmoke&&Reforged2Runtime.BestiaryVisible;
+  if(smokeExitRequested||faulted||(!previewSmoke&&!helpCard&&!bestiaryCard&&!warHud&&!battleHud&&!prompt&&!feedback&&offer==null&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
   try
   {
    var matrix=GUI.matrix;var color=GUI.color;
    try
    {
     GUI.matrix=Matrix4x4.identity;GUI.color=Color.white;
+    if(warHud)
+    {
+     string warText=$"WAR COMMAND  ·  {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)}  ·  {Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)}"+(ArmyProgressionRuntime.ActiveDirective!=DrillDirective.None?$"  ·  {ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective)}":"");
+     float ww=Math.Min(740,Math.Max(360,warText.Length*10+44));
+     var wbox=new Rect((Screen.width-ww)/2,14,ww,40);
+     Window(wbox);
+     Label(new(new(18,9,ww-36,24),warText,16,"gold"),wbox.x,wbox.y,1);
+    }
     if(helpCard)
     {
      var led=ArmyProgressionRuntime.Current;
      var hr=Reforged2Rules.HunterRankForClears(led.HuntsCompleted);
-     float hw=460,hh=252;
+     var bounty=Reforged2Rules.ActiveBounty(led.ActiveBountyIndex);
+     float hw=490,hh=298;
      var hbox=new Rect(Screen.width-hw-18,66,hw,hh);
      Window(hbox);
-     Label(new(new(18,12,hw-36,26),"REFORGED 2.0 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
-     Label(new(new(18,44,hw-36,112),
-         "F4   Toggle Battle Tactical Scanner\nF6   Accept Local Field Hunt\n←/→  Fast Page-Flip in Castle Guild\nCorridor NPCs: Quartermaster · Sergeant · Attendant · Archivist",16),hbox.x,hbox.y,1);
-     Label(new(new(18,162,hw-36,76),
-         $"Commendations: {led.Commendations}   ·   {Reforged2Rules.HunterRankTitle(hr)}\nStance: {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)}   ·   Directive: {ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective)}\nMorale Charges: {led.MoraleBonusCharges}   ·   Combos & Surges Active",15,"success"),hbox.x,hbox.y,1);
-     if(!battleHud&&!prompt&&!feedback&&offer==null&&!HuntGuildRuntime.Visible)return;
+     Label(new(new(18,12,hw-36,26),"REFORGED 2.5 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
+     Label(new(new(18,44,hw-36,124),
+         "F2   Toggle Clean HUD Mode\nF4   Toggle Battle Tactical Scanner\nF5   Toggle Hunter's Bestiary\nF6   Accept Local Field Hunt\n←/→  Fast Page-Flip in Castle Guild",15),hbox.x,hbox.y,1);
+     Label(new(new(18,172,hw-36,44),
+         $"Bounty: {bounty.Title} ({led.ActiveBountyProgress}/{bounty.Target}) — {bounty.Description}",14,"gold"),hbox.x,hbox.y,1);
+     Label(new(new(18,220,hw-36,68),
+         $"Commendations: {led.Commendations}  ·  {Reforged2Rules.HunterRankTitle(hr)}  ·  Upgrades: {led.CastleUpgrades?.Count??0}/{Reforged2Rules.CastleUpgrades.Length}\nStance: {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)}  ·  Mutator: {Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)}\nWin Streak: {Reforged2Runtime.WinStreak}  ·  Bestiary: {led.Bestiary?.Count??0} species",14,"success"),hbox.x,hbox.y,1);
     }
+    if(bestiaryCard)
+    {
+     var entries=ArmyProgressionRuntime.BestiarySnapshot();
+     int totalSpecies=entries.Length;
+     int nextMilestone=(totalSpecies/10+1)*10;
+     int shown=Math.Min(7,totalSpecies);
+     float bw=470,bh=94+Math.Max(1,shown)*34;
+     var bbox=new Rect(18,66,bw,bh);
+     Window(bbox);
+     Label(new(new(18,12,bw-36,26),$"HUNTER'S BESTIARY  ({totalSpecies} Species · Next +1 Comm: {totalSpecies}/{nextMilestone})",16,"gold"),bbox.x,bbox.y,1);
+     Label(new(new(18,38,bw-36,20),"Press F5 to hide · Defeat enemies in battle to catalogue entries",13,"muted"),bbox.x,bbox.y,1);
+     if(shown==0)
+      Label(new(new(18,66,bw-36,24),"No enemies catalogued yet. Win battles to fill your Bestiary!",15),bbox.x,bbox.y,1);
+     else
+     {
+      for(int i=0;i<shown;i++)
+      {
+       var be=entries[i];
+       float ry=66+i*34;
+       string apexStr=be.ApexKills>0?$"  ★{be.ApexKills} Apex":"";
+       Label(new(new(18,ry,bw-150,22),$"{be.Name}{(be.HighestLevel>0?$" Lv{be.HighestLevel}":"")}  ({be.WeaknessHint})",15),bbox.x,bbox.y,1);
+       Label(new(new(bw-132,ry,114,22),$"{be.Kills} kills{apexStr}",14,"success"),bbox.x,bbox.y,1);
+      }
+     }
+    }
+    if(!battleHud&&!prompt&&!feedback&&offer==null&&!HuntGuildRuntime.Visible)return;
     if(battleHud)
     {
-     if(Plugin.Options?.EnableBattleTacticalHud.Value==true)
+     if(!Reforged2Runtime.CleanHudMode&&Plugin.Options?.EnableBattleTacticalHud.Value==true)
      {
       int[] party=StarBondRuntime.FieldParty();
       var active=StarBondRules.Catalogue.Where(b=>StarBondRules.Includes(b,party)).Select(b=>b.Title).ToArray();
       int morale=ArmyProgressionRuntime.Current.MoraleBonusCharges;
-      string apexTag=Reforged2Runtime.ApexBattleActive?"⚠ APEX · ":"";
-      string text=apexTag+(active.Length>0?"★ "+string.Join(" · ",active.Take(2)):"F4 Scanner · F3 Guide")+(morale>0?$"   Morale +{morale}":"");
-      float w=Math.Min(520,Math.Max(240,text.Length*10+36));
+      string apexTag=Reforged2Runtime.ApexBattleActive?$"⚠ APEX {Reforged2Rules.ApexAffixShort(Reforged2Runtime.ActiveApexAffix)} · ":"";
+      string momTag=Reforged2Runtime.MomentumEnabled?(Reforged2Runtime.OverdriveActive()?" ★ OVERDRIVE!":$" · Mom {Reforged2Runtime.Momentum}%"):"";
+      string streakTag=Reforged2Runtime.WinStreak>=3?$" · Streak x{Reforged2Runtime.WinStreak}":"";
+      string text=apexTag+(active.Length>0?"★ "+string.Join(" · ",active.Take(2)):"F4 Scan · F3 Guide")+momTag+streakTag+(morale>0?$" · Morale +{morale}":"");
+      float w=Math.Min(600,Math.Max(260,text.Length*9.5f+36));
       var pill=new Rect(Screen.width-w-18,16,w,40);
       Window(pill);
-      Label(new(new(14,9,w-28,24),text,16,"gold"),pill.x,pill.y,1);
+      Label(new(new(14,9,w-28,24),text,15,Reforged2Runtime.OverdriveActive()?"success":"gold"),pill.x,pill.y,1);
      }
-     if(Reforged2Runtime.BannerVisible)
+     var feedLines=Reforged2Runtime.ActiveFeed();
+     if(feedLines.Length>0)
      {
-      float bw=Math.Min(680,Math.Max(300,Reforged2Runtime.BannerText.Length*12+48));
-      var banner=new Rect((Screen.width-bw)/2,18,bw,46);
-      Window(banner);
-      Label(new(new(18,11,bw-36,26),Reforged2Runtime.BannerText,19,"gold"),banner.x,banner.y,1);
+      for(int fi=0;fi<feedLines.Length;fi++)
+      {
+       var fl=feedLines[fi];
+       float bw=Math.Min(680,Math.Max(300,fl.Text.Length*11.5f+48));
+       var banner=new Rect((Screen.width-bw)/2,18+fi*46,bw,40);
+       Window(banner);
+       Label(new(new(18,9,bw-36,24),fl.Text,17,fl.Tone),banner.x,banner.y,1);
+      }
      }
      if(Reforged2Runtime.ScannerVisible&&Framework.Singleton<BATTLE_WORK>.instance?.pm_data is {} pmUnits)
      {
@@ -584,7 +659,9 @@ public sealed class HuntGuildOverlay:MonoBehaviour
        float sw=500,sh=52+enemies.Length*56;
        var scanBox=new Rect(18,16,sw,sh);
        Window(scanBox);
-       string scanHeader=Reforged2Runtime.ApexBattleActive?"TACTICAL SCANNER  [APEX PACK]   (F4)":"TACTICAL SCANNER   (F4 to hide)";
+       string scanHeader=Reforged2Runtime.ApexBattleActive
+           ?$"TACTICAL SCANNER  [APEX · {Reforged2Rules.ApexAffixShort(Reforged2Runtime.ActiveApexAffix)}]  (F4)"
+           :"TACTICAL SCANNER   (F4 to hide)";
        Label(new(new(18,10,sw-36,28),scanHeader,18,"gold"),scanBox.x,scanBox.y,1);
        for(int i=0;i<enemies.Length;i++)
        {

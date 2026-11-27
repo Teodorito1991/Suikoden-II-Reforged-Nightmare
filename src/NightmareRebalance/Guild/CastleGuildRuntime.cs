@@ -244,6 +244,7 @@ internal static class CastleGuildRuntime
    GuildChoice.CycleDirective => CycleDrillDirective(),
    GuildChoice.CycleHuntModifier => CycleHuntModifier(),
    GuildChoice.CycleStance => CycleArmyStance(),
+   GuildChoice.CycleMutator => CycleWarMutator(),
    GuildChoice.BuyQuartermaster => BuyQuartermasterItem(Menu.Focus),
    GuildChoice.Report => ReportContract(),
    GuildChoice.Withdraw => WithdrawContract(),
@@ -282,6 +283,12 @@ internal static class CastleGuildRuntime
  {
   var next=ArmyProgressionRuntime.CycleStance();
   Status=$"Allied War Stance set to {Reforged2Rules.StanceTitle(next)}: {Reforged2Rules.StanceDescription(next)}";
+  return false;
+ }
+ static bool CycleWarMutator()
+ {
+  var next=ArmyProgressionRuntime.CycleMutator();
+  Status=$"War Mutator set to {Reforged2Rules.MutatorTitle(next)}: {Reforged2Rules.MutatorDescription(next)}";
   return false;
  }
  static bool BuyQuartermasterItem(int index)

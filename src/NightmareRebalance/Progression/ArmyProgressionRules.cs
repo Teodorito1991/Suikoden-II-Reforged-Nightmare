@@ -56,11 +56,35 @@ internal sealed class CommanderProgress
     };
 }
 
+internal sealed class BestiaryEntry
+{
+    public string Name { get; set; } = "";
+    public int Kills { get; set; }
+    public int ApexKills { get; set; }
+    public int HighestLevel { get; set; }
+    public string WeaknessHint { get; set; } = "Balanced";
+
+    internal BestiaryEntry Clone() => new()
+    {
+        Name = Name,
+        Kills = Kills,
+        ApexKills = ApexKills,
+        HighestLevel = HighestLevel,
+        WeaknessHint = WeaknessHint
+    };
+}
+
 internal sealed class ArmyLedgerState
 {
     public int SchemaVersion { get; set; } = 1;
     public Dictionary<int, CommanderProgress> Commanders { get; set; } = new();
     public Dictionary<string, HallBossRecord> HallRecords { get; set; } = new(StringComparer.Ordinal);
+    public HashSet<string> CastleUpgrades { get; set; } = new(StringComparer.Ordinal);
+    public Dictionary<string, BestiaryEntry> Bestiary { get; set; } = new(StringComparer.Ordinal);
+    public int BestiaryMilestonesClaimed { get; set; }
+    public int ActiveBountyIndex { get; set; }
+    public int ActiveBountyProgress { get; set; }
+    public int BountiesCompleted { get; set; }
     public int TotalDrillsWon { get; set; }
     public int TotalVeteranDrillsWon { get; set; }
     public int TotalStoryWarsWon { get; set; }
@@ -75,6 +99,10 @@ internal sealed class ArmyLedgerState
         var copy = new ArmyLedgerState
         {
             SchemaVersion = SchemaVersion,
+            BestiaryMilestonesClaimed = BestiaryMilestonesClaimed,
+            ActiveBountyIndex = ActiveBountyIndex,
+            ActiveBountyProgress = ActiveBountyProgress,
+            BountiesCompleted = BountiesCompleted,
             TotalDrillsWon = TotalDrillsWon,
             TotalVeteranDrillsWon = TotalVeteranDrillsWon,
             TotalStoryWarsWon = TotalStoryWarsWon,
@@ -89,6 +117,12 @@ internal sealed class ArmyLedgerState
         if (HallRecords != null)
             foreach (var kv in HallRecords)
                 copy.HallRecords[kv.Key] = kv.Value.Clone();
+        if (CastleUpgrades != null)
+            foreach (var id in CastleUpgrades)
+                copy.CastleUpgrades.Add(id);
+        if (Bestiary != null)
+            foreach (var kv in Bestiary)
+                copy.Bestiary[kv.Key] = kv.Value.Clone();
         return copy;
     }
 }
