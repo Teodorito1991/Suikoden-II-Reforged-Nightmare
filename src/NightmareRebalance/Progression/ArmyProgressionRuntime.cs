@@ -159,7 +159,8 @@ internal static class ArmyProgressionRuntime
     static WarSynergyPair? ActiveUnitSynergy(int nameId)
     {
         var units = w_unit.unit;
-        if (units is not { Length: 2 } || units[0] is not { Length: 15 } allies) return null;
+        var chars = TotalWarRuntime.Characters(war_h.g_w_war_no);
+        if (units is not { Length: 2 } || units[0] is not { Length: 15 } allies || chars == null) return null;
         for (int i = 0; i < allies.Length; i++)
         {
             var u = allies[i];
@@ -168,8 +169,8 @@ internal static class ArmyProgressionRuntime
             for (int slot = 0; slot < 3; slot++)
             {
                 int idx = w_unit.GetUnitChara(0, i, slot);
-                if (idx < 0) continue;
-                var ch = w_chara.chara(idx);
+                if (idx < 0 || idx >= chars.Length) continue;
+                var ch = chars[idx];
                 if (ch != null && ch.name > 0) members.Add(ch.name);
             }
             if (members.Contains(nameId))

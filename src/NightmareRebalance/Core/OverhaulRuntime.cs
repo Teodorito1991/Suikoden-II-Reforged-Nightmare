@@ -55,23 +55,29 @@ internal static class WarRuntime
         // No missing/cut active delegate can be installed even if it appeared in a reference guide.
         return w_chara.GetTokusyuInitFunc(id)!=null&&w_chara.GetTokusyuActFunc(id)!=null&&w_chara.GetTokusyuCheckFunc(id)!=null&&w_chara.GetTokusyuFinishFunc(id)!=null&&w_chara.GetTokusyuSelectFunc(id)!=null;
     }
+    [ThreadStatic] static bool resolving;
     internal static WAR_CHARA_TYPE Resolve(WAR_CHARA_TYPE original)
     {
-        if(!Active||original==null)return original!;
+        if(resolving||!Active||original==null)return original!;
         if(session.TryGet(original.Pointer.ToInt64(),out var cached))return cached!;
         if(session.Count>=512)return original;
-        bool isEnemy=TotalWarRuntime.IsEnemyPointer(original);
-        CommanderProfile? profile=TrainingWar.Active?null:(TotalWarRuntime.Specialize(original)??OverhaulRules.Select(OverhaulRuntime.Commanders,original.name,Branch(original.force_type)));
-        profile=ArmyProgressionRuntime.Enhance(original,profile,isEnemy);
-        if(profile==null)return original;
-        var ids=profile.Abilities.Select(a=>Array.IndexOf(OverhaulRules.Abilities,a)).ToArray();
-        if(ids.Any(id=>!Usable(id)))
-        {if(unsafeAbilities.Add(profile.NameId))Plugin.Logger.LogWarning($"War profile {profile.Name}: missing runtime ability delegates; original record retained.");return original;}
-        var copy=Copy(original,profile);
-        if(!session.Store(original.Pointer.ToInt64(),copy))return original;
-        OverhaulRuntime.CommanderApplications++;
-        Plugin.Debug($"War {war_h.g_w_war_no}: disposable profile {profile.Name}; ATK {original.attack}->{copy.attack}, DEF {original.defense}->{copy.defense}");
-        return copy;
+        resolving=true;
+        try
+        {
+            bool isEnemy=TotalWarRuntime.IsEnemyPointer(original);
+            CommanderProfile? profile=TrainingWar.Active?null:(TotalWarRuntime.Specialize(original)??OverhaulRules.Select(OverhaulRuntime.Commanders,original.name,Branch(original.force_type)));
+            profile=ArmyProgressionRuntime.Enhance(original,profile,isEnemy);
+            if(profile==null)return original;
+            var ids=profile.Abilities.Select(a=>Array.IndexOf(OverhaulRules.Abilities,a)).ToArray();
+            if(ids.Any(id=>!Usable(id)))
+            {if(unsafeAbilities.Add(profile.NameId))Plugin.Logger.LogWarning($"War profile {profile.Name}: missing runtime ability delegates; original record retained.");return original;}
+            var copy=Copy(original,profile);
+            if(!session.Store(original.Pointer.ToInt64(),copy))return original;
+            OverhaulRuntime.CommanderApplications++;
+            Plugin.Debug($"War {war_h.g_w_war_no}: disposable profile {profile.Name}; ATK {original.attack}->{copy.attack}, DEF {original.defense}->{copy.defense}");
+            return copy;
+        }
+        finally { resolving=false; }
     }
     internal static WAR_CHARA_TYPE Copy(WAR_CHARA_TYPE original,CommanderProfile profile)
     {
