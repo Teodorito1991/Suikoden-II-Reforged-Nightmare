@@ -120,7 +120,8 @@ internal static class PotchPatch
         if (exit != null)
         {
             int before = exit.monster_okane;
-            double apexPotch = Reforged2Runtime.ApexBattleActive ? Reforged2Rules.ApexAffixPotchMultiplier(Reforged2Runtime.ActiveApexAffix) : 1.0;
+            double apexPotch = Reforged2Runtime.NemesisBattleActive ? 2.50
+                : Reforged2Runtime.ApexBattleActive ? Reforged2Rules.ApexAffixPotchMultiplier(Reforged2Runtime.ActiveApexAffix) : 1.0;
             double bonusPotch = Reforged2Runtime.VictoryPotchMultiplier(battle_work);
             double potchFactor = Plugin.Options.PotchMultiplier.Value * apexPotch * bonusPotch;
             exit.monster_okane = Rules.Scale(exit.monster_okane, potchFactor, int.MaxValue);

@@ -37,33 +37,31 @@ internal static class TowerOfDunanRuntime
             feedback = "Draft a Relic first before ascending to the next floor.";
             return false;
         }
-        if (!RunActive)
-        {
-            RunActive = true;
-            FloorsCleared = 0;
-            CurrentFloor = 1;
-            ActiveRelics.Clear();
-            DraftChoices = Array.Empty<TowerRelicSpec>();
-        }
-        else
-        {
-            CurrentFloor = FloorsCleared + 1;
-        }
-
-        int trialIndex = VerifiedSinglePartyTrials[(CurrentFloor - 1) % VerifiedSinglePartyTrials.Length];
-        if (!HallAvailability.CanSelect(trialIndex))
-            trialIndex = VerifiedSinglePartyTrials.FirstOrDefault(HallAvailability.CanSelect);
-        if (!HallAvailability.CanSelect(trialIndex))
+        var unlocked = VerifiedSinglePartyTrials.Where(HallAvailability.CanSelect).ToArray();
+        if (unlocked.Length == 0)
         {
             feedback = "Unlock at least one Hall of Echoes trial (or enable Spoiler Mode) to enter the Tower.";
             return false;
         }
 
-        bool nightmare = CurrentFloor >= 5 && HallNightmareRuntime.CanSelect(trialIndex);
+        bool startingNew = !RunActive;
+        int targetFloor = startingNew ? 1 : FloorsCleared + 1;
+        int trialIndex = unlocked[(targetFloor - 1) % unlocked.Length];
+        bool nightmare = targetFloor >= 5 && HallNightmareRuntime.CanSelect(trialIndex);
+
+        if (startingNew)
+        {
+            RunActive = true;
+            FloorsCleared = 0;
+            ActiveRelics.Clear();
+            DraftChoices = Array.Empty<TowerRelicSpec>();
+        }
+        CurrentFloor = targetFloor;
         BattleInProgress = true;
         if (!HallFirstContact.Request(trialIndex, nightmare))
         {
-            BattleInProgress = false;
+            if (startingNew) ResetRun();
+            else BattleInProgress = false;
             feedback = "Tower floor could not launch right now.";
             return false;
         }

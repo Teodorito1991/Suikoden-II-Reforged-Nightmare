@@ -145,6 +145,7 @@ internal static class ArmyProgressionRuntime
             Current = ArmyProgressionRules.ResolveSnapshot(index, hash);
             LastAwardNotice = "";
         }
+        TowerOfDunanRuntime.ResetRun();
         if (hash != null && (Enabled || SynergyEnabled))
             Plugin.Debug($"Army progression loaded for {hash[..12]}...: {Current.Commanders.Count} commanders, {Current.TotalDrillsWon} drills won.");
     }

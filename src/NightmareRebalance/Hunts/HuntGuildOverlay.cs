@@ -812,7 +812,9 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       int[] party=StarBondRuntime.FieldParty();
       var active=StarBondRules.Catalogue.Where(b=>StarBondRules.Includes(b,party)).Select(b=>b.Title).ToArray();
       int morale=ArmyProgressionRuntime.Current.MoraleBonusCharges;
-      string apexTag=Reforged2Runtime.ApexBattleActive?$"⚠ APEX {Reforged2Rules.ApexAffixShort(Reforged2Runtime.ActiveApexAffix)} · ":"";
+      string apexTag=Reforged2Runtime.NemesisBattleActive?"☠ NEMESIS · "
+          :TowerOfDunanRuntime.BattleInProgress?$"TOWER FL.{TowerOfDunanRuntime.CurrentFloor} · "
+          :Reforged2Runtime.ApexBattleActive?$"⚠ APEX {Reforged2Rules.ApexAffixShort(Reforged2Runtime.ActiveApexAffix)} · ":"";
       string momTag=Reforged2Runtime.MomentumEnabled?(Reforged2Runtime.OverdriveActive()?" ★ OVERDRIVE!":$" · Mom {Reforged2Runtime.Momentum}%"):"";
       string streakTag=Reforged2Runtime.WinStreak>=3?$" · Streak x{Reforged2Runtime.WinStreak}":"";
       string text=apexTag+(active.Length>0?"★ "+string.Join(" · ",active.Take(2)):"F4 Scan · F3 Guide")+momTag+streakTag+(morale>0?$" · Morale +{morale}":"");
@@ -880,7 +882,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
        {
         float py=scanBox.y+scanBox.height+8;
         float ph=34+(turnOrder.Length>0?22:0)+(formTags.Count>0?22:0)+Math.Min(3,partyBuffs.Length)*19+(dpsList.Length>0?22+Math.Min(4,dpsList.Length)*19:0);
-        var pbox=new Rect(18,py,sw,ph);
+        bool dockRight=py+ph>Screen.height-140&&!helpCard;
+        var pbox=dockRight?new Rect(Screen.width-sw-18,66,sw,ph):new Rect(18,py,sw,ph);
         Window(pbox);
         Label(new(new(18,8,sw-36,22),"PARTY BUFFS, TURN ORDER & LIVE DPS",14,"gold"),pbox.x,pbox.y,1);
         float cy=28;
