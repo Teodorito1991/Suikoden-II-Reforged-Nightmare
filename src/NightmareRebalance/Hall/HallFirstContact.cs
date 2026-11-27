@@ -40,7 +40,7 @@ internal static class HallFirstContact
             CastleGuildRuntime.Field is not {} events ||
             CastleGuildRuntime.Copy is not {} map || MachiLoader.GetMachiID(field.ano, field.vno) != "vk07" ||
             Framework.Singleton<GAME_WORK>.instance is not {} game ||
-            game.sys_work is not {} sys || game.game_data?.difficulty != 0 ||
+            game.sys_work is not {} sys || !DifficultyProvenance.AllowedForFeature(out _, out _) ||
             sys.mcon?.Pointer != field.Pointer || sys.game_mode != 1 || sys.now_save != 0 ||
             HuntAccess.Ticket.Armed || HuntLaunchProof.PendingWalkingRequest || TrainingWar.Active)
         {
