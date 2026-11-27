@@ -80,8 +80,10 @@ internal sealed class ArmyLedgerState
     public Dictionary<int, CommanderProgress> Commanders { get; set; } = new();
     public Dictionary<string, HallBossRecord> HallRecords { get; set; } = new(StringComparer.Ordinal);
     public HashSet<string> CastleUpgrades { get; set; } = new(StringComparer.Ordinal);
+    public HashSet<string> UnlockedHonors { get; set; } = new(StringComparer.Ordinal);
     public Dictionary<string, BestiaryEntry> Bestiary { get; set; } = new(StringComparer.Ordinal);
     public int BestiaryMilestonesClaimed { get; set; }
+    public int ApexPacksCleared { get; set; }
     public int ActiveBountyIndex { get; set; }
     public int ActiveBountyProgress { get; set; }
     public int BountiesCompleted { get; set; }
@@ -100,6 +102,7 @@ internal sealed class ArmyLedgerState
         {
             SchemaVersion = SchemaVersion,
             BestiaryMilestonesClaimed = BestiaryMilestonesClaimed,
+            ApexPacksCleared = ApexPacksCleared,
             ActiveBountyIndex = ActiveBountyIndex,
             ActiveBountyProgress = ActiveBountyProgress,
             BountiesCompleted = BountiesCompleted,
@@ -120,6 +123,9 @@ internal sealed class ArmyLedgerState
         if (CastleUpgrades != null)
             foreach (var id in CastleUpgrades)
                 copy.CastleUpgrades.Add(id);
+        if (UnlockedHonors != null)
+            foreach (var id in UnlockedHonors)
+                copy.UnlockedHonors.Add(id);
         if (Bestiary != null)
             foreach (var kv in Bestiary)
                 copy.Bestiary[kv.Key] = kv.Value.Clone();

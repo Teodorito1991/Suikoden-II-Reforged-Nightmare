@@ -240,6 +240,13 @@ internal static class ArmyProgressionRuntime
             var game = Framework.Singleton<GAME_WORK>.instance;
             if (game?.game_data != null) boundCampaignOwner = game.game_data.Pointer;
             var summary = ArmyProgressionRules.AwardTrainingXp(Current, participants, veteran, directive, turnCount, SynergyEnabled);
+            if (Current.CastleUpgrades?.Contains("war-college") == true && summary.LeaderXp > 0)
+            {
+                int bonus = Math.Max(5, summary.LeaderXp / 4);
+                foreach (var p in participants)
+                    if (Current.Commanders.TryGetValue(p.NameId, out var c)) c.Xp += bonus;
+            }
+            EvaluateHonorsLocked();
             LastAwardNotice = summary.CommandersUpdated > 0
                 ? $"Commanders earned +{summary.LeaderXp} XP" + (summary.RanksGained > 0 ? $" ({summary.RanksGained} promoted!)" : "") + "."
                 : "";
@@ -362,9 +369,10 @@ internal static class ArmyProgressionRuntime
             }
             Current.Commendations -= spec.CostCommendations;
             Current.CastleUpgrades.Add(spec.Id);
+            var honors = EvaluateHonorsLocked();
             var game = Framework.Singleton<GAME_WORK>.instance;
             if (game?.game_data != null) boundCampaignOwner = game.game_data.Pointer;
-            feedback = $"Unlocked {spec.Name}! Save at an inn or orb to bind.";
+            feedback = $"Unlocked {spec.Name}!" + (honors.Count > 0 ? $" Honor: {honors[0].Title} (+2 Comm)!" : " Save at an inn or orb to bind.");
             return true;
         }
     }
@@ -424,9 +432,27 @@ internal static class ArmyProgressionRuntime
             Current.Commendations = Math.Min(999, Current.Commendations + 1);
             Current.ActiveBountyIndex = (Current.ActiveBountyIndex + 1) % Reforged2Rules.FieldBounties.Length;
             Current.ActiveBountyProgress = 0;
+            EvaluateHonorsLocked();
             return $"Bounty Complete: {spec.Title}! (+1 Commendation)";
         }
     }
+
+    internal static void RecordApexClear()
+    {
+        lock (Sync)
+        {
+            Current.ApexPacksCleared++;
+        }
+    }
+
+    internal static List<Reforged2Rules.HonorSpec> CheckHonors(int winStreak)
+    {
+        lock (Sync)
+            return EvaluateHonorsLocked(winStreak);
+    }
+
+    static List<Reforged2Rules.HonorSpec> EvaluateHonorsLocked(int winStreak = 0) =>
+        Reforged2Rules.EvaluateNewHonors(Current, Math.Max(winStreak, Reforged2Runtime.WinStreak));
 
     internal static void RecordHallClear(string bossId, bool nightmare, int turns, bool noKo)
     {

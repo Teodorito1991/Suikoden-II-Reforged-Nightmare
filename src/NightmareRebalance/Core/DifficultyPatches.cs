@@ -15,7 +15,11 @@ internal static class DamageScope
             double factor = Plugin.Options.EnemyDamageMultiplier.Value;
             if (state != null && work?.pm_data is { } units && attacker >= 0 && attacker < units.Length && units[attacker] is { } unit)
                 factor = state.EnemyPlans.GetValueOrDefault(unit.Pointer)?.DamageMultiplier ?? BossRuntime.Plan(state, unit)?.DamageMultiplier ?? factor;
-            if (state != null && work?.pm_data is {} live && attacker>=0 && attacker<live.Length && live[attacker] is {} acting) factor=CombatReforgedRuntime.Factor(state,acting,factor,false);
+            if (state != null && work?.pm_data is {} live && attacker>=0 && attacker<live.Length && live[attacker] is {} acting)
+            {
+                factor=CombatReforgedRuntime.Factor(state,acting,factor,false);
+                if (Reforged2Runtime.IsBossEnraged(acting)) factor *= Reforged2Rules.BossEnrageDamageMultiplier;
+            }
             if (Reforged2Runtime.ApexBattleActive)
                 factor *= Reforged2Rules.ApexDamageMultiplier * Reforged2Rules.ApexAffixDamageMultiplier(Reforged2Runtime.ActiveApexAffix);
             if (DamageScaling.Apply(outer, eligible, ref result, factor))

@@ -216,7 +216,10 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   new("Skirmish II: Siege", "Custom War · +3 Commendations"),
   new("Skirmish III: Grand", "Custom War · +4 Commendations"),
   new("Skirmish IV: Blitz", "Custom War · +4 Commendations"),
-  new("Skirmish V: Nightmare", "Custom War · +5 Commendations")
+  new("Skirmish V: Nightmare", "Custom War · +5 Commendations"),
+  new("Skirmish VI: Iron", "Custom War · +4 Commendations"),
+  new("Skirmish VII: Bastion", "Custom War · +5 Commendations"),
+  new("Skirmish VIII: Apex", "Custom War · +6 Commendations")
  };
 
  [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
@@ -425,7 +428,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     new GuildMenuRow("Allied Stance", Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)),
     new GuildMenuRow("Hunt Guild", $"{Reforged2Rules.HunterRankTitle(hRank)} · {ArmyProgressionRules.HuntModifierTitle(ArmyProgressionRuntime.ActiveHuntModifier)}"),
     new GuildMenuRow("Active Star Bonds", $"{activeBonds} active · Bestiary: {ledger.Bestiary?.Count ?? 0}"),
-    new GuildMenuRow("War Mutator", Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator))
+    new GuildMenuRow("War Mutator", Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)),
+    new GuildMenuRow("Dunan Honors", $"{ledger.UnlockedHonors?.Count ?? 0} / {Reforged2Rules.Honors.Length} unlocked")
    };
    focus = Math.Clamp(focus, 0, codexRows.Length - 1);
    var (cTitle, cArea, cDesc, cReward, cCond) = focus switch
@@ -446,10 +450,14 @@ public sealed class HuntGuildOverlay:MonoBehaviour
           "Press F5 anytime to inspect your Hunter's Bestiary. Every 10 unique species catalogued pays +1 Dunan Commendation.",
           $"Bounties Completed: {ledger.BountiesCompleted}   ·   Bestiary Milestones: {ledger.BestiaryMilestonesClaimed}",
           "Check Party Strategy from the main Guild menu for exact Star Bond triggers."),
-    _ => ($"War Mutator · {Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)}", "Applies to Army Training & Custom Skirmishes",
+    4 => ($"War Mutator · {Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)}", "Applies to Army Training & Custom Skirmishes",
           Reforged2Rules.MutatorDescription(ArmyProgressionRuntime.ActiveMutator),
           ArmyProgressionRuntime.ActiveMutator != WarMutator.Standard ? "+1 Bonus Dunan Commendation on Drill/Skirmish Victory!" : "No extra bonus under Standard Battlefield.",
-          "Confirm cycles Mutator (Standard / Blood Moon / Iron Attrition).")
+          "Confirm cycles Mutator (Standard / Blood Moon / Iron Attrition)."),
+    _ => ("Dunan Honors & Achievements", $"{ledger.UnlockedHonors?.Count ?? 0} of {Reforged2Rules.Honors.Length} Honors Unlocked (+2 Comm. each)",
+          string.Join(" · ", Reforged2Rules.Honors.Select(h => (ledger.UnlockedHonors?.Contains(h.Id) == true ? "★ " : "○ ") + h.Title)),
+          $"Apex Packs Cleared: {ledger.ApexPacksCleared}  ·  Bounties: {ledger.BountiesCompleted}  ·  Drills: {ledger.TotalDrillsWon}",
+          "Each Honor unlocks automatically in-game and awards +2 Dunan Commendations.")
    };
    return new("TACTICIAN'S CODEX", codexRows, focus, cTitle, cArea, cDesc, cReward, cCond, status,
        focus == 1 ? "Cycle Stance" : focus == 2 && ArmyProgressionRuntime.HuntModifiersEnabled ? "Cycle Modifier" : focus == 4 ? "Cycle Mutator" : "Back", back, preview);
@@ -505,6 +513,9 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    TrainingWar.Drill.SkirmishGrandArmy => Reforged2Rules.Skirmishes[2].Description,
    TrainingWar.Drill.SkirmishBlitz => Reforged2Rules.Skirmishes[3].Description,
    TrainingWar.Drill.SkirmishNightmare => Reforged2Rules.Skirmishes[4].Description,
+   TrainingWar.Drill.SkirmishIronVanguard => Reforged2Rules.Skirmishes[5].Description,
+   TrainingWar.Drill.SkirmishBastion => Reforged2Rules.Skirmishes[6].Description,
+   TrainingWar.Drill.SkirmishImperialApex => Reforged2Rules.Skirmishes[7].Description,
    _ => "Practice on the original War 1 battlefield. The story timer can end the drill."
   };
   var trainingRows = page == GuildPage.Training ? Drills.Select((row,i) =>
@@ -589,25 +600,28 @@ public sealed class HuntGuildOverlay:MonoBehaviour
      float hw=490,hh=298;
      var hbox=new Rect(Screen.width-hw-18,66,hw,hh);
      Window(hbox);
-     Label(new(new(18,12,hw-36,26),"REFORGED 2.5 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
+     Label(new(new(18,12,hw-36,26),"REFORGED 3.0 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
      Label(new(new(18,44,hw-36,124),
          "F2   Toggle Clean HUD Mode\nF4   Toggle Battle Tactical Scanner\nF5   Toggle Hunter's Bestiary\nF6   Accept Local Field Hunt\n←/→  Fast Page-Flip in Castle Guild",15),hbox.x,hbox.y,1);
      Label(new(new(18,172,hw-36,44),
          $"Bounty: {bounty.Title} ({led.ActiveBountyProgress}/{bounty.Target}) — {bounty.Description}",14,"gold"),hbox.x,hbox.y,1);
      Label(new(new(18,220,hw-36,68),
-         $"Commendations: {led.Commendations}  ·  {Reforged2Rules.HunterRankTitle(hr)}  ·  Upgrades: {led.CastleUpgrades?.Count??0}/{Reforged2Rules.CastleUpgrades.Length}\nStance: {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)}  ·  Mutator: {Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)}\nWin Streak: {Reforged2Runtime.WinStreak}  ·  Bestiary: {led.Bestiary?.Count??0} species",14,"success"),hbox.x,hbox.y,1);
+         $"Commendations: {led.Commendations}  ·  {Reforged2Rules.HunterRankTitle(hr)}  ·  Honors: {led.UnlockedHonors?.Count??0}/{Reforged2Rules.Honors.Length}\nStance: {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)}  ·  Mutator: {Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)}\nUpgrades: {led.CastleUpgrades?.Count??0}/{Reforged2Rules.CastleUpgrades.Length}  ·  Streak: {Reforged2Runtime.WinStreak}  ·  Bestiary: {led.Bestiary?.Count??0}",14,"success"),hbox.x,hbox.y,1);
     }
     if(bestiaryCard)
     {
      var entries=ArmyProgressionRuntime.BestiarySnapshot();
+     var led=ArmyProgressionRuntime.Current;
      int totalSpecies=entries.Length;
+     int totalKills=entries.Sum(e=>e.Kills);
+     int totalApex=entries.Sum(e=>e.ApexKills);
      int nextMilestone=(totalSpecies/10+1)*10;
      int shown=Math.Min(7,totalSpecies);
-     float bw=470,bh=94+Math.Max(1,shown)*34;
+     float bw=500,bh=94+Math.Max(1,shown)*34;
      var bbox=new Rect(18,66,bw,bh);
      Window(bbox);
      Label(new(new(18,12,bw-36,26),$"HUNTER'S BESTIARY  ({totalSpecies} Species · Next +1 Comm: {totalSpecies}/{nextMilestone})",16,"gold"),bbox.x,bbox.y,1);
-     Label(new(new(18,38,bw-36,20),"Press F5 to hide · Defeat enemies in battle to catalogue entries",13,"muted"),bbox.x,bbox.y,1);
+     Label(new(new(18,38,bw-36,20),$"Lifetime Kills: {totalKills:N0}  ·  Apex Kills: {totalApex}  ·  Honors: {led.UnlockedHonors?.Count??0}/{Reforged2Rules.Honors.Length}  (F5)",13,"muted"),bbox.x,bbox.y,1);
      if(shown==0)
       Label(new(new(18,66,bw-36,24),"No enemies catalogued yet. Win battles to fill your Bestiary!",15),bbox.x,bbox.y,1);
      else

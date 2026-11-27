@@ -25,6 +25,8 @@ internal static class Reforged2Runtime
     static readonly List<CombatFeedEntry> feed = new(4);
     static int lastTurn = -1;
     static int spellsThisTurn;
+    static bool firstActionUsed;
+    static bool bossEnragedInBattle;
     static int battleCombos, battleSurges, battleOverdrives;
     static readonly Dictionary<IntPtr, int> bossPhases = new();
     static readonly HashSet<IntPtr> surgedPlayers = new();
@@ -77,6 +79,8 @@ internal static class Reforged2Runtime
     {
         lastTurn = -1;
         spellsThisTurn = 0;
+        firstActionUsed = false;
+        bossEnragedInBattle = false;
         battleCombos = 0;
         battleSurges = 0;
         battleOverdrives = 0;
@@ -166,9 +170,14 @@ internal static class Reforged2Runtime
         }
     }
 
+    internal static bool IsBossEnraged(PM_DATA? unit) =>
+        TelegraphsEnabled && unit != null && bossPhases.GetValueOrDefault(unit.Pointer, 0) >= 2;
+
     internal static double VictoryPotchMultiplier(BATTLE_WORK? w)
     {
         double mult = Reforged2Rules.StreakPotchMultiplier(WinStreak + 1);
+        if (ArmyProgressionRuntime.HasUpgrade("imperial-treasury")) mult *= 1.15;
+        if (bossEnragedInBattle) mult *= Reforged2Rules.BossEnragePotchMultiplier;
         if (w?.pm_data != null)
         {
             int kos = w.pm_data.Count(u => u != null && u.IsPlayer && (u.hp <= 0 || u.IsDead));
@@ -187,7 +196,11 @@ internal static class Reforged2Runtime
     {
         WinStreak++;
         bool wasApex = ApexBattleActive;
-        if (wasApex) ArmyProgressionRuntime.AwardCommendations(1);
+        if (wasApex)
+        {
+            ArmyProgressionRuntime.AwardCommendations(1);
+            ArmyProgressionRuntime.RecordApexClear();
+        }
 
         int kos = 0;
         int healedAllies = 0;
@@ -229,21 +242,23 @@ internal static class Reforged2Runtime
         {
             var top = battleDamageByChara.OrderByDescending(kv => kv.Value).First();
             string mvpName = top.Key > 0 ? G2_SYS.G2_name_get(top.Key) : "";
-            if (!string.IsNullOrWhiteSpace(mvpName)) mvpText = $"MVP: {mvpName.Trim()}";
+            if (!string.IsNullOrWhiteSpace(mvpName)) mvpText = $"MVP: {mvpName.Trim()} ({top.Value:N0})";
         }
 
         var bountyNotices = new List<string>(2);
         if (wasApex && ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.ApexPacks) is {} b1) bountyNotices.Add(b1);
         if (grade == "S" && ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.SRanks) is {} b2) bountyNotices.Add(b2);
         if (newSpecies > 0 && ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.BestiaryEntries, newSpecies) is {} b3) bountyNotices.Add(b3);
+        var newHonors = ArmyProgressionRuntime.CheckHonors(WinStreak);
 
-        var parts = new List<string>(6) { $"Grade {grade}" };
+        var parts = new List<string>(8) { $"Grade {grade}" };
         if (mvpText.Length > 0) parts.Add(mvpText);
         if (WinStreak >= 3) parts.Add($"Streak x{WinStreak}");
-        if (wasApex) parts.Add("Apex +1 Commendation");
+        if (wasApex) parts.Add("Apex +1 Comm.");
         if (milestoneComm > 0) parts.Add($"Bestiary +{milestoneComm} Comm.");
         if (healedAllies > 0) parts.Add("Medic +10% HP");
         if (restoredCharges > 0) parts.Add($"+{restoredCharges} Rune");
+        foreach (var h in newHonors) parts.Add($"Honor: {h.Title} (+2 Comm.)");
         foreach (var bn in bountyNotices) parts.Add(bn);
 
         CastleGuildRuntime.TrainingFeedback("Victory · " + string.Join(" · ", parts));
@@ -296,7 +311,12 @@ internal static class Reforged2Runtime
             if (next != prev)
             {
                 bossPhases[unit.Pointer] = next;
-                if (msg.Length > 0) FlashBanner(msg, 3800, "alert");
+                if (next >= 2)
+                {
+                    bossEnragedInBattle = true;
+                    GainMomentum(25, w);
+                }
+                if (msg.Length > 0) FlashBanner(msg + (next >= 2 ? " (+10% Boss DMG · +15% Potch)" : ""), 3800, "alert");
             }
         }
     }
@@ -322,6 +342,18 @@ internal static class Reforged2Runtime
 
         if (OverdriveActive(w))
             result = Reforged2Rules.ApplyOverdriveAttack(result);
+
+        if (CombosEnabled && !firstActionUsed)
+        {
+            var fs = Reforged2Rules.EvaluateFirstStrike(result, w.battle_kaisuu, firstActionUsed);
+            firstActionUsed = true;
+            if (fs.BonusDamage > 0)
+            {
+                result += fs.BonusDamage;
+                FlashBanner($"⚡ {fs.Name}! (+{fs.BonusDamage})", 2000, "gold");
+                GainMomentum(10, w);
+            }
+        }
 
         if (SurgeEnabled && surgedPlayers.Remove(attacker.Pointer))
         {
@@ -376,6 +408,18 @@ internal static class Reforged2Runtime
 
         if (OverdriveActive(w))
             result = Reforged2Rules.ApplyOverdriveAttack(result);
+
+        if (CombosEnabled && !firstActionUsed)
+        {
+            var fs = Reforged2Rules.EvaluateFirstStrike(result, w.battle_kaisuu, firstActionUsed);
+            firstActionUsed = true;
+            if (fs.BonusDamage > 0)
+            {
+                result += fs.BonusDamage;
+                FlashBanner($"⚡ {fs.Name}! (+{fs.BonusDamage})", 2000, "gold");
+                GainMomentum(10, w);
+            }
+        }
 
         if (SurgeEnabled && surgedPlayers.Remove(caster.Pointer))
         {

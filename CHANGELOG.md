@@ -32,6 +32,19 @@
   6 lore-driven **Star Bonds** (10 total: *Genkaku's Legacy*, *Mercenary
   Veterans*, *Arcane Resonance*, *Vampire Hunters*, *Wandering Blades*, and
   *Rokaku Shadows*).
+- Added **Reforged 3.0 Endgame & Honors Expansion** (opt-in):
+  - **Custom Skirmishes VI–VIII** (*Iron Vanguard*, *Fortress Bastion*,
+    *Imperial Apex* — 8 total custom war skirmishes up to `+6` Commendations).
+  - **10 Persistent Dunan Honors** (auto-unlocking achievements stored in
+    `army-ledger.json`, each awarding `+2` Dunan Commendations, viewable in
+    **Codex → Dunan Honors** and on `F3`/`F5`).
+  - **First-Strike Blitz** (`+12%` opener bonus on Turn 0/1) and **Elemental
+    Overload** (`+30%` damage on the 3rd+ spell cast in a single turn).
+  - **Tier II Permanent Castle Upgrades** (*War College* `+25%` War XP,
+    *Imperial Treasury* `+15%` all battle Potch).
+  - **Boss Enrage Mechanics** (bosses crossing 25% HP gain `+10%` Enrage damage
+    while paying `+15%` bonus Potch and `+25` Momentum), plus **MVP damage
+    totals** and **Bestiary lifetime kill stats**.
 - Added **Reforged 2.5 Expansion Systems** (opt-in):
   - **Party Momentum & Dunan Overdrive** (`EnableMomentumOverdrive = false`):
     combos, surges, and boss exchanges fill a `0–100%` Momentum gauge; at `100%`,

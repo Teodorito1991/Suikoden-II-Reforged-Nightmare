@@ -6,7 +6,7 @@ namespace NightmareRebalance;
 
 internal static class TrainingWar
 {
-    internal enum Drill { Standard, FortDefense, CommanderRout, War3, War6, War13, SkirmishCrimson, SkirmishIronSiege, SkirmishGrandArmy, SkirmishBlitz, SkirmishNightmare }
+    internal enum Drill { Standard, FortDefense, CommanderRout, War3, War6, War13, SkirmishCrimson, SkirmishIronSiege, SkirmishGrandArmy, SkirmishBlitz, SkirmishNightmare, SkirmishIronVanguard, SkirmishBastion, SkirmishImperialApex }
 
     sealed class Session(GAME_WORK game, SYS_WORK system, MACHICON field, EVENTCON events, EVENT_HUMAN player, Drill drill, bool veteran)
     {
@@ -42,15 +42,18 @@ internal static class TrainingWar
             Drill.SkirmishGrandArmy => Reforged2Rules.Skirmishes[2],
             Drill.SkirmishBlitz => Reforged2Rules.Skirmishes[3],
             Drill.SkirmishNightmare => Reforged2Rules.Skirmishes[4],
+            Drill.SkirmishIronVanguard => Reforged2Rules.Skirmishes[5],
+            Drill.SkirmishBastion => Reforged2Rules.Skirmishes[6],
+            Drill.SkirmishImperialApex => Reforged2Rules.Skirmishes[7],
             _ => null
         };
         internal readonly sbyte[]? OriginalSubToLeader = game.war_data?.sub_to_leader?.ToArray();
         internal readonly byte WarNumber = drill switch
         {
-            Drill.FortDefense or Drill.SkirmishIronSiege => 2,
+            Drill.FortDefense or Drill.SkirmishIronSiege or Drill.SkirmishBastion => 2,
             Drill.War3 or Drill.SkirmishGrandArmy => 3,
             Drill.War6 or Drill.SkirmishBlitz => 6,
-            Drill.War13 or Drill.SkirmishNightmare => 13,
+            Drill.War13 or Drill.SkirmishNightmare or Drill.SkirmishImperialApex => 13,
             _ => 1
         };
         internal bool Committed, Destroyed;
@@ -85,16 +88,16 @@ internal static class TrainingWar
     internal static bool ExtendedWarAvailable(int war) => Available && Plugin.Options.EnableTrainingExtendedWars.Value &&
         WarTacticsRuntime.Verified.Contains(war);
     internal static SkirmishSpec? ActiveSkirmish => current is { Committed: true } s ? s.Skirmish : null;
-    internal static bool ChallengeActive => current is { Committed: true, SelectedDrill: Drill.CommanderRout or Drill.SkirmishCrimson };
+    internal static bool ChallengeActive => current is { Committed: true, SelectedDrill: Drill.CommanderRout or Drill.SkirmishCrimson or Drill.SkirmishIronVanguard };
     internal static bool VeteranActive => current is { Committed: true, Veteran: true };
     internal static bool VeteranAvailable(Drill drill)
     {
         int war = drill switch
         {
-            Drill.FortDefense or Drill.SkirmishIronSiege => 2,
+            Drill.FortDefense or Drill.SkirmishIronSiege or Drill.SkirmishBastion => 2,
             Drill.War3 or Drill.SkirmishGrandArmy => 3,
             Drill.War6 or Drill.SkirmishBlitz => 6,
-            Drill.War13 or Drill.SkirmishNightmare => 13,
+            Drill.War13 or Drill.SkirmishNightmare or Drill.SkirmishImperialApex => 13,
             _ => 1
         };
         return Plugin.Options.EnableTrainingVeteran.Value && Plugin.Options.EnableNativeWarAI.Value &&
@@ -102,7 +105,7 @@ internal static class TrainingWar
             WarTacticsRuntime.Config.EnabledWars.Contains(war) && WarTacticsRuntime.Verified.Contains(war);
     }
 
-    internal static bool FortDefenseActive => current is { Committed: true, SelectedDrill: Drill.FortDefense or Drill.SkirmishIronSiege };
+    internal static bool FortDefenseActive => current is { Committed: true, SelectedDrill: Drill.FortDefense or Drill.SkirmishIronSiege or Drill.SkirmishBastion };
 
     internal static string Unavailable(Drill drill)
     {
@@ -129,10 +132,13 @@ internal static class TrainingWar
             Drill.SkirmishIronSiege when !FortDefenseAvailable => "Requires completed War 2 and verified Fort battlefield.",
             Drill.SkirmishGrandArmy when !War3Available => "Requires completed War 3 and verified battlefield.",
             Drill.SkirmishBlitz when !ExtendedWarAvailable(6) => "Requires extended war drills and verified War 6 battlefield.",
-            Drill.SkirmishNightmare when !ExtendedWarAvailable(13) => "Requires extended war drills and verified War 13 battlefield.",
+            Drill.SkirmishNightmare or Drill.SkirmishImperialApex when !ExtendedWarAvailable(13) => "Requires extended war drills and verified War 13 battlefield.",
+            Drill.SkirmishIronVanguard when !ChallengeAvailable => "Requires verified War 1 battlefield definitions.",
+            Drill.SkirmishBastion when !FortDefenseAvailable => "Requires completed War 2 and verified Fort battlefield.",
             Drill.FortDefense or Drill.CommanderRout or Drill.War3 or Drill.War6 or Drill.War13
                 or Drill.SkirmishCrimson or Drill.SkirmishIronSiege or Drill.SkirmishGrandArmy
-                or Drill.SkirmishBlitz or Drill.SkirmishNightmare => "",
+                or Drill.SkirmishBlitz or Drill.SkirmishNightmare or Drill.SkirmishIronVanguard
+                or Drill.SkirmishBastion or Drill.SkirmishImperialApex => "",
             _ => "This drill is unavailable."
         };
     }

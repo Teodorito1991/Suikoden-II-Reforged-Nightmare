@@ -206,7 +206,7 @@ internal static class ArmyProgressionTests
             Check(TrainingResultRules.VictoryPotch(w, true, 2, 1, -1, false, false, false) == 0, $"War {w} defeat pays 0");
         }
 
-        Check(Reforged2Rules.Skirmishes.Length == 5, "5 Custom Skirmish scenarios defined");
+        Check(Reforged2Rules.Skirmishes.Length == 8, "8 Custom Skirmish scenarios defined");
         var grandBoost = Reforged2Rules.ApplySkirmishEnemyBoost(flik, Reforged2Rules.Skirmishes[2]);
         Check(grandBoost.Attack == flik.Attack + 2 && grandBoost.Defense == flik.Defense + 2 && grandBoost.Abilities.Contains("SP_CRITICAL"), "Grand Army Skirmish boosts enemy commanders within caps");
 
@@ -263,7 +263,7 @@ internal static class ArmyProgressionTests
         var bloodMoonFlik = Reforged2Rules.ApplyMutator(flik, WarMutator.BloodMoon);
         Check(bloodMoonFlik.Attack == flik.Attack + 2 && bloodMoonFlik.Defense == flik.Defense - 1, "Blood Moon War Mutator +2 ATK / -1 DEF");
         Check(Reforged2Rules.BestiaryMilestonesFor(9) == 0 && Reforged2Rules.BestiaryMilestonesFor(10) == 1 && Reforged2Rules.BestiaryMilestonesFor(25) == 2, "Bestiary Commendation milestones every 10 species");
-        Check(Reforged2Rules.CastleUpgrades.Length == 4 && Reforged2Rules.FieldBounties.Length == 5, "4 Castle Upgrades and 5 rotating Field Bounties");
+        Check(Reforged2Rules.CastleUpgrades.Length == 6 && Reforged2Rules.FieldBounties.Length == 5, "6 Castle Upgrades and 5 rotating Field Bounties");
         menu.OpenDirect(GuildPage.Codex, 10);
         for (int i = 0; i < 4; i++) menu.Move(false, true);
         Check(Confirm() == GuildChoice.CycleMutator, "Codex row 4 cycles War Mutator");
@@ -273,6 +273,21 @@ internal static class ArmyProgressionTests
         var clonedLedger = ledger.Clone();
         Check(clonedLedger.CastleUpgrades.Contains("field-medic-corps") && clonedLedger.Bestiary["m01"].Kills == 3, "Ledger Clone preserves CastleUpgrades and Bestiary");
 
-        Console.WriteLine($"PASS: Reforged 2.5 full suite {checks} checks.");
+        // 13. Reforged 3.0: Elemental Overload, First Strike, Boss Enrage, 10 Dunan Honors & Tier II Upgrades
+        var overload = Reforged2Rules.EvaluateArcaneChain(100, spellsCastThisTurn: 3);
+        Check(overload.Name == "Elemental Overload" && overload.BonusDamage == 30, "3rd+ spell in a turn escalates to Elemental Overload (+30%)");
+        var fs = Reforged2Rules.EvaluateFirstStrike(100, turn: 0, firstActionUsed: false);
+        Check(fs.Name == "First Strike" && fs.BonusDamage == 12, "First Strike grants +12% opener bonus on turn 0/1");
+        Check(Reforged2Rules.EvaluateFirstStrike(100, turn: 0, firstActionUsed: true).BonusDamage == 0, "First Strike only triggers once per battle");
+        Check(Reforged2Rules.Honors.Length == 10, "10 Dunan Honors defined");
+        ledger.TotalDrillsWon = 5;
+        ledger.ApexPacksCleared = 3;
+        int commBefore = ledger.Commendations;
+        var honorsUnlocked = Reforged2Rules.EvaluateNewHonors(ledger, currentWinStreak: 10);
+        Check(honorsUnlocked.Count == 4 && ledger.Commendations == commBefore + 8, "Dunan Honors auto-unlock and award +2 Commendations each");
+        Check(Reforged2Rules.EvaluateNewHonors(ledger, currentWinStreak: 10).Count == 0, "Dunan Honors do not double-award");
+        Check(Reforged2Rules.BossEnrageDamageMultiplier == 1.10 && Reforged2Rules.BossEnragePotchMultiplier == 1.15, "Boss Enrage 25% HP mechanical multipliers");
+
+        Console.WriteLine($"PASS: Reforged 3.0 full suite {checks} checks.");
     }
 }

@@ -63,7 +63,16 @@ internal static class Reforged2Rules
             BaseWarNumber: 6, EnemyAtkBonus: 3, EnemyDefBonus: 1, GrantEnemyCritical: true, BasePotch: 3200, Commendations: 4),
         new("nightmare-front", "Skirmish V: Nightmare", "Custom War · Map 8",
             "Endgame Rockaxe Front gauntlet against elite Highland forces (+3 ATK / +3 DEF, Critical). Maximum spoils.",
-            BaseWarNumber: 13, EnemyAtkBonus: 3, EnemyDefBonus: 3, GrantEnemyCritical: true, BasePotch: 4000, Commendations: 5)
+            BaseWarNumber: 13, EnemyAtkBonus: 3, EnemyDefBonus: 3, GrantEnemyCritical: true, BasePotch: 4000, Commendations: 5),
+        new("iron-vanguard", "Skirmish VI: Iron", "Custom War · Map 1",
+            "Armored vanguard clash (+3 ATK / +2 DEF, Critical). Break through fortified frontline commanders.",
+            BaseWarNumber: 1, EnemyAtkBonus: 3, EnemyDefBonus: 2, GrantEnemyCritical: true, BasePotch: 3400, Commendations: 4),
+        new("fortress-gauntlet", "Skirmish VII: Bastion", "Custom War · Fort Map",
+            "Heavy siege endurance test (+2 ATK / +4 DEF, Critical). Outlast and dismantle the armored assault.",
+            BaseWarNumber: 2, EnemyAtkBonus: 2, EnemyDefBonus: 4, GrantEnemyCritical: true, BasePotch: 3800, Commendations: 5),
+        new("imperial-apex", "Skirmish VIII: Apex", "Custom War · Map 8",
+            "Ultimate endgame Highland Imperial Army showdown (+4 ATK / +4 DEF, Critical). Highest Commendation payout.",
+            BaseWarNumber: 13, EnemyAtkBonus: 4, EnemyDefBonus: 4, GrantEnemyCritical: true, BasePotch: 5000, Commendations: 6)
     };
 
     internal static readonly QuartermasterOffer[] QuartermasterStock =
@@ -167,8 +176,19 @@ internal static class Reforged2Rules
     internal static CombatComboResult EvaluateArcaneChain(int baseDamage, int spellsCastThisTurn)
     {
         if (baseDamage <= 0 || spellsCastThisTurn < 2) return default;
+        if (spellsCastThisTurn >= 3)
+            return new("Elemental Overload", Math.Clamp((int)Math.Round(baseDamage * 0.30, MidpointRounding.AwayFromZero), 10, 140));
         return new("Arcane Chain", Math.Clamp((int)Math.Round(baseDamage * 0.18, MidpointRounding.AwayFromZero), 5, 90));
     }
+
+    internal static CombatComboResult EvaluateFirstStrike(int baseDamage, int turn, bool firstActionUsed)
+    {
+        if (baseDamage <= 0 || firstActionUsed || turn > 1) return default;
+        return new("First Strike", Math.Clamp((int)Math.Round(baseDamage * 0.12, MidpointRounding.AwayFromZero), 4, 65));
+    }
+
+    internal const double BossEnrageDamageMultiplier = 1.10;
+    internal const double BossEnragePotchMultiplier = 1.15;
 
     internal static string BossPhaseBanner(string bossName, int hp, int maxHp, int previousPhase, out int newPhase)
     {
@@ -269,8 +289,58 @@ internal static class Reforged2Rules
         new("scout-network", "Castle: Scout Network", 4,
             "Permanent Upgrade · Raises Apex Pack spawn rate (10% -> 18%) and auto-opens F4 Scanner on bosses."),
         new("tactical-reserve", "Castle: Tactical Reserve", 6,
-            "Permanent Upgrade · Start every battle with 35% Party Momentum pre-charged.")
+            "Permanent Upgrade · Start every battle with 35% Party Momentum pre-charged."),
+        new("war-college", "Castle: War College", 7,
+            "Permanent Upgrade · Commanders earn +25% bonus War XP on every Drill, Skirmish, and Story War victory."),
+        new("imperial-treasury", "Castle: Imperial Treasury", 7,
+            "Permanent Upgrade · Permanently increases all RPG battle Potch by +15% (stacks with S-Rank, Streak, and Apex).")
     };
+
+    internal sealed record HonorSpec(string Id, string Title, string Requirement);
+
+    internal static readonly HonorSpec[] Honors =
+    {
+        new("first-blood", "First Blood", "Win 1 Army Training Drill or Skirmish."),
+        new("seasoned-tactician", "Seasoned Tactician", "Win 5 Army Drills or Skirmishes."),
+        new("apex-slayer", "Apex Slayer", "Defeat 3 Apex Pack encounters."),
+        new("master-naturalist", "Master Naturalist", "Catalogue 15 unique Bestiary species."),
+        new("castle-architect", "Castle Architect", "Unlock 4 Permanent Castle Upgrades."),
+        new("bounty-champion", "Bounty Champion", "Complete 5 rotating Field Bounties."),
+        new("unstoppable-force", "Unstoppable Force", "Reach a 10-battle Victory Streak."),
+        new("grand-hunter", "Grand Hunter", "Reach Gold Hunter Rank (8+ Hunts)."),
+        new("echo-conqueror", "Echo Conqueror", "Clear 3 Hall of Echoes Nightmare battles."),
+        new("marshal-of-dunan", "Marshal of Dunan", "Promote any Commander to Marshal (900+ XP).")
+    };
+
+    internal static List<HonorSpec> EvaluateNewHonors(ArmyLedgerState ledger, int currentWinStreak)
+    {
+        var newlyUnlocked = new List<HonorSpec>();
+        ledger.UnlockedHonors ??= new HashSet<string>(StringComparer.Ordinal);
+        bool IsMet(string id) => id switch
+        {
+            "first-blood" => ledger.TotalDrillsWon >= 1,
+            "seasoned-tactician" => ledger.TotalDrillsWon >= 5,
+            "apex-slayer" => ledger.ApexPacksCleared >= 3,
+            "master-naturalist" => (ledger.Bestiary?.Count ?? 0) >= 15,
+            "castle-architect" => (ledger.CastleUpgrades?.Count ?? 0) >= 4,
+            "bounty-champion" => ledger.BountiesCompleted >= 5,
+            "unstoppable-force" => currentWinStreak >= 10,
+            "grand-hunter" => ledger.HuntsCompleted >= 8,
+            "echo-conqueror" => ledger.HallNightmareClears >= 3,
+            "marshal-of-dunan" => ledger.Commanders.Values.Any(c => ArmyProgressionRules.RankForXp(c.Xp) == ArmyRank.Marshal),
+            _ => false
+        };
+        foreach (var h in Honors)
+        {
+            if (!ledger.UnlockedHonors.Contains(h.Id) && IsMet(h.Id))
+            {
+                ledger.UnlockedHonors.Add(h.Id);
+                ledger.Commendations = Math.Min(999, ledger.Commendations + 2);
+                newlyUnlocked.Add(h);
+            }
+        }
+        return newlyUnlocked;
+    }
 
     internal static readonly FieldBountySpec[] FieldBounties =
     {
