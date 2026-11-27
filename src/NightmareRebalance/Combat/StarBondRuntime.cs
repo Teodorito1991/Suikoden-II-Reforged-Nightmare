@@ -55,7 +55,7 @@ internal static class StarBondRuntime
 
     internal static bool Eligible(BATTLE_WORK w) => w.monster_party_data != null &&
         w.monster_bm_func == null && w.monster_be_func == null && w.monster_cm_func == null &&
-        DifficultyProvenance.Difficulty(out int difficulty, out _) && difficulty == 0;
+        DifficultyProvenance.AllowedForFeature(out _, out _);
 
     internal static PM_DATA? Enemy(BATTLE_WORK? w, int target) =>
         w?.pm_data is {} slots && target >= 0 && target < slots.Length &&

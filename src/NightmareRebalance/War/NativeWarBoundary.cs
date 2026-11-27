@@ -22,7 +22,7 @@ internal static class NativeWarBoundary
    !OwnersMatch(g,m,e)||manager.activeChapter?.Pointer!=chapter.Pointer||manager.RequestType!=null||e.mcon?.Pointer!=m.Pointer||e.mdat?.Pointer!=m.mdat.Pointer||
    e.mstep!=2||m.ctyp!=0||EVENTCON.noScriptRunning||e.coml==null||e.coml.Any(c=>c!=null&&c.flg!=0)||sys.now_save!=0||sys.g_bInBattle||
    Combat.State!=null||WarRuntime.Active||war_h.g_w_war_no!=0||HuntGuildRuntime.PartyMenuOpen||CastleGuildRuntime.Modal||
-   !DifficultyProvenance.Difficulty(out int difficulty,out _)||difficulty!=0||WindowManager.instance==null||
+   !DifficultyProvenance.AllowedForFeature(out _,out _)||WindowManager.instance==null||
    WindowManager.instance.IsUseMessageWindow||WindowManager.instance.IsOpenCommonDialogWindow())return null;
   var hash=NativeWarWitness.Capture()?.FlagsHash;if(hash==null)return null;
   return new(Epoch,g.Pointer.ToInt64(),sys.Pointer.ToInt64(),g.party_data.Pointer.ToInt64(),g.game_data.Pointer.ToInt64(),m.Pointer.ToInt64(),e.Pointer.ToInt64(),m.mdat.Pointer.ToInt64(),chapter.Pointer.ToInt64(),m.ano,m.vno,m.mno,e.px,e.py,hash);

@@ -10,6 +10,9 @@ $fullScript = Join-Path $PSScriptRoot 'prepare-full-content.ps1'
 $cfgPath = Join-Path $OutputDirectory 'BepInEx/config/nightmare.suikoden2.reforged.cfg'
 $overlay = @"
 
+[Difficulty]
+AllowAllDifficulties = true
+
 [Army Progression]
 EnableArmyProgression = true
 EnableDrillDirectives = true

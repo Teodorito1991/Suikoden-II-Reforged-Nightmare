@@ -7,6 +7,7 @@ internal static class MaintenanceTests
   foreach(int hp in Enumerable.Range(1,32767))foreach(int difficulty in new[]{0,2})
   {var a=new int[47];a[0]=hp;a[1]=30;var b=(int[])a.Clone();float rate=difficulty==0?1f:1.2f;b[0]=MaintenanceRules.NativeHp(hp,rate);Check(MaintenanceRules.Signature(a,b,difficulty,rate));b[0]++;Check(!MaintenanceRules.Signature(a,b,difficulty,rate));b[0]--;b[46]++;Check(!MaintenanceRules.Signature(a,b,difficulty,rate));}
   Check(MaintenanceRules.NativeHp(280,1.2f)==336);Check(MaintenanceRules.NativeHp(1500,1.2f)==1800);Check(MaintenanceRules.NativeHp(32767,1.2f)==32767);
+  {var ea=new int[47];ea[0]=500;ea[1]=30;var eb=(int[])ea.Clone();eb[0]=MaintenanceRules.NativeHp(500,0.8f);Check(MaintenanceRules.Signature(ea,eb,1,0.8f));Check(!MaintenanceRules.Signature(ea,eb,1,1.2f));}
   Check(MaintenanceRules.Factor(1.6,1.2,1.7,1.6)==1.7);Check(MaintenanceRules.Factor(1.6,1.2,1.6,1.6)==1.2);Check(MaintenanceRules.Factor(1.6,null,1.6,1.6)==1.6);
   var hpLedger=new HpLedger();hpLedger.Baseline(1,100);Check(hpLedger.Observe(1,75)==-25);Check(hpLedger.Observe(1,75)==0);Check(hpLedger.Observe(1,90)==15);Check(hpLedger.Observe(1,-4)==-90);Check(hpLedger.Observe(1,0)==0);Check(hpLedger.Observe(2,50)==0);
   var history=new BoundedHistory<string>(12);for(int i=0;i<30;i++)history.Add(i%3==2?"Escape"+i:"Victory"+i);Check(history.Items.Count==12);Check(history.Items[0]=="Victory18");Check(history.Items.Count(x=>x.StartsWith("Victory"))==8);Check(history.Items.Last()=="Escape29");

@@ -134,7 +134,7 @@ internal static class TeamworkRuntime
         try
         {
             if (!state.Allowed || !Unscripted(w) || w.pm_data == null ||
-                !DifficultyProvenance.Difficulty(out int difficulty, out _) || difficulty != 0 ||
+                !DifficultyProvenance.AllowedForFeature(out _, out _) ||
                 w.monster_party_data is not {} party || party.Pointer != CombatEvolutionRuntime.LastCopy?.Pointer ||
                 w.battle_data is not {} table || table.monster_party == null ||
                 w.monster_party_index < 1 || w.monster_party_index > table.monster_party.Length ||

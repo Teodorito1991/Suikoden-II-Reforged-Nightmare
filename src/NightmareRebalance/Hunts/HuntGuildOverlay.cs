@@ -282,7 +282,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    var bonds = StarBondRules.Catalogue;
    int[] party = preview ? new[]{7,8,30,26,33,32} : StarBondRuntime.FieldParty();
    bool enabled = preview || Plugin.Options.EnableStarBonds.Value &&
-       DifficultyProvenance.Difficulty(out int difficulty, out _) && difficulty == 0;
+       DifficultyProvenance.AllowedForFeature(out _, out _);
    string Availability(StarBond bond) => !enabled ? "Unavailable" :
        StarBondRules.Includes(bond,party) ? "In your party" : "Other combination";
    var rows = bonds.Select(bond => new GuildMenuRow(bond.Title, Availability(bond))).ToArray();
@@ -318,7 +318,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    var card = GuildScreenRules.Card(definition.Id);
    var setting = HuntRuntime.Settings(definition);
    bool enabled = HuntRuntime.Config.EnableExperimentalHunt && CombatReforgedRuntime.Config.Enabled;
-   bool normal = preview || DifficultyProvenance.Difficulty(out int mode, out _) && mode == 0;
+   bool normal = preview || DifficultyProvenance.AllowedForFeature(out _, out _);
    var rows = defs.Select(d => new GuildMenuRow(d.Name, $"Tier {GuildScreenRules.Card(d.Id).Tier} · "+GuildPresentation.Availability(state, d.Id,
        CastleGuildRuntime.Contract ?? CastleGuildRuntime.Quest.LastReportedId,
        HuntRuntime.Settings(d).Enabled, enabled && normal))).ToArray();

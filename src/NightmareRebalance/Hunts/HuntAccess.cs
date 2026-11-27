@@ -18,7 +18,7 @@ internal static class HuntAccess
  internal static bool Toggle()
  {
   var game=Framework.Singleton<GAME_WORK>.instance;
-  bool available=HuntRuntime.Config.EnableExperimentalHunt&&CombatReforgedRuntime.Config.Enabled&&RequestedHunt!=null&&HuntFieldContext.Active&&!HuntGuildRuntime.PartyMenuOpen&&Combat.State==null&&!WarRuntime.Active&&game?.party_data!=null&&DifficultyProvenance.Difficulty(out int d,out _)&&d==0;
+  bool available=HuntRuntime.Config.EnableExperimentalHunt&&CombatReforgedRuntime.Config.Enabled&&RequestedHunt!=null&&HuntFieldContext.Active&&!HuntGuildRuntime.PartyMenuOpen&&Combat.State==null&&!WarRuntime.Active&&game?.party_data!=null&&DifficultyProvenance.AllowedForFeature(out _,out _);
   bool result=Ticket.Toggle(available);Status=available?(result?"ARMED: "+RequestedHunt!.Name+" in "+RequestedHunt.Field+"; F6 cancels":"Cancelled"):"Unavailable: enable experiment and enter a Normal field and close the party menu";
   if(!CombatReforgedRuntime.Config.Enabled)Status="Unavailable: required combat-reforged module is disabled; ordinary encounters retained";
   Plugin.Logger.LogInfo("Experimental hunt: "+Status);return result;
@@ -38,7 +38,7 @@ internal static class HuntAccess
  {
   if(SetupWork is not {} w||!Ticket.Armed)return;
   var source=Framework.Singleton<GAME_WORK>.instance?.sys_work?.battle_data;
-  var hunt=RequestedHunt;bool valid=hunt!=null&&HuntRuntime.Config.EnableExperimentalHunt&&CombatReforgedRuntime.Config.Enabled&&maximum==hunt.PartyCount-1&&HuntLaunchProof.MatchesSource(w,source)&&SourceMatches(source,hunt!)&&Plugin.CheckCompatibility()&&DifficultyProvenance.Difficulty(out int d,out _)&&d==0;
+  var hunt=RequestedHunt;bool valid=hunt!=null&&HuntRuntime.Config.EnableExperimentalHunt&&CombatReforgedRuntime.Config.Enabled&&maximum==hunt.PartyCount-1&&HuntLaunchProof.MatchesSource(w,source)&&SourceMatches(source,hunt!)&&Plugin.CheckCompatibility()&&DifficultyProvenance.AllowedForFeature(out _,out _);
   int before=result;
   if(!Ticket.Consume(valid)){Status="Cancelled: native source/provenance guard rejected request";return;}
   // Original native RNG call already ran. Replace its choice only; setup adds one

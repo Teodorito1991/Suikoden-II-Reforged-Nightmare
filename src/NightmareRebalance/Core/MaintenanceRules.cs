@@ -4,7 +4,8 @@ internal static class MaintenanceRules
     // Native BattleDataSetup: float multiplication, cap32767, truncation to ushort.
     internal static int NativeHp(int hp,float rate)=>hp is <0 or >65535||!float.IsFinite(rate)||rate<=0?-1:(int)Math.Min(32767f,(float)hp*rate);
     internal static bool Signature(int[] source,int[] local,int difficulty,float rate)=>
-        source.Length==47&&local.Length==47&&difficulty is 0 or 2&&rate==(difficulty==0?1f:1.2f)&&
+        source.Length==47&&local.Length==47&&difficulty is 0 or 1 or 2&&float.IsFinite(rate)&&rate>0f&&
+        (difficulty==0?rate==1f:difficulty==2?rate==1.2f:rate<1f)&&
         local[0]==NativeHp(source[0],rate)&&source.Skip(1).SequenceEqual(local.Skip(1));
     internal static double Factor(double fallback,double? pacing,double configured,double baseline)=>configured!=baseline?configured:pacing??fallback;
 }

@@ -32,6 +32,11 @@
   6 lore-driven **Star Bonds** (10 total: *Genkaku's Legacy*, *Mercenary
   Veterans*, *Arcane Resonance*, *Vampire Hunters*, *Wandering Blades*, and
   *Rokaku Shadows*).
+- Added **All-3-Difficulties Support** (`AllowAllDifficulties = false`, opt-in):
+  enables Easy, Normal, and Hard difficulties across all Reforged systems
+  (Hunts, Star Bonds, Boss Tactics, Legendary Bosses, Teamwork, Castle Guild
+  4-NPC Hub, Hall of Echoes, Tower of Dunan, and Army Training) while verifying
+  native `ConstShare.GetDifficultyRate` HP provenance on every tier.
 - Added **Reforged 6.0: Synergy, Warden Floors & Chronicle** (opt-in):
   - **Party Talent Set Bonuses** (*Balanced Vanguard*, *Warband Fury*, *Arcane
     Conclave*, *Iron Citadel*) activating automatically from party Talents and

@@ -7,8 +7,20 @@ internal static class DifficultyProvenance
     [ThreadStatic]static BATTLE_WORK? setup;
     internal static bool StrictProbe;
     internal static bool LegacyFixture=>CombatReforgedRuntime.Probe&&!StrictProbe;
+    internal static bool AllDifficultiesEnabled=>Plugin.Options?.AllowAllDifficulties.Value==true;
     internal static bool Difficulty(out int value,out float rate)
-    {value=-1;rate=0;var g=Framework.Singleton<GAME_WORK>.instance?.game_data;if(g==null)return false;value=g.difficulty;if(value is not(0 or 2))return false;rate=ConstShare.GetDifficultyRate(value);return rate==(value==0?1f:1.2f);}
+    {
+        value=-1;rate=0;
+        var g=Framework.Singleton<GAME_WORK>.instance?.game_data;
+        if(g==null)return false;
+        value=g.difficulty;
+        if(value is not(0 or 1 or 2))return false;
+        if(value==1&&!AllDifficultiesEnabled)return false;
+        rate=ConstShare.GetDifficultyRate(value);
+        return value==0?rate==1f:value==2?rate==1.2f:float.IsFinite(rate)&&rate>0f&&rate<1f;
+    }
+    internal static bool AllowedForFeature(out int value,out float rate)=>
+        Difficulty(out value,out rate)&&(AllDifficultiesEnabled||(value==0&&rate==1f));
     internal static BATTLE_WORK? Start(BATTLE_WORK w){var previous=setup;copies.Clear();setup=w;return previous;}
     internal static void End(BATTLE_WORK? previous)=>setup=previous;
     internal static void Observe(MONSTER_DATA source,MONSTER_DATA local)

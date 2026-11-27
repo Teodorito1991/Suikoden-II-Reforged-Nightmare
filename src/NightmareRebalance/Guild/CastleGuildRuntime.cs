@@ -375,7 +375,7 @@ internal static class CastleGuildRuntime
  internal static bool AcceptContract(string id){
   if(!Context)return false;
   if(Quest.State is GuildQuestState.Accepted or GuildQuestState.AwaitingReport){Status=Quest.State==GuildQuestState.AwaitingReport?"Report the completed hunt first.":"Finish or withdraw your active contract first.";return false;}
-  if(!DifficultyProvenance.Difficulty(out int d,out _)||d!=0){Status="Hunt encounters require Normal difficulty. Your difficulty was not changed.";return false;}
+  if(!DifficultyProvenance.AllowedForFeature(out _,out _)){Status="Hunt encounters require Normal difficulty (or AllowAllDifficulties = true). Your difficulty was not changed.";return false;}
   if(!HuntRuntime.Config.EnableExperimentalHunt||!CombatReforgedRuntime.Config.Enabled){Status="Hunt requests are disabled in configuration.";return false;}
   if(!HuntRuntime.Definitions.Any(x=>x.Id==id&&HuntRuntime.Settings(x).Enabled)){Status="This contract is not currently available.";return false;}
   if(!HuntGuildRuntime.Select(id)||!Quest.Accept(id)){Status="The Guild cannot accept this contract right now.";return false;}
@@ -413,7 +413,7 @@ internal static class CastleGuildRuntime
   if(m==null||!Config.Enabled||!Config.EnableFieldReissue||!Config.AutoRequestAcceptedContract||
       !HuntRuntime.Config.EnableExperimentalHunt||!CombatReforgedRuntime.Config.Enabled||
       Quest.State is not (GuildQuestState.NoContract or GuildQuestState.Reported)||
-      !DifficultyProvenance.Difficulty(out int mode,out float rate)||mode!=0||rate!=1f)return null;
+      !DifficultyProvenance.AllowedForFeature(out _,out _))return null;
   string field=MachiLoader.GetMachiID(m.ano,m.vno);
   var hunt=HuntRuntime.Definitions.FirstOrDefault(d=>d.FieldId==field&&HuntRuntime.Settings(d).Enabled);
   return hunt!=null&&WalkingTable(m,hunt)!=null?hunt:null;
@@ -437,7 +437,7 @@ internal static class CastleGuildRuntime
   WalkingChecks++;
   var hunt=HuntRuntime.Definitions.FirstOrDefault(x=>x.Id==Contract&&HuntRuntime.Settings(x).Enabled);
   bool owner=ContractParty!=IntPtr.Zero&&Framework.Singleton<GAME_WORK>.instance?.party_data?.Pointer==ContractParty;
-  bool normal=DifficultyProvenance.Difficulty(out int d,out float rate)&&d==0&&rate==1f;
+  bool normal=DifficultyProvenance.AllowedForFeature(out _,out _);
   bool source=hunt!=null&&HuntAccess.SourceMatches(table,hunt);
   bool scene=source&&WalkingSceneMatches(e,table,hunt!);
   bool compatible=HuntEntryCompatible;

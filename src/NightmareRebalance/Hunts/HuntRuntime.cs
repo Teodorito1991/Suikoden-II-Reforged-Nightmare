@@ -27,7 +27,7 @@ internal static class HuntRuntime
  internal static void Reset(){GuildItemRuntime.Reset();Work=Party=IntPtr.Zero;Units.Clear();Active=null;reward=new();LastOutcome=null;HuntRewardObservation.Credits.Clear();Calculations.Clear();}
  internal static bool Formation(BATTLE_WORK w,bool compatible)
  {
-  if(!Config.EnableExperimentalHunt||!compatible||!HuntAccess.Authorized(w)||!HuntLaunchProof.Matches(w)||!DifficultyProvenance.Difficulty(out int difficulty,out _)||difficulty!=0)return false;
+  if(!Config.EnableExperimentalHunt||!compatible||!HuntAccess.Authorized(w)||!HuntLaunchProof.Matches(w)||!DifficultyProvenance.AllowedForFeature(out _,out _))return false;
   var definition=HuntAccess.Selected??(HuntLaunchProof.FixtureProof&&DifficultyProvenance.StrictProbe&&UnityEngine.Application.isBatchMode?Definitions.Single(x=>x.Id=="sun-kings-retinue"):null);
   if(definition==null||!Settings(definition).Enabled)return false;var audit=definition.Audit;
   bool applied=CombatEvolutionRuntime.ApplyAuditedFormation(w,compatible,new[]{audit},new[]{new EvolutionSwitch{PartyId=audit.PartyId,Enabled=true}});

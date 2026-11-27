@@ -42,12 +42,12 @@ internal static class BossTacticsRuntime
   foreach(var m in a.Monsters)if(m.Index>=t.monster_data.Length||t.monster_data[m.Index] is not {} source||source.id!=m.Id||!CombatReforgedRuntime.Signature(source).SequenceEqual(m.Signature))return false;
   var enemies=w.pm_data.Where(x=>x!=null&&!x.IsPlayer&&x.TryCast<BattleMonsterCharacter>()!=null).ToArray();var ids=a.OldCodes.Where(x=>x>0).Select(code=>a.Monsters.Single(m=>m.Index==code).Id).OrderBy(x=>x);
   if(w.monster_kazu!=enemies.Length||!enemies.Select(x=>x.monster_data?.id).OrderBy(x=>x).SequenceEqual(ids))return false;
-  foreach(var u in enemies){var m=a.Monsters.Single(m=>m.Id==u.monster_data.id);if(!CombatReforgedRuntime.Signature(u.monster_data).SequenceEqual(m.Signature)||!DifficultyProvenance.Matches(w,u.monster_data,m.Signature))return false;}
+  foreach(var u in enemies){var m=a.Monsters.Single(m=>m.Id==u.monster_data.id);if(!DifficultyProvenance.Matches(w,u.monster_data,m.Signature))return false;}
   return true;
  }
  internal static void Ready(BATTLE_WORK w,bool compatible)
  {
-  Bindings.Clear();if(!compatible||Suppress||!CombatReforgedRuntime.Config.Enabled||!CombatReforgedRuntime.Config.EnableBossEncounters||!DifficultyProvenance.Difficulty(out int difficulty,out float rate)||difficulty!=0||rate!=1f)return;
+  Bindings.Clear();if(!compatible||Suppress||!CombatReforgedRuntime.Config.Enabled||!CombatReforgedRuntime.Config.EnableBossEncounters||!DifficultyProvenance.AllowedForFeature(out _,out _))return;
   try{var p=Config.Patterns.Concat(RevolutionConfig.Patterns).FirstOrDefault(p=>p.TableId==w.battle_data?.id);if(p==null||!Enabled(p))return;var a=Audit.Concat(RevolutionAudit).Single(a=>a.TableId==p.TableId);
    if(!Source(w,a)){Record(new{Kind="BossTacticsRejected",p.TableId,Reason="Source/roster/callback/signature/provenance"});return;}
    // Keep all prior boss opt-outs and explicit profile/stat priorities.
@@ -56,7 +56,7 @@ internal static class BossTacticsRuntime
    Record(new{Kind="BossTacticsAdmitted",p.TableId,Mode="AI only",StatsEligibilityChanged=false,CallbacksChanged=false});
   }catch(Exception e){Bindings.Clear();Plugin.Debug("Boss tactics retained native encounter: "+e.Message);}
  }
- internal static bool Bound(PM_DATA u)=>!Suppress&&Bindings.TryGetValue(u.Pointer,out var b)&&Enabled(b.Pattern)&&b.Work.Pointer==CombatReforgedRuntime.Work&&b.Work.monster_party_data?.Pointer==b.Party.Pointer&&(!BossRevolutionRules.Supports(b.Pattern.TableId)||b.Work.monster_cm_func==null)&&u.monster_data?.Pointer==b.Data.Pointer&&CombatReforgedRuntime.Signature(b.Data).SequenceEqual(b.Signature);
+ internal static bool Bound(PM_DATA u)=>!Suppress&&Bindings.TryGetValue(u.Pointer,out var b)&&Enabled(b.Pattern)&&b.Work.Pointer==CombatReforgedRuntime.Work&&b.Work.monster_party_data?.Pointer==b.Party.Pointer&&(!BossRevolutionRules.Supports(b.Pattern.TableId)||b.Work.monster_cm_func==null)&&u.monster_data?.Pointer==b.Data.Pointer&&DifficultyProvenance.Matches(b.Work,b.Data,b.Signature);
  internal static bool Plan(PM_DATA u,out CombatUnitPlan plan){plan=null!;if(!Bound(u))return false;var b=Bindings[u.Pointer];plan=new(b.Pattern.EnemyId,"Alternating",true,null,null);return true;}
  internal static bool UsesOriginalTargets(PM_DATA u)=>Bound(u)&&BossRevolutionRules.Supports(Bindings[u.Pointer].Pattern.TableId);
  internal static int Score(BATTLE_WORK w,PM_DATA u,CombatAction action,IReadOnlyList<CombatTarget> targets,int prior)

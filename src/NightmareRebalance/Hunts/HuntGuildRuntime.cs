@@ -44,7 +44,7 @@ internal static class HuntGuildRuntime
  internal static bool PartyMenuOpen=>Owned&&Menu?.menuCommon?.windowList is {} w&&(w.IsOpen||w.IsOpening);
  internal static bool Context=>CastleGuildRuntime.Context||MenuContext;
  internal static bool NativeMainContext=>Owned&&Menu?.menuCommon?.windowList is {} w&&CommandOwner?.comcon?.TryCast<fcommand.COMCON>() is {} c&&
-  HuntGuildRules.CanSelect(true,MenuProven,w.IsOpen,w.IsOpening||w.IsClosing,c.stp==2,DifficultyProvenance.Difficulty(out int d,out _)&&d==0,Combat.State!=null,WarRuntime.Active);
+  HuntGuildRules.CanSelect(true,MenuProven,w.IsOpen,w.IsOpening||w.IsClosing,c.stp==2,DifficultyProvenance.AllowedForFeature(out _,out _),Combat.State!=null,WarRuntime.Active);
  internal static bool MenuContext=>Config.EnableSelector&&Plugin.Options.EnableDeveloperTools.Value&&NativeMainContext;
  internal static void Observe(MACHICON mcon)
  {

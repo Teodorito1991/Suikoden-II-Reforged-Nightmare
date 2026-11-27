@@ -55,8 +55,7 @@ internal static class LegendaryBossRuntime
         {
             if (!compatible || !CombatReforgedRuntime.AiActive(work) ||
                 !CombatReforgedRuntime.Config.EnableBossEncounters ||
-                !DifficultyProvenance.Difficulty(out int difficulty, out float rate) ||
-                difficulty != 0 || rate != 1f) return false;
+                !DifficultyProvenance.AllowedForFeature(out _, out _)) return false;
             if (work.battle_data is not {} table || work.monster_party_data is not {} party)
                 return false;
             // Solo Luca has no live opt-in until a legitimate encounter witnesses this scope.
