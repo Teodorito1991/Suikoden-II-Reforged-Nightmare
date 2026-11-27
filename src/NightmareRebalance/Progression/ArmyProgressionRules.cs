@@ -66,6 +66,8 @@ internal sealed class ArmyLedgerState
     public int TotalStoryWarsWon { get; set; }
     public int HallNightmareClears { get; set; }
     public int MoraleBonusCharges { get; set; }
+    public int Commendations { get; set; }
+    public int HuntsCompleted { get; set; }
     public long UpdatedUtcTicks { get; set; }
 
     internal ArmyLedgerState Clone()
@@ -78,6 +80,8 @@ internal sealed class ArmyLedgerState
             TotalStoryWarsWon = TotalStoryWarsWon,
             HallNightmareClears = HallNightmareClears,
             MoraleBonusCharges = MoraleBonusCharges,
+            Commendations = Commendations,
+            HuntsCompleted = HuntsCompleted,
             UpdatedUtcTicks = UpdatedUtcTicks
         };
         foreach (var kv in Commanders)

@@ -6,7 +6,7 @@ namespace NightmareRebalance;
 
 internal static class TrainingWar
 {
-    internal enum Drill { Standard, FortDefense, CommanderRout, War3, War6, War10, War13, War15 }
+    internal enum Drill { Standard, FortDefense, CommanderRout, War3, War6, War13, SkirmishCrimson, SkirmishIronSiege, SkirmishGrandArmy }
 
     sealed class Session(GAME_WORK game, SYS_WORK system, MACHICON field, EVENTCON events, EVENT_HUMAN player, Drill drill, bool veteran)
     {
@@ -35,14 +35,20 @@ internal static class TrainingWar
         internal List<CommanderParticipation> Participants = new();
         internal bool CommanderRouted, AlliesRemain, FortVictory;
         internal readonly Drill SelectedDrill = drill;
+        internal readonly SkirmishSpec? Skirmish = drill switch
+        {
+            Drill.SkirmishCrimson => Reforged2Rules.Skirmishes[0],
+            Drill.SkirmishIronSiege => Reforged2Rules.Skirmishes[1],
+            Drill.SkirmishGrandArmy => Reforged2Rules.Skirmishes[2],
+            _ => null
+        };
+        internal readonly sbyte[]? OriginalSubToLeader = game.war_data?.sub_to_leader?.ToArray();
         internal readonly byte WarNumber = drill switch
         {
-            Drill.FortDefense => 2,
-            Drill.War3 => 3,
+            Drill.FortDefense or Drill.SkirmishIronSiege => 2,
+            Drill.War3 or Drill.SkirmishGrandArmy => 3,
             Drill.War6 => 6,
-            Drill.War10 => 10,
             Drill.War13 => 13,
-            Drill.War15 => 15,
             _ => 1
         };
         internal bool Committed, Destroyed;
@@ -76,18 +82,17 @@ internal static class TrainingWar
         TotalWarRuntime.Verified.Contains(3) && Framework.Singleton<GAME_WORK>.instance?.eventFlgCHK(0x0C, 0x80) == true;
     internal static bool ExtendedWarAvailable(int war) => Available && Plugin.Options.EnableTrainingExtendedWars.Value &&
         WarTacticsRuntime.Verified.Contains(war);
-    internal static bool ChallengeActive => current is { Committed: true, SelectedDrill: Drill.CommanderRout };
+    internal static SkirmishSpec? ActiveSkirmish => current is { Committed: true } s ? s.Skirmish : null;
+    internal static bool ChallengeActive => current is { Committed: true, SelectedDrill: Drill.CommanderRout or Drill.SkirmishCrimson };
     internal static bool VeteranActive => current is { Committed: true, Veteran: true };
     internal static bool VeteranAvailable(Drill drill)
     {
         int war = drill switch
         {
-            Drill.FortDefense => 2,
-            Drill.War3 => 3,
+            Drill.FortDefense or Drill.SkirmishIronSiege => 2,
+            Drill.War3 or Drill.SkirmishGrandArmy => 3,
             Drill.War6 => 6,
-            Drill.War10 => 10,
             Drill.War13 => 13,
-            Drill.War15 => 15,
             _ => 1
         };
         return Plugin.Options.EnableTrainingVeteran.Value && Plugin.Options.EnableNativeWarAI.Value &&
@@ -95,7 +100,7 @@ internal static class TrainingWar
             WarTacticsRuntime.Config.EnabledWars.Contains(war) && WarTacticsRuntime.Verified.Contains(war);
     }
 
-    internal static bool FortDefenseActive => current is { Committed: true, SelectedDrill: Drill.FortDefense };
+    internal static bool FortDefenseActive => current is { Committed: true, SelectedDrill: Drill.FortDefense or Drill.SkirmishIronSiege };
 
     internal static string Unavailable(Drill drill)
     {
@@ -116,13 +121,13 @@ internal static class TrainingWar
             Drill.War3 when !War3Available => "Requires completed War 3 and its original battlefield.",
             Drill.War6 when !Plugin.Options.EnableTrainingExtendedWars.Value => "Extended war drills are disabled in settings.",
             Drill.War6 when !ExtendedWarAvailable(6) => "War 6 native battlefield definitions were not verified.",
-            Drill.War10 when !Plugin.Options.EnableTrainingExtendedWars.Value => "Extended war drills are disabled in settings.",
-            Drill.War10 when !ExtendedWarAvailable(10) => "War 10 native battlefield definitions were not verified.",
             Drill.War13 when !Plugin.Options.EnableTrainingExtendedWars.Value => "Extended war drills are disabled in settings.",
             Drill.War13 when !ExtendedWarAvailable(13) => "War 13 native battlefield definitions were not verified.",
-            Drill.War15 when !Plugin.Options.EnableTrainingExtendedWars.Value => "Extended war drills are disabled in settings.",
-            Drill.War15 when !ExtendedWarAvailable(15) => "War 15 native battlefield definitions were not verified.",
-            Drill.FortDefense or Drill.CommanderRout or Drill.War3 or Drill.War6 or Drill.War10 or Drill.War13 or Drill.War15 => "",
+            Drill.SkirmishCrimson when !ChallengeAvailable => "Requires verified War 1 battlefield definitions.",
+            Drill.SkirmishIronSiege when !FortDefenseAvailable => "Requires completed War 2 and verified Fort battlefield.",
+            Drill.SkirmishGrandArmy when !War3Available => "Requires completed War 3 and verified battlefield.",
+            Drill.FortDefense or Drill.CommanderRout or Drill.War3 or Drill.War6 or Drill.War13
+                or Drill.SkirmishCrimson or Drill.SkirmishIronSiege or Drill.SkirmishGrandArmy => "",
             _ => "This drill is unavailable."
         };
     }
@@ -270,9 +275,9 @@ internal static class TrainingWar
                     return;
                 }
 
-                if (requestedDrill is Drill.War6 or Drill.War10 or Drill.War13 or Drill.War15)
+                if (requestedDrill is Drill.War6 or Drill.War13)
                 {
-                    int extWar = requestedDrill switch { Drill.War6 => 6, Drill.War10 => 10, Drill.War13 => 13, _ => 15 };
+                    int extWar = requestedDrill == Drill.War6 ? 6 : 13;
                     if (!Plugin.Options.EnableTrainingExtendedWars.Value || !WarTacticsRuntime.Audit(extWar) || !Plugin.CheckCompatibility())
                     {
                         Reject($"War {extWar} requires its verified native scripts and roster.");
@@ -281,7 +286,7 @@ internal static class TrainingWar
                 }
 
                 if (requestedVeteran && !WarTacticsRuntime.Audit(requestedDrill switch
-                    { Drill.FortDefense => 2, Drill.War3 => 3, Drill.War6 => 6, Drill.War10 => 10, Drill.War13 => 13, Drill.War15 => 15, _ => 1 }))
+                    { Drill.FortDefense or Drill.SkirmishIronSiege => 2, Drill.War3 or Drill.SkirmishGrandArmy => 3, Drill.War6 => 6, Drill.War13 => 13, _ => 1 }))
                 {
                     Reject("Veteran requires the original army and battlefield definitions.");
                     return;
@@ -349,6 +354,12 @@ internal static class TrainingWar
                 for (int j = 0; j < flags[i].Length; j++) flags[i][j] = session.Flags[i][j];
 
             bool equal = flags.Select((a, i) => a.ToArray().SequenceEqual(session.Flags[i])).All(x => x);
+            // Restore campaign subcommander table if the war scenario touched it during a drill.
+            if (session.OriginalSubToLeader != null && session.Game.war_data?.sub_to_leader is {} liveSub &&
+                liveSub.Length == session.OriginalSubToLeader.Length)
+            {
+                for (int i = 0; i < liveSub.Length; i++) liveSub[i] = session.OriginalSubToLeader[i];
+            }
             var after = Serialize(session.Game);
             string[] names = ["game_data", "war_data", "chara_data", "party_data"];
             var diff = new List<string>();
@@ -399,6 +410,8 @@ internal static class TrainingWar
         int reward = TrainingResultRules.VictoryPotch(session.WarNumber, session.Veteran,
             session.NativeResult, session.Ending, session.GameOver, session.CommanderRouted,
             session.AlliesRemain, session.FortVictory);
+        if (reward > 0 && session.Skirmish != null)
+            reward = session.Veteran ? (int)Math.Round(session.Skirmish.BasePotch * 1.35, MidpointRounding.AwayFromZero) : session.Skirmish.BasePotch;
         if (reward > 0 && ArmyProgressionRuntime.DirectivesEnabled)
             reward = ArmyProgressionRules.AdjustedPotch(reward, session.Directive, session.TurnCount);
         uint before = session.Game.party_data.gold;
@@ -407,19 +420,25 @@ internal static class TrainingWar
         long credited = (long)session.Game.party_data.gold - before;
 
         XpAwardSummary xpSummary = default;
+        int commendations = 0;
         if (reward > 0)
+        {
             xpSummary = ArmyProgressionRuntime.RecordTrainingVictory(session.Participants, session.Veteran, session.Directive, session.TurnCount);
+            commendations = session.Skirmish != null ? session.Skirmish.Commendations : (session.Veteran ? 2 : 1);
+            ArmyProgressionRuntime.AwardCommendations(commendations);
+        }
 
         string xpNote = xpSummary.CommandersUpdated > 0
-            ? $" Commanders +{xpSummary.LeaderXp} XP" + (xpSummary.RanksGained > 0 ? $" ({xpSummary.RanksGained} promoted!)" : "") + "."
+            ? $" +{xpSummary.LeaderXp} XP" + (xpSummary.RanksGained > 0 ? $" ({xpSummary.RanksGained} promoted!)" : "")
             : "";
+        string commNote = commendations > 0 ? $" +{commendations} Commendation(s)." : "";
 
         string message = session.NativeResult == 2 || session.GameOver != 0
             ? "Training defeat. Your troops have returned to the castle."
             : reward == 0 ? "Drill complete. Route the enemy commander to earn Potch."
-            : credited > 0 ? $"Training victory. You earned {credited:N0} Potch.{xpNote}"
-            : Plugin.Options.EnableTrainingRewards.Value ? $"Training victory. Your purse is full.{xpNote}"
-            : $"Training victory.{xpNote}";
+            : credited > 0 ? $"Victory! +{credited:N0} Potch.{xpNote}{commNote}"
+            : Plugin.Options.EnableTrainingRewards.Value ? $"Victory! Purse full.{xpNote}{commNote}"
+            : $"Victory!{xpNote}{commNote}";
         CastleGuildRuntime.TrainingFeedback(message);
         Plugin.Logger.LogInfo($"Training War {session.WarNumber} receipt: ending={session.Ending}, gameOver={session.GameOver}, commanderRouted={session.CommanderRouted}, alliesRemain={session.AlliesRemain}, fortVictory={session.FortVictory}, directive={session.Directive}, turns={session.TurnCount}, earned={reward}, credited={credited}, xpUpdated={xpSummary.CommandersUpdated}.");
     }

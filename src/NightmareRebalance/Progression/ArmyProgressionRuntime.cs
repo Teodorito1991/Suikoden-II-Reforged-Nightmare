@@ -182,16 +182,20 @@ internal static class ArmyProgressionRuntime
     internal static CommanderProfile? Enhance(WAR_CHARA_TYPE original, CommanderProfile? existingProfile, bool isEnemy)
     {
         bool training = TrainingWar.Active;
+        var skirmish = TrainingWar.ActiveSkirmish;
+        bool applySkirmish = training && isEnemy && skirmish != null;
         bool applyDirective = training && DirectivesEnabled && ActiveDirective != DrillDirective.None;
         bool applyProg = Enabled && !isEnemy && Current.Commanders.TryGetValue(original.name, out var progress) && ArmyProgressionRules.RankForXp(progress.Xp) > ArmyRank.Recruit;
         var synergy = Enabled && !isEnemy ? ActiveUnitSynergy(original.name) : null;
-        if (!applyDirective && !applyProg && synergy == null) return existingProfile;
+        if (!applySkirmish && !applyDirective && !applyProg && synergy == null) return existingProfile;
 
         var profile = existingProfile ?? BuildBaseProfile(original);
         if (applyProg && Current.Commanders.TryGetValue(original.name, out var prog))
             profile = ArmyProgressionRules.ApplyProgression(profile, prog);
         if (synergy != null)
             profile = ArmyProgressionRules.ApplyWarSynergy(profile, synergy);
+        if (applySkirmish)
+            profile = Reforged2Rules.ApplySkirmishEnemyBoost(profile, skirmish!);
         if (applyDirective)
             profile = ArmyProgressionRules.ApplyDirective(profile, ActiveDirective, isEnemy);
         return profile;
@@ -323,6 +327,38 @@ internal static class ArmyProgressionRuntime
             var game = Framework.Singleton<GAME_WORK>.instance;
             if (game?.game_data != null) boundCampaignOwner = game.game_data.Pointer;
             ArmyProgressionRules.RecordHallClear(Current, bossId, nightmare, turns, noKo);
+            Current.Commendations = Math.Min(999, Current.Commendations + (nightmare ? 2 : 1));
+        }
+    }
+
+    internal static void AwardCommendations(int count)
+    {
+        if (count <= 0) return;
+        lock (Sync)
+        {
+            var game = Framework.Singleton<GAME_WORK>.instance;
+            if (game?.game_data != null) boundCampaignOwner = game.game_data.Pointer;
+            Current.Commendations = Math.Min(999, Current.Commendations + count);
+        }
+    }
+
+    internal static void SpendCommendations(int count)
+    {
+        if (count <= 0) return;
+        lock (Sync)
+        {
+            Current.Commendations = Math.Max(0, Current.Commendations - count);
+        }
+    }
+
+    internal static void RecordHuntCompletion()
+    {
+        lock (Sync)
+        {
+            var game = Framework.Singleton<GAME_WORK>.instance;
+            if (game?.game_data != null) boundCampaignOwner = game.game_data.Pointer;
+            Current.HuntsCompleted++;
+            Current.Commendations = Math.Min(999, Current.Commendations + 1);
         }
     }
 

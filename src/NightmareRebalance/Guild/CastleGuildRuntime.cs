@@ -237,6 +237,7 @@ internal static class CastleGuildRuntime
    GuildChoice.CycleDoctrine => CycleCommanderDoctrine(Menu.Focus),
    GuildChoice.CycleDirective => CycleDrillDirective(),
    GuildChoice.CycleHuntModifier => CycleHuntModifier(),
+   GuildChoice.BuyQuartermaster => BuyQuartermasterItem(Menu.Focus),
    GuildChoice.Report => ReportContract(),
    GuildChoice.Withdraw => WithdrawContract(),
    GuildChoice.Leave => true,
@@ -270,6 +271,12 @@ internal static class CastleGuildRuntime
   Status=$"Hunt Risk Modifier set to {ArmyProgressionRules.HuntModifierTitle(next)}.";
   return false;
  }
+ static bool BuyQuartermasterItem(int index)
+ {
+  Reforged2Runtime.TryPurchaseQuartermaster(index,out string msg);
+  Status=msg;
+  return false;
+ }
  internal static void Close(bool fence){repeatUp.Reset();repeatDown.Reset();if(HallLucaSession.Selecting)HallLucaSession.Cancel();if(Modal){Closes++;HuntGuildRuntime.Visible=false;HuntGuildRuntime.LastRenderFrame=-1;}Modal=false;ReleaseFence=fence;releaseFrames=0;}
  internal static void Detach(){Close(false);if(Owner!=null&&Copy!=null&&Owner.mdat?.Pointer==Copy.Pointer)Owner.mdat=Source;if(Copy!=null)UnityEngine.Object.Destroy(Copy);Owner=null;Source=null;Copy=null;Field=null;Clerk=null;DrillSergeant=null;EchoArchivist=null;ActiveNpc=CastleNpcRole.GuildAttendant;Party=IntPtr.Zero;ObjectIndex=-1;SergeantIndex=-1;ArchivistIndex=-1;}
  internal static string FeedbackText="";static long feedbackUntil;
@@ -298,7 +305,7 @@ internal static class CastleGuildRuntime
   ContractParty=Framework.Singleton<GAME_WORK>.instance!.party_data.Pointer;Accepts++;Status=QuestSummary;Notify(Status);Journal("Accepted");return true;
  }
  internal static bool WithdrawContract(){if(!Context||!Quest.Withdraw())return false;HuntAccess.Ticket.Cancel();Status="Contract withdrawn. Choose another whenever you are ready.";Notify(Status);Journal("Withdrawn");return true;}
- internal static bool ReportContract(){if(!Context||Framework.Singleton<GAME_WORK>.instance?.party_data?.Pointer!=ContractParty||!Quest.Report()){Status="Completion is not ready to report.";return false;}HuntAccess.Ticket.Cancel();Status=QuestSummary;Notify(Status);Journal("Reported");return true;}
+ internal static bool ReportContract(){if(!Context||Framework.Singleton<GAME_WORK>.instance?.party_data?.Pointer!=ContractParty||!Quest.Report()){Status="Completion is not ready to report.";return false;}ArmyProgressionRuntime.RecordHuntCompletion();HuntAccess.Ticket.Cancel();Status=QuestSummary+" (+1 Commendation)";Notify(Status);Journal("Reported");return true;}
  internal static void ClearContract(string reason="Contract cleared by native load or session change"){
   bool had=Quest.State!=GuildQuestState.NoContract;Quest=new();ContractParty=IntPtr.Zero;HuntAccess.Ticket.Cancel();
   if(had){Status=reason+". Contracts are session-only.";Notify(Status);Journal("SessionCleared");}

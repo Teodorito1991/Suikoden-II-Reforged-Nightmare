@@ -38,6 +38,9 @@ internal static class EnemyDamagePatch
         MaintenanceRuntime.Raw(__instance.chara_no,mokuhyo,__result,__originalMethod.Name);
         bool eligible=w!=null&&Combat.EnemyToPlayer(w,__instance.chara_no,mokuhyo);
         DamageScope.Apply(__state,eligible,w,__instance.chara_no,mokuhyo,ref __result);
+        if (__state && eligible && __result > 1 && __instance.monster_data?.attack_data is {} perkMoves &&
+            attack_mode >= 0 && attack_mode < perkMoves.Length && perkMoves[attack_mode] is { attack_type: 1 })
+            __result = Reforged2Runtime.ApplyDefenderWeaponPerk(w, mokuhyo, __result);
         if (__state && eligible && __result > 0 && w!.pm_data[mokuhyo] is {} defender &&
             __instance.monster_data?.attack_data is {} moves && attack_mode >= 0 && attack_mode < moves.Length &&
             moves[attack_mode] is {} move)

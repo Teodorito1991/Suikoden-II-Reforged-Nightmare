@@ -1,7 +1,7 @@
 namespace NightmareRebalance;
 
-internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy, Echoes, EchoDifficulty, SpoilerWarning, LucaParties, ArmyRoster, Codex }
-internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave, StartEcho, SetSpoilers, RestoreStory, ChooseLuca, CycleDoctrine, CycleDirective, CycleHuntModifier }
+internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy, Echoes, EchoDifficulty, SpoilerWarning, LucaParties, ArmyRoster, Codex, Quartermaster }
+internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave, StartEcho, SetSpoilers, RestoreStory, ChooseLuca, CycleDoctrine, CycleDirective, CycleHuntModifier, BuyQuartermaster }
 internal enum CastleNpcRole { GuildAttendant, DrillSergeant, EchoArchivist }
 
 internal static class GuildApproach
@@ -59,10 +59,11 @@ internal sealed class GuildMenuNavigation
     internal int EchoCount { get; set; } = 1;
     internal int SpoilerRow {get;set;}=-1;
 
-    internal const int TrainingDrillCount = 8;
-    internal const int RosterRow = 8;
-    internal const int DirectiveRow = 9;
-    internal const int CodexRow = 10;
+    internal const int TrainingDrillCount = 9;
+    internal const int RosterRow = 9;
+    internal const int DirectiveRow = 10;
+    internal const int QuartermasterRow = 11;
+    internal const int CodexRow = 12;
     internal int ArmyRosterCount { get; set; } = 1;
 
     internal int LucaChoiceCount;
@@ -70,8 +71,9 @@ internal sealed class GuildMenuNavigation
     internal int RowCount => Page switch
     {
         GuildPage.Services => Services.Length + 1,
-        GuildPage.Training => 11,
+        GuildPage.Training => 13,
         GuildPage.ArmyRoster => Math.Max(1, ArmyRosterCount),
+        GuildPage.Quartermaster => Reforged2Rules.QuartermasterStock.Length,
         GuildPage.Codex => 4,
         GuildPage.Strategy => StarBondRules.Catalogue.Length,
         GuildPage.Hunts => HuntCount,
@@ -128,6 +130,7 @@ internal sealed class GuildMenuNavigation
         GuildPage.Training => "Dunan Castle  ·  Army Training",
         GuildPage.Difficulty => "Army Training  >  Difficulty",
         GuildPage.ArmyRoster => "Army Training  >  Roster",
+        GuildPage.Quartermaster => "Army Training  >  Quartermaster",
         GuildPage.Codex => "Army Training  >  Codex",
         GuildPage.Status => "Dunan Castle  ·  Guild Status",
         GuildPage.Strategy => "Dunan Castle  ·  Party Strategy",
@@ -148,6 +151,7 @@ internal sealed class GuildMenuNavigation
             case GuildPage.SpoilerWarning: Enter(GuildPage.Echoes, EchoCount-1); break;
             case GuildPage.Difficulty: Enter(GuildPage.Training, Drill); break;
             case GuildPage.ArmyRoster: Enter(GuildPage.Training, RosterRow); break;
+            case GuildPage.Quartermaster: Enter(GuildPage.Training, QuartermasterRow); break;
             case GuildPage.Codex: Enter(GuildPage.Training, CodexRow); break;
             case GuildPage.Hunts: Enter(GuildPage.Services, 0); break;
             case GuildPage.Training: Enter(GuildPage.Services, 1); break;
@@ -179,6 +183,9 @@ internal sealed class GuildMenuNavigation
                 return GuildChoice.None;
             case GuildPage.Training when Focus == DirectiveRow:
                 return GuildChoice.CycleDirective;
+            case GuildPage.Training when Focus == QuartermasterRow:
+                Enter(GuildPage.Quartermaster, 0);
+                return GuildChoice.None;
             case GuildPage.Training when Focus == CodexRow:
                 Enter(GuildPage.Codex, 0);
                 return GuildChoice.None;
@@ -188,6 +195,8 @@ internal sealed class GuildMenuNavigation
                 return GuildChoice.None;
             case GuildPage.ArmyRoster:
                 return GuildChoice.CycleDoctrine;
+            case GuildPage.Quartermaster:
+                return GuildChoice.BuyQuartermaster;
             case GuildPage.Codex when Focus == 2:
                 return GuildChoice.CycleHuntModifier;
             case GuildPage.Codex:

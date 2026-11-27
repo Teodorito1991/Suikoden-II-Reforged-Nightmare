@@ -28,6 +28,9 @@ GuildAudioCancelId = -1
 
 [Combat Reforged]
 EnableBattleTacticalHud = true
+EnableCombatCombos = true
+EnableWeaponMilestonePerks = true
+EnableBossTelegraphs = true
 "@
 
 Add-Content -LiteralPath $cfgPath -Value $overlay -Encoding UTF8

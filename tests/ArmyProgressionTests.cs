@@ -123,6 +123,7 @@ internal static class ArmyProgressionTests
         Check(menu.Back() && menu.Page == GuildPage.Training && menu.Focus == GuildMenuNavigation.RosterRow, "Back from ArmyRoster restores RosterRow focus");
         menu.Move(false, true); // DirectiveRow
         Check(Confirm() == GuildChoice.CycleDirective && menu.Page == GuildPage.Training, "DirectiveRow cycles Directive in place");
+        menu.Move(false, true); // QuartermasterRow
         menu.Move(false, true); // CodexRow
         Check(Confirm() == GuildChoice.None && menu.Page == GuildPage.Codex, "CodexRow opens Tactician's Codex");
         Check(Confirm() == GuildChoice.None && menu.Page == GuildPage.Training && menu.Focus == GuildMenuNavigation.CodexRow, "Codex confirm returns to Training");
@@ -197,14 +198,41 @@ internal static class ArmyProgressionTests
         menu.Move(false, true);
         Check(Confirm() == GuildChoice.CycleHuntModifier, "Codex Hunt row cycles Hunt Risk Modifier");
 
-        // 10. Extended War Scenarios (Wars 6, 10, 13, 15)
-        foreach (int w in new[] { 6, 10, 13, 15 })
+        // 10. Extended War Scenarios, Custom Skirmishes, Quartermaster, Hunter Rank, Weapon Perks, Combos & Telegraphs
+        foreach (int w in new[] { 6, 13 })
         {
             Check(TrainingResultRules.VictoryPotch(w, false, 1, 1, 0, true, true, false) == 750, $"War {w} Standard victory pays 750");
             Check(TrainingResultRules.VictoryPotch(w, true, 1, 4, 0, false, true, false) == 1500, $"War {w} Veteran objective ending pays 1500");
             Check(TrainingResultRules.VictoryPotch(w, true, 2, 1, -1, false, false, false) == 0, $"War {w} defeat pays 0");
         }
 
-        Console.WriteLine($"PASS: Army Progression, Hall Medals, Modifiers, Synergy, Extended Wars & Star Bonds {checks} checks.");
+        Check(Reforged2Rules.Skirmishes.Length == 3, "3 Custom Skirmish scenarios defined");
+        var grandBoost = Reforged2Rules.ApplySkirmishEnemyBoost(flik, Reforged2Rules.Skirmishes[2]);
+        Check(grandBoost.Attack == flik.Attack + 2 && grandBoost.Defense == flik.Defense + 2 && grandBoost.Abilities.Contains("SP_CRITICAL"), "Grand Army Skirmish boosts enemy commanders within caps");
+
+        Check(Reforged2Rules.QuartermasterStock.Length == 10, "Quartermaster stocks all 10 audited rare items");
+        Check(Reforged2Rules.HunterRankForClears(0) == HunterRank.Unranked && Reforged2Rules.HunterRankForClears(1) == HunterRank.Bronze && Reforged2Rules.HunterRankForClears(15) == HunterRank.Master, "Hunter Rank progression");
+        Check(Reforged2Rules.HunterPotchBonusMultiplier(HunterRank.Master) == 1.25, "Master Hunter +25% Potch multiplier");
+
+        Check(Reforged2Rules.ApplyWeaponAttackPerk(100, 7) == 100, "Weapon Lv 7 has no milestone perk");
+        Check(Reforged2Rules.ApplyWeaponAttackPerk(100, 8) == 106, "Weapon Lv 8 Keen Edge +6% ATK");
+        Check(Reforged2Rules.ApplyWeaponAttackPerk(100, 16) == 114 && Reforged2Rules.ApplyWeaponDefensePerk(100, 16) == 90, "Weapon Lv 16 Masterwork +14% ATK / -10% phys taken");
+
+        var shatter = Reforged2Rules.EvaluatePhysicalCombo(100, targetSleeping: true, targetBalloon: false, targetPoisoned: false);
+        Check(shatter.Name == "Shatter Strike" && shatter.BonusDamage == 20, "Shatter Strike combo bonus");
+        var chain = Reforged2Rules.EvaluateArcaneChain(100, spellsCastThisTurn: 2);
+        Check(chain.Name == "Arcane Chain" && chain.BonusDamage == 18, "Arcane Chain 2nd-spell combo bonus");
+
+        string p1 = Reforged2Rules.BossPhaseBanner("Neclord", 4500, 10000, 0, out int ph1);
+        string p2 = Reforged2Rules.BossPhaseBanner("Neclord", 2000, 10000, ph1, out int ph2);
+        Check(ph1 == 1 && p1.Contains("fury") && ph2 == 2 && p2.Contains("Desperation"), "Boss phase telegraphs trigger at 50% and 25%");
+
+        menu.OpenDirect(GuildPage.Training, 10);
+        for (int i = 0; i < GuildMenuNavigation.QuartermasterRow; i++) menu.Move(false, true);
+        Check(Confirm() == GuildChoice.None && menu.Page == GuildPage.Quartermaster, "QuartermasterRow opens Quartermaster Shop");
+        Check(Confirm() == GuildChoice.BuyQuartermaster, "Confirm inside Quartermaster triggers BuyQuartermaster");
+        Check(menu.Back() && menu.Page == GuildPage.Training && menu.Focus == GuildMenuNavigation.QuartermasterRow, "Back from Quartermaster restores focus");
+
+        Console.WriteLine($"PASS: Reforged 2.0 full suite {checks} checks.");
     }
 }

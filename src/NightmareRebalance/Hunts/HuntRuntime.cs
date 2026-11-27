@@ -56,6 +56,8 @@ internal static class HuntRuntime
  {
   if(!Config.EnableExperimentalHunt||Work!=w.Pointer||Party!=w.monster_party_data?.Pointer||!ActiveRoster||Combat.State is not{Allowed:true,SnapshotTaken:true}||Combat.State.Work!=Work||CombatReforgedDiagnostics.Outcome!="VictorySignal")return;
   int bonus=HuntCatalogueRules.Bonus(Active!,Settings(Active!),Config);
+  var hRank=Reforged2Rules.HunterRankForClears(ArmyProgressionRuntime.Current.HuntsCompleted);
+  bonus=(int)Math.Round(bonus*Reforged2Rules.HunterPotchBonusMultiplier(hRank),MidpointRounding.AwayFromZero);
   if(ArmyProgressionRuntime.HuntModifiersEnabled)
    bonus=ArmyProgressionRules.HuntModifierBonusPotch(bonus,ArmyProgressionRuntime.ActiveHuntModifier);
   int before=exit.monster_okane;exit.monster_okane=reward.Apply(before,bonus);RewardCalculations++;HuntSessionRuntime.Current?.Prepare(exit.monster_okane);

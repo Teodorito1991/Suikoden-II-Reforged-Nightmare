@@ -3,6 +3,7 @@
   <ItemGroup>
  <Compile Include="../src/NightmareRebalance/War/TrainingPersistenceRules.cs" Link="TrainingPersistenceRules.cs" />
  <Compile Include="../src/NightmareRebalance/Progression/ArmyProgressionRules.cs" Link="ArmyProgressionRules.cs" />
+ <Compile Include="../src/NightmareRebalance/Progression/Reforged2Rules.cs" Link="Reforged2Rules.cs" />
  <Compile Include="../src/NightmareRebalance/Hall/HallGauntletRules.cs" Link="HallGauntletRules.cs" />
  <Compile Include="../src/NightmareRebalance/Hall/HallNightmareRules.cs" Link="HallNightmareRules.cs" />
  <Compile Include="../src/NightmareRebalance/Hall/HallPresentation.cs" Link="HallPresentation.cs" />

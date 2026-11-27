@@ -32,6 +32,22 @@
   6 lore-driven **Star Bonds** (10 total: *Genkaku's Legacy*, *Mercenary
   Veterans*, *Arcane Resonance*, *Vampire Hunters*, *Wandering Blades*, and
   *Rokaku Shadows*).
+- Added **Reforged 2.0 Overhaul Systems** (opt-in):
+  - **3 True Custom Skirmishes** (*Skirmish I: Crimson Vanguard*, *Skirmish II:
+    Ironclad Siege*, *Skirmish III: Highland Grand Army*) replacing scripted-only
+    Wars 10 & 15, plus automatic `war_data.sub_to_leader` restoration on drill
+    return.
+  - **Dunan Commendations, Hunter Rank (Bronze → Master), & Castle Quartermaster
+    Shop** (exchange Commendations earned from Hunts, Skirmishes, and Hall
+    Medals for 10 audited rare Runes, Growth Stones, and supplies delivered
+    directly to your bag).
+  - **In-Battle RPG Overhaul:** **Elemental & Status Combos** (*Shatter Strike*,
+    *Venom Rend*, *Arcane Chain*), **Weapon Milestone Perks** (Weapon Lv 8/12/16),
+    **Boss Phase Telegraphs** (50% & 25% HP banners), and **F4 Enemy Tactical
+    Scanner** with live HP bars and enemy roles.
+  - **Classic Suikoden II Guild UI Redesign:** royal-blue vertical gradients,
+    drop-shadowed serif text, layered Spoils plaques, and floating Speaker
+    Nameplate NPC dialogue boxes.
 - Added **Hall of Echoes Mastery Medals** (best turn count & No-KO badges in
   `army-ledger.json`), **Hunt Risk Modifiers** (`EnableHuntModifiers`),
   **War Unit Synergy Pairs** (*Flik+Viktor*, *Shu+Apple*, *Luc+Mazus*,

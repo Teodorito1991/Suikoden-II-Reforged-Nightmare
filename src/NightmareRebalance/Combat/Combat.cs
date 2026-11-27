@@ -29,6 +29,7 @@ internal static class Combat
         if(detachHunt)HuntRuntime.Detach();
         CombatReforgedRuntime.Clear();
         CombatEvolutionRuntime.BossTables.Clear();
+        Reforged2Runtime.ClearBattle();
         State = null;
     }
 

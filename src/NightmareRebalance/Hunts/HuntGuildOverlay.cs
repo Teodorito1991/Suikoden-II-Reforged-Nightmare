@@ -6,7 +6,7 @@ namespace NightmareRebalance;
 public sealed class HuntGuildOverlay:MonoBehaviour
 {
  readonly Stopwatch timer=Stopwatch.StartNew();
- Font? fallbackFont;readonly Dictionary<int,GUIStyle> styles=new();bool faulted;readonly StableHotkeyEdge request=new();
+ Font? fallbackFont;readonly Dictionary<int,GUIStyle> styles=new();bool faulted;readonly StableHotkeyEdge request=new(),scannerKey=new();
  bool smokeExitRequested,smokeCapturePending;
  int smokeCaptureFrame;
  HuntDefinition? fieldOffer;
@@ -58,6 +58,14 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   {
    UpdateRenderSmoke();
    return;
+  }
+  if(!faulted&&Combat.State is {Ready:true})
+  {
+   GetWindowThreadProcessId(GetForegroundWindow(),out uint fg);
+   bool focusedBattle=fg==(uint)Environment.ProcessId;
+   short f4=GetAsyncKeyState(0x73);
+   if(scannerKey.Poll(focusedBattle,(f4&0x8000)!=0,(f4&1)!=0,timer.ElapsedMilliseconds))
+    Reforged2Runtime.ToggleScanner();
   }
   fieldOffer=null;
   if(!faulted&&CastleGuildRuntime.Config.EnableFieldReissue&&!HuntGuildRuntime.Visible)
@@ -191,9 +199,10 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   new("Commander Rout", "War 1 · No turn limit"),
   new("War 3", "Battle of Muse"),
   new("War 6", "Kiba's Vanguard"),
-  new("War 10", "Highland Assault"),
   new("War 13", "Rockaxe Front"),
-  new("War 15", "L'Renouille Siege")
+  new("Skirmish I: Crimson", "Custom War · +2 Commendations"),
+  new("Skirmish II: Siege", "Custom War · +3 Commendations"),
+  new("Skirmish III: Grand", "Custom War · +4 Commendations")
  };
 
  [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
@@ -354,33 +363,51 @@ public sealed class HuntGuildOverlay:MonoBehaviour
        status, "Cycle Doctrine", back, preview, GuildMenuNavigation.Breadcrumb(page), progressFrac));
   }
 
+  if (page == GuildPage.Quartermaster)
+  {
+   var stock = Reforged2Rules.QuartermasterStock;
+   focus = Math.Clamp(focus, 0, stock.Length - 1);
+   int balance = ArmyProgressionRuntime.Current.Commendations;
+   var qRows = stock.Select(o => new GuildMenuRow(o.Name,
+       balance >= o.CostCommendations ? $"{o.CostCommendations} Commendation(s) · Ready" : $"{o.CostCommendations} Commendation(s) · Locked")).ToArray();
+   var sel = stock[focus];
+   bool canAfford = balance >= sel.CostCommendations;
+   return GuildRebornScreen.Paginate(new("QUARTERMASTER", qRows, focus, sel.Name,
+       $"{sel.Category}  ·  Balance: {balance} Commendation(s)",
+       sel.Description,
+       $"Cost: {sel.CostCommendations} Dunan Commendation(s)",
+       "Earn Commendations from Hunts, Army Drills, Custom Skirmishes, and Hall of Echoes clears. Delivered straight to your bag.",
+       status, canAfford ? "Exchange" : "Insufficient", back, preview));
+  }
+
   if (page == GuildPage.Codex)
   {
    var ledger = ArmyProgressionRuntime.Current;
+   var hRank = Reforged2Rules.HunterRankForClears(ledger.HuntsCompleted);
    int[] party = preview ? new[]{7,8,30,26,33,32} : StarBondRuntime.FieldParty();
    int activeBonds = StarBondRules.Catalogue.Count(b => StarBondRules.Includes(b, party));
    var codexRows = new[]
    {
-    new GuildMenuRow("Army Campaign", $"{ledger.TotalDrillsWon} drills · {ledger.Commanders.Count} commanders"),
-    new GuildMenuRow("Cross-Theater", $"{ledger.MoraleBonusCharges} morale charge(s) · {ledger.HallNightmareClears} Nightmare"),
-    new GuildMenuRow("Hunt Guild", ArmyProgressionRuntime.HuntModifiersEnabled ? ArmyProgressionRules.HuntModifierTitle(ArmyProgressionRuntime.ActiveHuntModifier) : $"{CastleGuildRuntime.Completions} session completion(s)"),
+    new GuildMenuRow("Army Campaign", $"{ledger.TotalDrillsWon} drills · {ledger.Commendations} Commendations"),
+    new GuildMenuRow("Cross-Theater", $"{ledger.MoraleBonusCharges} morale · {ledger.HallNightmareClears} Nightmare"),
+    new GuildMenuRow("Hunt Guild", $"{Reforged2Rules.HunterRankTitle(hRank)} · {ArmyProgressionRules.HuntModifierTitle(ArmyProgressionRuntime.ActiveHuntModifier)}"),
     new GuildMenuRow("Active Star Bonds", $"{activeBonds} active in current party")
    };
    focus = Math.Clamp(focus, 0, codexRows.Length - 1);
    var (cTitle, cArea, cDesc, cReward, cCond) = focus switch
    {
-    0 => ("Army Campaign Record", $"Drills: {ledger.TotalDrillsWon} ({ledger.TotalVeteranDrillsWon} Veteran)",
+    0 => ("Army Campaign Record", $"Drills: {ledger.TotalDrillsWon} ({ledger.TotalVeteranDrillsWon} Veteran) · Commendations: {ledger.Commendations}",
           $"Tracked commanders: {ledger.Commanders.Count}. Active Directive: {ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective)}.",
-          ArmyProgressionRuntime.Enabled ? "Army Progression ON" : "Army Progression OFF (EnableArmyProgression)",
+          ArmyProgressionRuntime.Enabled ? "Army Progression ON · Spend Commendations at Quartermaster" : "Army Progression OFF (EnableArmyProgression)",
           "Progress binds automatically to your save fingerprint whenever you save."),
     1 => ("Cross-Theater Synergy", ArmyProgressionRuntime.SynergyEnabled ? "Synergy ON" : "Synergy OFF (EnableCrossTheaterSynergy)",
-          "Veteran drills arm +1 morale rune charge for your next RPG victory. Hall Nightmare clears grant +35 War XP to party commanders.",
+          "Veteran drills arm +1 morale rune charge for your next RPG victory. Hall Nightmare clears grant +35 War XP and +2 Commendations.",
           $"Armed Morale Charges: {ledger.MoraleBonusCharges}   ·   Nightmare Clears: {ledger.HallNightmareClears}",
           "Respects RuneRecoveryMaxLevel and all native save/combat guards."),
-    2 => ("Hunt Guild & Risk Modifier", $"Modifier: {ArmyProgressionRules.HuntModifierTitle(ArmyProgressionRuntime.ActiveHuntModifier)}",
+    2 => ($"Hunt Guild · {Reforged2Rules.HunterRankTitle(hRank)}", $"Cleared: {ledger.HuntsCompleted}  ·  Potch Bonus: x{Reforged2Rules.HunterPotchBonusMultiplier(hRank):0.00}",
           ArmyProgressionRules.HuntModifierDescription(ArmyProgressionRuntime.ActiveHuntModifier) + "\n" + CastleGuildRuntime.QuestSummary,
           ArmyProgressionRuntime.HuntModifiersEnabled ? "Confirm cycles Hunt Risk Modifier (+35% bonus Potch)." : "Enable EnableHuntModifiers in settings to toggle Hunt modifiers.",
-          "Contracts remain session-only; loading a save clears unreported contracts."),
+          "Reporting completed hunts grants +1 Dunan Commendation and advances Hunter Rank."),
     _ => ("Party Star Bonds", $"{activeBonds} of {StarBondRules.Catalogue.Length} active",
           "Check Party Strategy from the main Guild menu for exact triggers and bonuses.",
           "Normal battles without scripted commands.",
@@ -398,7 +425,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
        {
         new GuildMenuRow("Commander Roster", ArmyProgressionRuntime.Enabled ? $"{ArmyProgressionRuntime.Current.Commanders.Count} tracked" : "Progression OFF"),
         new GuildMenuRow("Drill Directive", ArmyProgressionRuntime.DirectivesEnabled ? ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective) : "Directives OFF"),
-        new GuildMenuRow("Tactician's Codex", "Campaign & synergy summary")
+        new GuildMenuRow("Quartermaster Shop", $"{ArmyProgressionRuntime.Current.Commendations} Commendation(s)"),
+        new GuildMenuRow("Tactician's Codex", "Ranks, Hunter & Synergy")
        }).ToArray();
    var (mTitle, mArea, mDesc, mReward, mCond, mConfirm) = focus switch
    {
@@ -412,9 +440,13 @@ public sealed class HuntGuildOverlay:MonoBehaviour
         $"XP x{ArmyProgressionRules.DirectiveXpMultiplier(ArmyProgressionRuntime.ActiveDirective):0.00}   ·   Potch x{ArmyProgressionRules.DirectivePotchMultiplier(ArmyProgressionRuntime.ActiveDirective):0.00}",
         "Confirm cycles: Standard -> Iron Wall -> No Field Medicine -> Forced March.",
         ArmyProgressionRuntime.DirectivesEnabled ? "Cycle Directive" : "Disabled"),
+    GuildMenuNavigation.QuartermasterRow => ("Castle Quartermaster", $"Balance: {ArmyProgressionRuntime.Current.Commendations} Dunan Commendation(s)",
+        "Exchange Dunan Commendations earned from Hunts, Custom Skirmishes, and Hall Medals for rare Runes, Growth Stones, and supplies.",
+        "10 audited native items delivered straight to your bag.",
+        "Requires an open bag slot. Save at an inn or orb to persist your Commendation ledger.", "Open Shop"),
     _ => ("Tactician's Codex", "Dunan War & Guild Overview",
-        "View Army Progression records, Cross-Theater Synergy morale charges, Hunt stats, and active Star Bonds.",
-        "Read-only campaign telemetry.", "No campaign flags or saves are modified.", "Open Codex")
+        "View Army Progression records, Hunter Rank, Cross-Theater Synergy morale charges, and active Star Bonds.",
+        "Confirm on Hunt Guild row to cycle Hunt Risk Modifiers.", "No campaign flags or saves are modified.", "Open Codex")
    };
    return GuildRebornScreen.Paginate(new("ARMY TRAINING", trainingAllRows, focus, mTitle, mArea, mDesc, mReward, mCond, status, mConfirm, back, preview));
   }
@@ -429,9 +461,10 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    TrainingWar.Drill.CommanderRout => "Command the allied squads and fight beyond turn three until one army is routed.",
    TrainingWar.Drill.War3 => "Fight on the original War 3 battlefield. The story timer can end the drill.",
    TrainingWar.Drill.War6 => "Clash against Kiba's vanguard on the audited War 6 battlefield under full training save protection.",
-   TrainingWar.Drill.War10 => "Replay the audited War 10 Highland Assault scenario with your current commanders and Doctrines.",
    TrainingWar.Drill.War13 => "Hold the line on the audited War 13 Rockaxe Front against coordinated Highland forces.",
-   TrainingWar.Drill.War15 => "Replay the audited War 15 L'Renouille Siege with full Veteran tactical AI and Directives.",
+   TrainingWar.Drill.SkirmishCrimson => Reforged2Rules.Skirmishes[0].Description,
+   TrainingWar.Drill.SkirmishIronSiege => Reforged2Rules.Skirmishes[1].Description,
+   TrainingWar.Drill.SkirmishGrandArmy => Reforged2Rules.Skirmishes[2].Description,
    _ => "Practice on the original War 1 battlefield. The story timer can end the drill."
   };
   var trainingRows = page == GuildPage.Training ? Drills.Select((row,i) =>
@@ -441,7 +474,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       {
        new GuildMenuRow("Commander Roster", ArmyProgressionRuntime.Enabled ? $"{ArmyProgressionRuntime.Current.Commanders.Count} tracked" : "Progression OFF"),
        new GuildMenuRow("Drill Directive", ArmyProgressionRuntime.DirectivesEnabled ? ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective) : "Directives OFF"),
-       new GuildMenuRow("Tactician's Codex", "Campaign & synergy summary")
+       new GuildMenuRow("Quartermaster Shop", $"{ArmyProgressionRuntime.Current.Commendations} Commendation(s)"),
+       new GuildMenuRow("Tactician's Codex", "Ranks, Hunter & Synergy")
       }).ToArray() :
       new[] { new GuildMenuRow("Standard", "Current scenario rules"),
           new GuildMenuRow("Veteran", veteranAllowed ? "Coordinated enemy tactics" : "Unavailable") };
@@ -488,7 +522,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       ? HuntRuntime.BrowseOrder.FirstOrDefault() :fieldOffer;
   bool prompt=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.Idle&&CastleGuildRuntime.Near;
   bool feedback=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.FeedbackVisible;
-  bool battleHud=!previewSmoke&&Plugin.Options?.EnableBattleTacticalHud.Value==true&&Combat.State is {Ready:true};
+  bool battleHud=!previewSmoke&&Combat.State is {Ready:true}&&(Plugin.Options?.EnableBattleTacticalHud.Value==true||Reforged2Runtime.BannerVisible||Reforged2Runtime.ScannerVisible);
   if(smokeExitRequested||faulted||(!previewSmoke&&!battleHud&&!prompt&&!feedback&&offer==null&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
   try
   {
@@ -498,16 +532,45 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     GUI.matrix=Matrix4x4.identity;GUI.color=Color.white;
     if(battleHud)
     {
-     int[] party=StarBondRuntime.FieldParty();
-     var active=StarBondRules.Catalogue.Where(b=>StarBondRules.Includes(b,party)).Select(b=>b.Title).ToArray();
-     int morale=ArmyProgressionRuntime.Current.MoraleBonusCharges;
-     if(active.Length>0||morale>0)
+     if(Plugin.Options?.EnableBattleTacticalHud.Value==true)
      {
-      string text=(active.Length>0?"★ "+string.Join(" · ",active.Take(2)):"")+(morale>0?(active.Length>0?"   ":"")+$"Morale +{morale}":"");
-      float w=Math.Min(460,Math.Max(220,text.Length*10+36));
+      int[] party=StarBondRuntime.FieldParty();
+      var active=StarBondRules.Catalogue.Where(b=>StarBondRules.Includes(b,party)).Select(b=>b.Title).ToArray();
+      int morale=ArmyProgressionRuntime.Current.MoraleBonusCharges;
+      string text=(active.Length>0?"★ "+string.Join(" · ",active.Take(2)):"F4: Tactical Scanner")+(morale>0?$"   Morale +{morale}":"");
+      float w=Math.Min(480,Math.Max(220,text.Length*10+36));
       var pill=new Rect(Screen.width-w-18,16,w,40);
       Window(pill);
       Label(new(new(14,9,w-28,24),text,16,"gold"),pill.x,pill.y,1);
+     }
+     if(Reforged2Runtime.BannerVisible)
+     {
+      float bw=Math.Min(640,Math.Max(300,Reforged2Runtime.BannerText.Length*12+48));
+      var banner=new Rect((Screen.width-bw)/2,18,bw,46);
+      Window(banner);
+      Label(new(new(18,11,bw-36,26),Reforged2Runtime.BannerText,19,"gold"),banner.x,banner.y,1);
+     }
+     if(Reforged2Runtime.ScannerVisible&&Framework.Singleton<BATTLE_WORK>.instance?.pm_data is {} pmUnits)
+     {
+      var enemies=pmUnits.Where(u=>u!=null&&!u.IsPlayer&&u.hp>0&&!u.IsDead).Take(6).ToArray();
+      if(enemies.Length>0)
+      {
+       float sw=340,sh=42+enemies.Length*34;
+       var scanBox=new Rect(18,16,sw,sh);
+       Window(scanBox);
+       Label(new(new(16,8,sw-32,24),"TACTICAL SCANNER  (F4)",16,"gold"),scanBox.x,scanBox.y,1);
+       for(int i=0;i<enemies.Length;i++)
+       {
+        var e=enemies[i]!;
+        string id=e.monster_data?.id??"Foe";
+        string role=OverhaulRuntime.Enemies.TryGetValue(id,out var prof)?prof.Role:"Enemy";
+        float hpFrac=e.max_hp>0?Math.Clamp((float)e.hp/e.max_hp,0f,1f):0f;
+        float ry=36+i*34;
+        Label(new(new(16,ry,sw-32,18),$"{id} ({role})  {e.hp}/{e.max_hp}",14),scanBox.x,scanBox.y,1);
+        Fill(new Rect(scanBox.x+16,scanBox.y+ry+20,sw-32,6),new Color(.04f,.07f,.16f,.95f));
+        Fill(new Rect(scanBox.x+16,scanBox.y+ry+20,(sw-32)*hpFrac,6),hpFrac<=0.25f?new Color(.95f,.35f,.30f,.95f):hpFrac<=0.50f?new Color(.96f,.76f,.32f,.95f):new Color(.38f,.88f,.55f,.95f));
+       }
+      }
      }
      return;
     }
