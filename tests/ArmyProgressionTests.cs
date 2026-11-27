@@ -306,6 +306,31 @@ internal static class ArmyProgressionTests
         Check(!Reforged2Rules.IsLastStandActive(2) && Reforged2Rules.IsLastStandActive(3), "Last Stand Aura activates at 3+ KO allies");
         Check(Reforged2Rules.ApplyLastStandAttack(100, 3) == 115 && Reforged2Rules.ApplyLastStandDefense(100, 3) == 90, "Last Stand Aura grants +15% ATK / -10% damage taken");
 
-        Console.WriteLine($"PASS: Reforged 4.0 full suite {checks} checks.");
+        // 16. Reforged 5.0: Character Talents, War Branch Override, Nemesis System & Endless Tower of Dunan
+        int zerkDmg = Reforged5Rules.ApplyTalentPhysical(100, CharacterTalent.Berserker, 3, out int lifesteal);
+        Check(zerkDmg == 114 && lifesteal == 6, "Berserker Rank III+ grants +14% physical DMG and 5% lifesteal");
+        Check(Reforged5Rules.ApplyTalentMagic(100, CharacterTalent.Arcanist, 3) == 116, "Arcanist Rank III+ grants +16% magic DMG");
+        Check(Reforged5Rules.ApplyTalentDefense(100, CharacterTalent.Bulwark, 3) == 86, "Bulwark Rank III+ reduces damage taken by 14%");
+        Check(Reforged5Rules.MomentumBonusForTalent(20, CharacterTalent.Tactician) == 30, "Tactician generates +50% extra Momentum");
+        var archerFlik = Reforged5Rules.ApplyBranchOverride(flik, WarBranchOverride.Archer);
+        Check(archerFlik.Branch == "Archer", "Custom War Branch Override reassigns commander branch");
+        var nem1 = Reforged5Rules.PromoteNemesis(null, "m99", "Highland Capt", 1);
+        var nem2 = Reforged5Rules.PromoteNemesis(nem1, "m99", "Highland Capt", 2);
+        Check(nem1.Tier == 1 && nem2.Tier == 2 && Reforged5Rules.NemesisCommendationReward(2) == 3, "Nemesis promotion escalates tier and Commendation bounty");
+        Check(Reforged5Rules.ShouldAmbushWithNemesis(0) && Reforged5Rules.ShouldAmbushWithNemesis(19) && !Reforged5Rules.ShouldAmbushWithNemesis(20), "Nemesis 20% ambush boundary");
+        Check(Reforged5Rules.TowerRelics.Length == 12, "12 Roguelite Tower Relics defined");
+        var draft = Reforged5Rules.DraftRelics(new[] { "vampiric-fang" }, seed: 42);
+        Check(draft.Length == 3 && !draft.Any(r => r.Id == "vampiric-fang"), "Tower Relic draft rolls 3 unique unowned relics");
+        Check(Reforged5Rules.TowerCashOutPotch(5, goldenChalice: true) == 3750 && Reforged5Rules.TowerCashOutCommendations(5, goldenChalice: true) == 6, "Tower Cash-Out Potch & Commendations with Golden Chalice");
+        menu.OpenDirect(GuildPage.Codex, 10);
+        for (int i = 0; i < 6; i++) menu.Move(false, true);
+        Check(Confirm() == GuildChoice.None && menu.Page == GuildPage.PartyTalents, "Codex row 6 opens Party Talents");
+        Check(Confirm() == GuildChoice.CycleTalent, "Confirm inside Party Talents cycles character talent");
+        Check(menu.Back() && menu.Page == GuildPage.Codex && menu.Focus == 6, "Back from Party Talents restores Codex focus");
+        menu.Move(false, true);
+        Check(Confirm() == GuildChoice.None && menu.Page == GuildPage.TowerOfDunan, "Codex row 7 opens Tower of Dunan");
+        Check(Confirm() == GuildChoice.TowerAction, "Confirm inside Tower triggers TowerAction");
+
+        Console.WriteLine($"PASS: Reforged 5.0 full suite {checks} checks.");
     }
 }

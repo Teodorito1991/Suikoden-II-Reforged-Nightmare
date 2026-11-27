@@ -40,6 +40,7 @@ internal sealed class CommanderProgress
     public string Name { get; set; } = "";
     public int Xp { get; set; }
     public ArmyDoctrine Doctrine { get; set; } = ArmyDoctrine.None;
+    public WarBranchOverride BranchOverride { get; set; } = WarBranchOverride.Default;
     public int DrillsWon { get; set; }
     public int StoryWarsWon { get; set; }
     public int NightmareClears { get; set; }
@@ -50,6 +51,7 @@ internal sealed class CommanderProgress
         Name = Name,
         Xp = Xp,
         Doctrine = Doctrine,
+        BranchOverride = BranchOverride,
         DrillsWon = DrillsWon,
         StoryWarsWon = StoryWarsWon,
         NightmareClears = NightmareClears
@@ -78,10 +80,14 @@ internal sealed class ArmyLedgerState
 {
     public int SchemaVersion { get; set; } = 1;
     public Dictionary<int, CommanderProgress> Commanders { get; set; } = new();
+    public Dictionary<int, CharacterMastery> PartyMastery { get; set; } = new();
     public Dictionary<string, HallBossRecord> HallRecords { get; set; } = new(StringComparer.Ordinal);
     public HashSet<string> CastleUpgrades { get; set; } = new(StringComparer.Ordinal);
     public HashSet<string> UnlockedHonors { get; set; } = new(StringComparer.Ordinal);
     public Dictionary<string, BestiaryEntry> Bestiary { get; set; } = new(StringComparer.Ordinal);
+    public NemesisRecord? ActiveNemesis { get; set; }
+    public int NemesesSlain { get; set; }
+    public int HighestTowerFloor { get; set; }
     public int BestiaryMilestonesClaimed { get; set; }
     public int ApexPacksCleared { get; set; }
     public int TotalCombosLanded { get; set; }
@@ -104,6 +110,9 @@ internal sealed class ArmyLedgerState
         var copy = new ArmyLedgerState
         {
             SchemaVersion = SchemaVersion,
+            ActiveNemesis = ActiveNemesis?.Clone(),
+            NemesesSlain = NemesesSlain,
+            HighestTowerFloor = HighestTowerFloor,
             BestiaryMilestonesClaimed = BestiaryMilestonesClaimed,
             ApexPacksCleared = ApexPacksCleared,
             TotalCombosLanded = TotalCombosLanded,
@@ -123,6 +132,9 @@ internal sealed class ArmyLedgerState
         };
         foreach (var kv in Commanders)
             copy.Commanders[kv.Key] = kv.Value.Clone();
+        if (PartyMastery != null)
+            foreach (var kv in PartyMastery)
+                copy.PartyMastery[kv.Key] = kv.Value.Clone();
         if (HallRecords != null)
             foreach (var kv in HallRecords)
                 copy.HallRecords[kv.Key] = kv.Value.Clone();

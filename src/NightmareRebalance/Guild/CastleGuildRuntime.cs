@@ -189,6 +189,8 @@ internal static class CastleGuildRuntime
   Menu.EchoCount = HallTrialCatalogue.Entries.Length+1;
   Menu.SpoilerRow=HallTrialCatalogue.Entries.Length;
   Menu.ArmyRosterCount = Math.Max(1, ArmyProgressionRuntime.RosterSnapshot().Length);
+  Menu.PartyMasteryCount = Math.Max(1, ArmyProgressionRuntime.PartyMasterySnapshot().Length);
+  Menu.TowerRowCount = TowerOfDunanRuntime.PendingRelicDraft ? TowerOfDunanRuntime.DraftChoices.Length : (TowerOfDunanRuntime.RunActive ? 2 : 1);
   if(ActiveNpc==CastleNpcRole.DrillSergeant)Menu.OpenDirect(GuildPage.Training,HuntRuntime.BrowseOrder.Length);
   else if(ActiveNpc==CastleNpcRole.EchoArchivist)Menu.OpenDirect(GuildPage.Echoes,HuntRuntime.BrowseOrder.Length);
   else if(ActiveNpc==CastleNpcRole.Quartermaster)Menu.OpenDirect(GuildPage.Quartermaster,HuntRuntime.BrowseOrder.Length);
@@ -227,6 +229,8 @@ internal static class CastleGuildRuntime
   if(decide&&Menu.ConfirmReleased&&Menu.Page==GuildPage.Echoes&&!HallAvailability.CanSelect(Menu.Focus))
    Status=HallAvailability.Reason(Menu.Focus);
   Menu.ArmyRosterCount = Math.Max(1, ArmyProgressionRuntime.RosterSnapshot().Length);
+  Menu.PartyMasteryCount = Math.Max(1, ArmyProgressionRuntime.PartyMasterySnapshot().Length);
+  Menu.TowerRowCount = TowerOfDunanRuntime.PendingRelicDraft ? TowerOfDunanRuntime.DraftChoices.Length : (TowerOfDunanRuntime.RunActive ? 2 : 1);
   var prevPage=Menu.Page;
   var choice=Menu.Confirm(decide,Held(GRInputManager.Type.Decide),Quest.State,restriction.Length==0
       ,HallFirstContact.Available && HallAvailability.CanSelect(Menu.Page==GuildPage.EchoDifficulty?Menu.Echo:Menu.Focus),
@@ -245,6 +249,8 @@ internal static class CastleGuildRuntime
    GuildChoice.CycleHuntModifier => CycleHuntModifier(),
    GuildChoice.CycleStance => CycleArmyStance(),
    GuildChoice.CycleMutator => CycleWarMutator(),
+   GuildChoice.CycleTalent => CyclePartyTalent(Menu.Focus),
+   GuildChoice.TowerAction => HandleTowerAction(Menu.Focus),
    GuildChoice.BuyQuartermaster => BuyQuartermasterItem(Menu.Focus),
    GuildChoice.Report => ReportContract(),
    GuildChoice.Withdraw => WithdrawContract(),
@@ -290,6 +296,33 @@ internal static class CastleGuildRuntime
   var next=ArmyProgressionRuntime.CycleMutator();
   Status=$"War Mutator set to {Reforged2Rules.MutatorTitle(next)}: {Reforged2Rules.MutatorDescription(next)}";
   return false;
+ }
+ static bool CyclePartyTalent(int index)
+ {
+  var list=ArmyProgressionRuntime.PartyMasterySnapshot();
+  if(index<0||index>=list.Length){Status="Win a battle to track party character mastery.";return false;}
+  var m=list[index];
+  var next=ArmyProgressionRuntime.CycleCharacterTalent(m.CharaId,m.Name);
+  Status=$"{m.Name}: Talent set to {Reforged5Rules.TalentTitle(next)}. Save your game to bind.";
+  return false;
+ }
+ static bool HandleTowerAction(int index)
+ {
+  if(TowerOfDunanRuntime.PendingRelicDraft)
+  {
+   TowerOfDunanRuntime.PickRelic(index,out string msg);
+   Status=msg;
+   return false;
+  }
+  if(TowerOfDunanRuntime.RunActive&&index==1)
+  {
+   TowerOfDunanRuntime.CashOut(out string msg);
+   Status=msg;
+   return false;
+  }
+  bool launched=TowerOfDunanRuntime.LaunchNextFloor(out string launchMsg);
+  Status=launchMsg;
+  return launched;
  }
  static bool BuyQuartermasterItem(int index)
  {

@@ -32,6 +32,21 @@
   6 lore-driven **Star Bonds** (10 total: *Genkaku's Legacy*, *Mercenary
   Veterans*, *Arcane Resonance*, *Vampire Hunters*, *Wandering Blades*, and
   *Rokaku Shadows*).
+- Added **Reforged 5.0: Legends of Dunan** (opt-in):
+  - **Endless "Tower of Dunan" Roguelite Mode** (`Codex → Tower of Dunan`):
+    escalating floors atop verified Hall encounters, **12 stackable Roguelite
+    Relics** drafted 1-of-3 between floors, Risk/Reward **Cash-Out** for Potch
+    & Commendations, and persistent **Highest Floor** record.
+  - **Character Talent Trees (All 108 Stars)** (`Codex → Party Talents`):
+    every party member earns Mastery XP (Ranks I–V) and specializes as
+    *Berserker* (`+DMG` + 5% Lifesteal), *Arcanist* (`+Magic DMG`), *Bulwark*
+    (`-DMG Taken`), or *Tactician* (2x Armor Break + `+50%` Momentum).
+  - **Shadow of Highland — Persistent Nemesis System**: fleeing or losing
+    promotes the strongest enemy into a tiered Nemesis (`Tier I–V`) that can
+    ambush later encounters (`20%` chance) for `+2..+6` Commendations on revenge.
+  - **Custom War Squad Branch Overrides** (*Infantry / Archer / Magicians*
+    overrides on disposable commander clones) and **Live Turn-Order Timeline +
+    Real-Time Party DPS Meter** integrated into the `F4` Tactical Scanner.
 - Added **Reforged 4.0 Tactical Polish & Mixed-Party Synergy** (opt-in):
   - **Spellblade Resonance** (`+12%` bonus physical damage after a spell is cast
     in the same turn) and **Last Stand Aura** (`+15%` damage dealt / `-10%`

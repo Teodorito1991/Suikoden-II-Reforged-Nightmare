@@ -120,6 +120,8 @@ internal static class Combat
         double factor = OverhaulRuntime.Register(s, unit)?.HpMultiplier ?? BossRuntime.Plan(s, unit)?.HpMultiplier ?? Plugin.Options.EnemyHpMultiplier.Value;
         factor = CombatReforgedRuntime.Factor(s,unit,factor,true);
         if (Reforged2Runtime.ApexBattleActive) factor *= Reforged2Rules.ApexHpMultiplier;
+        if (Reforged2Runtime.NemesisBattleActive) factor *= Reforged2Runtime.ActiveNemesisHpMultiplier;
+        if (TowerOfDunanRuntime.BattleInProgress) factor *= TowerOfDunanRuntime.ActiveHpMultiplier;
         unit.max_hp = (ushort)Math.Max(1, Rules.Scale(unit.max_hp, factor, short.MaxValue));
         unit.hp = (short)Math.Clamp(Rules.Scale(unit.hp, factor, short.MaxValue), 1, unit.max_hp);
         s.Report?.Applied("EnemyMaxHp", unit.chara_no, beforeMax, unit.max_hp, factor);
@@ -167,7 +169,7 @@ internal static class Combat
         s.Teamwork=null;
         s.Bonds=false;
         s.Victory.MarkNonVictory();
-        Reforged2Runtime.OnBattleNonVictory();
+        Reforged2Runtime.OnBattleNonVictory(manager.battle_work);
         CombatReforgedDiagnostics.Outcome="NonVictorySignal";
         var report=Observe(nameof(BattleManager.NotWinEnd),manager.battle_work);
         if(report!=null)report.OutcomeSignal="NotWinEnd-observed";
@@ -259,6 +261,7 @@ internal static class VictoryPatch
     {
         Combat.Win(__instance);
         HallFirstContact.Outcome(__instance.battle_work, true);
+        TowerOfDunanRuntime.OnHallBattleFinished(true);
     }
 }
 
@@ -269,6 +272,7 @@ internal static class NonVictoryPatch
     {
         Combat.NonVictory(__instance);
         HallFirstContact.Outcome(__instance.battle_work, false);
+        TowerOfDunanRuntime.OnHallBattleFinished(false);
     }
 }
 

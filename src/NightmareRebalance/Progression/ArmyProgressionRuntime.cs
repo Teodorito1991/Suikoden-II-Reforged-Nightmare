@@ -195,7 +195,11 @@ internal static class ArmyProgressionRuntime
 
         var profile = existingProfile ?? BuildBaseProfile(original);
         if (applyProg && Current.Commanders.TryGetValue(original.name, out var prog))
+        {
             profile = ArmyProgressionRules.ApplyProgression(profile, prog);
+            if (training && prog.BranchOverride != WarBranchOverride.Default)
+                profile = Reforged5Rules.ApplyBranchOverride(profile, prog.BranchOverride);
+        }
         if (synergy != null)
             profile = ArmyProgressionRules.ApplyWarSynergy(profile, synergy);
         if (applyStance)
@@ -319,6 +323,110 @@ internal static class ArmyProgressionRuntime
             if (!Current.Commanders.TryGetValue(nameId, out var entry)) return ArmyDoctrine.None;
             entry.Doctrine = (ArmyDoctrine)(((int)entry.Doctrine + 1) % 4);
             return entry.Doctrine;
+        }
+    }
+
+    internal static WarBranchOverride CycleBranchOverride(int nameId)
+    {
+        lock (Sync)
+        {
+            if (!Current.Commanders.TryGetValue(nameId, out var entry)) return WarBranchOverride.Default;
+            entry.BranchOverride = (WarBranchOverride)(((int)entry.BranchOverride + 1) % 4);
+            return entry.BranchOverride;
+        }
+    }
+
+    internal static CharacterMastery[] PartyMasterySnapshot()
+    {
+        lock (Sync)
+        {
+            Current.PartyMastery ??= new Dictionary<int, CharacterMastery>();
+            int[] party = StarBondRuntime.FieldParty();
+            foreach (int id in party)
+            {
+                if (id <= 0 || Current.PartyMastery.ContainsKey(id)) continue;
+                string name = G2_SYS.G2_name_get(id)?.Trim() ?? ("Hero #" + id);
+                Current.PartyMastery[id] = new CharacterMastery { CharaId = id, Name = name };
+            }
+            return Current.PartyMastery.Values
+                .OrderByDescending(m => party.Contains(m.CharaId) ? 1 : 0)
+                .ThenByDescending(m => m.Xp)
+                .ThenBy(m => m.Name, StringComparer.Ordinal)
+                .Select(m => m.Clone())
+                .ToArray();
+        }
+    }
+
+    internal static (CharacterTalent Talent, int MasteryRank) GetCharacterTalent(int charaId)
+    {
+        if (charaId <= 0) return (CharacterTalent.None, 1);
+        lock (Sync)
+        {
+            if (Current.PartyMastery != null && Current.PartyMastery.TryGetValue(charaId, out var m))
+                return (m.Talent, Reforged5Rules.MasteryRankForXp(m.Xp));
+            return (CharacterTalent.None, 1);
+        }
+    }
+
+    internal static CharacterTalent CycleCharacterTalent(int charaId, string name)
+    {
+        lock (Sync)
+        {
+            Current.PartyMastery ??= new Dictionary<int, CharacterMastery>();
+            if (!Current.PartyMastery.TryGetValue(charaId, out var m))
+            {
+                m = new CharacterMastery { CharaId = charaId, Name = name };
+                Current.PartyMastery[charaId] = m;
+            }
+            m.Talent = (CharacterTalent)(((int)m.Talent + 1) % 5);
+            return m.Talent;
+        }
+    }
+
+    internal static void AwardPartyMastery(int charaId, string name, int xp)
+    {
+        if (charaId <= 0 || xp <= 0) return;
+        lock (Sync)
+        {
+            Current.PartyMastery ??= new Dictionary<int, CharacterMastery>();
+            if (!Current.PartyMastery.TryGetValue(charaId, out var m))
+            {
+                m = new CharacterMastery { CharaId = charaId, Name = name };
+                Current.PartyMastery[charaId] = m;
+            }
+            if (!string.IsNullOrWhiteSpace(name)) m.Name = name;
+            m.Xp = Math.Min(9999, m.Xp + xp);
+        }
+    }
+
+    internal static NemesisRecord PromoteNemesis(string speciesId, string name, int seed)
+    {
+        lock (Sync)
+        {
+            Current.ActiveNemesis = Reforged5Rules.PromoteNemesis(Current.ActiveNemesis, speciesId, name, seed);
+            return Current.ActiveNemesis.Clone();
+        }
+    }
+
+    internal static int ClearNemesis()
+    {
+        lock (Sync)
+        {
+            if (Current.ActiveNemesis == null) return 0;
+            int comm = Reforged5Rules.NemesisCommendationReward(Current.ActiveNemesis.Tier);
+            Current.ActiveNemesis = null;
+            Current.NemesesSlain++;
+            Current.Commendations = Math.Min(999, Current.Commendations + comm);
+            return comm;
+        }
+    }
+
+    internal static void RecordTowerFloor(int floorsCleared)
+    {
+        lock (Sync)
+        {
+            if (floorsCleared > Current.HighestTowerFloor)
+                Current.HighestTowerFloor = floorsCleared;
         }
     }
 

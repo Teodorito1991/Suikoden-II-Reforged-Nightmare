@@ -1,7 +1,7 @@
 namespace NightmareRebalance;
 
-internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy, Echoes, EchoDifficulty, SpoilerWarning, LucaParties, ArmyRoster, Codex, Quartermaster }
-internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave, StartEcho, SetSpoilers, RestoreStory, ChooseLuca, CycleDoctrine, CycleDirective, CycleHuntModifier, BuyQuartermaster, CycleStance, CycleMutator }
+internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy, Echoes, EchoDifficulty, SpoilerWarning, LucaParties, ArmyRoster, Codex, Quartermaster, PartyTalents, TowerOfDunan }
+internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave, StartEcho, SetSpoilers, RestoreStory, ChooseLuca, CycleDoctrine, CycleDirective, CycleHuntModifier, BuyQuartermaster, CycleStance, CycleMutator, CycleTalent, CycleBranch, TowerAction }
 internal enum CastleNpcRole { GuildAttendant, DrillSergeant, EchoArchivist, Quartermaster }
 
 internal static class GuildApproach
@@ -65,6 +65,8 @@ internal sealed class GuildMenuNavigation
     internal const int QuartermasterRow = 18;
     internal const int CodexRow = 19;
     internal int ArmyRosterCount { get; set; } = 1;
+    internal int PartyMasteryCount { get; set; } = 1;
+    internal int TowerRowCount { get; set; } = 2;
 
     internal int LucaChoiceCount;
     internal void BeginLuca(int count){LucaChoiceCount=count;Enter(GuildPage.LucaParties,0);}
@@ -73,8 +75,10 @@ internal sealed class GuildMenuNavigation
         GuildPage.Services => Services.Length + 1,
         GuildPage.Training => 20,
         GuildPage.ArmyRoster => Math.Max(1, ArmyRosterCount),
+        GuildPage.PartyTalents => Math.Max(1, PartyMasteryCount),
+        GuildPage.TowerOfDunan => Math.Max(1, TowerRowCount),
         GuildPage.Quartermaster => Reforged2Rules.CastleUpgrades.Length + Reforged2Rules.QuartermasterStock.Length,
-        GuildPage.Codex => 6,
+        GuildPage.Codex => 8,
         GuildPage.Strategy => StarBondRules.Catalogue.Length,
         GuildPage.Hunts => HuntCount,
         GuildPage.LucaParties=>LucaChoiceCount,
@@ -132,6 +136,8 @@ internal sealed class GuildMenuNavigation
         GuildPage.ArmyRoster => "Army Training  >  Roster",
         GuildPage.Quartermaster => "Army Training  >  Quartermaster",
         GuildPage.Codex => "Army Training  >  Codex",
+        GuildPage.PartyTalents => "Tactician's Codex  >  Party Talents",
+        GuildPage.TowerOfDunan => "Tactician's Codex  >  Tower of Dunan",
         GuildPage.Status => "Dunan Castle  ·  Guild Status",
         GuildPage.Strategy => "Dunan Castle  ·  Party Strategy",
         GuildPage.Echoes => "Dunan Castle  ·  Hall of Echoes",
@@ -153,6 +159,8 @@ internal sealed class GuildMenuNavigation
             case GuildPage.ArmyRoster: Enter(GuildPage.Training, RosterRow); break;
             case GuildPage.Quartermaster: Enter(GuildPage.Training, QuartermasterRow); break;
             case GuildPage.Codex: Enter(GuildPage.Training, CodexRow); break;
+            case GuildPage.PartyTalents: Enter(GuildPage.Codex, 6); break;
+            case GuildPage.TowerOfDunan: Enter(GuildPage.Codex, 7); break;
             case GuildPage.Hunts: Enter(GuildPage.Services, 0); break;
             case GuildPage.Training: Enter(GuildPage.Services, 1); break;
             case GuildPage.Status: Enter(GuildPage.Services, 2); break;
@@ -197,12 +205,22 @@ internal sealed class GuildMenuNavigation
                 return GuildChoice.CycleDoctrine;
             case GuildPage.Quartermaster:
                 return GuildChoice.BuyQuartermaster;
+            case GuildPage.PartyTalents:
+                return GuildChoice.CycleTalent;
+            case GuildPage.TowerOfDunan:
+                return GuildChoice.TowerAction;
             case GuildPage.Codex when Focus == 1:
                 return GuildChoice.CycleStance;
             case GuildPage.Codex when Focus == 2:
                 return GuildChoice.CycleHuntModifier;
             case GuildPage.Codex when Focus == 4:
                 return GuildChoice.CycleMutator;
+            case GuildPage.Codex when Focus == 6:
+                Enter(GuildPage.PartyTalents, 0);
+                return GuildChoice.None;
+            case GuildPage.Codex when Focus == 7:
+                Enter(GuildPage.TowerOfDunan, 0);
+                return GuildChoice.None;
             case GuildPage.Codex:
                 Back();
                 return GuildChoice.None;

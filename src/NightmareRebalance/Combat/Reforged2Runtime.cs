@@ -19,6 +19,9 @@ internal static class Reforged2Runtime
     internal static bool CleanHudMode;
     internal static bool ApexBattleActive;
     internal static ApexAffix ActiveApexAffix;
+    internal static bool NemesisBattleActive;
+    internal static double ActiveNemesisHpMultiplier => NemesisBattleActive && ArmyProgressionRuntime.Current.ActiveNemesis is {} n ? Reforged5Rules.NemesisHpMultiplier(n.Tier) : 1.0;
+    internal static double ActiveNemesisDamageMultiplier => NemesisBattleActive && ArmyProgressionRuntime.Current.ActiveNemesis is {} n ? Reforged5Rules.NemesisDamageMultiplier(n.Tier) : 1.0;
     internal static int Momentum;
     internal static int OverdriveUntilTurn = -1;
     internal static int WinStreak;
@@ -88,6 +91,7 @@ internal static class Reforged2Runtime
         battleOverdrives = 0;
         ApexBattleActive = false;
         ActiveApexAffix = ApexAffix.None;
+        NemesisBattleActive = false;
         Momentum = 0;
         OverdriveUntilTurn = -1;
         bossPhases.Clear();
@@ -102,11 +106,13 @@ internal static class Reforged2Runtime
     {
         ApexBattleActive = false;
         ActiveApexAffix = ApexAffix.None;
+        NemesisBattleActive = false;
         OverdriveUntilTurn = -1;
 
         if (MomentumEnabled)
         {
             int startMom = (ArmyProgressionRuntime.HasUpgrade("tactical-reserve") ? 35 : 0)
+                + (TowerOfDunanRuntime.HasRelic("overdrive-core") ? 60 : 0)
                 + Reforged2Rules.StreakStartingMomentum(WinStreak);
             Momentum = Math.Clamp(startMom, 0, Reforged2Rules.OverdriveThreshold - 1);
         }
@@ -120,6 +126,16 @@ internal static class Reforged2Runtime
 
         if (!ApexEnabled || !s.Allowed || !s.StatsAllowed || HuntRuntime.Active != null || HallFirstContact.UsesOriginalHp() || hasBoss)
             return;
+
+        if (ArmyProgressionRuntime.Current.ActiveNemesis is {} nem && Reforged5Rules.ShouldAmbushWithNemesis(rng.Next(100)))
+        {
+            NemesisBattleActive = true;
+            ActiveApexAffix = nem.Affix;
+            FlashBanner($"☠ NEMESIS AMBUSH: {nem.Name} {nem.Title} (Tier {nem.Tier})!", 4600, "alert");
+            Plugin.Logger.LogInfo($"Reforged 5.0: Nemesis ambush triggered ({nem.Name} Tier {nem.Tier}).");
+            return;
+        }
+
         int chance = ArmyProgressionRuntime.HasUpgrade("scout-network") ? 18 : Reforged2Rules.ApexChancePercent;
         if (Reforged2Rules.ShouldSpawnApex(rng.Next(100), chance))
         {
@@ -153,7 +169,42 @@ internal static class Reforged2Runtime
         int kos = KoAllyCount(w);
         if (Reforged2Rules.IsLastStandActive(kos))
             result = Reforged2Rules.ApplyLastStandDefense(result, kos);
+        if (TowerOfDunanRuntime.HasRelic("aegis-crest") && result > 1)
+            result = Math.Max(1, (int)Math.Round(result * 0.85, MidpointRounding.AwayFromZero));
+        if (TowerOfDunanRuntime.HasRelic("blood-pact") && result > 1)
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.10, MidpointRounding.AwayFromZero));
         return result;
+    }
+
+    internal static string[] TurnOrderPreview(BATTLE_WORK? w)
+    {
+        if (w?.pm_data == null) return Array.Empty<string>();
+        var list = new List<(string Label, int Speed)>(12);
+        foreach (var u in w.pm_data)
+        {
+            if (u == null || u.hp <= 0 || u.IsDead) continue;
+            int spd = u.calc_para is { Length: > 4 } ? u.calc_para[4] : 50;
+            string name = u.IsPlayer
+                ? (u.chara_id > 0 ? G2_SYS.G2_name_get(u.chara_id)?.Trim() ?? "Ally" : "Ally")
+                : ResolveEnemyDisplayName(u, out _);
+            if (name.Length > 10) name = name[..10];
+            list.Add((u.IsPlayer ? $"[{name}]" : name, spd));
+        }
+        return list.OrderByDescending(x => x.Speed).Take(7).Select(x => x.Label).ToArray();
+    }
+
+    internal static (string Name, int Damage, float Share)[] PartyDpsSummary()
+    {
+        if (battleDamageByChara.Count == 0) return Array.Empty<(string, int, float)>();
+        int total = Math.Max(1, battleDamageByChara.Values.Sum());
+        return battleDamageByChara
+            .OrderByDescending(kv => kv.Value)
+            .Take(6)
+            .Select(kv =>
+            {
+                string n = kv.Key > 0 ? G2_SYS.G2_name_get(kv.Key)?.Trim() ?? "Ally" : "Ally";
+                return (n, kv.Value, (float)kv.Value / total);
+            }).ToArray();
     }
 
     internal static int KoAllyCount(BATTLE_WORK? w)
@@ -258,20 +309,39 @@ internal static class Reforged2Runtime
         return mult;
     }
 
-    internal static void OnBattleNonVictory()
+    internal static void OnBattleNonVictory(BATTLE_WORK? w = null)
     {
         WinStreak = 0;
+        if (ApexEnabled && w?.pm_data != null && !TowerOfDunanRuntime.BattleInProgress)
+        {
+            var topEnemy = w.pm_data
+                .Where(u => u != null && !u.IsPlayer && u.hp > 0 && !u.IsDead)
+                .OrderByDescending(u => u!.max_hp)
+                .FirstOrDefault();
+            if (topEnemy != null)
+            {
+                string sp = topEnemy.monster_data?.id ?? "";
+                string nm = ResolveEnemyDisplayName(topEnemy, out _);
+                if (string.IsNullOrWhiteSpace(sp)) sp = nm;
+                var nem = ArmyProgressionRuntime.PromoteNemesis(sp, nm, rng.Next());
+                CastleGuildRuntime.TrainingFeedback($"☠ Nemesis Promoted: {nem.Name} {nem.Title} (Tier {nem.Tier})!");
+            }
+        }
     }
 
     internal static void OnBattleVictory(BATTLE_WORK? w, int restoredCharges)
     {
         WinStreak++;
         bool wasApex = ApexBattleActive;
+        bool wasNemesis = NemesisBattleActive;
+        int nemComm = 0;
         if (wasApex)
         {
             ArmyProgressionRuntime.AwardCommendations(1);
             ArmyProgressionRuntime.RecordApexClear();
         }
+        if (wasNemesis)
+            nemComm = ArmyProgressionRuntime.ClearNemesis();
 
         int kos = 0;
         int healedAllies = 0;
@@ -280,15 +350,23 @@ internal static class Reforged2Runtime
         if (w?.pm_data != null)
         {
             bool fieldMedic = ArmyProgressionRuntime.HasUpgrade("field-medic-corps");
+            bool towerTome = TowerOfDunanRuntime.HasRelic("tactician-tome");
+            int masteryXp = wasApex || wasNemesis ? 35 : 20;
             foreach (var unit in w.pm_data)
             {
                 if (unit == null) continue;
                 if (unit.IsPlayer)
                 {
                     if (unit.hp <= 0 || unit.IsDead) { kos++; continue; }
-                    if (fieldMedic && unit.TryCast<BattlePlayerCharacter>()?.c_varia_dat is {} data && data.max_hp > 0 && data.now_hp > 0 && data.now_hp < data.max_hp)
+                    if (unit.chara_id > 0)
                     {
-                        int heal = Math.Max(1, (int)Math.Round(data.max_hp * 0.10, MidpointRounding.AwayFromZero));
+                        string pName = G2_SYS.G2_name_get(unit.chara_id)?.Trim() ?? ("Hero #" + unit.chara_id);
+                        ArmyProgressionRuntime.AwardPartyMastery(unit.chara_id, pName, masteryXp);
+                    }
+                    double healPct = (fieldMedic ? 0.10 : 0.0) + (towerTome ? 0.20 : 0.0);
+                    if (healPct > 0 && unit.TryCast<BattlePlayerCharacter>()?.c_varia_dat is {} data && data.max_hp > 0 && data.now_hp > 0 && data.now_hp < data.max_hp)
+                    {
+                        int heal = Math.Max(1, (int)Math.Round(data.max_hp * healPct, MidpointRounding.AwayFromZero));
                         data.now_hp = (ushort)Math.Min(data.max_hp, data.now_hp + heal);
                         healedAllies++;
                     }
@@ -327,6 +405,7 @@ internal static class Reforged2Runtime
         if (mvpText.Length > 0) parts.Add(mvpText);
         if (WinStreak >= 3) parts.Add($"Streak x{WinStreak}");
         if (wasApex) parts.Add("Apex +1 Comm.");
+        if (nemComm > 0) parts.Add($"Nemesis Slain +{nemComm} Comm.");
         if (milestoneComm > 0) parts.Add($"Bestiary +{milestoneComm} Comm.");
         if (healedAllies > 0) parts.Add("Medic +10% HP");
         if (restoredCharges > 0) parts.Add($"+{restoredCharges} Rune");
@@ -411,6 +490,14 @@ internal static class Reforged2Runtime
 
         result = Reforged2Rules.ApplyGrandArmory(result, ArmyProgressionRuntime.HasUpgrade("grand-armory"));
 
+        var (talent, mRank) = ArmyProgressionRuntime.GetCharacterTalent(attacker.chara_id);
+        result = Reforged5Rules.ApplyTalentPhysical(result, talent, mRank, out int talentHeal);
+        int relicHeal = TowerOfDunanRuntime.HasRelic("vampiric-fang") ? Math.Max(1, (int)Math.Round(result * 0.10, MidpointRounding.AwayFromZero)) : 0;
+        if (talentHeal + relicHeal > 0 && attacker.hp > 0 && attacker.hp < attacker.max_hp)
+            attacker.hp = (short)Math.Min(attacker.max_hp, attacker.hp + talentHeal + relicHeal);
+        if (TowerOfDunanRuntime.HasRelic("blood-pact"))
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.25, MidpointRounding.AwayFromZero));
+
         if (attacker.chara_no is >= 3 and < 6)
         {
             var (_, backAlive) = FormationCounts(w);
@@ -459,10 +546,12 @@ internal static class Reforged2Runtime
         {
             int stacks = armorBreaks.GetValueOrDefault(enemy.Pointer, 0);
             if (stacks > 0) result = Reforged2Rules.ApplyArmorBreak(result, stacks);
+            int addStacks = talent == CharacterTalent.Tactician ? 2 : 1;
             if (stacks < Reforged2Rules.MaxArmorBreakStacks)
             {
-                armorBreaks[enemy.Pointer] = stacks + 1;
-                if (stacks + 1 == Reforged2Rules.MaxArmorBreakStacks)
+                int nextStacks = Math.Min(Reforged2Rules.MaxArmorBreakStacks, stacks + addStacks);
+                armorBreaks[enemy.Pointer] = nextStacks;
+                if (nextStacks == Reforged2Rules.MaxArmorBreakStacks)
                     FlashBanner("⚔ Armor Shattered! (Max Break +15% DMG)", 2100, "alert");
             }
             bool sleeping = (enemy.status & b_game_h.STATUS_SLEEP) != 0;
@@ -495,6 +584,13 @@ internal static class Reforged2Runtime
         int result = damage;
 
         result = Reforged2Rules.ApplyGrandArmory(result, ArmyProgressionRuntime.HasUpgrade("grand-armory"));
+
+        var (mTalent, mRank) = ArmyProgressionRuntime.GetCharacterTalent(caster.chara_id);
+        result = Reforged5Rules.ApplyTalentMagic(result, mTalent, mRank);
+        if (TowerOfDunanRuntime.HasRelic("arcane-battery"))
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.25, MidpointRounding.AwayFromZero));
+        if (TowerOfDunanRuntime.HasRelic("blood-pact"))
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.25, MidpointRounding.AwayFromZero));
         if (caster.chara_no is >= 3 and < 6)
         {
             var (_, backAlive) = FormationCounts(w);
@@ -561,6 +657,8 @@ internal static class Reforged2Runtime
         var player = w.pm_data[defenderSlot]?.TryCast<BattlePlayerCharacter>();
         if (player?.c_varia_dat is not {} data) return damage;
         int result = Reforged2Rules.ApplyWeaponDefensePerk(damage, data.buki_lv, ArmyProgressionRuntime.HasUpgrade("master-blacksmiths"));
+        var (defTalent, defRank) = ArmyProgressionRuntime.GetCharacterTalent(player.chara_id);
+        result = Reforged5Rules.ApplyTalentDefense(result, defTalent, defRank);
         if (defenderSlot < 3)
         {
             var (frontAlive, _) = FormationCounts(w);

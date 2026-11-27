@@ -22,6 +22,10 @@ internal static class DamageScope
             }
             if (Reforged2Runtime.ApexBattleActive)
                 factor *= Reforged2Rules.ApexDamageMultiplier * Reforged2Rules.ApexAffixDamageMultiplier(Reforged2Runtime.ActiveApexAffix);
+            if (Reforged2Runtime.NemesisBattleActive)
+                factor *= Reforged2Runtime.ActiveNemesisDamageMultiplier;
+            if (TowerOfDunanRuntime.BattleInProgress)
+                factor *= TowerOfDunanRuntime.ActiveDamageMultiplier;
             if (DamageScaling.Apply(outer, eligible, ref result, factor))
             {
                 CombatReforgedDiagnostics.Calculated(attacker,target,before,result,factor);
