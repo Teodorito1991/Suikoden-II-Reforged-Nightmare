@@ -401,18 +401,20 @@ internal static class Reforged2Rules
     internal static int ApplyWeaponDefensePerk(int damage, int weaponLevel, bool masterBlacksmiths) =>
         ApplyWeaponDefensePerk(damage, masterBlacksmiths ? weaponLevel + 2 : weaponLevel);
 
-    internal static CombatComboResult EvaluateExecuteFinisher(int baseDamage, int targetHp, int targetMaxHp)
+    internal static CombatComboResult EvaluateExecuteFinisher(int baseDamage, int targetHp, int targetMaxHp, bool executionerSeal = false)
     {
-        if (baseDamage <= 0 || targetMaxHp <= 0 || targetHp <= 0 || targetHp * 5 > targetMaxHp)
+        if (baseDamage <= 0 || targetMaxHp <= 0 || targetHp <= 0)
             return default;
+        bool inRange = executionerSeal ? targetHp * 100 <= targetMaxHp * 35 : targetHp * 5 <= targetMaxHp;
+        if (!inRange) return default;
         return new("Execute Finisher", Math.Clamp((int)Math.Round(baseDamage * 0.15, MidpointRounding.AwayFromZero), 5, 75));
     }
 
     internal static bool ShouldArmRiposte(int incomingDamage, int hpAfterHit, int maxHp) =>
         maxHp > 0 && hpAfterHit > 0 && incomingDamage * 5 >= maxHp;
 
-    internal static int ApplyRiposte(int damage) =>
-        damage <= 0 ? damage : Math.Max(damage + 1, (int)Math.Round(damage * 1.20, MidpointRounding.AwayFromZero));
+    internal static int ApplyRiposte(int damage, bool bulwark = false) =>
+        damage <= 0 ? damage : Math.Max(damage + 1, (int)Math.Round(damage * (bulwark ? 1.30 : 1.20), MidpointRounding.AwayFromZero));
 
     internal const int OverdriveThreshold = 100;
 

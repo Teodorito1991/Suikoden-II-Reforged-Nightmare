@@ -173,10 +173,11 @@ internal static class Reforged2Runtime
         }
     }
 
-    static void GainMomentum(int delta, BATTLE_WORK? w)
+    static void GainMomentum(int delta, BATTLE_WORK? w, CharacterTalent actorTalent = CharacterTalent.None)
     {
         if (!MomentumEnabled || delta <= 0 || OverdriveActive(w)) return;
-        Momentum = Reforged2Rules.AddMomentum(Momentum, delta, out bool triggered);
+        int scaled = Reforged5Rules.MomentumBonusForTalent(delta, actorTalent);
+        Momentum = Reforged2Rules.AddMomentum(Momentum, scaled, out bool triggered);
         if (triggered)
         {
             int turn = w?.battle_kaisuu ?? 0;
@@ -319,8 +320,22 @@ internal static class Reforged2Runtime
         return Reforged2Rules.BattleGrade(kos, w.battle_kaisuu, battleCombos, battleSurges) == "S";
     }
 
-    internal static int ExtraRuneChargesForVictory(BATTLE_WORK? w) =>
-        ArmyProgressionRuntime.HasUpgrade("arcane-academy") && IsSRankVictory(w) ? 1 : 0;
+    internal static int ExtraRuneChargesForVictory(BATTLE_WORK? w)
+    {
+        int extra = ArmyProgressionRuntime.HasUpgrade("arcane-academy") && IsSRankVictory(w) ? 1 : 0;
+        if (w?.pm_data != null)
+        {
+            for (int i = 0; i < w.pm_data.Length && i < 6; i++)
+            {
+                if (w.pm_data[i] is { IsPlayer: true, hp: > 0, IsDead: false, chara_id: > 0 } u)
+                {
+                    var (t, r) = ArmyProgressionRuntime.GetCharacterTalent(u.chara_id);
+                    if (t == CharacterTalent.Arcanist && r >= 3) { extra++; break; }
+                }
+            }
+        }
+        return extra;
+    }
 
     internal static bool IsBossEnraged(PM_DATA? unit) =>
         TelegraphsEnabled && unit != null && bossPhases.GetValueOrDefault(unit.Pointer, 0) >= 2;
@@ -547,7 +562,11 @@ internal static class Reforged2Runtime
             result = Reforged2Rules.ApplyApexIncomingReduction(result, ActiveApexAffix, isMagic: false);
 
         if (OverdriveActive(w))
+        {
             result = Reforged2Rules.ApplyOverdriveAttack(result);
+            if (TowerOfDunanRuntime.HasRelic("titan-heart"))
+                result = Math.Max(result + 1, (int)Math.Round(result * 1.15, MidpointRounding.AwayFromZero));
+        }
         result = Reforged2Rules.ApplyLastStandAttack(result, KoAllyCount(w));
 
         if (CombosEnabled && !firstActionUsed)
@@ -556,9 +575,10 @@ internal static class Reforged2Runtime
             firstActionUsed = true;
             if (fs.BonusDamage > 0)
             {
-                result += fs.BonusDamage;
-                FlashBanner($"⚡ {fs.Name}! (+{fs.BonusDamage})", 2000, "gold");
-                GainMomentum(10, w);
+                int bonus = TowerOfDunanRuntime.HasRelic("stormcaller-sigil") ? (int)Math.Round(fs.BonusDamage * 1.20, MidpointRounding.AwayFromZero) : fs.BonusDamage;
+                result += bonus;
+                FlashBanner($"⚡ {fs.Name}! (+{bonus})", 2000, "gold");
+                GainMomentum(10, w, talent);
             }
         }
 
@@ -566,19 +586,23 @@ internal static class Reforged2Runtime
         {
             int before = result;
             result = Reforged2Rules.ApplyDesperationSurge(result);
+            if (TowerOfDunanRuntime.HasRelic("iron-riposte"))
+                result += Math.Max(1, (int)Math.Round((result - before) * 0.25, MidpointRounding.AwayFromZero));
             battleSurges++;
             FlashBanner($"★ Desperation Surge! (+{result - before})", 2400, "gold");
-            GainMomentum(30, w);
+            GainMomentum(30, w, talent);
             if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.OverdrivesOrSurges) is {} bm)
                 FlashBanner("★ " + bm, 3200, "success");
         }
         else if (SurgeEnabled && ripostePlayers.Remove(attacker.Pointer))
         {
             int before = result;
-            result = Reforged2Rules.ApplyRiposte(result);
+            result = Reforged2Rules.ApplyRiposte(result, bulwark: talent == CharacterTalent.Bulwark);
+            if (TowerOfDunanRuntime.HasRelic("iron-riposte"))
+                result += Math.Max(1, (int)Math.Round((result - before) * 0.25, MidpointRounding.AwayFromZero));
             battleSurges++;
             FlashBanner($"⚔ Riposte Counter! (+{result - before})", 2300, "success");
-            GainMomentum(15, w);
+            GainMomentum(15, w, talent);
         }
 
         if (CombosEnabled && StarBondRuntime.Enemy(w, mokuhyo) is {} enemy)
@@ -597,15 +621,20 @@ internal static class Reforged2Runtime
             bool poisoned = (enemy.status & b_game_h.STATUS_POISON) != 0;
             var combo = Reforged2Rules.EvaluatePhysicalCombo(result, sleeping, false, poisoned);
             if (combo.BonusDamage == 0)
-                combo = Reforged2Rules.EvaluateExecuteFinisher(result, enemy.hp, enemy.max_hp);
+                combo = Reforged2Rules.EvaluateExecuteFinisher(result, enemy.hp, enemy.max_hp, TowerOfDunanRuntime.HasRelic("executioner-seal"));
             if (combo.BonusDamage == 0 && lastTurn == w.battle_kaisuu && spellsThisTurn > 0)
                 combo = Reforged2Rules.EvaluateSpellbladeResonance(result, true);
             if (combo.BonusDamage > 0)
             {
-                result += combo.BonusDamage;
+                int bonus = combo.BonusDamage;
+                if (TowerOfDunanRuntime.HasRelic("shatter-gauntlet"))
+                    bonus = (int)Math.Round(bonus * 1.30, MidpointRounding.AwayFromZero);
+                if (combo.Name == "Spellblade Resonance" && TowerOfDunanRuntime.HasRelic("stormcaller-sigil"))
+                    bonus = (int)Math.Round(bonus * 1.20, MidpointRounding.AwayFromZero);
+                result += bonus;
                 battleCombos++;
-                FlashBanner($"★ {combo.Name}! (+{combo.BonusDamage})", 2200, "gold");
-                GainMomentum(25, w);
+                FlashBanner($"★ {combo.Name}! (+{bonus})", 2200, "gold");
+                GainMomentum(25, w, talent);
                 if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.Combos) is {} bm)
                     FlashBanner("★ " + bm, 3200, "success");
             }
@@ -649,7 +678,11 @@ internal static class Reforged2Runtime
             result = Reforged2Rules.ApplyApexIncomingReduction(result, ActiveApexAffix, isMagic: true);
 
         if (OverdriveActive(w))
+        {
             result = Reforged2Rules.ApplyOverdriveAttack(result);
+            if (TowerOfDunanRuntime.HasRelic("titan-heart"))
+                result = Math.Max(result + 1, (int)Math.Round(result * 1.15, MidpointRounding.AwayFromZero));
+        }
         result = Reforged2Rules.ApplyLastStandAttack(result, KoAllyCount(w));
 
         if (CombosEnabled && !firstActionUsed)
@@ -658,9 +691,10 @@ internal static class Reforged2Runtime
             firstActionUsed = true;
             if (fs.BonusDamage > 0)
             {
-                result += fs.BonusDamage;
-                FlashBanner($"⚡ {fs.Name}! (+{fs.BonusDamage})", 2000, "gold");
-                GainMomentum(10, w);
+                int bonus = TowerOfDunanRuntime.HasRelic("stormcaller-sigil") ? (int)Math.Round(fs.BonusDamage * 1.20, MidpointRounding.AwayFromZero) : fs.BonusDamage;
+                result += bonus;
+                FlashBanner($"⚡ {fs.Name}! (+{bonus})", 2000, "gold");
+                GainMomentum(10, w, mTalent);
             }
         }
 
@@ -668,9 +702,11 @@ internal static class Reforged2Runtime
         {
             int before = result;
             result = Reforged2Rules.ApplyDesperationSurge(result);
+            if (TowerOfDunanRuntime.HasRelic("iron-riposte"))
+                result += Math.Max(1, (int)Math.Round((result - before) * 0.25, MidpointRounding.AwayFromZero));
             battleSurges++;
             FlashBanner($"★ Desperation Surge! (+{result - before})", 2400, "gold");
-            GainMomentum(30, w);
+            GainMomentum(30, w, mTalent);
             if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.OverdrivesOrSurges) is {} bm)
                 FlashBanner("★ " + bm, 3200, "success");
         }
@@ -685,10 +721,11 @@ internal static class Reforged2Runtime
             var combo = Reforged2Rules.EvaluateArcaneChain(result, spellsThisTurn);
             if (combo.BonusDamage > 0)
             {
+                int bonus = TowerOfDunanRuntime.HasRelic("shatter-gauntlet") ? (int)Math.Round(combo.BonusDamage * 1.30, MidpointRounding.AwayFromZero) : combo.BonusDamage;
                 battleCombos++;
-                result += combo.BonusDamage;
-                FlashBanner($"★ {combo.Name}! (+{combo.BonusDamage})", 2200, "gold");
-                GainMomentum(25, w);
+                result += bonus;
+                FlashBanner($"★ {combo.Name}! (+{bonus})", 2200, "gold");
+                GainMomentum(25, w, mTalent);
                 if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.Combos) is {} bm)
                     FlashBanner("★ " + bm, 3200, "success");
             }

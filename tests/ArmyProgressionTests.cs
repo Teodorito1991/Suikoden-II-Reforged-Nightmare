@@ -349,6 +349,8 @@ internal static class ArmyProgressionTests
         for (int i = 0; i < 3; i++) menu.Move(false, true);
         Check(Confirm() == GuildChoice.None && menu.Page == GuildPage.WarSquads, "Codex row 8 opens War Squads Branch Builder");
         Check(Confirm() == GuildChoice.CycleBranch, "Confirm inside War Squads cycles branch override");
+        Check(Reforged2Rules.EvaluateExecuteFinisher(100, 35, 100, executionerSeal: true).BonusDamage == 15 && Reforged2Rules.EvaluateExecuteFinisher(100, 36, 100, executionerSeal: true).BonusDamage == 0, "Executioner Seal expands Execute Finisher threshold to <= 35% HP");
+        Check(Reforged2Rules.ApplyRiposte(100, bulwark: true) == 130 && Reforged2Rules.ApplyRiposte(100, bulwark: false) == 120, "Bulwark Talent boosts Riposte to +30%");
 
         Console.WriteLine($"PASS: Reforged 6.0 full suite {checks} checks.");
     }
