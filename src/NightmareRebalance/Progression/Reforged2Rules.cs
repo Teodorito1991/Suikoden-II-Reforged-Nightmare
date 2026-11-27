@@ -527,4 +527,18 @@ internal static class Reforged2Rules
     }
 
     internal static int BestiaryMilestonesFor(int uniqueSpecies) => Math.Max(0, uniqueSpecies) / 10;
+
+    internal static CombatComboResult EvaluateSpellbladeResonance(int baseDamage, bool spellCastThisTurn)
+    {
+        if (baseDamage <= 0 || !spellCastThisTurn) return default;
+        return new("Spellblade Resonance", Math.Clamp((int)Math.Round(baseDamage * 0.12, MidpointRounding.AwayFromZero), 4, 70));
+    }
+
+    internal static bool IsLastStandActive(int koAllies) => koAllies >= 3;
+
+    internal static int ApplyLastStandAttack(int damage, int koAllies) =>
+        damage <= 0 || !IsLastStandActive(koAllies) ? damage : Math.Max(damage + 1, (int)Math.Round(damage * 1.15, MidpointRounding.AwayFromZero));
+
+    internal static int ApplyLastStandDefense(int damage, int koAllies) =>
+        damage <= 1 || !IsLastStandActive(koAllies) ? damage : Math.Max(1, (int)Math.Round(damage * 0.90, MidpointRounding.AwayFromZero));
 }

@@ -299,6 +299,13 @@ internal static class ArmyProgressionTests
         var tier3Honors = Reforged2Rules.EvaluateNewHonors(ledger, currentWinStreak: 0);
         Check(tier3Honors.Count == 3, "Combo Master, Overdrive Legend & S-Rank Virtuoso honors unlock");
 
-        Console.WriteLine($"PASS: Reforged 3.5 full suite {checks} checks.");
+        // 15. Reforged 4.0: Spellblade Resonance & Last Stand Aura
+        var sb = Reforged2Rules.EvaluateSpellbladeResonance(100, spellCastThisTurn: true);
+        Check(sb.Name == "Spellblade Resonance" && sb.BonusDamage == 12, "Spellblade Resonance +12% physical follow-up after spell");
+        Check(Reforged2Rules.EvaluateSpellbladeResonance(100, spellCastThisTurn: false).BonusDamage == 0, "Spellblade Resonance requires a spell cast this turn");
+        Check(!Reforged2Rules.IsLastStandActive(2) && Reforged2Rules.IsLastStandActive(3), "Last Stand Aura activates at 3+ KO allies");
+        Check(Reforged2Rules.ApplyLastStandAttack(100, 3) == 115 && Reforged2Rules.ApplyLastStandDefense(100, 3) == 90, "Last Stand Aura grants +15% ATK / -10% damage taken");
+
+        Console.WriteLine($"PASS: Reforged 4.0 full suite {checks} checks.");
     }
 }

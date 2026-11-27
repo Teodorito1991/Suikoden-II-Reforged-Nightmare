@@ -32,6 +32,17 @@
   6 lore-driven **Star Bonds** (10 total: *Genkaku's Legacy*, *Mercenary
   Veterans*, *Arcane Resonance*, *Vampire Hunters*, *Wandering Blades*, and
   *Rokaku Shadows*).
+- Added **Reforged 4.0 Tactical Polish & Mixed-Party Synergy** (opt-in):
+  - **Spellblade Resonance** (`+12%` bonus physical damage after a spell is cast
+    in the same turn) and **Last Stand Aura** (`+15%` damage dealt / `-10%`
+    taken when 3+ allies are KO'd).
+  - **Live Party Tactical Buff Strip** attached beneath the `F4` Scanner
+    showing active Formations (*Phalanx* / *Crossfire* / *Last Stand*) and
+    per-ally *Surge*, *Riposte*, and *Weapon Milestone* tiers.
+  - **3-Tab `F5` Commander's Dossier** (`Bestiary → Dunan Honors → Army & Hall
+    Records`) and **Pre-Skirmish Tactical Briefing** on the Army Training
+    Difficulty screen showing active Stance, Mutator, Directive, and exact
+    projected Potch + Commendation payouts.
 - Added **Reforged 3.5 Tactical Depth & Endgame Finale** (opt-in):
   - **Armor Break (Focus Fire)**: Repeated hits on the same enemy stack
     `[BRK x1..x3]` (`+5%` / `+10%` / `+15%` bonus damage) displayed live on the

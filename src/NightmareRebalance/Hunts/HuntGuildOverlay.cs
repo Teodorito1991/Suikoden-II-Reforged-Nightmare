@@ -536,13 +536,20 @@ public sealed class HuntGuildOverlay:MonoBehaviour
           new GuildMenuRow("Veteran", veteranAllowed ? "Coordinated enemy tactics" : "Unavailable") };
   string directiveNote = ArmyProgressionRuntime.DirectivesEnabled && ArmyProgressionRuntime.ActiveDirective != DrillDirective.None
       ? $"  ·  Directive: {ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective)}" : "";
+  var skSpec = (int)drill >= 6 && (int)drill - 6 < Reforged2Rules.Skirmishes.Length ? Reforged2Rules.Skirmishes[(int)drill - 6] : null;
+  int projectedComm = (skSpec != null ? skSpec.Commendations : (veteran ? 2 : 1))
+      + (ArmyProgressionRuntime.ActiveMutator != WarMutator.Standard ? 1 : 0);
+  int basePotch = skSpec != null ? skSpec.BasePotch : TrainingResultRules.Potch(veteran);
+  string briefing = page == GuildPage.Difficulty
+      ? $"\nLoadout: {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)} · {Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)}{directiveNote}"
+      : "";
   string reward = Plugin.Options.EnableTrainingRewards.Value ?
       (page == GuildPage.Training && veteranAllowed ?
-          $"{TrainingResultRules.Potch(false):N0} Standard  /  {TrainingResultRules.Potch(true):N0} Veteran Potch{directiveNote}" :
-          TrainingResultRules.Potch(veteran).ToString("N0") + " Potch" + directiveNote) : "Training rewards disabled";
+          $"{(skSpec != null ? skSpec.BasePotch : TrainingResultRules.Potch(false)):N0} Standard  /  {(skSpec != null ? skSpec.BasePotch : TrainingResultRules.Potch(true)):N0} Veteran Potch · +{projectedComm} Comm.{directiveNote}" :
+          $"{basePotch:N0} Potch  ·  +{projectedComm} Commendation(s){directiveNote}") : "Training rewards disabled";
   string condition = unavailable.Length != 0 ? unavailable : veteran && !veteranAllowed ?
       "Veteran requires the native tactics options and a verified battlefield." :
-      "Rewards require routing the opposing commander. Timed endings and defeat pay no Potch.";
+      "Rewards require routing the opposing commander. Timed endings and defeat pay no Potch." + briefing;
   return GuildRebornScreen.Paginate(new(page == GuildPage.Training ? "ARMY TRAINING" : "CHOOSE DIFFICULTY", trainingRows, focus,
       Drills[(int)drill].Title, Drills[(int)drill].Note, description, reward, condition, status,
       unavailable.Length != 0 || veteran && !veteranAllowed ? "Unavailable" :
@@ -604,9 +611,9 @@ public sealed class HuntGuildOverlay:MonoBehaviour
      float hw=490,hh=298;
      var hbox=new Rect(Screen.width-hw-18,66,hw,hh);
      Window(hbox);
-     Label(new(new(18,12,hw-36,26),"REFORGED 3.5 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
+     Label(new(new(18,12,hw-36,26),"REFORGED 4.0 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
      Label(new(new(18,44,hw-36,124),
-         "F2   Toggle Clean HUD Mode\nF4   Toggle Battle Tactical Scanner\nF5   Cycle Bestiary -> Dunan Honors -> Off\nF6   Accept Local Field Hunt\n←/→  Fast Page-Flip in Castle Guild",15),hbox.x,hbox.y,1);
+         "F2   Toggle Clean HUD Mode\nF4   Toggle Battle Tactical Scanner & Party Buffs\nF5   Cycle Bestiary -> Honors -> Army Dossier -> Off\nF6   Accept Local Field Hunt\n←/→  Fast Page-Flip in Castle Guild",15),hbox.x,hbox.y,1);
      Label(new(new(18,172,hw-36,44),
          $"Bounty: {bounty.Title} ({led.ActiveBountyProgress}/{bounty.Target}) — {bounty.Description}",14,"gold"),hbox.x,hbox.y,1);
      Label(new(new(18,220,hw-36,68),
@@ -615,14 +622,37 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     if(bestiaryCard)
     {
      var led=ArmyProgressionRuntime.Current;
-     if(Reforged2Runtime.BestiaryViewMode==2)
+     if(Reforged2Runtime.BestiaryViewMode==3)
+     {
+      var roster=ArmyProgressionRuntime.RosterSnapshot().Take(6).ToArray();
+      int hallClears=led.HallRecords?.Values.Count(r=>r.OriginalCleared||r.NightmareCleared)??0;
+      float dw=540,dh=104+Math.Max(1,roster.Length)*32;
+      var dbox=new Rect(18,66,dw,dh);
+      Window(dbox);
+      Label(new(new(18,12,dw-36,26),$"COMMANDER'S DOSSIER  ({led.Commanders.Count} Enlisted · {hallClears} Hall Medals)",16,"gold"),dbox.x,dbox.y,1);
+      Label(new(new(18,38,dw-36,20),$"Drills: {led.TotalDrillsWon} ({led.TotalVeteranDrillsWon} Vet) · Story Wars: {led.TotalStoryWarsWon} · Hall NM: {led.HallNightmareClears}  (F5)",13,"muted"),dbox.x,dbox.y,1);
+      if(roster.Length==0)
+       Label(new(new(18,68,dw-36,24),"Win an Army Training Drill or Skirmish to enlist commanders!",15),dbox.x,dbox.y,1);
+      else
+      {
+       for(int ci=0;ci<roster.Length;ci++)
+       {
+        var c=roster[ci];
+        var rk=ArmyProgressionRules.RankForXp(c.Xp);
+        float ry=68+ci*32;
+        Label(new(new(18,ry,dw-210,22),$"{c.Name}  ·  {ArmyProgressionRules.RankTitle(rk)}",15),dbox.x,dbox.y,1);
+        Label(new(new(dw-192,ry,174,22),$"{c.Xp} XP · {ArmyProgressionRules.DoctrineTitle(c.Doctrine)}",14,"success"),dbox.x,dbox.y,1);
+       }
+      }
+     }
+     else if(Reforged2Runtime.BestiaryViewMode==2)
      {
       int unlockedCount=led.UnlockedHonors?.Count??0;
       float hw2=560,hh2=82+((Reforged2Rules.Honors.Length+1)/2)*30;
       var hbox2=new Rect(18,66,hw2,hh2);
       Window(hbox2);
       Label(new(new(18,12,hw2-36,26),$"DUNAN HONORS  ({unlockedCount}/{Reforged2Rules.Honors.Length} Unlocked · +2 Comm. Each)",16,"gold"),hbox2.x,hbox2.y,1);
-      Label(new(new(18,38,hw2-36,20),"Press F5 to hide · Combos: "+led.TotalCombosLanded+" · S-Ranks: "+led.TotalSRanks+" · Overdrives: "+led.TotalOverdrivesTriggered,13,"muted"),hbox2.x,hbox2.y,1);
+      Label(new(new(18,38,hw2-36,20),"F5 again for Army Dossier · Combos: "+led.TotalCombosLanded+" · S-Ranks: "+led.TotalSRanks+" · Overdrives: "+led.TotalOverdrivesTriggered,13,"muted"),hbox2.x,hbox2.y,1);
       for(int hi=0;hi<Reforged2Rules.Honors.Length;hi++)
       {
        var h=Reforged2Rules.Honors[hi];
@@ -717,6 +747,25 @@ public sealed class HuntGuildOverlay:MonoBehaviour
         Label(new(new(18,ry+21,sw-36,18),$"{role}  ·  {weak}",14,"muted"),scanBox.x,scanBox.y,1);
         Fill(new Rect(scanBox.x+18,scanBox.y+ry+40,sw-36,9),new Color(.04f,.07f,.16f,.95f));
         Fill(new Rect(scanBox.x+20,scanBox.y+ry+42,(sw-40)*hpFrac,5),hpFrac<=0.25f?new Color(.95f,.35f,.30f,.98f):hpFrac<=0.50f?new Color(.96f,.76f,.32f,.98f):new Color(.38f,.90f,.58f,.98f));
+       }
+       var bwInst=Framework.Singleton<BATTLE_WORK>.instance;
+       var (frontAlive,backAlive)=Reforged2Runtime.FormationCounts(bwInst);
+       var partyBuffs=Reforged2Runtime.PartyBuffSummary(bwInst);
+       var formTags=new List<string>(3);
+       if(frontAlive>=3)formTags.Add("Phalanx (-6% Front DMG)");
+       if(backAlive>=3)formTags.Add("Crossfire (+6% Back DMG)");
+       if(Reforged2Rules.IsLastStandActive(Reforged2Runtime.KoAllyCount(bwInst)))formTags.Add("LAST STAND (+15% ATK/-10% Taken)");
+       if(formTags.Count>0||partyBuffs.Length>0)
+       {
+        float py=scanBox.y+scanBox.height+8;
+        float ph=36+(formTags.Count>0?22:0)+Math.Min(4,partyBuffs.Length)*20;
+        var pbox=new Rect(18,py,sw,ph);
+        Window(pbox);
+        Label(new(new(18,8,sw-36,22),"PARTY TACTICAL BUFFS",14,"gold"),pbox.x,pbox.y,1);
+        float cy=30;
+        if(formTags.Count>0){Label(new(new(18,cy,sw-36,20),string.Join("  ·  ",formTags),13,"success"),pbox.x,pbox.y,1);cy+=22;}
+        for(int bi=0;bi<Math.Min(4,partyBuffs.Length);bi++)
+         Label(new(new(18,cy+bi*20,sw-36,19),partyBuffs[bi],13),pbox.x,pbox.y,1);
        }
       }
      }

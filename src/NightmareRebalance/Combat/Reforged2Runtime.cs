@@ -146,8 +146,50 @@ internal static class Reforged2Runtime
         }
     }
 
-    internal static int ApplyOverdriveDefense(int incomingDamage) =>
-        OverdriveActive() ? Reforged2Rules.ApplyOverdriveDefense(incomingDamage) : incomingDamage;
+    internal static int ApplyOverdriveDefense(int incomingDamage)
+    {
+        var w = Framework.Singleton<BATTLE_WORK>.instance;
+        int result = OverdriveActive(w) ? Reforged2Rules.ApplyOverdriveDefense(incomingDamage) : incomingDamage;
+        int kos = KoAllyCount(w);
+        if (Reforged2Rules.IsLastStandActive(kos))
+            result = Reforged2Rules.ApplyLastStandDefense(result, kos);
+        return result;
+    }
+
+    internal static int KoAllyCount(BATTLE_WORK? w)
+    {
+        if (w?.pm_data == null) return 0;
+        int kos = 0;
+        for (int i = 0; i < w.pm_data.Length && i < 6; i++)
+            if (w.pm_data[i] is { IsPlayer: true } u && (u.hp <= 0 || u.IsDead)) kos++;
+        return kos;
+    }
+
+    internal static string[] PartyBuffSummary(BATTLE_WORK? w)
+    {
+        if (w?.pm_data == null) return Array.Empty<string>();
+        var list = new List<string>(6);
+        bool mb = ArmyProgressionRuntime.HasUpgrade("master-blacksmiths");
+        for (int i = 0; i < w.pm_data.Length && i < 6; i++)
+        {
+            var u = w.pm_data[i];
+            if (u == null || !u.IsPlayer || u.hp <= 0 || u.IsDead) continue;
+            var tags = new List<string>(3);
+            if (surgedPlayers.Contains(u.Pointer)) tags.Add("SURGE");
+            if (ripostePlayers.Contains(u.Pointer)) tags.Add("RIPOSTE");
+            if (PerksEnabled && u.TryCast<BattlePlayerCharacter>()?.c_varia_dat is {} data)
+            {
+                var perk = Reforged2Rules.WeaponPerk(data.buki_lv, mb);
+                if (perk.TierName.Length > 0) tags.Add(perk.TierName);
+            }
+            if (tags.Count > 0)
+            {
+                string name = u.chara_id > 0 ? G2_SYS.G2_name_get(u.chara_id)?.Trim() ?? "Ally" : "Ally";
+                list.Add($"{name}: {string.Join(", ", tags)}");
+            }
+        }
+        return list.ToArray();
+    }
 
     internal static void ObservePlayerHit(BATTLE_WORK? w, int attackerSlot, int defenderSlot, int incomingDamage)
     {
@@ -295,7 +337,7 @@ internal static class Reforged2Runtime
     }
 
     internal static void ToggleHelpCard() => HelpCardVisible = !HelpCardVisible;
-    internal static void ToggleBestiary() => BestiaryViewMode = (BestiaryViewMode + 1) % 3;
+    internal static void ToggleBestiary() => BestiaryViewMode = (BestiaryViewMode + 1) % 4;
     internal static void ToggleCleanHud()
     {
         CleanHudMode = !CleanHudMode;
@@ -380,6 +422,7 @@ internal static class Reforged2Runtime
 
         if (OverdriveActive(w))
             result = Reforged2Rules.ApplyOverdriveAttack(result);
+        result = Reforged2Rules.ApplyLastStandAttack(result, KoAllyCount(w));
 
         if (CombosEnabled && !firstActionUsed)
         {
@@ -427,6 +470,8 @@ internal static class Reforged2Runtime
             var combo = Reforged2Rules.EvaluatePhysicalCombo(result, sleeping, false, poisoned);
             if (combo.BonusDamage == 0)
                 combo = Reforged2Rules.EvaluateExecuteFinisher(result, enemy.hp, enemy.max_hp);
+            if (combo.BonusDamage == 0 && lastTurn == w.battle_kaisuu && spellsThisTurn > 0)
+                combo = Reforged2Rules.EvaluateSpellbladeResonance(result, true);
             if (combo.BonusDamage > 0)
             {
                 result += combo.BonusDamage;
@@ -461,6 +506,7 @@ internal static class Reforged2Runtime
 
         if (OverdriveActive(w))
             result = Reforged2Rules.ApplyOverdriveAttack(result);
+        result = Reforged2Rules.ApplyLastStandAttack(result, KoAllyCount(w));
 
         if (CombosEnabled && !firstActionUsed)
         {
