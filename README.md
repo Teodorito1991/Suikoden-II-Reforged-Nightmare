@@ -1,157 +1,90 @@
 # Suikoden II: Reforged Nightmare
 
-**Latest source development (uninstalled): v1.56 — Army Progression, Drill Directives, Cross-Theater Synergy & Optimizations.**
-Adds opt-in persistent commander XP, military ranks (Recruit → Marshal),
-Vanguard/Bulwark/Tactician Doctrines backed by a content-addressed save-bound
-sidecar ledger (zero native save edits), tactical Drill Directives, RPG ↔ War
-Cross-Theater Synergy, Castle Guild Roster/Codex views, and hot-path combat/war/
-guild optimizations. Compiled and managed-tested; live gameplay acceptance is
-pending. [Design, configuration and verification limits](docs/ARMY-PROGRESSION-OPTIMIZATIONS-V156.md).
+An unofficial Windows Steam gameplay overhaul and expansion for **Suikoden II HD Remaster** (BepInEx 6 IL2CPP x64), built strictly on the original RPG and tactical war engines, artwork, animations, maps, and interfaces. **Normal** is the intended difficulty foundation.
 
-**Installed for the owner's full gameplay playtest: exact v1.55.** Full Content
-plus selectable Nightmare/growth rewards and the explicitly unverified training
-defeat-return opt-in are applied. Spoiler Mode starts OFF; its normal warning and
-second confirmation remain required. The actual Steam launcher loaded the plugin
-and closed normally; all fourteen original saves are unchanged. No campaign was started.
-[Installed modules, evidence and limitations](docs/INSTALLATION-STATUS-V155.md).
-No new DLL/version, installable beta or GitHub Release was produced.
+> **Status:** Experimental. All native save files (`gsd2/DataXX`) stay 100% vanilla; new progression features store snapshots in a content-addressed sidecar ledger. No GitHub Release or installable beta has been published.
 
-**First campaign recommendation: unchanged v1.55 + Full Content, in-game Normal.**
-[Readiness decision and challenge watchlist](docs/FIRST-CAMPAIGN-READINESS.md) ·
-[Short setup and fallback guide](docs/FIRST-CAMPAIGN-SETUP.md). No new DLL or tuning
-was justified in the final review. Full managed/config checks passed; exact-C5
-native evidence is preserved. The candidate is ready for owner campaign feedback,
-not certified for every boss/optional path. The later installation is recorded
-above; campaign start remains the owner's action. Note the supported castle
-variant, session-only contracts and three
-Hall entries without automatic story witnesses. No developer tools are required.
+---
 
-**Latest development: v1.55 — Story Boss Difficulty Completion.**
-Full Content on Normal now selects22 audited story-boss encounter policies (up
-from13). Lucia's two earlier records, final Neclord, Mist Shade, Gorudo, Worm/Moth
-and three later Lucia variants gain existing tactical choices. A new command/owner/
-callback guard protects the legacy major policies. No HP/damage increase. Original
-Luca and Beast Rune controllers remain native; Hall rematches are separate.
-[Before/after, exclusions and native evidence](docs/STORY-BOSS-COVERAGE-V155.md).
-This is native/component and launcher verification, not new story-battle acceptance.
-Personal settings are not migrated; generate the separate Full Content profile.
+## Current Builds
 
-**Latest development: v1.54 — Great Balance Audit.** Native/source comparison finds
-uneven campaign pressure, with role-based enemy scaling rather than stacked global
-multipliers. Full Content now recovers one level1–2 rune charge per eligible victory;
-levels3–4 retain their resource cost. Existing configurations default to the legacy
-level4 ceiling unless deliberately changed. No character/enemy stats or rewards changed.
-[Quantitative report](docs/BALANCE-AUDIT-V154.md) ·
-[Nine-stage pre-change baseline](docs/BALANCE-BASELINE-V154.md) ·
-[All80 character comparisons](docs/BALANCE-CHARACTERS-V154.md).
-Automated/native component checks and startup are separate from gameplay acceptance;
-v1.53 below remains the latest owner-accepted exact DLL. No full-campaign certificate.
+| Track | Version | Status | Details |
+|---|---|---|---|
+| **Latest Source (Development)** | `v1.56` dev | Compiled (`0 warnings/errors`) + full managed/CI suite passing; **live gameplay playtest pending** | [v1.56 Features & Optimizations](docs/ARMY-PROGRESSION-OPTIMIZATIONS-V156.md) |
+| **Installed Owner Playtest** | `1.55.0-story-bosses.1` (`C5BE…7055E`) | Launcher/plugin startup verified on Steam; Full Content + playtest opt-ins; 14 saves untouched | [v1.55 Installation Status](docs/INSTALLATION-STATUS-V155.md) |
+| **Latest Accepted Checkpoint** | `1.53.0-army-training.1` (`5414…A286`) | Owner-played Commander Rout Standard victory, castle return, autosave readback & reload passed | [v1.53 Acceptance](docs/history/ARMY-TRAINING-RESULTS-V153.md) |
 
-**Latest accepted development checkpoint: v1.53 — Army Training.**
-Standard Commander Rout passed an earned victory, correct castle return, real
-native autosave/readback and reload on the exact recorded DLL. Full Content
-Preview now selects four independent native drills with supported Standard/Veteran
-choices and750/1,500-Potch qualifying rewards, alongside22 Original Hall entries,
-10 Hunts and the RPG/original story-war overhaul. Only Commander Rout Standard was
-played on this DLL; other drills/tiers retain historical evidence. Original campaign
-prerequisites remain. Defeat return and Spoiler Mode are OFF; Nightmare is optional.
-Commander XP is unimplemented. [Exact acceptance](docs/ARMY-TRAINING-RESULTS-V153.md).
+---
 
-Generate the [Full Content Preview](profiles/full-content/README.md) to a new folder;
-it does not install a DLL or overwrite personal settings. The separate conservative
-Fresh Campaign profile remains unchanged. No whole-campaign certification or beta
-publication. Original Luca and boosted-party Beast Rune evidence retain their own
-historical DLL hashes; they were not replayed for this training acceptance.
+## Key Features
 
-**Campaign development baseline** is v1.40, with DLL
-`1.40.0-party-revolution.1`. Fourteen revised recruits and four conditional
-Star Bonds give Normal parties new ways to prepare and fight. The Castle Guild's
-Party Strategy page shows combinations, their triggers and their effects.
-[Party Revolution profiles and verification](docs/PARTY-REVOLUTION-V140.md).
-[Hall of Echoes engineering handoff](docs/HALL-OF-ECHOES-ENGINEERING-HANDOFF-V141.md)
-records the earlier native fixture investigation. Battle guests remain unavailable.
-[Tactical profiles and v1.39 evidence](docs/TACTICAL-REVOLUTION-V139.md).
-The source repository is public. The installable beta remains unpublished.
-[Castle Guild and Total War changes](docs/CASTLE-GUILD-TOTAL-WAR-V136.md).
-[Hunt catalogue and verification](docs/GRAND-GUILD-V137.md).
-[Recommended campaign setup and v1.38 verification](docs/NIGHTMARE-CAMPAIGN-V138.md).
+### RPG Combat & Party Overhaul
+- **80 character profiles** and **31 spell adjustments**, plus **10 physical techniques** and **14 Unite** improvements.
+- **280 regular enemy profiles** and **58 remixed formations** with guarded tactical AI, teamwork, and Arcane Guard.
+- **22 audited story-boss encounter policies** (no blanket HP/damage inflation; campaign Luca and Beast Rune remain native-controlled).
+- **10 Star Bonds** (4 Unite-backed + 6 lore pairings including *Riou & Nanami*, *Flik & Viktor*, *Luc & Mazus*, *Kahn & Sierra*, *Georg & Killey*, and *Kasumi & Mondo*).
+- **Victory Rune Regeneration:** Restores 1 missing level 1–2 charge per eligible survivor (Full Content default).
+- **Optional In-Battle Tactical HUD Pill** showing active Star Bonds and armed Morale charges.
 
-An unofficial Windows Steam gameplay overhaul and expansion for **Suikoden II HD
-Remaster**, using the original RPG and tactical war engines, artwork, animations,
-maps and interfaces. Normal is the intended difficulty foundation. Optional
-hunting rewards preparation and grinding without becoming mandatory.
+### Castle Guild, Hunts & Hall of Echoes
+- **Castle Guild Attendant** beside the Suggestion Box (`vk07`), with an optional **Multi-NPC Castle Hub** adding a flanking **Drill Sergeant** (direct Army Training) and **Echo Archivist** (direct Hall of Echoes).
+- **10 Voluntary Hunt Contracts** with repeatable Potch, guarded fallback item rewards, and optional **Hunt Risk Modifiers** (*Frenzied Quarry* / *Ironclad Quarry* for `+35%` bonus Potch).
+- **Hall of Echoes:** 22 supported Original boss rematches, optional Nightmare tiers with conditional growth stones, Spoiler Mode with double confirmation, and **Hall Mastery Medals** (best turn count & No-KO badges).
+- **Polished Guild Menu:** Dynamic context-aware NPC greetings, Left/Right fast page-flipping, hold-to-repeat scrolling, animated cursor, breadcrumbs, XP progress bars, and a **Tactician's Codex**.
 
-**Overall campaign status: experimental.** [Known issues](KNOWN_ISSUES.md).
+### Tactical War & Permanent Army Progression
+- **Original Story-War Overhaul** (unit profiles, tactical AI, specializations, maneuvers, and audited objectives).
+- **Castle Army Training:** 4 replayable native drills (*War 1*, *Fort Defense*, *Commander Rout*, *War 3*) with Standard/Veteran tiers, private flag-forking, and save-fence protection.
+- **Permanent Army Progression (`v1.56` opt-in):** Commanders earn persistent XP from Army Training and Story Wars across 5 ranks (*Recruit → Marshal*), unlock **Vanguard / Bulwark / Tactician** Doctrines using safe native `SP_*` abilities, and trigger **War Unit Synergy Pairs** (*Flik+Viktor*, *Shu+Apple*, *Luc+Mazus*, *Humphrey+Georg*) — all stored in a **content-addressed save-bound sidecar ledger** (`army-ledger.json`) with zero native save edits.
+- **Drill Directives & Cross-Theater Synergy (`v1.56` opt-ins):** *Iron Wall*, *No Field Medicine*, and *Forced March* drill modifiers; Veteran drills arm `+1` RPG morale rune charge and Hall Nightmare clears grant `+35 War XP`.
 
-## What changes
+---
 
-- **80 character profiles** and **31 spell adjustments** for more build choices.
-- **280 regular enemy profiles** and **58 remixed formations**, with guarded native
-  action/target selection, damage, healing and encounter changes.
-- **22 boss encounter policies**, including six scripted encounter records with
-  attack-only changes. Solo Luca has a native dispatcher fixture and remains
-  disabled in campaign play. [Boss evidence](docs/LEGENDARY-BOSSES-V135.md).
-- **Ten physical techniques** and **fourteen Unite** improvements.
-- Victory rune regeneration: one missing charge per eligible survivor, starting
-  at the lowest depleted spell level by default.
-- The **Castle Guild attendant beside the Suggestion Box** in the audited
-  headquarters variant.
-- Voluntary contracts, original-engine battles, repeatable Potch and guarded item
-  rewards. Accept, travel, hunt, return and report without developer hotkeys.
-- Original-engine story-war unit, AI and objective modifications.
+## Repository Layout
 
-## Castle Army Training
+```text
+├── src/NightmareRebalance/
+│   ├── Core/           # Plugin bootstrap, settings, rules, coverage & maintenance
+│   ├── Combat/         # RPG combat overhaul, AI, teamwork, Star Bonds & targeting
+│   ├── Bosses/         # Story-boss tactics, profiles & legendary boss guards
+│   ├── War/            # Tactical war overhaul, AI, Army Training & save fence
+│   ├── Progression/    # Permanent Army Progression ledger, ranks, doctrines & synergy
+│   ├── Guild/          # Castle Guild NPCs, menu navigation & presentation
+│   ├── Hall/           # Hall of Echoes rematches, Nightmare tiers & Luca gauntlet
+│   ├── Hunts/          # Hunt Guild contracts, sessions & reward tracking
+│   ├── Probes/         # Native/component diagnostic probes
+│   └── Content/        # Audited JSON balance & baseline definitions
+├── tests/              # Deterministic managed regression suite (36+ suites)
+├── profiles/           # Fresh Campaign & Full Content configuration profiles
+├── tools/              # Profile generators, playtest staging & publication audit
+├── docs/               # Current guides & docs/history/ milestone archive
+└── publication/        # Active build manifests & publication/history/ archive
+```
 
-The native Guild offers War1 Training, Fort Defense, Commander Rout and War3
-Training, gated by their original story completions and audited definitions.
-Standard/Veteran qualifying victories earn750/1,500 Potch through the native purse.
-Defeat, timed endings without a commander rout and invalid returns do not pay.
-The v1.53 normal-build return/save mechanism passed Commander Rout Standard, actual
-autosave readback and reload. It does not require a developer gameplay harness.
-Independent test I/O protection was used only to preserve the Steam install/saves.
-Full Preview selects the four drills; individual opt-outs remain. Native defeat is
-unchanged with the optional redirect OFF. No commander XP or training stat bonus.
-[Results and remaining limits](docs/ARMY-TRAINING-RESULTS-V153.md).
+---
 
-## Working from source
+## Building & Testing from Source
 
-Read the build guide for the supported Windows Steam build and BepInEx
-dependencies. GitHub's Code ZIP contains source files for developers. Normal
-is the baseline for campaign testing. [Build guide](BUILDING.md).
+Requires the supported Windows Steam build with BepInEx 6 IL2CPP x64 (see [BUILDING.md](BUILDING.md) and [INSTALL.md](INSTALL.md)):
 
-## What has actually been played
+```powershell
+# Build Release DLL and run the full managed regression suite
+./build.ps1
 
-On **1.12.2-guild-ui.1**, a protected user-controlled Normal session demonstrated
-Sun King's Retinue: NPC interaction, readable selection, automatic Cave encounter,
-two genuine victories, native Stone of Power receipt, rune recovery, field return,
-report-back and repeat entry. The second reward actually credited **3,478 Potch**;
-the first met the native money cap.
+# Generate a staged configuration profile (never touches Steam or saves)
+./tools/prepare-fresh-campaign.ps1 -OutputDirectory .\staging-fresh
+./tools/prepare-full-content.ps1   -OutputDirectory .\staging-full
+./tools/prepare-v156-playtest.ps1  -OutputDirectory .\staging-v156
+```
 
-That evidence belongs to DLL SHA256:
-`0B520FDD9182B6C024FE96376D0F284BE249DF93AF2E748DC331D21324910F46`.
-It does not certify the whole campaign or later development-build gameplay. Dreamer's Circuit and
-Thornwake Patrol are native-tested prototypes, disabled in the proposed defaults.
-[Exact-build evidence](docs/ACCEPTANCE.md).
-
-## A look at the hunt
-
-![Sun King and Sorcerer in the original RPG engine](docs/media/historical-hunt-debug-battle.png)
-
-*Historical user-supplied hunt-debug screenshot. Damage protection was ON. This
-illustrates the engine, not fair balance or acceptance of either candidate DLL;
-its exact DLL identity is not independently recorded.*
-
-[Historical reward screen and pending captures](docs/media/README.md).
-No synthetic mockup is presented as gameplay proof.
+---
 
 ## Documentation
 
-[Features](FEATURES.md) · [Configuration](CONFIGURATION.md) · [Hunt Guild](HUNT_GUILD.md)
-· [Known issues](KNOWN_ISSUES.md) · [Changelog](CHANGELOG.md)
-· [Building](BUILDING.md) · [Contributing](CONTRIBUTING.md) · [Credits](CREDITS.md)
+[Docs Index](docs/README.md) · [Features](FEATURES.md) · [Configuration](CONFIGURATION.md) · [Hunt Guild](HUNT_GUILD.md) · [Known Issues](KNOWN_ISSUES.md) · [Changelog](CHANGELOG.md) · [Building](BUILDING.md) · [Contributing](CONTRIBUTING.md) · [Credits](CREDITS.md)
 
-Original mod code is **MIT-licensed**, approved by the owner. External notices are
-retained in [licenses](licenses); see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-No game binaries, loader, generated interop, extracted assets or saves are supplied.
-Screenshots depict proprietary game content and are not relicensed as mod code.
-This unofficial project is not affiliated with or endorsed by KONAMI.
+---
+
+## License & Legal
+
+Original mod code is **MIT-licensed** ([LICENSE](LICENSE)). External notices are in [licenses/](licenses) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). No game binaries, loader, generated interop, extracted assets, or saves are supplied. Screenshots depict proprietary game content and are not relicensed as mod code. This unofficial project is not affiliated with or endorsed by KONAMI.
