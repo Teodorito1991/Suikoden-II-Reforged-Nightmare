@@ -33,4 +33,28 @@ internal static class GuildPresentation
         : state == GuildQuestState.Accepted ? "Contract active — choose Withdraw to change it"
         : state == GuildQuestState.AwaitingReport ? "Choose Report below to finish"
         : "Up / Down: browse    Confirm: accept";
+
+    internal static (string Header, string Greeting) NpcBanner(
+        GuildQuestState state,
+        string? contractId,
+        int moraleCharges,
+        int trackedCommanders,
+        bool progressionEnabled)
+    {
+        if (state == GuildQuestState.AwaitingReport)
+        {
+            string name = string.IsNullOrEmpty(contractId) ? "your quarry" : GuildScreenRules.Card(contractId).Name;
+            return ("Guild Attendant  [!] Report Ready", $"Back from {name}! Speak with me to file your report.");
+        }
+        if (state == GuildQuestState.Accepted && !string.IsNullOrEmpty(contractId))
+        {
+            var card = GuildScreenRules.Card(contractId);
+            return ("Guild Attendant  [•] Active Hunt", $"{card.Name} awaits in {card.Destination}. Speak for drills or status.");
+        }
+        if (moraleCharges > 0)
+            return ($"Guild Attendant  [★] Morale +{moraleCharges}", "The garrison is fired up! Your next RPG victory restores an extra rune charge.");
+        if (progressionEnabled && trackedCommanders > 0)
+            return ("Guild Attendant", $"Welcome back. {trackedCommanders} veteran commander(s) stand ready in the roster.");
+        return ("Guild Attendant", "Welcome to the Dunan Castle Guild — Hunts, Army Drills, and Echoes.");
+    }
 }

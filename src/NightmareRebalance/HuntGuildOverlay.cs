@@ -116,7 +116,14 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   else{if(fallbackFont==null)fallbackFont=Font.CreateDynamicFontFromOSFont("Georgia",22);style.font=fallbackFont;}
   return style;
  }
- static Color Tone(string tone)=>tone=="gold"?new Color(1,.86f,.52f):tone=="muted"?new Color(.72f,.78f,.79f):new Color(.96f,.94f,.86f);
+ static Color Tone(string tone)=>tone switch
+ {
+  "gold" => new Color(1,.86f,.52f),
+  "success" => new Color(.54f,.92f,.68f),
+  "alert" => new Color(.96f,.64f,.46f),
+  "muted" => new Color(.72f,.78f,.79f),
+  _ => new Color(.96f,.94f,.86f)
+ };
  static void Fill(Rect r,Color c){GUI.color=c;GUI.DrawTexture(r,Texture2D.whiteTexture,ScaleMode.StretchToFill,false);GUI.color=Color.white;}
  static Rect ToRect(GuildBox b,float x,float y,float scale)=>new(x+b.X*scale,y+b.Y*scale,b.W*scale,b.H*scale);
  static GUIStyle? frameStyle;
@@ -280,13 +287,15 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    var sel = roster[focus];
    var selRank = ArmyProgressionRules.RankForXp(sel.Xp);
    int nextXp = ArmyProgressionRules.NextRankXp(selRank);
+   int floorXp = ArmyProgressionRules.RankThresholds[(int)selRank];
+   float progressFrac = selRank == ArmyRank.Marshal ? 1f : Math.Clamp((float)(sel.Xp - floorXp) / Math.Max(1, nextXp - floorXp), 0f, 1f);
    string nextNote = selRank == ArmyRank.Marshal ? "Maximum rank reached" : $"Next rank at {nextXp} XP";
    return GuildRebornScreen.Paginate(new("COMMANDER ROSTER", rows, focus, sel.Name,
        $"{ArmyProgressionRules.RankTitle(selRank)}  ·  {sel.Xp} XP ({nextNote})",
        $"Doctrine: {ArmyProgressionRules.DoctrineTitle(sel.Doctrine)}\n{ArmyProgressionRules.DoctrineDescription(sel.Doctrine)}",
        $"Drills won: {sel.DrillsWon}   Story wars: {sel.StoryWarsWon}   Nightmare clears: {sel.NightmareClears}",
        "Confirm cycles Doctrine (None / Vanguard / Bulwark / Tactician). Save at an inn or orb to bind progress.",
-       status, "Cycle Doctrine", back, preview));
+       status, "Cycle Doctrine", back, preview, GuildMenuNavigation.Breadcrumb(page), progressFrac));
   }
 
   if (page == GuildPage.Codex)
@@ -425,11 +434,21 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     GUI.matrix=Matrix4x4.identity;GUI.color=Color.white;
     if(prompt||feedback||offer!=null)
     {
-     float width=Math.Min(820,Screen.width-48);
-     var box=new Rect((Screen.width-width)/2,Screen.height-110,width,84);
+     float width=Math.Min(860,Screen.width-48);
+     var box=new Rect((Screen.width-width)/2,Screen.height-124,width,98);
      Window(box);
-     Label(new(new(26,18,width-52,51),offer!=null?$"Local contract: {offer.Name}\nF6 or hold L1 and press R1 to accept":feedback?CastleGuildRuntime.FeedbackText:
-         CastleGuildRuntime.QuestPrompt+"\nConfirm to speak",20),box.x,box.y,1);
+     if(offer!=null)
+      Label(new(new(26,20,width-52,58),$"Local contract: {offer.Name}\nF6 or hold L1 and press R1 to accept",20),box.x,box.y,1);
+     else if(feedback)
+      Label(new(new(26,20,width-52,58),CastleGuildRuntime.FeedbackText,20),box.x,box.y,1);
+     else
+     {
+      var (header,greeting)=GuildPresentation.NpcBanner(CastleGuildRuntime.Quest.State,CastleGuildRuntime.Contract,
+          ArmyProgressionRuntime.Current.MoraleBonusCharges,ArmyProgressionRuntime.Current.Commanders.Count,ArmyProgressionRuntime.Enabled);
+      Label(new(new(26,12,width-210,26),header,19,"gold"),box.x,box.y,1);
+      Label(new(new(width-190,14,164,24),"Confirm to speak",16,"success"),box.x,box.y,1);
+      Label(new(new(26,42,width-52,44),greeting,18),box.x,box.y,1);
+     }
      if(previewSmoke)CapturePreview();
      return;
     }
@@ -445,6 +464,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
      (page,focus,drill)=(screen.Page,screen.Focus,screen.Drill);
     }
     var view=Model(page,focus,drill,HuntGuildRuntime.Preview||HuntGuildRuntime.RenderSmoke,developer);
+    if(string.IsNullOrEmpty(view.Breadcrumb))view=view with{Breadcrumb=GuildMenuNavigation.Breadcrumb(page)};
     float scale=GuildRebornScreen.Scale(Screen.width,Screen.height);
     float x=(Screen.width-GuildRebornScreen.Width*scale)/2,y=(Screen.height-GuildRebornScreen.Height*scale)/2;
     foreach(var box in new[]{GuildRebornScreen.Heading,GuildRebornScreen.List,GuildRebornScreen.Detail,GuildRebornScreen.Footer})
@@ -453,9 +473,16 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     var row=GuildRebornScreen.Row(view.Focus,view.Rows.Length);
     Fill(ToRect(row,x,y,scale),new Color(.19f,.24f,.37f,.94f));
     Fill(ToRect(new(row.X+7,row.Y+row.H-1,row.W-14,1),x,y,scale),new Color(.80f,.67f,.39f,.64f));
+    float bob=previewSmoke?0f:Mathf.Sin(Time.unscaledTime*7f)*3f;
     var cursor=GuildVisualResources.Cursor;
-    if(cursor!=null)GUI.DrawTexture(ToRect(new(row.X+7,row.Y+12,17,19),x,y,scale),cursor.texture,ScaleMode.StretchToFill,true);
-    else Label(new(new(row.X+7,row.Y+8,20,24),">",20,"gold"),x,y,scale);
+    if(cursor!=null)GUI.DrawTexture(ToRect(new(row.X+7+bob,row.Y+12,17,19),x,y,scale),cursor.texture,ScaleMode.StretchToFill,true);
+    else Label(new(new(row.X+7+bob,row.Y+8,20,24),">",20,"gold"),x,y,scale);
+    if(view.ProgressFraction is float frac)
+    {
+     var barTrack=new GuildBox(401,310,634,12);
+     Fill(ToRect(barTrack,x,y,scale),new Color(.08f,.12f,.22f,.95f));
+     Fill(ToRect(new(barTrack.X+2,barTrack.Y+2,(barTrack.W-4)*Math.Clamp(frac,0f,1f),barTrack.H-4),x,y,scale),new Color(.96f,.80f,.38f,.95f));
+    }
     foreach(var line in GuildRebornScreen.Text(view))Label(line,x,y,scale);
     HuntGuildRuntime.Drawn();
     if(previewSmoke)CapturePreview();

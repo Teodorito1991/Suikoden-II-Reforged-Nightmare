@@ -19,6 +19,31 @@ internal static class GuildGauntletInput
         active&&idle&&!release&&mapStep==20&&eventStep==2;
 }
 
+internal sealed class MenuRepeatTimer
+{
+    internal const int InitialDelayFrames = 20;
+    internal const int RepeatIntervalFrames = 6;
+    int heldFrames;
+
+    internal void Reset() => heldFrames = 0;
+
+    internal bool Step(bool pressed, bool held)
+    {
+        if (pressed)
+        {
+            heldFrames = 1;
+            return true;
+        }
+        if (!held)
+        {
+            heldFrames = 0;
+            return false;
+        }
+        heldFrames++;
+        return heldFrames >= InitialDelayFrames && (heldFrames - InitialDelayFrames) % RepeatIntervalFrames == 0;
+    }
+}
+
 internal sealed class GuildMenuNavigation
 {
     internal GuildPage Page { get; private set; }
@@ -73,8 +98,38 @@ internal sealed class GuildMenuNavigation
         Focus = MoveFocus(Focus, RowCount, up, down);
     }
 
+    internal void MovePage(bool left, bool right, int pageSize = GuildRebornScreen.RowsPerPage)
+    {
+        Focus = MovePageFocus(Focus, RowCount, pageSize, left, right);
+    }
+
     internal static int MoveFocus(int focus, int count, bool up, bool down) =>
         count <= 0 ? 0 : up == down ? focus : (focus + (down ? 1 : count - 1)) % count;
+
+    internal static int MovePageFocus(int focus, int count, int pageSize, bool left, bool right)
+    {
+        if (count <= pageSize || pageSize <= 0 || left == right) return count <= 0 ? 0 : Math.Clamp(focus, 0, count - 1);
+        int pages = (count + pageSize - 1) / pageSize;
+        int currentPage = Math.Clamp(focus, 0, count - 1) / pageSize;
+        int nextPage = (currentPage + (right ? 1 : pages - 1)) % pages;
+        return Math.Min(nextPage * pageSize, count - 1);
+    }
+
+    internal static string Breadcrumb(GuildPage page) => page switch
+    {
+        GuildPage.Hunts => "Dunan Castle  ·  Hunts",
+        GuildPage.Training => "Dunan Castle  ·  Army Training",
+        GuildPage.Difficulty => "Army Training  >  Difficulty",
+        GuildPage.ArmyRoster => "Army Training  >  Roster",
+        GuildPage.Codex => "Army Training  >  Codex",
+        GuildPage.Status => "Dunan Castle  ·  Guild Status",
+        GuildPage.Strategy => "Dunan Castle  ·  Party Strategy",
+        GuildPage.Echoes => "Dunan Castle  ·  Hall of Echoes",
+        GuildPage.EchoDifficulty => "Hall of Echoes  >  Tier",
+        GuildPage.SpoilerWarning => "Hall of Echoes  >  Spoiler Mode",
+        GuildPage.LucaParties => "Hall of Echoes  >  Luca Teams",
+        _ => "Dunan Castle"
+    };
 
     internal bool Back()
     {

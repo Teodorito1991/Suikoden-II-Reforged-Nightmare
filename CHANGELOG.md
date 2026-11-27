@@ -19,6 +19,10 @@
 - Added **Commander Roster**, **Drill Directive**, and **Tactician's Codex**
   entries inside the Castle Guild's Army Training menu while preserving all
   existing top-level Services indices and Guild navigation tests.
+- Upgraded the Castle Guild NPC & menu UX: context-aware NPC greeting banners
+  with live status badges (`[!] Report Ready`, `[★] Morale`), Left/Right fast
+  page-flipping, hold-to-repeat Up/Down scrolling, animated cursor bob, nested
+  breadcrumbs, Commander XP progress bar, and color-coded availability tones.
 - Applied hot-path optimizations: streaming startup SHA256 verification, cached
   Harmony compatibility targets (removing per-frame reflection in
   `CastleGuildRuntime`), early-exit target discovery and hoisted ally scans in

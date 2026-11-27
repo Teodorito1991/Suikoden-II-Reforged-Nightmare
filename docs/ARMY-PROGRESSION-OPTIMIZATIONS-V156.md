@@ -106,6 +106,20 @@ Accessible inside **Army Training** without shifting any existing top-level
 - **Tactician's Codex:** Read-only campaign telemetry summarizing Army
   Progression totals, Cross-Theater Morale charges, Hunt completions, and active
   Star Bonds in your current 6-person party.
+- **NPC & Menu UX Polish:**
+  - Context-aware **Guild Attendant NPC Banner** (`GuildPresentation.NpcBanner`)
+    showing dynamic greetings and live badges (`[!] Report Ready`,
+    `[•] Active Hunt`, `[★] Morale +N`, or veteran roster count) when you
+    approach the attendant.
+  - **Left / Right fast page-flipping** (`GuildMenuNavigation.MovePage`) across
+    paginated Hunt, Hall of Echoes, Army Training, and Commander Roster lists,
+    with dynamic `← / → Page` footer hints.
+  - **Hold-to-repeat Up/Down scrolling** (`MenuRepeatTimer`) for smooth browsing
+    of long lists.
+  - **Visual polish:** Animated native cursor bob (disabled during render smoke),
+    top-right nested breadcrumbs, gold-framed Commander XP progress bar in
+    `Commander Roster`, and semantic row note colors (`success` emerald for
+    completed/active/high-rank items, `alert` amber for locked/unavailable/OFF).
 
 ---
 

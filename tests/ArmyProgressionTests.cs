@@ -127,6 +127,26 @@ internal static class ArmyProgressionTests
         Check(Confirm() == GuildChoice.None && menu.Page == GuildPage.Codex, "CodexRow opens Tactician's Codex");
         Check(Confirm() == GuildChoice.None && menu.Page == GuildPage.Training && menu.Focus == GuildMenuNavigation.CodexRow, "Codex confirm returns to Training");
 
-        Console.WriteLine($"PASS: Army Progression {checks} checks (ranks, doctrines, directives, synergy, content-addressed ledger, Guild menu).");
+        // 7. Menu UX: Left/Right page-flipping, hold-to-repeat timer, NPC banners, semantic tones
+        Check(GuildMenuNavigation.MovePageFocus(0, 22, 4, false, true) == 4, "Right flips to page 2");
+        Check(GuildMenuNavigation.MovePageFocus(20, 22, 4, false, true) == 0, "Right wraps from final page to page 1");
+        Check(GuildMenuNavigation.MovePageFocus(0, 22, 4, true, false) == 20, "Left wraps from page 1 to final page");
+        var repeat = new MenuRepeatTimer();
+        Check(repeat.Step(true, true), "Initial press fires immediately");
+        int repeats = 0;
+        for (int f = 0; f < 30; f++) if (repeat.Step(false, true)) repeats++;
+        Check(repeats == 2, "Hold-to-repeat fires after initial delay at steady interval");
+        repeat.Reset();
+        Check(!repeat.Step(false, false), "Release resets repeat timer");
+
+        var (repHeader, repGreeting) = GuildPresentation.NpcBanner(GuildQuestState.AwaitingReport, "sun-kings-retinue", 0, 0, false);
+        Check(repHeader.Contains("Report Ready") && repGreeting.Contains("Sun King's Retinue"), "NPC banner highlights completed hunt report");
+        var (morHeader, _) = GuildPresentation.NpcBanner(GuildQuestState.NoContract, null, 2, 3, true);
+        Check(morHeader.Contains("Morale +2"), "NPC banner highlights armed cross-theater morale");
+        Check(GuildRebornScreen.NoteTone("Completed — report to Guild") == "success", "Completed note uses success tone");
+        Check(GuildRebornScreen.NoteTone("Unavailable in settings") == "alert", "Unavailable note uses alert tone");
+        Check(GuildMenuNavigation.Breadcrumb(GuildPage.ArmyRoster).Contains("Roster"), "Breadcrumb identifies nested Roster page");
+
+        Console.WriteLine($"PASS: Army Progression & Guild UX {checks} checks (ranks, doctrines, directives, synergy, ledger, pagination, NPC banners).");
     }
 }
