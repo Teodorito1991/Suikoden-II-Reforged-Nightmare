@@ -6,7 +6,7 @@ namespace NightmareRebalance;
 
 internal static class TrainingWar
 {
-    internal enum Drill { Standard, FortDefense, CommanderRout, War3 }
+    internal enum Drill { Standard, FortDefense, CommanderRout, War3, War6, War10, War13, War15 }
 
     sealed class Session(GAME_WORK game, SYS_WORK system, MACHICON field, EVENTCON events, EVENT_HUMAN player, Drill drill, bool veteran)
     {
@@ -35,7 +35,16 @@ internal static class TrainingWar
         internal List<CommanderParticipation> Participants = new();
         internal bool CommanderRouted, AlliesRemain, FortVictory;
         internal readonly Drill SelectedDrill = drill;
-        internal readonly byte WarNumber = drill switch { Drill.FortDefense => 2, Drill.War3 => 3, _ => 1 };
+        internal readonly byte WarNumber = drill switch
+        {
+            Drill.FortDefense => 2,
+            Drill.War3 => 3,
+            Drill.War6 => 6,
+            Drill.War10 => 10,
+            Drill.War13 => 13,
+            Drill.War15 => 15,
+            _ => 1
+        };
         internal bool Committed, Destroyed;
         internal int Result, SaveCalls;
     }
@@ -65,11 +74,22 @@ internal static class TrainingWar
         War2Runtime.DefinitionsVerified && Framework.Singleton<GAME_WORK>.instance?.eventFlgCHK(0xAA, 0x02) == true;
     internal static bool War3Available => Available && Plugin.Options.EnableTrainingWar3.Value &&
         TotalWarRuntime.Verified.Contains(3) && Framework.Singleton<GAME_WORK>.instance?.eventFlgCHK(0x0C, 0x80) == true;
+    internal static bool ExtendedWarAvailable(int war) => Available && Plugin.Options.EnableTrainingExtendedWars.Value &&
+        WarTacticsRuntime.Verified.Contains(war);
     internal static bool ChallengeActive => current is { Committed: true, SelectedDrill: Drill.CommanderRout };
     internal static bool VeteranActive => current is { Committed: true, Veteran: true };
     internal static bool VeteranAvailable(Drill drill)
     {
-        int war = drill switch { Drill.FortDefense => 2, Drill.War3 => 3, _ => 1 };
+        int war = drill switch
+        {
+            Drill.FortDefense => 2,
+            Drill.War3 => 3,
+            Drill.War6 => 6,
+            Drill.War10 => 10,
+            Drill.War13 => 13,
+            Drill.War15 => 15,
+            _ => 1
+        };
         return Plugin.Options.EnableTrainingVeteran.Value && Plugin.Options.EnableNativeWarAI.Value &&
             Plugin.Options.EnableWarTactics.Value && WarTacticsRuntime.Config.Enabled &&
             WarTacticsRuntime.Config.EnabledWars.Contains(war) && WarTacticsRuntime.Verified.Contains(war);
@@ -94,7 +114,15 @@ internal static class TrainingWar
             Drill.CommanderRout when !ChallengeAvailable => "Requires an enabled drill and verified War 1 formations.",
             Drill.War3 when !Plugin.Options.EnableTrainingWar3.Value => "War 3 Training is disabled.",
             Drill.War3 when !War3Available => "Requires completed War 3 and its original battlefield.",
-            Drill.FortDefense or Drill.CommanderRout or Drill.War3 => "",
+            Drill.War6 when !Plugin.Options.EnableTrainingExtendedWars.Value => "Extended war drills are disabled in settings.",
+            Drill.War6 when !ExtendedWarAvailable(6) => "War 6 native battlefield definitions were not verified.",
+            Drill.War10 when !Plugin.Options.EnableTrainingExtendedWars.Value => "Extended war drills are disabled in settings.",
+            Drill.War10 when !ExtendedWarAvailable(10) => "War 10 native battlefield definitions were not verified.",
+            Drill.War13 when !Plugin.Options.EnableTrainingExtendedWars.Value => "Extended war drills are disabled in settings.",
+            Drill.War13 when !ExtendedWarAvailable(13) => "War 13 native battlefield definitions were not verified.",
+            Drill.War15 when !Plugin.Options.EnableTrainingExtendedWars.Value => "Extended war drills are disabled in settings.",
+            Drill.War15 when !ExtendedWarAvailable(15) => "War 15 native battlefield definitions were not verified.",
+            Drill.FortDefense or Drill.CommanderRout or Drill.War3 or Drill.War6 or Drill.War10 or Drill.War13 or Drill.War15 => "",
             _ => "This drill is unavailable."
         };
     }
@@ -242,8 +270,18 @@ internal static class TrainingWar
                     return;
                 }
 
+                if (requestedDrill is Drill.War6 or Drill.War10 or Drill.War13 or Drill.War15)
+                {
+                    int extWar = requestedDrill switch { Drill.War6 => 6, Drill.War10 => 10, Drill.War13 => 13, _ => 15 };
+                    if (!Plugin.Options.EnableTrainingExtendedWars.Value || !WarTacticsRuntime.Audit(extWar) || !Plugin.CheckCompatibility())
+                    {
+                        Reject($"War {extWar} requires its verified native scripts and roster.");
+                        return;
+                    }
+                }
+
                 if (requestedVeteran && !WarTacticsRuntime.Audit(requestedDrill switch
-                    { Drill.FortDefense => 2, Drill.War3 => 3, _ => 1 }))
+                    { Drill.FortDefense => 2, Drill.War3 => 3, Drill.War6 => 6, Drill.War10 => 10, Drill.War13 => 13, Drill.War15 => 15, _ => 1 }))
                 {
                     Reject("Veteran requires the original army and battlefield definitions.");
                     return;

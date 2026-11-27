@@ -108,7 +108,16 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   smokeExitRequested=true;
   UnityEngine.Application.Quit();
  }
- public void OnDestroy(){if(frameStyle!=null){frameStyle.normal.background=null;frameStyle=null;}foreach(var style in styles.Values)style.font=null;styles.Clear();GuildVisualResources.Release();if(fallbackFont!=null)UnityEngine.Object.Destroy(fallbackFont);fallbackFont=null;if(HuntGuildRuntime.RenderSmoke)Plugin.Logger.LogInfo($"Guild render cleanup: original asset loads={GuildVisualResources.Loads}, releases={GuildVisualResources.Releases}.");}
+ public void OnDestroy()
+ {
+  if(frameStyle!=null){frameStyle.normal.background=null;frameStyle=null;}
+  if(windowGradTex!=null){UnityEngine.Object.Destroy(windowGradTex);windowGradTex=null;}
+  if(rowGradTex!=null){UnityEngine.Object.Destroy(rowGradTex);rowGradTex=null;}
+  if(plaqueGradTex!=null){UnityEngine.Object.Destroy(plaqueGradTex);plaqueGradTex=null;}
+  foreach(var style in styles.Values)style.font=null;styles.Clear();GuildVisualResources.Release();
+  if(fallbackFont!=null)UnityEngine.Object.Destroy(fallbackFont);fallbackFont=null;
+  if(HuntGuildRuntime.RenderSmoke)Plugin.Logger.LogInfo($"Guild render cleanup: original asset loads={GuildVisualResources.Loads}, releases={GuildVisualResources.Releases}.");
+ }
  GUIStyle Style(int size)
  {
   if(!styles.TryGetValue(size,out var style)){style=new GUIStyle{fontSize=size,wordWrap=false,alignment=TextAnchor.UpperLeft,richText=false};style.normal.textColor=Color.white;styles[size]=style;}
@@ -118,24 +127,52 @@ public sealed class HuntGuildOverlay:MonoBehaviour
  }
  static Color Tone(string tone)=>tone switch
  {
-  "gold" => new Color(1,.86f,.52f),
-  "success" => new Color(.54f,.92f,.68f),
-  "alert" => new Color(.96f,.64f,.46f),
-  "muted" => new Color(.72f,.78f,.79f),
-  _ => new Color(.96f,.94f,.86f)
+  "gold" => new Color(1,.88f,.54f),
+  "success" => new Color(.54f,.94f,.68f),
+  "alert" => new Color(.98f,.62f,.44f),
+  "muted" => new Color(.76f,.82f,.86f),
+  _ => new Color(.98f,.96f,.90f)
  };
+ static Texture2D? windowGradTex,rowGradTex,plaqueGradTex;
+ static Texture2D MakeVerticalGradient(Color top,Color mid,Color bottom)
+ {
+  var tex=new Texture2D(1,32,TextureFormat.RGBA32,false);
+  tex.wrapMode=TextureWrapMode.Clamp;
+  for(int y=0;y<32;y++)
+  {
+   float t=y/31f;
+   Color c=t<0.5f?Color.Lerp(bottom,mid,t*2f):Color.Lerp(mid,top,(t-0.5f)*2f);
+   tex.SetPixel(0,y,c);
+  }
+  tex.Apply(false,false);
+  return tex;
+ }
+ static void EnsureGradients()
+ {
+  windowGradTex??=MakeVerticalGradient(new Color(.11f,.23f,.52f,.96f),new Color(.07f,.15f,.36f,.97f),new Color(.035f,.075f,.20f,.98f));
+  rowGradTex??=MakeVerticalGradient(new Color(.24f,.40f,.72f,.95f),new Color(.17f,.29f,.55f,.95f),new Color(.11f,.19f,.39f,.95f));
+  plaqueGradTex??=MakeVerticalGradient(new Color(.20f,.17f,.09f,.72f),new Color(.14f,.12f,.07f,.76f),new Color(.09f,.08f,.05f,.80f));
+ }
  static void Fill(Rect r,Color c){GUI.color=c;GUI.DrawTexture(r,Texture2D.whiteTexture,ScaleMode.StretchToFill,false);GUI.color=Color.white;}
  static Rect ToRect(GuildBox b,float x,float y,float scale)=>new(x+b.X*scale,y+b.Y*scale,b.W*scale,b.H*scale);
  static GUIStyle? frameStyle;
  static void Window(Rect r)
  {
-  Fill(r,new Color(.029f,.063f,.145f,.97f));
+  EnsureGradients();
+  // Soft Suikoden II drop shadow behind window
+  Fill(new Rect(r.x+4,r.y+5,r.width,r.height),new Color(0,0,0,.42f));
+  // Classic Suikoden II royal-blue vertical gradient backing
+  GUI.color=Color.white;
+  GUI.DrawTexture(r,windowGradTex!,ScaleMode.StretchToFill,true);
+  // Subtle antique-gold inner trim line
+  var goldTrim=new Color(.86f,.73f,.42f,.42f);
+  Fill(new Rect(r.x+6,r.y+6,r.width-12,1),goldTrim);
+  Fill(new Rect(r.x+6,r.y+r.height-7,r.width-12,1),goldTrim);
   var f=GuildVisualResources.Frame;
-  if(f==null){Fill(new Rect(r.x,r.y,r.width,2),new Color(.9f,.88f,.78f));Fill(new Rect(r.x,r.y+r.height-2,r.width,2),new Color(.9f,.88f,.78f));Fill(new Rect(r.x,r.y,2,r.height),new Color(.9f,.88f,.78f));Fill(new Rect(r.x+r.width-2,r.y,2,r.height),new Color(.9f,.88f,.78f));return;}
+  if(f==null){Fill(new Rect(r.x,r.y,r.width,2),new Color(.9f,.86f,.70f));Fill(new Rect(r.x,r.y+r.height-2,r.width,2),new Color(.9f,.86f,.70f));Fill(new Rect(r.x,r.y,2,r.height),new Color(.9f,.86f,.70f));Fill(new Rect(r.x+r.width-2,r.y,2,r.height),new Color(.9f,.86f,.70f));return;}
   if(frameStyle==null){frameStyle=new GUIStyle();frameStyle.border=new RectOffset(27,27,30,24);}
   frameStyle.normal.background=f.texture;
   GUI.Label(r,"",frameStyle);
-
  }
  static readonly GuildMenuRow[] Services =
  {
@@ -149,10 +186,14 @@ public sealed class HuntGuildOverlay:MonoBehaviour
 
  static readonly GuildMenuRow[] Drills =
  {
-  new("War 1", "Original battlefield"),
-  new("Fort Defense", "Hold the fort"),
-  new("Commander Rout", "Lead the allied squads"),
-  new("War 3", "Original campaign scenario")
+  new("War 1", "Mercenary Fort skirmish"),
+  new("Fort Defense", "Hold the fort (War 2)"),
+  new("Commander Rout", "War 1 · No turn limit"),
+  new("War 3", "Battle of Muse"),
+  new("War 6", "Kiba's Vanguard"),
+  new("War 10", "Highland Assault"),
+  new("War 13", "Rockaxe Front"),
+  new("War 15", "L'Renouille Siege")
  };
 
  [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
@@ -387,6 +428,10 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    TrainingWar.Drill.FortDefense => "Protect the fort with four squads. Rout the opposing commander before the breach.",
    TrainingWar.Drill.CommanderRout => "Command the allied squads and fight beyond turn three until one army is routed.",
    TrainingWar.Drill.War3 => "Fight on the original War 3 battlefield. The story timer can end the drill.",
+   TrainingWar.Drill.War6 => "Clash against Kiba's vanguard on the audited War 6 battlefield under full training save protection.",
+   TrainingWar.Drill.War10 => "Replay the audited War 10 Highland Assault scenario with your current commanders and Doctrines.",
+   TrainingWar.Drill.War13 => "Hold the line on the audited War 13 Rockaxe Front against coordinated Highland forces.",
+   TrainingWar.Drill.War15 => "Replay the audited War 15 L'Renouille Siege with full Veteran tactical AI and Directives.",
    _ => "Practice on the original War 1 battlefield. The story timer can end the drill."
   };
   var trainingRows = page == GuildPage.Training ? Drills.Select((row,i) =>
@@ -429,6 +474,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    style=Style(--size);
    style.wordWrap=true;
   }
+  style.normal.textColor=new Color(.015f,.03f,.09f,.88f);
+  GUI.Label(new Rect(rect.x+1.5f,rect.y+1.5f,rect.width,rect.height),content,style);
   style.normal.textColor=Tone(text.Tone);
   GUI.Label(rect,content,style);
  }
@@ -466,21 +513,28 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     }
     if(prompt||feedback||offer!=null)
     {
-     float width=Math.Min(860,Screen.width-48);
-     var box=new Rect((Screen.width-width)/2,Screen.height-124,width,98);
+     float width=Math.Min(880,Screen.width-48);
+     var box=new Rect((Screen.width-width)/2,Screen.height-128,width,100);
      Window(box);
      if(offer!=null)
-      Label(new(new(26,20,width-52,58),$"Local contract: {offer.Name}\nF6 or hold L1 and press R1 to accept",20),box.x,box.y,1);
+      Label(new(new(26,20,width-52,60),$"Local contract: {offer.Name}\nF6 or hold L1 and press R1 to accept",20),box.x,box.y,1);
      else if(feedback)
-      Label(new(new(26,20,width-52,58),CastleGuildRuntime.FeedbackText,20),box.x,box.y,1);
+      Label(new(new(26,20,width-52,60),CastleGuildRuntime.FeedbackText,20),box.x,box.y,1);
      else
      {
       var (header,greeting)=GuildPresentation.NpcBanner(CastleGuildRuntime.Quest.State,CastleGuildRuntime.Contract,
           ArmyProgressionRuntime.Current.MoraleBonusCharges,ArmyProgressionRuntime.Current.Commanders.Count,
           ArmyProgressionRuntime.Enabled,CastleGuildRuntime.ActiveNpc);
-      Label(new(new(26,12,width-210,26),header,19,"gold"),box.x,box.y,1);
-      Label(new(new(width-190,14,164,24),"Confirm to speak",16,"success"),box.x,box.y,1);
-      Label(new(new(26,42,width-52,44),greeting,18),box.x,box.y,1);
+      // Classic Suikoden II floating Speaker Nameplate perched on top-left of dialogue box
+      float plateW=Math.Min(420,Math.Max(220,header.Length*11+40));
+      var plate=new Rect(box.x+18,box.y-30,plateW,36);
+      Window(plate);
+      Label(new(new(16,6,plateW-32,24),header,18,"gold"),plate.x,plate.y,1);
+      Label(new(new(28,22,width-56,48),greeting,20),box.x,box.y,1);
+      float pulse=previewSmoke?1f:0.65f+0.35f*Mathf.Sin(Time.unscaledTime*5f);
+      GUI.color=new Color(1,1,1,pulse);
+      Label(new(new(width-210,66,184,24),"▼  Confirm to speak",16,"gold"),box.x,box.y,1);
+      GUI.color=Color.white;
      }
      if(previewSmoke)CapturePreview();
      return;
@@ -500,12 +554,30 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     if(string.IsNullOrEmpty(view.Breadcrumb))view=view with{Breadcrumb=GuildMenuNavigation.Breadcrumb(page)};
     float scale=GuildRebornScreen.Scale(Screen.width,Screen.height);
     float x=(Screen.width-GuildRebornScreen.Width*scale)/2,y=(Screen.height-GuildRebornScreen.Height*scale)/2;
+    // Soft full-screen dim vignette so the Castle Guild windows pop like native Suikoden II menus
+    if(!previewSmoke)Fill(new Rect(0,0,Screen.width,Screen.height),new Color(.01f,.02f,.06f,.32f));
     foreach(var box in new[]{GuildRebornScreen.Heading,GuildRebornScreen.List,GuildRebornScreen.Detail,GuildRebornScreen.Footer})
      Window(ToRect(box,x,y,scale));
 
+    // Layered Suikoden II Detail Panel accents: Header band, Gold divider, Spoils plaque
+    EnsureGradients();
+    Fill(ToRect(new(386,104,680,100),x,y,scale),new Color(.02f,.05f,.14f,.45f));
+    Fill(ToRect(new(396,204,660,2),x,y,scale),new Color(.88f,.75f,.42f,.68f));
+    if(view.Reward.Length>0)
+    {
+     var plaqueRect=ToRect(new(392,324,668,74),x,y,scale);
+     GUI.DrawTexture(plaqueRect,plaqueGradTex!,ScaleMode.StretchToFill,true);
+     Fill(ToRect(new(392,324,4,74),x,y,scale),new Color(.95f,.80f,.42f,.90f));
+    }
+    if(view.Condition.Length>0)
+     Fill(ToRect(new(392,404,668,72),x,y,scale),new Color(.02f,.04f,.12f,.42f));
+
+    // Glowing gradient highlight + gold left accent bar on selected list row
     var row=GuildRebornScreen.Row(view.Focus,view.Rows.Length);
-    Fill(ToRect(row,x,y,scale),new Color(.19f,.24f,.37f,.94f));
-    Fill(ToRect(new(row.X+7,row.Y+row.H-1,row.W-14,1),x,y,scale),new Color(.80f,.67f,.39f,.64f));
+    var rowRect=ToRect(row,x,y,scale);
+    GUI.DrawTexture(rowRect,rowGradTex!,ScaleMode.StretchToFill,true);
+    Fill(ToRect(new(row.X,row.Y,4,row.H),x,y,scale),new Color(.96f,.82f,.44f,.95f));
+    Fill(ToRect(new(row.X+7,row.Y+row.H-1,row.W-14,1),x,y,scale),new Color(.90f,.76f,.44f,.72f));
     float bob=previewSmoke?0f:Mathf.Sin(Time.unscaledTime*7f)*3f;
     var cursor=GuildVisualResources.Cursor;
     if(cursor!=null)GUI.DrawTexture(ToRect(new(row.X+7+bob,row.Y+12,17,19),x,y,scale),cursor.texture,ScaleMode.StretchToFill,true);
@@ -513,8 +585,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     if(view.ProgressFraction is float frac)
     {
      var barTrack=new GuildBox(401,310,634,12);
-     Fill(ToRect(barTrack,x,y,scale),new Color(.08f,.12f,.22f,.95f));
-     Fill(ToRect(new(barTrack.X+2,barTrack.Y+2,(barTrack.W-4)*Math.Clamp(frac,0f,1f),barTrack.H-4),x,y,scale),new Color(.96f,.80f,.38f,.95f));
+     Fill(ToRect(barTrack,x,y,scale),new Color(.04f,.07f,.16f,.95f));
+     Fill(ToRect(new(barTrack.X+2,barTrack.Y+2,(barTrack.W-4)*Math.Clamp(frac,0f,1f),barTrack.H-4),x,y,scale),new Color(.98f,.82f,.38f,.98f));
     }
     foreach(var line in GuildRebornScreen.Text(view))Label(line,x,y,scale);
     HuntGuildRuntime.Drawn();

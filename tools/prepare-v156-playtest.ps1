@@ -15,6 +15,9 @@ EnableArmyProgression = true
 EnableDrillDirectives = true
 EnableCrossTheaterSynergy = true
 
+[Native War]
+EnableTrainingExtendedWars = true
+
 [Castle Guild]
 EnableExpandedCastleNpcs = true
 EnableHuntModifiers = true

@@ -14,7 +14,7 @@ internal sealed class Settings
     internal readonly ConfigEntry<string> BossProfilePath;
     internal readonly ConfigEntry<bool> EnableBossProfileDiagnostics, FallbackToGlobalNightmare;
     internal readonly ConfigEntry<bool> EnableTrainingWar, EnableTrainingChallenge, EnableTrainingDefeatReturn, EnableTrainingWar2, EnableTrainingWar3;
-    internal readonly ConfigEntry<bool> EnableTrainingVeteran, EnableTrainingRewards, EnableTrainingNormalBuild;
+    internal readonly ConfigEntry<bool> EnableTrainingVeteran, EnableTrainingRewards, EnableTrainingNormalBuild, EnableTrainingExtendedWars;
     internal readonly ConfigEntry<bool> EnableArmyProgression, EnableDrillDirectives, EnableCrossTheaterSynergy, EnableExpandedCastleNpcs;
     internal readonly ConfigEntry<bool> EnableHuntModifiers, EnableBattleTacticalHud, EnableGuildMenuAudio;
     internal readonly ConfigEntry<int> GuildAudioMoveId, GuildAudioConfirmId, GuildAudioCancelId;
@@ -40,6 +40,8 @@ internal sealed class Settings
                 "Optional "+trial.Name+" rematch. Exact original source and read-only story unlock required. Restart required."));
         EnableTrainingNormalBuild=config.Bind("Native War",nameof(EnableTrainingNormalBuild),false,
             "Experimental production training contract: private flag fork, owned native return and save fence lifted at the verified return. Requires EnableTrainingWar. Without EnableTrainingDefeatReturn a training defeat is an ordinary Game Over.");
+        EnableTrainingExtendedWars=config.Bind("Native War",nameof(EnableTrainingExtendedWars),false,
+            "Adds all remaining audited native war scenarios (Wars 6, 10, 13, and 15) to Castle Army Training behind the same private flag-fork and save-fence contract.");
         EnableArmyProgression=config.Bind("Army Progression",nameof(EnableArmyProgression),false,
             "Experimental persistent commander XP, military ranks (Recruit to Marshal) and Doctrine specializations stored in a content-addressed save-bound sidecar ledger. Native save files are never modified.");
         EnableDrillDirectives=config.Bind("Army Progression",nameof(EnableDrillDirectives),false,

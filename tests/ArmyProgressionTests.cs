@@ -197,6 +197,14 @@ internal static class ArmyProgressionTests
         menu.Move(false, true);
         Check(Confirm() == GuildChoice.CycleHuntModifier, "Codex Hunt row cycles Hunt Risk Modifier");
 
-        Console.WriteLine($"PASS: Army Progression, Hall Medals, Modifiers, Synergy & Star Bonds {checks} checks.");
+        // 10. Extended War Scenarios (Wars 6, 10, 13, 15)
+        foreach (int w in new[] { 6, 10, 13, 15 })
+        {
+            Check(TrainingResultRules.VictoryPotch(w, false, 1, 1, 0, true, true, false) == 750, $"War {w} Standard victory pays 750");
+            Check(TrainingResultRules.VictoryPotch(w, true, 1, 4, 0, false, true, false) == 1500, $"War {w} Veteran objective ending pays 1500");
+            Check(TrainingResultRules.VictoryPotch(w, true, 2, 1, -1, false, false, false) == 0, $"War {w} defeat pays 0");
+        }
+
+        Console.WriteLine($"PASS: Army Progression, Hall Medals, Modifiers, Synergy, Extended Wars & Star Bonds {checks} checks.");
     }
 }

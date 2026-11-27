@@ -7,8 +7,14 @@ internal static class TrainingResultRules
 
     internal static int VictoryPotch(int war, bool veteran, int nativeResult, int ending,
         int gameOver, bool commanderRouted, bool alliesRemain, bool fortVictory) =>
-        nativeResult == 1 && gameOver == 0 && commanderRouted && alliesRemain &&
-        (war switch { 1 or 3 => ending == 1, 2 => ending == 4 && fortVictory, _ => false })
+        nativeResult == 1 && gameOver == 0 && alliesRemain &&
+        (war switch
+        {
+            1 or 3 => commanderRouted && ending == 1,
+            2 => commanderRouted && ending == 4 && fortVictory,
+            6 or 10 or 13 or 15 => commanderRouted || ending is 1 or 4,
+            _ => false
+        })
             ? Potch(veteran)
             : 0;
 

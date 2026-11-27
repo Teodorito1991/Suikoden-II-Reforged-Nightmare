@@ -59,10 +59,10 @@ internal sealed class GuildMenuNavigation
     internal int EchoCount { get; set; } = 1;
     internal int SpoilerRow {get;set;}=-1;
 
-    internal const int TrainingDrillCount = 4;
-    internal const int RosterRow = 4;
-    internal const int DirectiveRow = 5;
-    internal const int CodexRow = 6;
+    internal const int TrainingDrillCount = 8;
+    internal const int RosterRow = 8;
+    internal const int DirectiveRow = 9;
+    internal const int CodexRow = 10;
     internal int ArmyRosterCount { get; set; } = 1;
 
     internal int LucaChoiceCount;
@@ -70,7 +70,7 @@ internal sealed class GuildMenuNavigation
     internal int RowCount => Page switch
     {
         GuildPage.Services => Services.Length + 1,
-        GuildPage.Training => 7,
+        GuildPage.Training => 11,
         GuildPage.ArmyRoster => Math.Max(1, ArmyRosterCount),
         GuildPage.Codex => 4,
         GuildPage.Strategy => StarBondRules.Catalogue.Length,
