@@ -32,6 +32,22 @@ internal static class CastleGuildRuntime
  internal static MemoryInfo.MemoryData? FindRuntimeInfo(MACHICON m,IEnumerable<MemoryInfo.MemoryData?> candidates){var matches=candidates.Where(x=>RuntimeMatches(m,x)).ToArray();return matches.Length==1?matches[0]:null;}
  internal static MACHIDAT PrepareRuntime(MACHICON m,MemoryInfo.MemoryData? info)=>PrepareCore(m.mdat,m.mno,RuntimeMatches(m,info));
  internal static MACHIDAT Prepare(MACHIDAT source,int index)=>PrepareCore(source,index,Matches(source));
+ static ushort PickAuditedSprite(MACHIDAT source, ushort preferred)
+ {
+  if(source.epersondat!=null)
+   for(int i=0;i<source.epersondat.Length;i++)
+   {
+    var p=source.epersondat[i];
+    if(p!=null&&p.fp_no==preferred&&p.hito_opd_table!=null&&p.hito_opd_table.anime_kazu>=4&&p.hito_opd_table.pattern_kazu>=12)
+     return preferred;
+   }
+  return (ushort)Audit.Sprite;
+ }
+ static void PlayGuildAudio(int id)
+ {
+  if(id<0||Plugin.Options?.EnableGuildMenuAudio.Value!=true)return;
+  try{OldSrcBase.SD_call(id,null);}catch{}
+ }
  static bool TileClear(Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_OBJ> objects, int x, int y)
  {
   for(int i=0;i<objects.Length;i++){var o=objects[i];if(o!=null&&Math.Abs(o.x-x)<=2&&Math.Abs(o.y-y)<=2)return false;}
@@ -55,8 +71,8 @@ internal static class CastleGuildRuntime
     for(int j=0;j<old.eventobj.Length;j++){var o=old.eventobj[j];objects[j]=new EVENT_OBJ{otyp=o.otyp,disp=o.disp,spd=o.spd,wt=o.wt,ano=o.ano,ityp=o.ityp,fpno=o.fpno,ozok=o.ozok,pri=o.pri,x=o.x,y=o.y,w=o.w,h=o.h};}
     int slot=old.eventobj.Length;
     if(add)objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=(ushort)Audit.Sprite,ozok=0,pri=0,x=Audit.ObjectX,y=Audit.ObjectY,w=0,h=0};
-    if(addSergeant){SergeantIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=(ushort)Audit.Sprite,ozok=0,pri=0,x=(short)(Audit.ObjectX-3),y=Audit.ObjectY,w=0,h=0};}
-    if(addArchivist){ArchivistIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=(ushort)Audit.Sprite,ozok=0,pri=0,x=(short)(Audit.ObjectX+3),y=Audit.ObjectY,w=0,h=0};}
+    if(addSergeant){SergeantIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65059),ozok=0,pri=0,x=(short)(Audit.ObjectX-3),y=Audit.ObjectY,w=0,h=0};}
+    if(addArchivist){ArchivistIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65086),ozok=0,pri=0,x=(short)(Audit.ObjectX+3),y=Audit.ObjectY,w=0,h=0};}
     var scripts=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_WK>(old.eventdat.Length);for(int j=0;j<old.eventdat.Length;j++){var e=old.eventdat[j];scripts[j]=new EVENT_WK{etyp=e.etyp,eventForm=e.eventForm.ToArray(),eventCom=e.eventCom.ToArray()};}
     map.eventobj=objects;map.eventdat=scripts;events.mapeventdat.Add(map);
    }
@@ -188,10 +204,13 @@ internal static class CastleGuildRuntime
   if(!HuntGuildRuntime.RenderReady)return true;
   bool moveUp=repeatUp.Step(Press(GRInputManager.Type.Up),Held(GRInputManager.Type.Up));
   bool moveDown=repeatDown.Step(Press(GRInputManager.Type.Down),Held(GRInputManager.Type.Down));
+  int prevFocus=Menu.Focus;
   Menu.Move(moveUp,moveDown);
   Menu.MovePage(Press(GRInputManager.Type.Left),Press(GRInputManager.Type.Right));
+  if(Menu.Focus!=prevFocus)PlayGuildAudio(Plugin.Options.GuildAudioMoveId.Value);
   if(cancel)
   {
+    PlayGuildAudio(Plugin.Options.GuildAudioCancelId.Value);
     if(Menu.Page==GuildPage.LucaParties)HallLucaSession.Cancel();
    if(!Menu.Back())Close(true);
    e.EventPlayerDisp(false);
@@ -202,10 +221,12 @@ internal static class CastleGuildRuntime
   if(decide&&Menu.ConfirmReleased&&Menu.Page==GuildPage.Echoes&&!HallAvailability.CanSelect(Menu.Focus))
    Status=HallAvailability.Reason(Menu.Focus);
   Menu.ArmyRosterCount = Math.Max(1, ArmyProgressionRuntime.RosterSnapshot().Length);
+  var prevPage=Menu.Page;
   var choice=Menu.Confirm(decide,Held(GRInputManager.Type.Decide),Quest.State,restriction.Length==0
       ,HallFirstContact.Available && HallAvailability.CanSelect(Menu.Page==GuildPage.EchoDifficulty?Menu.Echo:Menu.Focus),
       HallNightmareRuntime.CanSelect(Menu.Echo)
   );
+  if(choice!=GuildChoice.None||Menu.Page!=prevPage)PlayGuildAudio(Plugin.Options.GuildAudioConfirmId.Value);
   bool leave=choice switch
   {
    GuildChoice.Accept when Menu.Focus<HuntRuntime.BrowseOrder.Length => AcceptContract(HuntRuntime.BrowseOrder[Menu.Focus].Id),
@@ -215,6 +236,7 @@ internal static class CastleGuildRuntime
    GuildChoice.ChooseLuca => HallLucaSession.Choose(Menu.Focus),
    GuildChoice.CycleDoctrine => CycleCommanderDoctrine(Menu.Focus),
    GuildChoice.CycleDirective => CycleDrillDirective(),
+   GuildChoice.CycleHuntModifier => CycleHuntModifier(),
    GuildChoice.Report => ReportContract(),
    GuildChoice.Withdraw => WithdrawContract(),
    GuildChoice.Leave => true,
@@ -239,6 +261,13 @@ internal static class CastleGuildRuntime
   if(!ArmyProgressionRuntime.DirectivesEnabled){Status="Enable EnableDrillDirectives in settings to use tactical Directives.";return false;}
   var next=ArmyProgressionRuntime.CycleDirective();
   Status=$"Drill Directive set to {ArmyProgressionRules.DirectiveTitle(next)}.";
+  return false;
+ }
+ static bool CycleHuntModifier()
+ {
+  if(!ArmyProgressionRuntime.HuntModifiersEnabled){Status="Enable EnableHuntModifiers in settings to use Hunt Risk Modifiers.";return false;}
+  var next=ArmyProgressionRuntime.CycleHuntModifier();
+  Status=$"Hunt Risk Modifier set to {ArmyProgressionRules.HuntModifierTitle(next)}.";
   return false;
  }
  internal static void Close(bool fence){repeatUp.Reset();repeatDown.Reset();if(HallLucaSession.Selecting)HallLucaSession.Cancel();if(Modal){Closes++;HuntGuildRuntime.Visible=false;HuntGuildRuntime.LastRenderFrame=-1;}Modal=false;ReleaseFence=fence;releaseFrames=0;}

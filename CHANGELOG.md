@@ -29,8 +29,16 @@
   **Pre-Battle Readiness Strip** (party avg level, active Star Bonds, morale) on
   Hunt and Hall confirmation screens.
 - Wired native **Story War victories** into `ArmyProgressionRuntime` and added
-  3 lore-driven **Star Bonds** (*Genkaku's Legacy*: Riou & Nanami; *Mercenary
-  Veterans*: Flik & Viktor; *Arcane Resonance*: Luc & Mazus).
+  6 lore-driven **Star Bonds** (10 total: *Genkaku's Legacy*, *Mercenary
+  Veterans*, *Arcane Resonance*, *Vampire Hunters*, *Wandering Blades*, and
+  *Rokaku Shadows*).
+- Added **Hall of Echoes Mastery Medals** (best turn count & No-KO badges in
+  `army-ledger.json`), **Hunt Risk Modifiers** (`EnableHuntModifiers`),
+  **War Unit Synergy Pairs** (*Flik+Viktor*, *Shu+Apple*, *Luc+Mazus*,
+  *Humphrey+Georg*), an optional **In-Battle Tactical HUD Pill**
+  (`EnableBattleTacticalHud`), distinct audited sprites for the Drill Sergeant
+  and Echo Archivist, configurable Guild menu audio (`EnableGuildMenuAudio`),
+  and `tools/prepare-v156-playtest.ps1`.
 - Applied hot-path optimizations: streaming startup SHA256 verification, cached
   Harmony compatibility targets (removing per-frame reflection in
   `CastleGuildRuntime`), early-exit target discovery and hoisted ally scans in

@@ -186,7 +186,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
         "Preview · Sample availability, not a campaign observation.",back,true);
    if(!developer&&HallFirstContact.Available)
     return HallPresentation.View(focus,HallAvailability.Unlocked,HallAvailability.Configured,
-        HallAvailability.Reason(focus),back,false,Plugin.Options.UnlockAllBosses.Value);
+        HallAvailability.Reason(focus),back,false,Plugin.Options.UnlockAllBosses.Value,ArmyProgressionRuntime.HallMedalFor);
    return new("HALL OF ECHOES",new[]{new GuildMenuRow("Boss rematches","Unavailable")},0,
        "Hall of Echoes","Unavailable","Enable the Hall in settings to recall your story memories.",
        "","",status,"Back",back,false);
@@ -322,7 +322,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    {
     new GuildMenuRow("Army Campaign", $"{ledger.TotalDrillsWon} drills · {ledger.Commanders.Count} commanders"),
     new GuildMenuRow("Cross-Theater", $"{ledger.MoraleBonusCharges} morale charge(s) · {ledger.HallNightmareClears} Nightmare"),
-    new GuildMenuRow("Hunt Guild", $"{CastleGuildRuntime.Completions} session completion(s)"),
+    new GuildMenuRow("Hunt Guild", ArmyProgressionRuntime.HuntModifiersEnabled ? ArmyProgressionRules.HuntModifierTitle(ArmyProgressionRuntime.ActiveHuntModifier) : $"{CastleGuildRuntime.Completions} session completion(s)"),
     new GuildMenuRow("Active Star Bonds", $"{activeBonds} active in current party")
    };
    focus = Math.Clamp(focus, 0, codexRows.Length - 1);
@@ -336,16 +336,17 @@ public sealed class HuntGuildOverlay:MonoBehaviour
           "Veteran drills arm +1 morale rune charge for your next RPG victory. Hall Nightmare clears grant +35 War XP to party commanders.",
           $"Armed Morale Charges: {ledger.MoraleBonusCharges}   ·   Nightmare Clears: {ledger.HallNightmareClears}",
           "Respects RuneRecoveryMaxLevel and all native save/combat guards."),
-    2 => ("Hunt Guild Record", $"Session completions: {CastleGuildRuntime.Completions}",
-          CastleGuildRuntime.QuestSummary,
-          "Contracts: 10 audited routes across Dunan.",
+    2 => ("Hunt Guild & Risk Modifier", $"Modifier: {ArmyProgressionRules.HuntModifierTitle(ArmyProgressionRuntime.ActiveHuntModifier)}",
+          ArmyProgressionRules.HuntModifierDescription(ArmyProgressionRuntime.ActiveHuntModifier) + "\n" + CastleGuildRuntime.QuestSummary,
+          ArmyProgressionRuntime.HuntModifiersEnabled ? "Confirm cycles Hunt Risk Modifier (+35% bonus Potch)." : "Enable EnableHuntModifiers in settings to toggle Hunt modifiers.",
           "Contracts remain session-only; loading a save clears unreported contracts."),
     _ => ("Party Star Bonds", $"{activeBonds} of {StarBondRules.Catalogue.Length} active",
           "Check Party Strategy from the main Guild menu for exact triggers and bonuses.",
           "Normal battles without scripted commands.",
           "All bond partners must be alive and able to act.")
    };
-   return new("TACTICIAN'S CODEX", codexRows, focus, cTitle, cArea, cDesc, cReward, cCond, status, "Back", back, preview);
+   return new("TACTICIAN'S CODEX", codexRows, focus, cTitle, cArea, cDesc, cReward, cCond, status,
+       focus == 2 && ArmyProgressionRuntime.HuntModifiersEnabled ? "Cycle Modifier" : "Back", back, preview);
   }
 
   if (page == GuildPage.Training && focus >= GuildMenuNavigation.TrainingDrillCount)
@@ -440,13 +441,29 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       ? HuntRuntime.BrowseOrder.FirstOrDefault() :fieldOffer;
   bool prompt=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.Idle&&CastleGuildRuntime.Near;
   bool feedback=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.FeedbackVisible;
-  if(smokeExitRequested||faulted||(!previewSmoke&&!prompt&&!feedback&&offer==null&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
+  bool battleHud=!previewSmoke&&Plugin.Options?.EnableBattleTacticalHud.Value==true&&Combat.State is {Ready:true};
+  if(smokeExitRequested||faulted||(!previewSmoke&&!battleHud&&!prompt&&!feedback&&offer==null&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
   try
   {
    var matrix=GUI.matrix;var color=GUI.color;
    try
    {
     GUI.matrix=Matrix4x4.identity;GUI.color=Color.white;
+    if(battleHud)
+    {
+     int[] party=StarBondRuntime.FieldParty();
+     var active=StarBondRules.Catalogue.Where(b=>StarBondRules.Includes(b,party)).Select(b=>b.Title).ToArray();
+     int morale=ArmyProgressionRuntime.Current.MoraleBonusCharges;
+     if(active.Length>0||morale>0)
+     {
+      string text=(active.Length>0?"★ "+string.Join(" · ",active.Take(2)):"")+(morale>0?(active.Length>0?"   ":"")+$"Morale +{morale}":"");
+      float w=Math.Min(460,Math.Max(220,text.Length*10+36));
+      var pill=new Rect(Screen.width-w-18,16,w,40);
+      Window(pill);
+      Label(new(new(14,9,w-28,24),text,16,"gold"),pill.x,pill.y,1);
+     }
+     return;
+    }
     if(prompt||feedback||offer!=null)
     {
      float width=Math.Min(860,Screen.width-48);

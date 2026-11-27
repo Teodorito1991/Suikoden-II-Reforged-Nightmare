@@ -6,12 +6,20 @@ internal static class HallPresentation
         "stone-of-magic"=>"Stone of Magic","stone-of-speed"=>"Stone of Speed",
         "magic-protection-stone"=>"Stone of Magic Protection",_=>"Stone of Power"};
     internal static GuildMenuView View(int focus, System.Func<int,bool> unlocked,
-        System.Func<int,bool> configured, string reason, string back, bool preview, bool spoilers=false)
+        System.Func<int,bool> configured, string reason, string back, bool preview, bool spoilers=false,
+        System.Func<string,string>? medalTag = null)
     {
         var trials=HallTrialCatalogue.Entries;
         focus=System.Math.Clamp(focus,0,trials.Length);
+        string Note(HallTrialDefinition trial, int index)
+        {
+            if(!unlocked(index))return "Locked";
+            if(!configured(index))return "Disabled";
+            string medal=medalTag?.Invoke(trial.Id)??"";
+            return medal.Length>0?medal:"Original / tiers";
+        }
         if(focus==trials.Length)return GuildRebornScreen.Paginate(new("HALL OF ECHOES",
-            trials.Select((t,i)=>new GuildMenuRow(unlocked(i)?t.Name:"???",configured(i)?"Original / tiers":"Disabled"))
+            trials.Select((t,i)=>new GuildMenuRow(unlocked(i)?t.Name:"???",Note(t,i)))
                 .Append(new GuildMenuRow(spoilers?"Restore Story Progression":"Unlock All Bosses",spoilers?"Spoiler Mode is ON":"Spoiler Mode is OFF")).ToArray(),focus,
             spoilers?"Restore Story Progression":"Unlock All Bosses","Spoiler access preference",
             spoilers?"Return to the original story-based availability rules. No campaign flags are changed.":"Reveal supported boss memories regardless of story progress. A major-spoiler warning and separate confirmation follow.",
@@ -19,11 +27,13 @@ internal static class HallPresentation
         var selected=trials[focus];
         bool known=unlocked(focus), available=known&&configured(focus);
         var rows=trials.Select((trial,index)=>new GuildMenuRow(
-            unlocked(index)?trial.Name:"???",
-            !unlocked(index)?"Locked":configured(index)?"Original / tiers":"Disabled"))
+            unlocked(index)?trial.Name:"???",Note(trial,index)))
             .Append(new GuildMenuRow(spoilers?"Restore Story Progression":"Unlock All Bosses",spoilers?"Spoiler Mode is ON":"Spoiler Mode is OFF")).ToArray();
+        string selectedMedal=known?(medalTag?.Invoke(selected.Id)??""):"";
+        string area=available?(HallUnlockRules.IsBonus(selected.Id)?$"Bonus rematch · After {HallUnlockRules.BonusMilestone(selected.Id)}":"Normal rematch"):"Unavailable";
+        if(selectedMedal.Length>0)area+="  ·  "+selectedMedal;
         return GuildRebornScreen.Paginate(new("HALL OF ECHOES",rows,focus,
-            known?selected.Name:"Unknown Echo",available?(HallUnlockRules.IsBonus(selected.Id)?$"Bonus rematch · After {HallUnlockRules.BonusMilestone(selected.Id)}":"Normal rematch"):"Unavailable",
+            known?selected.Name:"Unknown Echo",area,
             known?selected.Description:"A memory yet to be made. Continue your journey.","",
             known?selected.Rewards:"",reason,available?"Choose tier":"Unavailable",back,preview));
     }

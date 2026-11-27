@@ -165,11 +165,38 @@ internal static class ArmyProgressionTests
         var storyAward = ArmyProgressionRules.AwardStoryWarXp(storyState, new[] { new CommanderParticipation(3, "Flik", true, true) });
         Check(storyAward.CommandersUpdated == 1 && storyState.Commanders[3].Xp == 80 && storyState.TotalStoryWarsWon == 1, "Story war victory awards 80 XP to surviving leader");
 
-        Check(StarBondRules.Catalogue.Length == 7, "Expanded Star Bond catalogue has 7 bonds");
+        Check(StarBondRules.Catalogue.Length == 10, "Expanded Star Bond catalogue has 10 bonds");
         Check(StarBondRules.Includes(StarBondRules.Catalogue.Single(b => b.Unite == -1), new[] { 1, 18 }), "Riou + Nanami bond matches");
         Check(StarBondRules.Includes(StarBondRules.Catalogue.Single(b => b.Unite == -2), new[] { 2, 3 }), "Flik + Viktor bond matches");
         Check(StarBondRules.Includes(StarBondRules.Catalogue.Single(b => b.Unite == -3), new[] { 53, 61 }), "Luc + Mazus bond matches");
+        Check(StarBondRules.Includes(StarBondRules.Catalogue.Single(b => b.Unite == -4), new[] { 36, 45 }), "Kahn + Sierra bond matches");
+        Check(StarBondRules.Includes(StarBondRules.Catalogue.Single(b => b.Unite == -5), new[] { 11, 44 }), "Georg + Killey bond matches");
+        Check(StarBondRules.Includes(StarBondRules.Catalogue.Single(b => b.Unite == -6), new[] { 73, 63 }), "Kasumi + Mondo bond matches");
 
-        Console.WriteLine($"PASS: Army Progression, Multi-NPC & Star Bonds {checks} checks.");
+        // 9. Hall Mastery Medals, Hunt Risk Modifiers & War Unit Synergy Pairs
+        var medalState = new ArmyLedgerState();
+        ArmyProgressionRules.RecordHallClear(medalState, "stone-golem", nightmare: false, turns: 6, noKo: true);
+        Check(ArmyProgressionRules.HallMedalTag(medalState.HallRecords["stone-golem"]) == "✓ 6T No-KO", "Original Hall medal recorded");
+        ArmyProgressionRules.RecordHallClear(medalState, "stone-golem", nightmare: true, turns: 4, noKo: true);
+        Check(ArmyProgressionRules.HallMedalTag(medalState.HallRecords["stone-golem"]) == "★ NM 4T No-KO", "Nightmare Hall medal takes display priority");
+        ArmyProgressionRules.RecordHallClear(medalState, "stone-golem", nightmare: true, turns: 7, noKo: false);
+        Check(medalState.HallRecords["stone-golem"].BestNightmareTurns == 4 && medalState.HallRecords["stone-golem"].NoKoNightmare, "Best turns and No-KO badge are monotonic");
+        Check(GuildRebornScreen.NoteTone("★ NM 4T No-KO") == "success", "Hall medal note uses success tone");
+
+        Check(ArmyProgressionRules.HuntModifierStatFactor(HuntRiskModifier.FrenziedQuarry, hp: false) == 1.20, "Frenzied Quarry +20% damage");
+        Check(ArmyProgressionRules.HuntModifierStatFactor(HuntRiskModifier.IroncladQuarry, hp: true) == 1.25, "Ironclad Quarry +25% HP");
+        Check(ArmyProgressionRules.HuntModifierBonusPotch(2000, HuntRiskModifier.FrenziedQuarry) == 2700, "Hunt Risk Modifier +35% bonus Potch");
+
+        var mercPair = ArmyProgressionRules.FindWarSynergy(3, new[] { 3, 4 });
+        Check(mercPair != null && mercPair.Title == "Mercenary Command", "Flik + Viktor war synergy detected");
+        var flikSynergy = ArmyProgressionRules.ApplyWarSynergy(flik, mercPair);
+        Check(flikSynergy.Attack == flik.Attack + 1 && flikSynergy.AssistAttack == flik.AssistAttack + 1, "War synergy applies bounded bonuses");
+
+        menu.OpenDirect(GuildPage.Codex, 10);
+        menu.Move(false, true);
+        menu.Move(false, true);
+        Check(Confirm() == GuildChoice.CycleHuntModifier, "Codex Hunt row cycles Hunt Risk Modifier");
+
+        Console.WriteLine($"PASS: Army Progression, Hall Medals, Modifiers, Synergy & Star Bonds {checks} checks.");
     }
 }

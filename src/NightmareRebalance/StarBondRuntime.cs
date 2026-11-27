@@ -105,6 +105,14 @@ internal static class StarBondAttackPatch
         else if (__instance.chara_id is 2 or 3 && StarBondRules.Wounded(enemy.hp, enemy.max_hp) &&
             StarBondRuntime.Available(w!, __instance.chara_no, -2))
             __result += StarBondRules.DamageBonus(__result, 8, 16);
+        else if (__instance.chara_id is 36 or 45 && StarBondRuntime.Available(w!, __instance.chara_no, -4))
+            __result += StarBondRules.DamageBonus(__result, 8, 18);
+        else if (__instance.chara_id is 11 or 44 && __instance.max_hp > 0 && __instance.hp * 4 >= __instance.max_hp * 3 &&
+            StarBondRuntime.Available(w!, __instance.chara_no, -5))
+            __result += StarBondRules.DamageBonus(__result, 8, 18);
+        else if (__instance.chara_id is 73 or 63 && enemy.hp >= enemy.max_hp &&
+            StarBondRuntime.Available(w!, __instance.chara_no, -6))
+            __result += StarBondRules.DamageBonus(__result, 8, 16);
     }
 }
 
@@ -114,7 +122,7 @@ internal static class StarBondFireScope
     [HarmonyPrefix] static void Prefix(BattlePlayerCharacter __instance, byte magi_no, out IntPtr __state)
     {
         __state = StarBondRuntime.FireOwner;
-        StarBondRuntime.FireOwner = magi_no == 2 || __instance.chara_id is 53 or 61 ? __instance.Pointer : IntPtr.Zero;
+        StarBondRuntime.FireOwner = magi_no == 2 || __instance.chara_id is 53 or 61 or 36 or 45 ? __instance.Pointer : IntPtr.Zero;
     }
     [HarmonyFinalizer] static Exception? Finalizer(IntPtr __state, Exception? __exception)
     { StarBondRuntime.FireOwner = __state; return __exception; }
@@ -127,7 +135,14 @@ internal static class StarBondFirePatch
     {
         if (__instance.Pointer != StarBondRuntime.FireOwner || __instance.c_koudou != battle_h.CMD_MAGIC) return;
         var w = Framework.Singleton<BATTLE_WORK>.instance;
-        if (StarBondRuntime.Enemy(w, mokuhyo)?.calc_para is not { Length: > 3 } stats || stats[2] <= stats[3]) return;
+        var enemy = StarBondRuntime.Enemy(w, mokuhyo);
+        if (enemy == null) return;
+        if (__instance.chara_id is 36 or 45 && StarBondRuntime.Available(w!, __instance.chara_no, -4))
+        {
+            __result += StarBondRules.DamageBonus(__result, 8, 18);
+            return;
+        }
+        if (enemy.calc_para is not { Length: > 3 } stats || stats[2] <= stats[3]) return;
         if (__instance.chara_id == 33 && StarBondRuntime.Available(w!, __instance.chara_no, 2))
             __result += StarBondRules.DamageBonus(__result, 8, 18);
         else if (__instance.chara_id is 53 or 61 && StarBondRuntime.Available(w!, __instance.chara_no, -3))

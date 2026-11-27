@@ -44,11 +44,21 @@ internal static class HuntRuntime
   HuntSessionRuntime.Begin();
   CombatRealityRuntime.Event("HuntPrototype","Admitted",Active.Id,new{Experimental=true,Meaning="Guarded admission observed; rendered completion requires lifecycle evidence"});
  }
- internal static double? Factor(PM_DATA u,bool hp)=>Config.EnableExperimentalHunt&&Active is {} a&&Combat.State?.Work==Work&&Units.TryGetValue(u.Pointer,out var id)?hp?HuntCatalogueRules.Unit(a,Settings(a),Config,id).HpMultiplier:HuntCatalogueRules.Damage(a,Settings(a),Config):null;
+ internal static double? Factor(PM_DATA u,bool hp)
+ {
+  if(!Config.EnableExperimentalHunt||Active is not {} a||Combat.State?.Work!=Work||!Units.TryGetValue(u.Pointer,out var id))return null;
+  double baseFactor=hp?HuntCatalogueRules.Unit(a,Settings(a),Config,id).HpMultiplier:HuntCatalogueRules.Damage(a,Settings(a),Config);
+  if(ArmyProgressionRuntime.HuntModifiersEnabled&&ArmyProgressionRuntime.ActiveHuntModifier!=HuntRiskModifier.None)
+   baseFactor*=ArmyProgressionRules.HuntModifierStatFactor(ArmyProgressionRuntime.ActiveHuntModifier,hp);
+  return baseFactor;
+ }
  internal static void Reward(BATTLE_WORK w,EXIT_WORK exit)
  {
   if(!Config.EnableExperimentalHunt||Work!=w.Pointer||Party!=w.monster_party_data?.Pointer||!ActiveRoster||Combat.State is not{Allowed:true,SnapshotTaken:true}||Combat.State.Work!=Work||CombatReforgedDiagnostics.Outcome!="VictorySignal")return;
-  int bonus=HuntCatalogueRules.Bonus(Active!,Settings(Active!),Config);int before=exit.monster_okane;exit.monster_okane=reward.Apply(before,bonus);RewardCalculations++;HuntSessionRuntime.Current?.Prepare(exit.monster_okane);
+  int bonus=HuntCatalogueRules.Bonus(Active!,Settings(Active!),Config);
+  if(ArmyProgressionRuntime.HuntModifiersEnabled)
+   bonus=ArmyProgressionRules.HuntModifierBonusPotch(bonus,ArmyProgressionRuntime.ActiveHuntModifier);
+  int before=exit.monster_okane;exit.monster_okane=reward.Apply(before,bonus);RewardCalculations++;HuntSessionRuntime.Current?.Prepare(exit.monster_okane);
   GuildItemRuntime.Prepare(w,exit);
   LastOutcome=new{Before=before,After=exit.monster_okane,HuntId=Active?.Id,VictoryBonusPotch=bonus,Meaning="Native reward field prepared; receipt/inventory and field return not inferred"};
  }

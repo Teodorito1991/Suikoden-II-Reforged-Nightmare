@@ -27,7 +27,16 @@ internal static class StarBondRules
             "Adds up to 16 damage to the hit."),
         new(-3, 0, new[]{53,61}, "Arcane Resonance", "Luc and Mazus",
             "Luc or Mazus casts an offensive spell.\nBoth must be able to act.",
-            "Up to 18 extra damage when physical defense\nis higher than magic defense.")
+            "Up to 18 extra damage when physical defense\nis higher than magic defense."),
+        new(-4, 0, new[]{36,45}, "Vampire Hunters", "Kahn and Sierra",
+            "Kahn or Sierra uses Attack or Magic.\nBoth must be able to act.",
+            "Adds up to 18 damage against high-magic\nor resilient foes."),
+        new(-5, 0, new[]{11,44}, "Wandering Blades", "Georg and Killey",
+            "Georg or Killey uses Attack at 75% HP or higher.\nBoth must be able to act.",
+            "Adds up to 18 opening strike damage."),
+        new(-6, 0, new[]{73,63}, "Rokaku Shadows", "Kasumi and Mondo",
+            "Kasumi or Mondo uses Attack on an unharmed foe.\nBoth must be able to act.",
+            "Adds up to 16 ambush damage.")
     };
 
     internal static bool Includes(StarBond bond, IReadOnlyCollection<int> party) =>

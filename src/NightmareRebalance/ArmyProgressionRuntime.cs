@@ -12,12 +12,14 @@ internal static class ArmyProgressionRuntime
     static IntPtr boundCampaignOwner = IntPtr.Zero;
     internal static ArmyLedgerState Current { get; private set; } = new();
     internal static DrillDirective ActiveDirective { get; set; } = DrillDirective.None;
+    internal static HuntRiskModifier ActiveHuntModifier { get; set; } = HuntRiskModifier.None;
     internal static string LastAwardNotice { get; private set; } = "";
     static string LedgerPath => Path.Combine(Paths.BepInExRootPath, "NightmareRebalance", "army-ledger.json");
 
     internal static bool Enabled => Plugin.Options?.EnableArmyProgression.Value == true;
     internal static bool DirectivesEnabled => Plugin.Options?.EnableDrillDirectives.Value == true;
     internal static bool SynergyEnabled => Plugin.Options?.EnableCrossTheaterSynergy.Value == true;
+    internal static bool HuntModifiersEnabled => Plugin.Options?.EnableHuntModifiers.Value == true;
 
     internal static void Initialize()
     {
@@ -154,16 +156,41 @@ internal static class ArmyProgressionRuntime
         };
     }
 
+    static WarSynergyPair? ActiveUnitSynergy(int nameId)
+    {
+        var units = w_unit.unit;
+        if (units is not { Length: 2 } || units[0] is not { Length: 15 } allies) return null;
+        for (int i = 0; i < allies.Length; i++)
+        {
+            var u = allies[i];
+            if (u == null || u.flag != 1) continue;
+            var members = new List<int>(3);
+            for (int slot = 0; slot < 3; slot++)
+            {
+                int idx = w_unit.GetUnitChara(0, i, slot);
+                if (idx < 0) continue;
+                var ch = w_chara.chara(idx);
+                if (ch != null && ch.name > 0) members.Add(ch.name);
+            }
+            if (members.Contains(nameId))
+                return ArmyProgressionRules.FindWarSynergy(nameId, members);
+        }
+        return null;
+    }
+
     internal static CommanderProfile? Enhance(WAR_CHARA_TYPE original, CommanderProfile? existingProfile, bool isEnemy)
     {
         bool training = TrainingWar.Active;
         bool applyDirective = training && DirectivesEnabled && ActiveDirective != DrillDirective.None;
         bool applyProg = Enabled && !isEnemy && Current.Commanders.TryGetValue(original.name, out var progress) && ArmyProgressionRules.RankForXp(progress.Xp) > ArmyRank.Recruit;
-        if (!applyDirective && !applyProg) return existingProfile;
+        var synergy = Enabled && !isEnemy ? ActiveUnitSynergy(original.name) : null;
+        if (!applyDirective && !applyProg && synergy == null) return existingProfile;
 
         var profile = existingProfile ?? BuildBaseProfile(original);
         if (applyProg && Current.Commanders.TryGetValue(original.name, out var prog))
             profile = ArmyProgressionRules.ApplyProgression(profile, prog);
+        if (synergy != null)
+            profile = ArmyProgressionRules.ApplyWarSynergy(profile, synergy);
         if (applyDirective)
             profile = ArmyProgressionRules.ApplyDirective(profile, ActiveDirective, isEnemy);
         return profile;
@@ -279,5 +306,31 @@ internal static class ArmyProgressionRuntime
     {
         ActiveDirective = (DrillDirective)(((int)ActiveDirective + 1) % 4);
         return ActiveDirective;
+    }
+
+    internal static HuntRiskModifier CycleHuntModifier()
+    {
+        ActiveHuntModifier = (HuntRiskModifier)(((int)ActiveHuntModifier + 1) % 3);
+        return ActiveHuntModifier;
+    }
+
+    internal static void RecordHallClear(string bossId, bool nightmare, int turns, bool noKo)
+    {
+        if (!Enabled && !SynergyEnabled) return;
+        lock (Sync)
+        {
+            var game = Framework.Singleton<GAME_WORK>.instance;
+            if (game?.game_data != null) boundCampaignOwner = game.game_data.Pointer;
+            ArmyProgressionRules.RecordHallClear(Current, bossId, nightmare, turns, noKo);
+        }
+    }
+
+    internal static string HallMedalFor(string bossId)
+    {
+        lock (Sync)
+        {
+            if (Current.HallRecords == null || !Current.HallRecords.TryGetValue(bossId, out var rec)) return "";
+            return ArmyProgressionRules.HallMedalTag(rec);
+        }
     }
 }

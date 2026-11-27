@@ -508,7 +508,13 @@ internal static class HallFirstContact
         if(HallLucaSession.IsStage(t.Definition.Id))t.StageHandoff|=HallLucaSession.Outcome(work,win);
         t.Win |= win;
         t.Loss |= !win&&!t.StageHandoff;
-        if (win && t.Nightmare && !t.StageHandoff) ArmyProgressionRuntime.RecordHallNightmareVictory(work);
+        if (win && !t.StageHandoff)
+        {
+            int turns = Math.Max(1, work.battle_kaisuu + 1);
+            bool noKo = work.pm_data != null && !work.pm_data.Any(u => u != null && u.IsPlayer && (u.hp <= 0 || u.IsDead));
+            ArmyProgressionRuntime.RecordHallClear(t.Definition.Id, t.Nightmare, turns, noKo);
+            if (t.Nightmare) ArmyProgressionRuntime.RecordHallNightmareVictory(work);
+        }
         Plugin.Logger.LogInfo($"HallFirstContact: original terminal handler; win={win}.");
     }
 

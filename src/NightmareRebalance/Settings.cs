@@ -16,6 +16,8 @@ internal sealed class Settings
     internal readonly ConfigEntry<bool> EnableTrainingWar, EnableTrainingChallenge, EnableTrainingDefeatReturn, EnableTrainingWar2, EnableTrainingWar3;
     internal readonly ConfigEntry<bool> EnableTrainingVeteran, EnableTrainingRewards, EnableTrainingNormalBuild;
     internal readonly ConfigEntry<bool> EnableArmyProgression, EnableDrillDirectives, EnableCrossTheaterSynergy, EnableExpandedCastleNpcs;
+    internal readonly ConfigEntry<bool> EnableHuntModifiers, EnableBattleTacticalHud, EnableGuildMenuAudio;
+    internal readonly ConfigEntry<int> GuildAudioMoveId, GuildAudioConfirmId, GuildAudioCancelId;
     internal readonly ConfigEntry<bool> EnableNativeWarRemix,RunNativeWarSelfTest,ExportNativeWarResearch,EnableNativeWarAI,EnableWarSpecializations,EnableWarTactics,EnableWarManeuvers;
 
     internal readonly ConfigEntry<bool> EnableStarBonds, EnablePartyIdentity;
@@ -46,6 +48,15 @@ internal sealed class Settings
             "Links RPG and War progression: Hall of Echoes Nightmare clears award War XP to party commanders, and Veteran drills grant +1 morale rune charge on your next RPG victory.");
         EnableExpandedCastleNpcs=config.Bind("Castle Guild",nameof(EnableExpandedCastleNpcs),false,
             "Stations a dedicated Drill Sergeant (opens Army Training) and Echo Archivist (opens Hall of Echoes) beside the Castle Guild attendant in the audited corridor when tiles are clear.");
+        EnableHuntModifiers=config.Bind("Castle Guild",nameof(EnableHuntModifiers),false,
+            "Allows toggling optional Hunt Risk Modifiers (Frenzied Quarry / Ironclad Quarry) for +35% bonus Potch in the Tactician's Codex.");
+        EnableBattleTacticalHud=config.Bind("Combat Reforged",nameof(EnableBattleTacticalHud),false,
+            "Displays a minimal corner HUD pill during RPG battles showing active Star Bonds and armed Cross-Theater Morale status.");
+        EnableGuildMenuAudio=config.Bind("Castle Guild",nameof(EnableGuildMenuAudio),false,
+            "Enables native OldSrcBase.SD_call audio chimes for Castle Guild menu navigation when valid sound IDs are configured.");
+        GuildAudioMoveId=config.Bind("Castle Guild",nameof(GuildAudioMoveId),-1,"Native SD_call sound ID for Guild cursor move (-1 disables).");
+        GuildAudioConfirmId=config.Bind("Castle Guild",nameof(GuildAudioConfirmId),-1,"Native SD_call sound ID for Guild confirm (-1 disables).");
+        GuildAudioCancelId=config.Bind("Castle Guild",nameof(GuildAudioCancelId),-1,"Native SD_call sound ID for Guild cancel (-1 disables).");
         EnableNightmareEchoes = config.Bind("Hall of Echoes", nameof(EnableNightmareEchoes), false, "Optional data-driven advanced tiers for compatible Hall entries. Never alters story bosses or Original Echoes.");
         EnableNightmareStoneRewards = config.Bind("Hall of Echoes", nameof(EnableNightmareStoneRewards), true, "25% chance to offer the tier's audited growth stone after an earned Nightmare victory if no native loot rolled. Native inventory acceptance required.");
         HallUnlockPolicy = config.Bind("Hall of Echoes", nameof(HallUnlockPolicy), NightmareRebalance.HallUnlockPolicy.StoryProgression,

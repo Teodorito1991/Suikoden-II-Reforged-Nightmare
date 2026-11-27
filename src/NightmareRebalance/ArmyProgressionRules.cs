@@ -10,6 +10,30 @@ internal enum ArmyDoctrine { None = 0, Vanguard = 1, Bulwark = 2, Tactician = 3 
 
 internal enum DrillDirective { None = 0, IronWall = 1, NoMedicine = 2, ForcedMarch = 3 }
 
+internal enum HuntRiskModifier { None = 0, FrenziedQuarry = 1, IroncladQuarry = 2 }
+
+internal sealed class HallBossRecord
+{
+    public bool OriginalCleared { get; set; }
+    public bool NightmareCleared { get; set; }
+    public int BestOriginalTurns { get; set; }
+    public int BestNightmareTurns { get; set; }
+    public bool NoKoOriginal { get; set; }
+    public bool NoKoNightmare { get; set; }
+
+    internal HallBossRecord Clone() => new()
+    {
+        OriginalCleared = OriginalCleared,
+        NightmareCleared = NightmareCleared,
+        BestOriginalTurns = BestOriginalTurns,
+        BestNightmareTurns = BestNightmareTurns,
+        NoKoOriginal = NoKoOriginal,
+        NoKoNightmare = NoKoNightmare
+    };
+}
+
+internal sealed record WarSynergyPair(int FirstNameId, int SecondNameId, string Title, int AtkBonus, int DefBonus, int AssistAtkBonus, int AssistDefBonus, bool BoostActiveUse);
+
 internal sealed class CommanderProgress
 {
     public int NameId { get; set; }
@@ -36,6 +60,7 @@ internal sealed class ArmyLedgerState
 {
     public int SchemaVersion { get; set; } = 1;
     public Dictionary<int, CommanderProgress> Commanders { get; set; } = new();
+    public Dictionary<string, HallBossRecord> HallRecords { get; set; } = new(StringComparer.Ordinal);
     public int TotalDrillsWon { get; set; }
     public int TotalVeteranDrillsWon { get; set; }
     public int TotalStoryWarsWon { get; set; }
@@ -57,6 +82,9 @@ internal sealed class ArmyLedgerState
         };
         foreach (var kv in Commanders)
             copy.Commanders[kv.Key] = kv.Value.Clone();
+        if (HallRecords != null)
+            foreach (var kv in HallRecords)
+                copy.HallRecords[kv.Key] = kv.Value.Clone();
         return copy;
     }
 }
@@ -453,4 +481,112 @@ internal static class ArmyProgressionRules
         }
         return source;
     }
+
+    internal static readonly WarSynergyPair[] WarSynergies =
+    {
+        new(3, 4, "Mercenary Command", AtkBonus: 1, DefBonus: 0, AssistAtkBonus: 1, AssistDefBonus: 0, BoostActiveUse: false),
+        new(90, 86, "Strategist Council", AtkBonus: 0, DefBonus: 1, AssistAtkBonus: 0, AssistDefBonus: 1, BoostActiveUse: false),
+        new(54, 62, "Arcane Barrage", AtkBonus: 1, DefBonus: 0, AssistAtkBonus: 0, AssistDefBonus: 0, BoostActiveUse: true),
+        new(11, 12, "Iron Vanguard", AtkBonus: 1, DefBonus: 1, AssistAtkBonus: 0, AssistDefBonus: 0, BoostActiveUse: false)
+    };
+
+    internal static WarSynergyPair? FindWarSynergy(int nameId, IReadOnlyCollection<int> unitMemberNameIds)
+    {
+        foreach (var pair in WarSynergies)
+        {
+            if (pair.FirstNameId == nameId && unitMemberNameIds.Contains(pair.SecondNameId)) return pair;
+            if (pair.SecondNameId == nameId && unitMemberNameIds.Contains(pair.FirstNameId)) return pair;
+        }
+        return null;
+    }
+
+    internal static CommanderProfile ApplyWarSynergy(CommanderProfile source, WarSynergyPair? synergy)
+    {
+        if (synergy == null) return source;
+        var uses = source.Uses.ToArray();
+        if (synergy.BoostActiveUse)
+        {
+            for (int i = 0; i < source.Abilities.Length && i < uses.Length; i++)
+            {
+                int id = Array.IndexOf(OverhaulRules.Abilities, source.Abilities[i]);
+                if (OverhaulRules.ActiveAbility(id) && uses[i] < 3)
+                {
+                    uses[i]++;
+                    break;
+                }
+            }
+        }
+        return new CommanderProfile
+        {
+            NameId = source.NameId,
+            Name = source.Name,
+            Branch = source.Branch,
+            Attack = (byte)Math.Clamp(source.Attack + synergy.AtkBonus, 0, 20),
+            Defense = (byte)Math.Clamp(source.Defense + synergy.DefBonus, 0, 20),
+            AssistAttack = (byte)Math.Clamp(source.AssistAttack + synergy.AssistAtkBonus, 0, 5),
+            AssistDefense = (byte)Math.Clamp(source.AssistDefense + synergy.AssistDefBonus, 0, 5),
+            Abilities = source.Abilities.ToArray(),
+            Uses = uses
+        };
+    }
+
+    internal static void RecordHallClear(ArmyLedgerState state, string bossId, bool nightmare, int turns, bool noKo)
+    {
+        if (string.IsNullOrWhiteSpace(bossId)) return;
+        state.HallRecords ??= new Dictionary<string, HallBossRecord>(StringComparer.Ordinal);
+        if (!state.HallRecords.TryGetValue(bossId, out var rec))
+        {
+            rec = new HallBossRecord();
+            state.HallRecords[bossId] = rec;
+        }
+        int safeTurns = Math.Max(1, turns);
+        if (nightmare)
+        {
+            rec.NightmareCleared = true;
+            if (rec.BestNightmareTurns == 0 || safeTurns < rec.BestNightmareTurns) rec.BestNightmareTurns = safeTurns;
+            if (noKo) rec.NoKoNightmare = true;
+        }
+        else
+        {
+            rec.OriginalCleared = true;
+            if (rec.BestOriginalTurns == 0 || safeTurns < rec.BestOriginalTurns) rec.BestOriginalTurns = safeTurns;
+            if (noKo) rec.NoKoOriginal = true;
+        }
+    }
+
+    internal static string HallMedalTag(HallBossRecord? rec)
+    {
+        if (rec == null) return "";
+        if (rec.NightmareCleared)
+            return $"★ NM {rec.BestNightmareTurns}T" + (rec.NoKoNightmare ? " No-KO" : "");
+        if (rec.OriginalCleared)
+            return $"✓ {rec.BestOriginalTurns}T" + (rec.NoKoOriginal ? " No-KO" : "");
+        return "";
+    }
+
+    internal static string HuntModifierTitle(HuntRiskModifier mod) => mod switch
+    {
+        HuntRiskModifier.FrenziedQuarry => "Frenzied Quarry",
+        HuntRiskModifier.IroncladQuarry => "Ironclad Quarry",
+        _ => "Standard Hunt"
+    };
+
+    internal static string HuntModifierDescription(HuntRiskModifier mod) => mod switch
+    {
+        HuntRiskModifier.FrenziedQuarry => "Quarry deals +20% damage. Victory bonus Potch +35%.",
+        HuntRiskModifier.IroncladQuarry => "Quarry gains +25% HP. Victory bonus Potch +35%.",
+        _ => "No extra Hunt modifier. Standard contract spoils."
+    };
+
+    internal static double HuntModifierStatFactor(HuntRiskModifier mod, bool hp) => mod switch
+    {
+        HuntRiskModifier.IroncladQuarry when hp => 1.25,
+        HuntRiskModifier.FrenziedQuarry when !hp => 1.20,
+        _ => 1.0
+    };
+
+    internal static int HuntModifierBonusPotch(int baseBonus, HuntRiskModifier mod) =>
+        baseBonus <= 0 || mod == HuntRiskModifier.None
+            ? baseBonus
+            : (int)Math.Round(baseBonus * 1.35, MidpointRounding.AwayFromZero);
 }

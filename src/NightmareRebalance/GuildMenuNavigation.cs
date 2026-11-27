@@ -1,7 +1,7 @@
 namespace NightmareRebalance;
 
 internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy, Echoes, EchoDifficulty, SpoilerWarning, LucaParties, ArmyRoster, Codex }
-internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave, StartEcho, SetSpoilers, RestoreStory, ChooseLuca, CycleDoctrine, CycleDirective }
+internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave, StartEcho, SetSpoilers, RestoreStory, ChooseLuca, CycleDoctrine, CycleDirective, CycleHuntModifier }
 internal enum CastleNpcRole { GuildAttendant, DrillSergeant, EchoArchivist }
 
 internal static class GuildApproach
@@ -188,6 +188,8 @@ internal sealed class GuildMenuNavigation
                 return GuildChoice.None;
             case GuildPage.ArmyRoster:
                 return GuildChoice.CycleDoctrine;
+            case GuildPage.Codex when Focus == 2:
+                return GuildChoice.CycleHuntModifier;
             case GuildPage.Codex:
                 Back();
                 return GuildChoice.None;

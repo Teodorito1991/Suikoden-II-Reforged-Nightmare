@@ -138,6 +138,30 @@ Accessible inside **Army Training** without shifting any existing top-level
     16 damage.
   - **Arcane Resonance** (Luc & Mazus): Offensive spells deal up to 18 extra
     damage against targets with higher physical defense than magic defense.
+  - **Vampire Hunters** (Kahn & Sierra): Attack or Magic adds up to 18 damage.
+  - **Wandering Blades** (Georg & Killey): Attacking at `>= 75%` HP adds up to
+    18 opening strike damage.
+  - **Rokaku Shadows** (Kasumi & Mondo): Attacking an unharmed enemy adds up to
+    16 ambush damage.
+- **Hall of Echoes Mastery Medals:** Records per-boss Original/Nightmare clears,
+  best turn count, and No-KO badges in `army-ledger.json` and displays them
+  directly in the Hall list (`★ NM 4T No-KO`, `✓ 5T`).
+- **Hunt Risk Modifiers (`EnableHuntModifiers = false`):** Toggle **Frenzied
+  Quarry** (`+20%` damage) or **Ironclad Quarry** (`+25%` HP) in the Tactician's
+  Codex for `+35%` bonus Hunt Potch.
+- **War Unit Synergy Pairs:** Pairing iconic commanders in the same war unit
+  (*Flik + Viktor*, *Shu + Apple*, *Luc + Mazus*, *Humphrey + Georg*) grants
+  bounded synergy bonuses on disposable `WAR_CHARA_TYPE` clones.
+- **In-Battle Tactical HUD Pill (`EnableBattleTacticalHud = false`):** Minimal
+  top-right corner pill showing active Star Bonds and armed Morale charges
+  during RPG battles.
+- **Distinct Audited NPC Sprites & Configurable Guild Audio:** `EnableExpandedCastleNpcs`
+  prefers distinct audited `vk07` sprites (`65059` Drill Sergeant, `65086` Echo
+  Archivist, safe fallback to `65105`), and `EnableGuildMenuAudio` exposes
+  configurable `OldSrcBase.SD_call` chimes (`-1` default until audited).
+- **One-Click Playtest Staging Script:** `tools/prepare-v156-playtest.ps1`
+  generates a self-verifying `SHA256SUMS.txt` staging folder with all `v1.56`
+  features enabled without touching Steam or original saves.
 
 ---
 

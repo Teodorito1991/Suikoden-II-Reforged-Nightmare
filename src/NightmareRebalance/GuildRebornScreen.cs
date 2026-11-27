@@ -74,7 +74,9 @@ internal static class GuildRebornScreen
     internal static string NoteTone(string note)
     {
         if (string.IsNullOrEmpty(note)) return "muted";
-        if (note.Contains("Completed", StringComparison.OrdinalIgnoreCase) ||
+        if (note.Contains("★", StringComparison.Ordinal) ||
+            note.Contains("✓", StringComparison.Ordinal) ||
+            note.Contains("Completed", StringComparison.OrdinalIgnoreCase) ||
             note.Contains("In your party", StringComparison.OrdinalIgnoreCase) ||
             note.Contains("Ready", StringComparison.OrdinalIgnoreCase) ||
             note.Contains("Marshal", StringComparison.OrdinalIgnoreCase) ||
