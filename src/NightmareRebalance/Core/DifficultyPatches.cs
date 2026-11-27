@@ -68,7 +68,7 @@ internal static class EnemyDamagePatch
         }
         if (__state && eligible && __result > 0)
         {
-            __result = Reforged2Runtime.ApplyOverdriveDefense(__result);
+            __result = Reforged2Runtime.ApplyOverdriveDefense(w, mokuhyo, __result);
             Reforged2Runtime.ObservePlayerHit(w, __instance.chara_no, mokuhyo, __result);
         }
     }

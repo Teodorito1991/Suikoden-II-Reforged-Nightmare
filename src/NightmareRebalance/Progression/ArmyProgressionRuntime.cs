@@ -34,14 +34,24 @@ internal static class ArmyProgressionRuntime
             try
             {
                 if (File.Exists(LedgerPath))
-                    index = ArmyProgressionRules.ParseIndex(File.ReadAllText(LedgerPath));
+                {
+                    string raw = File.ReadAllText(LedgerPath);
+                    var parsed = ArmyProgressionRules.ParseIndex(raw);
+                    if (raw.Length > 64 && parsed.Snapshots.Count == 0)
+                    {
+                        File.Copy(LedgerPath, LedgerPath + ".bak", overwrite: true);
+                        Plugin.Logger.LogWarning("Army progression ledger could not be parsed cleanly; original backed up to army-ledger.json.bak.");
+                    }
+                    index = parsed;
+                }
                 else
                     index = new ArmyLedgerIndex();
             }
             catch (Exception ex)
             {
+                try { if (File.Exists(LedgerPath)) File.Copy(LedgerPath, LedgerPath + ".bak", overwrite: true); } catch { }
                 index = new ArmyLedgerIndex();
-                Plugin.Logger.LogWarning("Army progression ledger could not be read; starting empty: " + ex.Message);
+                Plugin.Logger.LogWarning("Army progression ledger could not be read (backup saved); starting empty: " + ex.Message);
             }
         }
     }
@@ -304,8 +314,11 @@ internal static class ArmyProgressionRuntime
         var commanders = new List<(int NameId, string Name)>();
         foreach (var unit in work.pm_data)
         {
-            if (unit == null || !unit.IsPlayer || unit.hp <= 0 || unit.IsDead) continue;
-            var profile = OverhaulRuntime.Commanders.Profiles.FirstOrDefault(p => p.NameId == unit.chara_id);
+            if (unit == null || !unit.IsPlayer || unit.hp <= 0 || unit.IsDead || unit.chara_id <= 0) continue;
+            // RPG chara_id and War commander NameId are separate namespaces: match by canonical name.
+            string rpgName = G2_SYS.G2_name_get(unit.chara_id)?.Trim() ?? "";
+            if (rpgName.Length == 0) continue;
+            var profile = OverhaulRuntime.Commanders.Profiles.FirstOrDefault(p => string.Equals(p.Name, rpgName, StringComparison.OrdinalIgnoreCase));
             if (profile != null) commanders.Add((profile.NameId, profile.Name));
         }
         lock (Sync)

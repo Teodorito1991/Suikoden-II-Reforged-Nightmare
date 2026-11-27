@@ -487,8 +487,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    }
    bool active = TowerOfDunanRuntime.RunActive;
    int nextFloor = active ? TowerOfDunanRuntime.FloorsCleared + 1 : 1;
-   int cashPotch = Reforged5Rules.TowerCashOutPotch(TowerOfDunanRuntime.FloorsCleared, TowerOfDunanRuntime.HasRelic("golden-chalice"), TowerOfDunanRuntime.BloodOathActive);
-   int cashComm = Reforged5Rules.TowerCashOutCommendations(TowerOfDunanRuntime.FloorsCleared, TowerOfDunanRuntime.HasRelic("golden-chalice"), TowerOfDunanRuntime.BloodOathActive);
+   int cashPotch = Reforged5Rules.TowerCashOutPotch(TowerOfDunanRuntime.FloorsCleared, TowerOfDunanRuntime.HasOwnedRelic("golden-chalice"), TowerOfDunanRuntime.BloodOathActive);
+   int cashComm = Reforged5Rules.TowerCashOutCommendations(TowerOfDunanRuntime.FloorsCleared, TowerOfDunanRuntime.HasOwnedRelic("golden-chalice"), TowerOfDunanRuntime.BloodOathActive);
    var tRows = active
        ? new[]
        {

@@ -32,6 +32,25 @@
   6 lore-driven **Star Bonds** (10 total: *Genkaku's Legacy*, *Mercenary
   Veterans*, *Arcane Resonance*, *Vampire Hunters*, *Wandering Blades*, and
   *Rokaku Shadows*).
+- **Reforged 6.0 Audit & Hardening (`6.0.0-reforged-dev.1`):**
+  - Raised progression ledger `ParseIndex` limit from `2 MB` to `32 MB`
+    (`MaxLedgerEntries = 512`) and added automatic `.bak` backup on parse
+    failure so large multi-save ledgers never silently reset.
+  - Scoped `TowerOfDunanRuntime.HasRelic` strictly to `BattleInProgress` so
+    Tower Relics never leak into ordinary gameplay; fixed `Combat.ScaleEnemy`
+    so Tower floors always apply escalating `TowerFloorHpMultiplier`; stopped
+    re-offering already-owned relics once all 12 standard relics are drafted
+    (awarding `+2` bonus Commendations instead).
+  - Fixed cross-theater Hall Nightmare War XP mapping to match RPG characters
+    to War Commanders by canonical name instead of mismatched numeric IDs.
+  - Applied `CommanderProfile.Branch` overrides to native `WAR_CHARA_TYPE.force_type`
+    in `WarRuntime.Copy`.
+  - Fixed `Arcane Chain` / `Elemental Overload` to count distinct spell casts
+    per turn rather than per-target AoE damage hits; moved **Bulwark** damage
+    reduction to the all-damage path; scoped Nemesis ambushes to matching
+    species; gated `Crossfire`/`Phalanx`/`Last Stand`/Grade/Streak bonuses
+    behind opt-in switches; updated plugin version to `6.0.0-reforged-dev.1`
+    and clarified local vs. GitHub CI status in `README.md`.
 - Added **All-3-Difficulties Support** (`AllowAllDifficulties = false`, opt-in):
   enables Easy, Normal, and Hard difficulties across all Reforged systems
   (Hunts, Star Bonds, Boss Tactics, Legendary Bosses, Teamwork, Castle Guild

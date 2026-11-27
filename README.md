@@ -10,7 +10,7 @@ An unofficial Windows Steam gameplay overhaul and expansion for **Suikoden II HD
 
 | Track | Version | Status | Details |
 |---|---|---|---|
-| **Latest Source (Development)** | `Reforged 6.0` dev | Compiled (`0 warnings/errors`) + full managed/CI suite passing; **live gameplay playtest pending** | [Changelog](CHANGELOG.md) |
+| **Latest Source (Development)** | `6.0.0-reforged-dev.1` | Compiled (`0 warnings/errors`) + local managed, profile & publication-audit checks passing (no GitHub Actions CI run); **live gameplay playtest pending** | [Changelog](CHANGELOG.md) |
 | **Installed Owner Playtest Fallback** | `1.55.0-story-bosses.1` (`C5BE…7055E`) | Launcher/plugin startup verified on Steam; Full Content + playtest opt-ins; 14 saves untouched | [v1.55 Installation Status](docs/INSTALLATION-STATUS-V155.md) |
 | **Latest Accepted Checkpoint** | `1.53.0-army-training.1` (`5414…A286`) | Owner-played Commander Rout Standard victory, castle return, autosave readback & reload passed | [v1.53 Acceptance](docs/history/ARMY-TRAINING-RESULTS-V153.md) |
 

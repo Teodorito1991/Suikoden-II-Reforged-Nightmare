@@ -31,6 +31,8 @@ internal static class Reforged2Runtime
     static readonly List<CombatFeedEntry> feed = new(4);
     static int lastTurn = -1;
     static int spellsThisTurn;
+    static readonly HashSet<IntPtr> castersThisTurn = new();
+    static IntPtr nemesisUnitPointer;
     static bool firstActionUsed;
     static bool bossEnragedInBattle;
     static int battleCombos, battleSurges, battleOverdrives;
@@ -48,6 +50,7 @@ internal static class Reforged2Runtime
     internal static bool SurgeEnabled => Plugin.Options?.EnableDesperationSurge.Value == true;
     internal static bool MomentumEnabled => Plugin.Options?.EnableMomentumOverdrive.Value == true;
     internal static bool BountiesEnabled => Plugin.Options?.EnableFieldBounties.Value == true;
+    internal static bool AnyReforged2CombatEnabled => CombosEnabled || PerksEnabled || SurgeEnabled || MomentumEnabled || ApexEnabled;
 
     internal static bool OverdriveActive(BATTLE_WORK? w = null)
     {
@@ -86,6 +89,8 @@ internal static class Reforged2Runtime
     {
         lastTurn = -1;
         spellsThisTurn = 0;
+        castersThisTurn.Clear();
+        nemesisUnitPointer = IntPtr.Zero;
         firstActionUsed = false;
         bossEnragedInBattle = false;
         battleCombos = 0;
@@ -147,13 +152,16 @@ internal static class Reforged2Runtime
         if (!ApexEnabled || !s.Allowed || !s.StatsAllowed || HuntRuntime.Active != null || HallFirstContact.UsesOriginalHp() || hasBoss)
             return;
 
-        if (ArmyProgressionRuntime.Current.ActiveNemesis is {} nem)
+        if (ArmyProgressionRuntime.Current.ActiveNemesis is {} nem && w.pm_data != null)
         {
+            var matchedEnemy = w.pm_data.FirstOrDefault(u => u != null && !u.IsPlayer && u.hp > 0 && !u.IsDead &&
+                (u.monster_data?.id == nem.SpeciesId || string.Equals(ResolveEnemyDisplayName(u, out _), nem.Name, StringComparison.OrdinalIgnoreCase)));
             int nemChance = Reforged5Rules.NemesisAmbushChance(battlesWithoutNemesis);
-            if (rng.Next(100) < nemChance)
+            if (matchedEnemy != null && rng.Next(100) < nemChance)
             {
                 battlesWithoutNemesis = 0;
                 NemesisBattleActive = true;
+                nemesisUnitPointer = matchedEnemy.Pointer;
                 ActiveApexAffix = nem.Affix;
                 FlashBanner($"☠ NEMESIS AMBUSH: {nem.Name} {nem.Title} (Tier {nem.Tier})!", 4600, "alert");
                 Plugin.Logger.LogInfo($"Reforged 6.0: Nemesis ambush triggered ({nem.Name} Tier {nem.Tier}, chance={nemChance}%).");
@@ -189,18 +197,27 @@ internal static class Reforged2Runtime
         }
     }
 
-    internal static int ApplyOverdriveDefense(int incomingDamage)
+    internal static int ApplyOverdriveDefense(BATTLE_WORK? w, int defenderSlot, int incomingDamage)
     {
-        var w = Framework.Singleton<BATTLE_WORK>.instance;
+        if (incomingDamage <= 1) return incomingDamage;
         int result = OverdriveActive(w) ? Reforged2Rules.ApplyOverdriveDefense(incomingDamage) : incomingDamage;
-        int kos = KoAllyCount(w);
-        if (Reforged2Rules.IsLastStandActive(kos))
-            result = Reforged2Rules.ApplyLastStandDefense(result, kos);
+        if (SurgeEnabled)
+        {
+            int kos = KoAllyCount(w);
+            if (Reforged2Rules.IsLastStandActive(kos))
+                result = Reforged2Rules.ApplyLastStandDefense(result, kos);
+        }
+        if ((AnyReforged2CombatEnabled || ArmyProgressionRuntime.Enabled) && w?.pm_data != null && defenderSlot >= 0 && defenderSlot < w.pm_data.Length &&
+            w.pm_data[defenderSlot] is { IsPlayer: true, chara_id: > 0 } defender)
+        {
+            var (defTalent, defRank) = ArmyProgressionRuntime.GetCharacterTalent(defender.chara_id);
+            result = Reforged5Rules.ApplyTalentDefense(result, defTalent, defRank);
+        }
         if (TowerOfDunanRuntime.HasRelic("aegis-crest") && result > 1)
             result = Math.Max(1, (int)Math.Round(result * 0.85, MidpointRounding.AwayFromZero));
         if (TowerOfDunanRuntime.HasRelic("bright-shield-echo") && result > 1)
             result = Math.Max(1, (int)Math.Round(result * 0.80, MidpointRounding.AwayFromZero));
-        if (ActiveTalentSet == TalentSetBonus.IronCitadel && result > 1)
+        if (AnyReforged2CombatEnabled && ActiveTalentSet == TalentSetBonus.IronCitadel && result > 1)
             result = Math.Max(1, (int)Math.Round(result * 0.90, MidpointRounding.AwayFromZero));
         if (TowerOfDunanRuntime.HasRelic("blood-pact") && result > 1)
             result = Math.Max(result + 1, (int)Math.Round(result * 1.10, MidpointRounding.AwayFromZero));
@@ -342,10 +359,11 @@ internal static class Reforged2Runtime
 
     internal static double VictoryPotchMultiplier(BATTLE_WORK? w)
     {
-        double mult = Reforged2Rules.StreakPotchMultiplier(WinStreak + 1);
+        if (!AnyReforged2CombatEnabled && !ArmyProgressionRuntime.Enabled) return 1.0;
+        double mult = AnyReforged2CombatEnabled ? Reforged2Rules.StreakPotchMultiplier(WinStreak + 1) : 1.0;
         if (ArmyProgressionRuntime.HasUpgrade("imperial-treasury")) mult *= 1.15;
         if (bossEnragedInBattle) mult *= Reforged2Rules.BossEnragePotchMultiplier;
-        if (w?.pm_data != null)
+        if (AnyReforged2CombatEnabled && w?.pm_data != null)
         {
             int kos = w.pm_data.Count(u => u != null && u.IsPlayer && (u.hp <= 0 || u.IsDead));
             string grade = Reforged2Rules.BattleGrade(kos, w.battle_kaisuu, battleCombos, battleSurges);
@@ -552,7 +570,7 @@ internal static class Reforged2Runtime
         if (TowerOfDunanRuntime.HasRelic("black-sword-echo"))
             result = Math.Max(result + 1, (int)Math.Round(result * 1.30, MidpointRounding.AwayFromZero));
 
-        if (attacker.chara_no is >= 3 and < 6)
+        if (attacker.chara_no is >= 3 and < 6 && (CombosEnabled || PerksEnabled))
         {
             var (_, backAlive) = FormationCounts(w);
             result = Reforged2Rules.ApplyCrossfireAttack(result, backAlive);
@@ -567,7 +585,8 @@ internal static class Reforged2Runtime
             if (TowerOfDunanRuntime.HasRelic("titan-heart"))
                 result = Math.Max(result + 1, (int)Math.Round(result * 1.15, MidpointRounding.AwayFromZero));
         }
-        result = Reforged2Rules.ApplyLastStandAttack(result, KoAllyCount(w));
+        if (SurgeEnabled)
+            result = Reforged2Rules.ApplyLastStandAttack(result, KoAllyCount(w));
 
         if (CombosEnabled && !firstActionUsed)
         {
@@ -668,7 +687,7 @@ internal static class Reforged2Runtime
             result = Math.Max(result + 1, (int)Math.Round(result * 1.25, MidpointRounding.AwayFromZero));
         if (TowerOfDunanRuntime.HasRelic("black-sword-echo"))
             result = Math.Max(result + 1, (int)Math.Round(result * 1.30, MidpointRounding.AwayFromZero));
-        if (caster.chara_no is >= 3 and < 6)
+        if (caster.chara_no is >= 3 and < 6 && (CombosEnabled || PerksEnabled))
         {
             var (_, backAlive) = FormationCounts(w);
             result = Reforged2Rules.ApplyCrossfireAttack(result, backAlive);
@@ -683,7 +702,8 @@ internal static class Reforged2Runtime
             if (TowerOfDunanRuntime.HasRelic("titan-heart"))
                 result = Math.Max(result + 1, (int)Math.Round(result * 1.15, MidpointRounding.AwayFromZero));
         }
-        result = Reforged2Rules.ApplyLastStandAttack(result, KoAllyCount(w));
+        if (SurgeEnabled)
+            result = Reforged2Rules.ApplyLastStandAttack(result, KoAllyCount(w));
 
         if (CombosEnabled && !firstActionUsed)
         {
@@ -716,18 +736,23 @@ internal static class Reforged2Runtime
             {
                 lastTurn = w.battle_kaisuu;
                 spellsThisTurn = 0;
+                castersThisTurn.Clear();
             }
-            spellsThisTurn++;
+            bool newCast = castersThisTurn.Add(caster.Pointer);
+            if (newCast) spellsThisTurn++;
             var combo = Reforged2Rules.EvaluateArcaneChain(result, spellsThisTurn);
             if (combo.BonusDamage > 0)
             {
                 int bonus = TowerOfDunanRuntime.HasRelic("shatter-gauntlet") ? (int)Math.Round(combo.BonusDamage * 1.30, MidpointRounding.AwayFromZero) : combo.BonusDamage;
-                battleCombos++;
                 result += bonus;
-                FlashBanner($"★ {combo.Name}! (+{bonus})", 2200, "gold");
-                GainMomentum(25, w, mTalent);
-                if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.Combos) is {} bm)
-                    FlashBanner("★ " + bm, 3200, "success");
+                if (newCast)
+                {
+                    battleCombos++;
+                    FlashBanner($"★ {combo.Name}! (+{bonus})", 2200, "gold");
+                    GainMomentum(25, w, mTalent);
+                    if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.Combos) is {} bm)
+                        FlashBanner("★ " + bm, 3200, "success");
+                }
             }
         }
 
@@ -742,9 +767,7 @@ internal static class Reforged2Runtime
         var player = w.pm_data[defenderSlot]?.TryCast<BattlePlayerCharacter>();
         if (player?.c_varia_dat is not {} data) return damage;
         int result = Reforged2Rules.ApplyWeaponDefensePerk(damage, data.buki_lv, ArmyProgressionRuntime.HasUpgrade("master-blacksmiths"));
-        var (defTalent, defRank) = ArmyProgressionRuntime.GetCharacterTalent(player.chara_id);
-        result = Reforged5Rules.ApplyTalentDefense(result, defTalent, defRank);
-        if (defenderSlot < 3)
+        if (defenderSlot < 3 && (CombosEnabled || PerksEnabled))
         {
             var (frontAlive, _) = FormationCounts(w);
             result = Reforged2Rules.ApplyPhalanxDefense(result, frontAlive);

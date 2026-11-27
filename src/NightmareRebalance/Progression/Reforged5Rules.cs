@@ -193,7 +193,7 @@ internal static class Reforged5Rules
     internal static TowerRelicSpec[] DraftRelics(IReadOnlyCollection<string> ownedIds, int seed)
     {
         var pool = TowerRelics.Where(r => !ownedIds.Contains(r.Id)).ToList();
-        if (pool.Count == 0) pool.AddRange(TowerRelics);
+        if (pool.Count == 0) return Array.Empty<TowerRelicSpec>();
         var rng = new Random(seed);
         var result = new List<TowerRelicSpec>(3);
         while (result.Count < 3 && pool.Count > 0)

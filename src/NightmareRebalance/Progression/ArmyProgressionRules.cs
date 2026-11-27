@@ -163,7 +163,8 @@ internal readonly record struct XpAwardSummary(int CommandersUpdated, int RanksG
 
 internal static class ArmyProgressionRules
 {
-    internal const int MaxLedgerEntries = 256;
+    internal const int MaxLedgerEntries = 512;
+    internal const int MaxLedgerJsonBytes = 32 * 1024 * 1024;
     internal const int ForcedMarchMaxTurns = 6;
     internal static readonly int[] RankThresholds = { 0, 100, 250, 500, 900 };
 
@@ -298,7 +299,7 @@ internal static class ArmyProgressionRules
 
     internal static ArmyLedgerIndex ParseIndex(string json)
     {
-        if (string.IsNullOrWhiteSpace(json) || json.Length > 2 * 1024 * 1024)
+        if (string.IsNullOrWhiteSpace(json) || json.Length > MaxLedgerJsonBytes)
             return new ArmyLedgerIndex();
         var parsed = JsonSerializer.Deserialize<ArmyLedgerIndex>(json);
         if (parsed == null || parsed.SchemaVersion != 1 || parsed.Snapshots == null)

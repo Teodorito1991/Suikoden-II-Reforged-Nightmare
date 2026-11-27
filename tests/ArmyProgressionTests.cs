@@ -352,6 +352,21 @@ internal static class ArmyProgressionTests
         Check(Reforged2Rules.EvaluateExecuteFinisher(100, 35, 100, executionerSeal: true).BonusDamage == 15 && Reforged2Rules.EvaluateExecuteFinisher(100, 36, 100, executionerSeal: true).BonusDamage == 0, "Executioner Seal expands Execute Finisher threshold to <= 35% HP");
         Check(Reforged2Rules.ApplyRiposte(100, bulwark: true) == 130 && Reforged2Rules.ApplyRiposte(100, bulwark: false) == 120, "Bulwark Talent boosts Riposte to +30%");
 
+        // 18. Audit Regression Tests: Large 64+ snapshot ledger (>2MB) & unstackable relic draft exhaustion
+        var largeIndex = new ArmyLedgerIndex();
+        var bigState = new ArmyLedgerState { Commendations = 42, HighestTowerFloor = 12 };
+        for (int e = 0; e < 180; e++)
+            bigState.Bestiary[$"mon_{e:D3}"] = new BestiaryEntry { Name = $"Highland Elite Soldier Type {e:D3}", Kills = e + 1, ApexKills = e % 3, HighestLevel = 45, WeaknessHint = "Weak: Magic" };
+        for (int s = 0; s < 64; s++)
+            ArmyProgressionRules.BindSnapshot(largeIndex, $"SAVEHASH_{s:D4}_ABCDEF0123456789", bigState, s + 1);
+        string bigJson = ArmyProgressionRules.SerializeIndex(largeIndex);
+        var reloadedLarge = ArmyProgressionRules.ParseIndex(bigJson);
+        Check(reloadedLarge.Snapshots.Count == 64 && reloadedLarge.Snapshots["SAVEHASH_0063_ABCDEF0123456789"].Bestiary.Count == 180,
+            "64+ populated snapshots serialize and reload cleanly without silent 2MB truncation");
+        var allOwnedRelics = Reforged5Rules.TowerRelics.Select(r => r.Id).ToArray();
+        Check(Reforged5Rules.DraftRelics(allOwnedRelics, seed: 7).Length == 0,
+            "Tower Relic draft never re-offers already-owned unstackable relics");
+
         Console.WriteLine($"PASS: Reforged 6.0 full suite {checks} checks.");
     }
 }

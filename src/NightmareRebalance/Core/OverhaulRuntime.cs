@@ -84,7 +84,14 @@ internal static class WarRuntime
         // Copy every scalar, preserving non-profile fields; allocate every mutable array.
         // Never write a w_dat_* source roster record or a normal saved character record.
         var ids=profile.Abilities.Select(a=>Array.IndexOf(OverhaulRules.Abilities,a)).ToArray();
-        var copy=new WAR_CHARA_TYPE { force_type=original.force_type,face_no=original.face_no,name=original.name,big_name=original.big_name,
+        byte resolvedForce=profile.Branch switch
+        {
+            "Infantry" => (byte)war_data_h.INFANTRY,
+            "Archer" => (byte)war_data_h.ARCHER,
+            "Magicians" => (byte)war_data_h.MAGICIANS,
+            _ => original.force_type
+        };
+        var copy=new WAR_CHARA_TYPE { force_type=resolvedForce,face_no=original.face_no,name=original.name,big_name=original.big_name,
             attack=profile.Attack,defense=profile.Defense,assist_attack=profile.AssistAttack,assist_defense=profile.AssistDefense,
             magic_no=original.magic_no,status_flag=original.status_flag,yarare_serifu=original.yarare_serifu,sibou_serifu=original.sibou_serifu,
             tokusyu_serifu1=original.tokusyu_serifu1,tokusyu_serifu2=original.tokusyu_serifu2,

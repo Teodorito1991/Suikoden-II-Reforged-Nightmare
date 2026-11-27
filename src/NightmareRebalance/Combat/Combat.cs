@@ -113,12 +113,14 @@ internal static class Combat
         var s = State;
         if (s is not { Ready: true, StatsAllowed: true } || unit == null || unit.IsPlayer ||
             unit.TryCast<BattleMonsterCharacter>() == null || unit.hp <= 0 || unit.max_hp == 0 || !s.ScaledEnemies.Add(unit.Pointer.ToInt64())) return;
-        if (HallFirstContact.UsesOriginalHp())
+        bool originalHall = HallFirstContact.UsesOriginalHp();
+        if (originalHall && !TowerOfDunanRuntime.BattleInProgress)
             return;
         // Mutate live instances only. MONSTER_DATA templates remain vanilla, including across encounters.
         int beforeHp = unit.hp, beforeMax = unit.max_hp;
-        double factor = OverhaulRuntime.Register(s, unit)?.HpMultiplier ?? BossRuntime.Plan(s, unit)?.HpMultiplier ?? Plugin.Options.EnemyHpMultiplier.Value;
-        factor = CombatReforgedRuntime.Factor(s,unit,factor,true);
+        double factor = originalHall
+            ? 1.0
+            : CombatReforgedRuntime.Factor(s, unit, OverhaulRuntime.Register(s, unit)?.HpMultiplier ?? BossRuntime.Plan(s, unit)?.HpMultiplier ?? Plugin.Options.EnemyHpMultiplier.Value, true);
         if (Reforged2Runtime.ApexBattleActive) factor *= Reforged2Rules.ApexHpMultiplier;
         if (Reforged2Runtime.NemesisBattleActive) factor *= Reforged2Runtime.ActiveNemesisHpMultiplier;
         if (TowerOfDunanRuntime.BattleInProgress) factor *= TowerOfDunanRuntime.ActiveHpMultiplier;
