@@ -37,7 +37,13 @@ internal static class Reforged2Rules
             BaseWarNumber: 2, EnemyAtkBonus: 1, EnemyDefBonus: 2, GrantEnemyCritical: false, BasePotch: 2200, Commendations: 3),
         new("highland-grand-army", "Skirmish III: Grand", "Custom War · Map 9",
             "Elite Highland Grand Army showdown with Veteran tactics, boosted enemy commanders, and high Commendation spoils.",
-            BaseWarNumber: 3, EnemyAtkBonus: 2, EnemyDefBonus: 2, GrantEnemyCritical: true, BasePotch: 2800, Commendations: 4)
+            BaseWarNumber: 3, EnemyAtkBonus: 2, EnemyDefBonus: 2, GrantEnemyCritical: true, BasePotch: 2800, Commendations: 4),
+        new("cavalry-blitz", "Skirmish IV: Blitz", "Custom War · Map 11",
+            "High-tempo clash against Kiba's reinforced strike force (+3 ATK, Critical). Outmaneuver and break their line.",
+            BaseWarNumber: 6, EnemyAtkBonus: 3, EnemyDefBonus: 1, GrantEnemyCritical: true, BasePotch: 3200, Commendations: 4),
+        new("nightmare-front", "Skirmish V: Nightmare", "Custom War · Map 8",
+            "Endgame Rockaxe Front gauntlet against elite Highland forces (+3 ATK / +3 DEF, Critical). Maximum spoils.",
+            BaseWarNumber: 13, EnemyAtkBonus: 3, EnemyDefBonus: 3, GrantEnemyCritical: true, BasePotch: 4000, Commendations: 5)
     };
 
     internal static readonly QuartermasterOffer[] QuartermasterStock =

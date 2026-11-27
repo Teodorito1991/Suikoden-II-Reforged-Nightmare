@@ -202,7 +202,9 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   new("War 13", "Rockaxe Front"),
   new("Skirmish I: Crimson", "Custom War · +2 Commendations"),
   new("Skirmish II: Siege", "Custom War · +3 Commendations"),
-  new("Skirmish III: Grand", "Custom War · +4 Commendations")
+  new("Skirmish III: Grand", "Custom War · +4 Commendations"),
+  new("Skirmish IV: Blitz", "Custom War · +4 Commendations"),
+  new("Skirmish V: Nightmare", "Custom War · +5 Commendations")
  };
 
  [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]
@@ -465,6 +467,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    TrainingWar.Drill.SkirmishCrimson => Reforged2Rules.Skirmishes[0].Description,
    TrainingWar.Drill.SkirmishIronSiege => Reforged2Rules.Skirmishes[1].Description,
    TrainingWar.Drill.SkirmishGrandArmy => Reforged2Rules.Skirmishes[2].Description,
+   TrainingWar.Drill.SkirmishBlitz => Reforged2Rules.Skirmishes[3].Description,
+   TrainingWar.Drill.SkirmishNightmare => Reforged2Rules.Skirmishes[4].Description,
    _ => "Practice on the original War 1 battlefield. The story timer can end the drill."
   };
   var trainingRows = page == GuildPage.Training ? Drills.Select((row,i) =>
@@ -555,20 +559,21 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       var enemies=pmUnits.Where(u=>u!=null&&!u.IsPlayer&&u.hp>0&&!u.IsDead).Take(6).ToArray();
       if(enemies.Length>0)
       {
-       float sw=340,sh=42+enemies.Length*34;
+       float sw=470,sh=50+enemies.Length*48;
        var scanBox=new Rect(18,16,sw,sh);
        Window(scanBox);
-       Label(new(new(16,8,sw-32,24),"TACTICAL SCANNER  (F4)",16,"gold"),scanBox.x,scanBox.y,1);
+       Label(new(new(18,10,sw-36,28),"TACTICAL SCANNER   (F4 to hide)",18,"gold"),scanBox.x,scanBox.y,1);
        for(int i=0;i<enemies.Length;i++)
        {
         var e=enemies[i]!;
-        string id=e.monster_data?.id??"Foe";
-        string role=OverhaulRuntime.Enemies.TryGetValue(id,out var prof)?prof.Role:"Enemy";
+        string displayName=Reforged2Runtime.ResolveEnemyDisplayName(e,out string role);
+        string statusTag=((e.status&b_game_h.STATUS_SLEEP)!=0?" [SLP]":"")+((e.status&b_game_h.STATUS_POISON)!=0?" [PSN]":"");
         float hpFrac=e.max_hp>0?Math.Clamp((float)e.hp/e.max_hp,0f,1f):0f;
-        float ry=36+i*34;
-        Label(new(new(16,ry,sw-32,18),$"{id} ({role})  {e.hp}/{e.max_hp}",14),scanBox.x,scanBox.y,1);
-        Fill(new Rect(scanBox.x+16,scanBox.y+ry+20,sw-32,6),new Color(.04f,.07f,.16f,.95f));
-        Fill(new Rect(scanBox.x+16,scanBox.y+ry+20,(sw-32)*hpFrac,6),hpFrac<=0.25f?new Color(.95f,.35f,.30f,.95f):hpFrac<=0.50f?new Color(.96f,.76f,.32f,.95f):new Color(.38f,.88f,.55f,.95f));
+        float ry=44+i*48;
+        Label(new(new(18,ry,sw-170,24),$"{displayName}  ({role}){statusTag}",17),scanBox.x,scanBox.y,1);
+        Label(new(new(sw-152,ry+1,134,22),$"{e.hp} / {e.max_hp}",16,"gold"),scanBox.x,scanBox.y,1);
+        Fill(new Rect(scanBox.x+18,scanBox.y+ry+27,sw-36,10),new Color(.04f,.07f,.16f,.95f));
+        Fill(new Rect(scanBox.x+20,scanBox.y+ry+29,(sw-40)*hpFrac,6),hpFrac<=0.25f?new Color(.95f,.35f,.30f,.98f):hpFrac<=0.50f?new Color(.96f,.76f,.32f,.98f):new Color(.38f,.90f,.58f,.98f));
        }
       }
      }

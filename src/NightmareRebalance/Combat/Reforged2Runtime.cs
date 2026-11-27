@@ -42,6 +42,27 @@ internal static class Reforged2Runtime
         if (ScannerVisible) FlashBanner("Tactical Scanner ON (F4 to hide)", 1800);
     }
 
+    internal static string ResolveEnemyDisplayName(PM_DATA unit, out string role)
+    {
+        string id = unit.monster_data?.id ?? "";
+        if (OverhaulRuntime.Enemies.TryGetValue(id, out var prof) && !string.IsNullOrWhiteSpace(prof.Name))
+        {
+            role = prof.Role;
+            return prof.Name;
+        }
+        role = unit.max_hp >= 1200 ? "Boss" : "Enemy";
+        try
+        {
+            if (unit.monster_data != null && unit.monster_data.name_id > 0)
+            {
+                string nativeName = G2_SYS.G2_name_get(unit.monster_data.name_id);
+                if (!string.IsNullOrWhiteSpace(nativeName)) return nativeName.Trim();
+            }
+        }
+        catch { }
+        return string.IsNullOrWhiteSpace(id) ? "Enemy" : id;
+    }
+
     internal static void CheckBossTelegraphs(BATTLE_WORK? w)
     {
         if (!TelegraphsEnabled || w?.pm_data == null) return;
@@ -49,7 +70,7 @@ internal static class Reforged2Runtime
         {
             if (unit == null || unit.IsPlayer || unit.hp <= 0 || unit.IsDead || unit.max_hp < 1200) continue;
             int prev = bossPhases.GetValueOrDefault(unit.Pointer, 0);
-            string name = unit.monster_data?.id ?? "Boss";
+            string name = ResolveEnemyDisplayName(unit, out _);
             string msg = Reforged2Rules.BossPhaseBanner(name, unit.hp, unit.max_hp, prev, out int next);
             if (next != prev)
             {

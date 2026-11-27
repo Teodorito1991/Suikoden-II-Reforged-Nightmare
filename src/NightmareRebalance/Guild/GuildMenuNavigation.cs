@@ -59,11 +59,11 @@ internal sealed class GuildMenuNavigation
     internal int EchoCount { get; set; } = 1;
     internal int SpoilerRow {get;set;}=-1;
 
-    internal const int TrainingDrillCount = 9;
-    internal const int RosterRow = 9;
-    internal const int DirectiveRow = 10;
-    internal const int QuartermasterRow = 11;
-    internal const int CodexRow = 12;
+    internal const int TrainingDrillCount = 11;
+    internal const int RosterRow = 11;
+    internal const int DirectiveRow = 12;
+    internal const int QuartermasterRow = 13;
+    internal const int CodexRow = 14;
     internal int ArmyRosterCount { get; set; } = 1;
 
     internal int LucaChoiceCount;
@@ -71,7 +71,7 @@ internal sealed class GuildMenuNavigation
     internal int RowCount => Page switch
     {
         GuildPage.Services => Services.Length + 1,
-        GuildPage.Training => 13,
+        GuildPage.Training => 15,
         GuildPage.ArmyRoster => Math.Max(1, ArmyRosterCount),
         GuildPage.Quartermaster => Reforged2Rules.QuartermasterStock.Length,
         GuildPage.Codex => 4,

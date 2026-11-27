@@ -206,7 +206,7 @@ internal static class ArmyProgressionTests
             Check(TrainingResultRules.VictoryPotch(w, true, 2, 1, -1, false, false, false) == 0, $"War {w} defeat pays 0");
         }
 
-        Check(Reforged2Rules.Skirmishes.Length == 3, "3 Custom Skirmish scenarios defined");
+        Check(Reforged2Rules.Skirmishes.Length == 5, "5 Custom Skirmish scenarios defined");
         var grandBoost = Reforged2Rules.ApplySkirmishEnemyBoost(flik, Reforged2Rules.Skirmishes[2]);
         Check(grandBoost.Attack == flik.Attack + 2 && grandBoost.Defense == flik.Defense + 2 && grandBoost.Abilities.Contains("SP_CRITICAL"), "Grand Army Skirmish boosts enemy commanders within caps");
 

@@ -6,7 +6,7 @@ namespace NightmareRebalance;
 
 internal static class TrainingWar
 {
-    internal enum Drill { Standard, FortDefense, CommanderRout, War3, War6, War13, SkirmishCrimson, SkirmishIronSiege, SkirmishGrandArmy }
+    internal enum Drill { Standard, FortDefense, CommanderRout, War3, War6, War13, SkirmishCrimson, SkirmishIronSiege, SkirmishGrandArmy, SkirmishBlitz, SkirmishNightmare }
 
     sealed class Session(GAME_WORK game, SYS_WORK system, MACHICON field, EVENTCON events, EVENT_HUMAN player, Drill drill, bool veteran)
     {
@@ -40,6 +40,8 @@ internal static class TrainingWar
             Drill.SkirmishCrimson => Reforged2Rules.Skirmishes[0],
             Drill.SkirmishIronSiege => Reforged2Rules.Skirmishes[1],
             Drill.SkirmishGrandArmy => Reforged2Rules.Skirmishes[2],
+            Drill.SkirmishBlitz => Reforged2Rules.Skirmishes[3],
+            Drill.SkirmishNightmare => Reforged2Rules.Skirmishes[4],
             _ => null
         };
         internal readonly sbyte[]? OriginalSubToLeader = game.war_data?.sub_to_leader?.ToArray();
@@ -47,8 +49,8 @@ internal static class TrainingWar
         {
             Drill.FortDefense or Drill.SkirmishIronSiege => 2,
             Drill.War3 or Drill.SkirmishGrandArmy => 3,
-            Drill.War6 => 6,
-            Drill.War13 => 13,
+            Drill.War6 or Drill.SkirmishBlitz => 6,
+            Drill.War13 or Drill.SkirmishNightmare => 13,
             _ => 1
         };
         internal bool Committed, Destroyed;
@@ -91,8 +93,8 @@ internal static class TrainingWar
         {
             Drill.FortDefense or Drill.SkirmishIronSiege => 2,
             Drill.War3 or Drill.SkirmishGrandArmy => 3,
-            Drill.War6 => 6,
-            Drill.War13 => 13,
+            Drill.War6 or Drill.SkirmishBlitz => 6,
+            Drill.War13 or Drill.SkirmishNightmare => 13,
             _ => 1
         };
         return Plugin.Options.EnableTrainingVeteran.Value && Plugin.Options.EnableNativeWarAI.Value &&
@@ -126,8 +128,11 @@ internal static class TrainingWar
             Drill.SkirmishCrimson when !ChallengeAvailable => "Requires verified War 1 battlefield definitions.",
             Drill.SkirmishIronSiege when !FortDefenseAvailable => "Requires completed War 2 and verified Fort battlefield.",
             Drill.SkirmishGrandArmy when !War3Available => "Requires completed War 3 and verified battlefield.",
+            Drill.SkirmishBlitz when !ExtendedWarAvailable(6) => "Requires extended war drills and verified War 6 battlefield.",
+            Drill.SkirmishNightmare when !ExtendedWarAvailable(13) => "Requires extended war drills and verified War 13 battlefield.",
             Drill.FortDefense or Drill.CommanderRout or Drill.War3 or Drill.War6 or Drill.War13
-                or Drill.SkirmishCrimson or Drill.SkirmishIronSiege or Drill.SkirmishGrandArmy => "",
+                or Drill.SkirmishCrimson or Drill.SkirmishIronSiege or Drill.SkirmishGrandArmy
+                or Drill.SkirmishBlitz or Drill.SkirmishNightmare => "",
             _ => "This drill is unavailable."
         };
     }
@@ -275,9 +280,9 @@ internal static class TrainingWar
                     return;
                 }
 
-                if (requestedDrill is Drill.War6 or Drill.War13)
+                if (requestedDrill is Drill.War6 or Drill.War13 or Drill.SkirmishBlitz or Drill.SkirmishNightmare)
                 {
-                    int extWar = requestedDrill == Drill.War6 ? 6 : 13;
+                    int extWar = requestedDrill is Drill.War6 or Drill.SkirmishBlitz ? 6 : 13;
                     if (!Plugin.Options.EnableTrainingExtendedWars.Value || !WarTacticsRuntime.Audit(extWar) || !Plugin.CheckCompatibility())
                     {
                         Reject($"War {extWar} requires its verified native scripts and roster.");
@@ -286,7 +291,7 @@ internal static class TrainingWar
                 }
 
                 if (requestedVeteran && !WarTacticsRuntime.Audit(requestedDrill switch
-                    { Drill.FortDefense or Drill.SkirmishIronSiege => 2, Drill.War3 or Drill.SkirmishGrandArmy => 3, Drill.War6 => 6, Drill.War13 => 13, _ => 1 }))
+                    { Drill.FortDefense or Drill.SkirmishIronSiege => 2, Drill.War3 or Drill.SkirmishGrandArmy => 3, Drill.War6 or Drill.SkirmishBlitz => 6, Drill.War13 or Drill.SkirmishNightmare => 13, _ => 1 }))
                 {
                     Reject("Veteran requires the original army and battlefield definitions.");
                     return;
