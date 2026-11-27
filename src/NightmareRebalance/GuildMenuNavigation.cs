@@ -2,6 +2,7 @@ namespace NightmareRebalance;
 
 internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy, Echoes, EchoDifficulty, SpoilerWarning, LucaParties, ArmyRoster, Codex }
 internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave, StartEcho, SetSpoilers, RestoreStory, ChooseLuca, CycleDoctrine, CycleDirective }
+internal enum CastleNpcRole { GuildAttendant, DrillSergeant, EchoArchivist }
 
 internal static class GuildApproach
 {
@@ -84,6 +85,12 @@ internal sealed class GuildMenuNavigation
     {
         HuntCount = Math.Max(0, hunts);
         Enter(awaitingReport ? GuildPage.Status : GuildPage.Services, 0);
+    }
+
+    internal void OpenDirect(GuildPage page, int hunts)
+    {
+        HuntCount = Math.Max(0, hunts);
+        Enter(page, 0);
     }
 
     void Enter(GuildPage page, int row)

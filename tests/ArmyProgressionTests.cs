@@ -147,6 +147,29 @@ internal static class ArmyProgressionTests
         Check(GuildRebornScreen.NoteTone("Unavailable in settings") == "alert", "Unavailable note uses alert tone");
         Check(GuildMenuNavigation.Breadcrumb(GuildPage.ArmyRoster).Contains("Roster"), "Breadcrumb identifies nested Roster page");
 
-        Console.WriteLine($"PASS: Army Progression & Guild UX {checks} checks (ranks, doctrines, directives, synergy, ledger, pagination, NPC banners).");
+        // 8. Multi-NPC Castle Hub, Readiness Strip, Story War XP & Expanded Star Bonds
+        var (dsHeader, dsGreeting) = GuildPresentation.NpcBanner(GuildQuestState.NoContract, null, 1, 2, true, CastleNpcRole.DrillSergeant);
+        Check(dsHeader.Contains("Drill Sergeant") && dsHeader.Contains("Morale +1") && dsGreeting.Contains("drill"), "Drill Sergeant NPC banner");
+        var (eaHeader, eaGreeting) = GuildPresentation.NpcBanner(GuildQuestState.NoContract, null, 0, 0, false, CastleNpcRole.EchoArchivist);
+        Check(eaHeader.Contains("Echo Archivist") && eaGreeting.Contains("Hall of Echoes"), "Echo Archivist NPC banner");
+
+        menu.OpenDirect(GuildPage.Training, 10);
+        Check(menu.Page == GuildPage.Training && menu.Focus == 0, "Drill Sergeant opens Army Training directly");
+        menu.OpenDirect(GuildPage.Echoes, 10);
+        Check(menu.Page == GuildPage.Echoes && menu.Focus == 0, "Echo Archivist opens Hall of Echoes directly");
+
+        string ready = GuildPresentation.ReadinessStrip(42, 2, 1);
+        Check(ready.Contains("Lv 42") && ready.Contains("2 Star Bonds") && ready.Contains("Morale +1"), "Pre-battle readiness strip formats level, bonds and morale");
+
+        var storyState = new ArmyLedgerState();
+        var storyAward = ArmyProgressionRules.AwardStoryWarXp(storyState, new[] { new CommanderParticipation(3, "Flik", true, true) });
+        Check(storyAward.CommandersUpdated == 1 && storyState.Commanders[3].Xp == 80 && storyState.TotalStoryWarsWon == 1, "Story war victory awards 80 XP to surviving leader");
+
+        Check(StarBondRules.Catalogue.Length == 7, "Expanded Star Bond catalogue has 7 bonds");
+        Check(StarBondRules.Includes(StarBondRules.Catalogue.Single(b => b.Unite == -1), new[] { 1, 18 }), "Riou + Nanami bond matches");
+        Check(StarBondRules.Includes(StarBondRules.Catalogue.Single(b => b.Unite == -2), new[] { 2, 3 }), "Flik + Viktor bond matches");
+        Check(StarBondRules.Includes(StarBondRules.Catalogue.Single(b => b.Unite == -3), new[] { 53, 61 }), "Luc + Mazus bond matches");
+
+        Console.WriteLine($"PASS: Army Progression, Multi-NPC & Star Bonds {checks} checks.");
     }
 }

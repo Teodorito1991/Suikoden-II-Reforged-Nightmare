@@ -208,6 +208,21 @@ internal static class ArmyProgressionRuntime
         }
     }
 
+    internal static XpAwardSummary RecordStoryWarVictory()
+    {
+        if (!Enabled || TrainingWar.Active) return default;
+        var participants = CaptureAlliedParticipants();
+        if (participants.Count == 0) return default;
+        lock (Sync)
+        {
+            var game = Framework.Singleton<GAME_WORK>.instance;
+            if (game?.game_data != null) boundCampaignOwner = game.game_data.Pointer;
+            var summary = ArmyProgressionRules.AwardStoryWarXp(Current, participants);
+            Plugin.Logger.LogInfo($"Army Progression: story war victory recorded; commanders={summary.CommandersUpdated}, promotions={summary.RanksGained}.");
+            return summary;
+        }
+    }
+
     internal static XpAwardSummary RecordHallNightmareVictory(BATTLE_WORK? work)
     {
         if (!SynergyEnabled || work?.pm_data == null) return default;

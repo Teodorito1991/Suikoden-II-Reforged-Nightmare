@@ -15,7 +15,7 @@ internal sealed class Settings
     internal readonly ConfigEntry<bool> EnableBossProfileDiagnostics, FallbackToGlobalNightmare;
     internal readonly ConfigEntry<bool> EnableTrainingWar, EnableTrainingChallenge, EnableTrainingDefeatReturn, EnableTrainingWar2, EnableTrainingWar3;
     internal readonly ConfigEntry<bool> EnableTrainingVeteran, EnableTrainingRewards, EnableTrainingNormalBuild;
-    internal readonly ConfigEntry<bool> EnableArmyProgression, EnableDrillDirectives, EnableCrossTheaterSynergy;
+    internal readonly ConfigEntry<bool> EnableArmyProgression, EnableDrillDirectives, EnableCrossTheaterSynergy, EnableExpandedCastleNpcs;
     internal readonly ConfigEntry<bool> EnableNativeWarRemix,RunNativeWarSelfTest,ExportNativeWarResearch,EnableNativeWarAI,EnableWarSpecializations,EnableWarTactics,EnableWarManeuvers;
 
     internal readonly ConfigEntry<bool> EnableStarBonds, EnablePartyIdentity;
@@ -44,6 +44,8 @@ internal sealed class Settings
             "Optional tactical modifiers (Iron Wall, No Field Medicine, Forced March) for Castle Army Training drills with bonus Commander XP and Potch.");
         EnableCrossTheaterSynergy=config.Bind("Army Progression",nameof(EnableCrossTheaterSynergy),false,
             "Links RPG and War progression: Hall of Echoes Nightmare clears award War XP to party commanders, and Veteran drills grant +1 morale rune charge on your next RPG victory.");
+        EnableExpandedCastleNpcs=config.Bind("Castle Guild",nameof(EnableExpandedCastleNpcs),false,
+            "Stations a dedicated Drill Sergeant (opens Army Training) and Echo Archivist (opens Hall of Echoes) beside the Castle Guild attendant in the audited corridor when tiles are clear.");
         EnableNightmareEchoes = config.Bind("Hall of Echoes", nameof(EnableNightmareEchoes), false, "Optional data-driven advanced tiers for compatible Hall entries. Never alters story bosses or Original Echoes.");
         EnableNightmareStoneRewards = config.Bind("Hall of Echoes", nameof(EnableNightmareStoneRewards), true, "25% chance to offer the tier's audited growth stone after an earned Nightmare victory if no native loot rolled. Native inventory acceptance required.");
         HallUnlockPolicy = config.Bind("Hall of Echoes", nameof(HallUnlockPolicy), NightmareRebalance.HallUnlockPolicy.StoryProgression,

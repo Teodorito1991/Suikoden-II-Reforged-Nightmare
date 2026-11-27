@@ -195,9 +195,17 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   if(page==GuildPage.EchoDifficulty)
   {
    int echo=preview?drillIndex:CastleGuildRuntime.Menu.Echo;
-   return HallPresentation.Difficulty(echo,focus,preview||HallAvailability.Unlocked(echo),
+   var echoView = HallPresentation.Difficulty(echo,focus,preview||HallAvailability.Unlocked(echo),
        preview||HallAvailability.Configured(echo),preview||HallNightmareRuntime.CanSelect(echo),
        preview||Plugin.Options.EnableNightmareStoneRewards.Value,preview,preview?"":CastleGuildRuntime.Status);
+   if (!preview)
+   {
+    int[] party = StarBondRuntime.FieldParty();
+    int bonds = StarBondRules.Catalogue.Count(b => StarBondRules.Includes(b, party));
+    string ready = GuildPresentation.ReadinessStrip(StarBondRuntime.PartyAverageLevel(), bonds, ArmyProgressionRuntime.Current.MoraleBonusCharges);
+    echoView = echoView with { Condition = echoView.Condition + "\n" + ready };
+   }
+   return echoView;
   }
 
   if (page == GuildPage.Strategy)
@@ -261,9 +269,16 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    string confirm = normal && enabled && setting.Enabled && state is not (GuildQuestState.Accepted or GuildQuestState.AwaitingReport)
        ? "Accept" : "Unavailable";
    if(developer&&confirm!="Unavailable")confirm="Select";
+   string readinessLine = "";
+   if (!preview)
+   {
+    int[] party = StarBondRuntime.FieldParty();
+    int activeBonds = StarBondRules.Catalogue.Count(b => StarBondRules.Includes(b, party));
+    readinessLine = "\n" + GuildPresentation.ReadinessStrip(StarBondRuntime.PartyAverageLevel(), activeBonds, ArmyProgressionRuntime.Current.MoraleBonusCharges);
+   }
    return GuildRebornScreen.Paginate(new("HUNT CONTRACTS", rows, focus, card.Name, $"{card.Destination}  ·  {card.Danger}",
        $"{card.Monsters}\n{card.Tactics}", $"Battle Potch + {bonus} bonus" +
-           (itemLabel == null ? "" : $"\nPossible item  {itemLabel}"), reason, status, confirm, back, preview));
+           (itemLabel == null ? "" : $"\nPossible item  {itemLabel}"), reason + readinessLine, status, confirm, back, preview));
   }
 
   if (page == GuildPage.ArmyRoster)
@@ -444,7 +459,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
      else
      {
       var (header,greeting)=GuildPresentation.NpcBanner(CastleGuildRuntime.Quest.State,CastleGuildRuntime.Contract,
-          ArmyProgressionRuntime.Current.MoraleBonusCharges,ArmyProgressionRuntime.Current.Commanders.Count,ArmyProgressionRuntime.Enabled);
+          ArmyProgressionRuntime.Current.MoraleBonusCharges,ArmyProgressionRuntime.Current.Commanders.Count,
+          ArmyProgressionRuntime.Enabled,CastleGuildRuntime.ActiveNpc);
       Label(new(new(26,12,width-210,26),header,19,"gold"),box.x,box.y,1);
       Label(new(new(width-190,14,164,24),"Confirm to speak",16,"success"),box.x,box.y,1);
       Label(new(new(26,42,width-52,44),greeting,18),box.x,box.y,1);

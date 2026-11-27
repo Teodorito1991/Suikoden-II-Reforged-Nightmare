@@ -95,6 +95,8 @@ internal static class TotalWarRuntime
     static void Observe(string reason)
     {
         if(Ending!=null)return;Ending=war_sys.end_event_no;Result=reason;Transition="Ending selected; playback pending";
+        if(!Probe&&!TrainingWar.Active&&reason is "NativeCommanderDefeat" or "Breakthrough" or "TacticalThreatReduction" or "EligibleElimination" or "HoldCompleted" or "TacticalVictory")
+            ArmyProgressionRuntime.RecordStoryWarVictory();
         if(!Probe)Plugin.Logger.LogInfo($"Total War {ActiveWar} OUTCOME: {reason}; turn={war_sys.turn}; native ending={Ending}; original interpreter/campaign callbacks retained.");
     }
     static int cachedEnemyWar = -1;

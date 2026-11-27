@@ -39,8 +39,21 @@ internal static class GuildPresentation
         string? contractId,
         int moraleCharges,
         int trackedCommanders,
-        bool progressionEnabled)
+        bool progressionEnabled,
+        CastleNpcRole role = CastleNpcRole.GuildAttendant)
     {
+        if (role == CastleNpcRole.DrillSergeant)
+        {
+            if (moraleCharges > 0)
+                return ($"Drill Sergeant  [★] Morale +{moraleCharges}", "The garrison is fired up! Ready for another drill or Doctrine review?");
+            if (progressionEnabled && trackedCommanders > 0)
+                return ("Drill Sergeant", $"{trackedCommanders} veteran commander(s) on the roster. Speak to run drills or set Directives.");
+            return ("Drill Sergeant", "Want to sharpen your war tactics? Speak to enter Army Training directly.");
+        }
+        if (role == CastleNpcRole.EchoArchivist)
+        {
+            return ("Echo Archivist", "Memories of past battles stir in the Hall of Echoes. Speak to challenge an Echo.");
+        }
         if (state == GuildQuestState.AwaitingReport)
         {
             string name = string.IsNullOrEmpty(contractId) ? "your quarry" : GuildScreenRules.Card(contractId).Name;
@@ -56,5 +69,14 @@ internal static class GuildPresentation
         if (progressionEnabled && trackedCommanders > 0)
             return ("Guild Attendant", $"Welcome back. {trackedCommanders} veteran commander(s) stand ready in the roster.");
         return ("Guild Attendant", "Welcome to the Dunan Castle Guild — Hunts, Army Drills, and Echoes.");
+    }
+
+    internal static string ReadinessStrip(int avgLevel, int activeStarBonds, int moraleCharges)
+    {
+        var parts = new List<string>(3);
+        if (avgLevel > 0) parts.Add($"Party Avg Lv {avgLevel}");
+        parts.Add(activeStarBonds == 1 ? "1 Star Bond active" : $"{activeStarBonds} Star Bonds active");
+        if (moraleCharges > 0) parts.Add($"Morale +{moraleCharges}");
+        return "Readiness: " + string.Join("  ·  ", parts);
     }
 }

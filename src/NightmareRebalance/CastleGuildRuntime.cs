@@ -11,7 +11,9 @@ internal sealed class CastleSubmapAudit {public int Index{get;set;} public int M
 internal static class CastleGuildRuntime
 {
  internal static CastleGuildOptions Config=new();internal static CastleGuildAudit Audit=null!;
- internal static MACHICON? Owner;internal static MACHIDAT? Source,Copy;internal static EVENTCON? Field;internal static EVENT_HUMAN? Clerk;
+ internal static MACHICON? Owner;internal static MACHIDAT? Source,Copy;internal static EVENTCON? Field;internal static EVENT_HUMAN? Clerk,DrillSergeant,EchoArchivist;
+ internal static CastleNpcRole ActiveNpc=CastleNpcRole.GuildAttendant;
+ internal static int SergeantIndex=-1,ArchivistIndex=-1;
  internal static IntPtr Party;internal static int ObjectIndex=-1,Insertions,Opens,Accepts,Closes,AutoRequests;internal static bool Modal,ReleaseFence;internal static readonly GuildMenuNavigation Menu=new();static readonly MenuRepeatTimer repeatUp=new(),repeatDown=new();static int releaseFrames;static int inputFrame=-1;
  internal static string Status="Castle Guild not visited";internal static string ObservedMap="";internal static int ObservedVariant=-1,ObservedCtyp=-1,RoomInitCalls,EventInitCalls;internal static bool LastSourceMatched;
  internal static void ObserveMap(MACHICON m){if(!Config.Enabled||UnityEngine.Application.isBatchMode)return;ObservedMap=m.GetMapName();ObservedVariant=m.mno;ObservedCtyp=m.ctyp;RoomInitCalls++;}internal static GuildQuest Quest=new();internal static string? Contract=>Quest.ContractId;internal static IntPtr ContractParty;internal static string? RunningReceipt=>Quest.RunningReceipt;internal static long Completions=>Quest.Completions;
@@ -30,18 +32,31 @@ internal static class CastleGuildRuntime
  internal static MemoryInfo.MemoryData? FindRuntimeInfo(MACHICON m,IEnumerable<MemoryInfo.MemoryData?> candidates){var matches=candidates.Where(x=>RuntimeMatches(m,x)).ToArray();return matches.Length==1?matches[0]:null;}
  internal static MACHIDAT PrepareRuntime(MACHICON m,MemoryInfo.MemoryData? info)=>PrepareCore(m.mdat,m.mno,RuntimeMatches(m,info));
  internal static MACHIDAT Prepare(MACHIDAT source,int index)=>PrepareCore(source,index,Matches(source));
+ static bool TileClear(Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_OBJ> objects, int x, int y)
+ {
+  for(int i=0;i<objects.Length;i++){var o=objects[i];if(o!=null&&Math.Abs(o.x-x)<=2&&Math.Abs(o.y-y)<=2)return false;}
+  return true;
+ }
  static MACHIDAT PrepareCore(MACHIDAT source,int index,bool proven)
  {
   if(!proven||!Audit.SupportedIndices.Contains(index))throw new InvalidOperationException("Unverified castle source/variant");
   var copy=UnityEngine.Object.Instantiate(source);copy.name=source.name;
+  SergeantIndex=-1;ArchivistIndex=-1;
+  bool expanded=Plugin.Options?.EnableExpandedCastleNpcs.Value==true;
   try{
    var events=new EVENTDAT();events.sce_msg=source.eventdata.sce_msg;events.mapeventdat=new Il2CppSystem.Collections.Generic.List<MAPEVDAT>();
    for(int i=0;i<source.eventdata.mapeventdat.Count;i++){
     var old=source.eventdata.mapeventdat[i];bool add=i==index;
-    var map=new MAPEVDAT{mapno=old.mapno,batlno=old.batlno,batltim=old.batltim,batlpro=old.batlpro,mapst=old.mapst,okaz=checked((byte)(old.okaz+(add?1:0))),evkaz=old.evkaz,hkaz=old.hkaz};
-    var objects=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_OBJ>(old.eventobj.Length+(add?1:0));
+    bool addSergeant=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX-3,Audit.ObjectY);
+    bool addArchivist=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX+3,Audit.ObjectY);
+    int extra=(add?1:0)+(addSergeant?1:0)+(addArchivist?1:0);
+    var map=new MAPEVDAT{mapno=old.mapno,batlno=old.batlno,batltim=old.batltim,batlpro=old.batlpro,mapst=old.mapst,okaz=checked((byte)(old.okaz+extra)),evkaz=old.evkaz,hkaz=old.hkaz};
+    var objects=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_OBJ>(old.eventobj.Length+extra);
     for(int j=0;j<old.eventobj.Length;j++){var o=old.eventobj[j];objects[j]=new EVENT_OBJ{otyp=o.otyp,disp=o.disp,spd=o.spd,wt=o.wt,ano=o.ano,ityp=o.ityp,fpno=o.fpno,ozok=o.ozok,pri=o.pri,x=o.x,y=o.y,w=o.w,h=o.h};}
-    if(add)objects[old.eventobj.Length]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=(ushort)Audit.Sprite,ozok=0,pri=0,x=Audit.ObjectX,y=Audit.ObjectY,w=0,h=0};
+    int slot=old.eventobj.Length;
+    if(add)objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=(ushort)Audit.Sprite,ozok=0,pri=0,x=Audit.ObjectX,y=Audit.ObjectY,w=0,h=0};
+    if(addSergeant){SergeantIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=(ushort)Audit.Sprite,ozok=0,pri=0,x=(short)(Audit.ObjectX-3),y=Audit.ObjectY,w=0,h=0};}
+    if(addArchivist){ArchivistIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=(ushort)Audit.Sprite,ozok=0,pri=0,x=(short)(Audit.ObjectX+3),y=Audit.ObjectY,w=0,h=0};}
     var scripts=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_WK>(old.eventdat.Length);for(int j=0;j<old.eventdat.Length;j++){var e=old.eventdat[j];scripts[j]=new EVENT_WK{etyp=e.etyp,eventForm=e.eventForm.ToArray(),eventCom=e.eventCom.ToArray()};}
     map.eventobj=objects;map.eventdat=scripts;events.mapeventdat.Add(map);
    }
@@ -111,17 +126,30 @@ internal static class CastleGuildRuntime
   Field=e;if(e?.mdat?.Pointer!=Copy.Pointer||e.mcon?.Pointer!=m.Pointer||e.ehuman==null||ObjectIndex+8>=e.ehuman.Count){Status="Native actor construction not observed; retain clone until EventEnd";return;}
   var h=e.ehuman[ObjectIndex+8];var sprite=Copy.epersondat.Single(x=>x.fp_no==Audit.Sprite).hito_opd_table;
   if(h==null||h.fpno!=Audit.Sprite||h.opd?.Pointer!=sprite.Pointer||h.otyp!=1||h.x.ss.inte!=Audit.ObjectX*8||h.y.ss.inte!=Audit.ObjectY*8){if(h!=null){h.disp=0;h.forceDisable=true;}Status="Native Guild actor signature rejected; retain clone until EventEnd";return;}
-  Field=e;Clerk=h;h.disp=1;h.forceHDDisable=false;Insertions++;Status=QuestSummary;
+  Field=e;Clerk=h;h.disp=1;h.forceHDDisable=false;
+  DrillSergeant=SergeantIndex>=0&&SergeantIndex+8<e.ehuman.Count?e.ehuman[SergeantIndex+8]:null;
+  if(DrillSergeant!=null){DrillSergeant.disp=1;DrillSergeant.forceHDDisable=false;}
+  EchoArchivist=ArchivistIndex>=0&&ArchivistIndex+8<e.ehuman.Count?e.ehuman[ArchivistIndex+8]:null;
+  if(EchoArchivist!=null){EchoArchivist.disp=1;EchoArchivist.forceHDDisable=false;}
+  Insertions++;Status=QuestSummary;
  }
  internal static bool Owned=>Owner!=null&&Copy!=null&&Field!=null&&Clerk!=null&&Owner.mdat?.Pointer==Copy.Pointer&&Owner.econ?.Pointer==Field.Pointer&&Field.mdat?.Pointer==Copy.Pointer&&Field.mcon?.Pointer==Owner.Pointer&&Framework.Singleton<GAME_WORK>.instance?.party_data?.Pointer==Party;
  internal static bool Idle=>Owned&&Config.Enabled&&Compatible&&HuntFieldContext.Active&&Combat.State==null&&!WarRuntime.Active&&Field!.mstep==2&&Owner!.ctyp==0&&!EVENTCON.noScriptRunning&&Field.coml!=null&&Field.coml.All(c=>c==null||c.flg==0)&&!HuntGuildRuntime.PartyMenuOpen&&InteractionDifficultySupported&&WindowManager.instance!=null&&!WindowManager.instance.IsUseMessageWindow&&!WindowManager.instance.IsOpenCommonDialogWindow();
+ static bool IsOwnedNpc(EVENT_HUMAN h)=>h.Pointer==Clerk!.Pointer||(DrillSergeant!=null&&h.Pointer==DrillSergeant.Pointer)||(EchoArchivist!=null&&h.Pointer==EchoArchivist.Pointer);
  internal static bool Near
  {
   get{
    if(!Owned||Field!.ehuman.Count==0||Field.ehuman[0] is not {} p||Clerk!.disp!=1)return false;
-   int x=p.x.ss.inte,y=p.y.ss.inte;if(!GuildApproach.AtCounter(x,y,Clerk.x.ss.inte,Clerk.y.ss.inte))return false;
+   int x=p.x.ss.inte,y=p.y.ss.inte;
+   EVENT_HUMAN? matched=null;
+   CastleNpcRole role=CastleNpcRole.GuildAttendant;
+   if(GuildApproach.AtCounter(x,y,Clerk.x.ss.inte,Clerk.y.ss.inte)){matched=Clerk;role=CastleNpcRole.GuildAttendant;}
+   else if(DrillSergeant is {disp:1} ds&&GuildApproach.AtCounter(x,y,ds.x.ss.inte,ds.y.ss.inte)){matched=ds;role=CastleNpcRole.DrillSergeant;}
+   else if(EchoArchivist is {disp:1} ea&&GuildApproach.AtCounter(x,y,ea.x.ss.inte,ea.y.ss.inte)){matched=ea;role=CastleNpcRole.EchoArchivist;}
+   if(matched==null)return false;
    // Do not claim confirm beside another original NPC or native world device.
-   for(int i=8;i<Field.ehuman.Count;i++){var h=Field.ehuman[i];if(h==null||h.Pointer==Clerk.Pointer||h.disp!=1||h.forceDisable||(h.otyp!=1&&h.otyp!=3))continue;if(Math.Abs(x-h.x.ss.inte)<=24&&Math.Abs(y-h.y.ss.inte)<=24)return false;}
+   for(int i=8;i<Field.ehuman.Count;i++){var h=Field.ehuman[i];if(h==null||IsOwnedNpc(h)||h.disp!=1||h.forceDisable||(h.otyp!=1&&h.otyp!=3))continue;if(Math.Abs(x-h.x.ss.inte)<=24&&Math.Abs(y-h.y.ss.inte)<=24)return false;}
+   ActiveNpc=role;
    return true;
   }
  }
@@ -140,7 +168,9 @@ internal static class CastleGuildRuntime
   Menu.EchoCount = HallTrialCatalogue.Entries.Length+1;
   Menu.SpoilerRow=HallTrialCatalogue.Entries.Length;
   Menu.ArmyRosterCount = Math.Max(1, ArmyProgressionRuntime.RosterSnapshot().Length);
-  Menu.Open(Quest.State==GuildQuestState.AwaitingReport,HuntRuntime.BrowseOrder.Length);
+  if(ActiveNpc==CastleNpcRole.DrillSergeant)Menu.OpenDirect(GuildPage.Training,HuntRuntime.BrowseOrder.Length);
+  else if(ActiveNpc==CastleNpcRole.EchoArchivist)Menu.OpenDirect(GuildPage.Echoes,HuntRuntime.BrowseOrder.Length);
+  else Menu.Open(Quest.State==GuildQuestState.AwaitingReport,HuntRuntime.BrowseOrder.Length);
   HuntGuildRuntime.Visible=true;
   HuntGuildRuntime.LastRenderFrame=-1;
   Opens++;
@@ -212,7 +242,7 @@ internal static class CastleGuildRuntime
   return false;
  }
  internal static void Close(bool fence){repeatUp.Reset();repeatDown.Reset();if(HallLucaSession.Selecting)HallLucaSession.Cancel();if(Modal){Closes++;HuntGuildRuntime.Visible=false;HuntGuildRuntime.LastRenderFrame=-1;}Modal=false;ReleaseFence=fence;releaseFrames=0;}
- internal static void Detach(){Close(false);if(Owner!=null&&Copy!=null&&Owner.mdat?.Pointer==Copy.Pointer)Owner.mdat=Source;if(Copy!=null)UnityEngine.Object.Destroy(Copy);Owner=null;Source=null;Copy=null;Field=null;Clerk=null;Party=IntPtr.Zero;ObjectIndex=-1;}
+ internal static void Detach(){Close(false);if(Owner!=null&&Copy!=null&&Owner.mdat?.Pointer==Copy.Pointer)Owner.mdat=Source;if(Copy!=null)UnityEngine.Object.Destroy(Copy);Owner=null;Source=null;Copy=null;Field=null;Clerk=null;DrillSergeant=null;EchoArchivist=null;ActiveNpc=CastleNpcRole.GuildAttendant;Party=IntPtr.Zero;ObjectIndex=-1;SergeantIndex=-1;ArchivistIndex=-1;}
  internal static string FeedbackText="";static long feedbackUntil;
  internal static bool FeedbackVisible=>Environment.TickCount64<feedbackUntil&&HuntFieldContext.Active&&Combat.State==null&&!WarRuntime.Active&&!HuntGuildRuntime.PartyMenuOpen&&WindowManager.instance!=null&&!WindowManager.instance.IsUseMessageWindow&&!WindowManager.instance.IsOpenCommonDialogWindow();
  internal static void TrainingFeedback(string text)

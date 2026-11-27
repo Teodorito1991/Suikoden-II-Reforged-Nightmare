@@ -10,6 +10,23 @@ internal static class StarBondRuntime
         return slots == null ? Array.Empty<int>() : slots.Take(6).Select(x => (int)x).ToArray();
     }
 
+    internal static int PartyAverageLevel()
+    {
+        var game = Framework.Singleton<GAME_WORK>.instance;
+        var slots = game?.party_data?.party_cha_no;
+        var chars = game?.chara_data?.c_varia_dat;
+        if (slots == null || chars == null) return 0;
+        int sum = 0, count = 0;
+        for (int i = 0; i < Math.Min(6, slots.Length); i++)
+        {
+            int id = slots[i];
+            if (id <= 0 || id >= chars.Length || chars[id] == null) continue;
+            sum += chars[id].level;
+            count++;
+        }
+        return count == 0 ? 0 : (int)Math.Round((double)sum / count, MidpointRounding.AwayFromZero);
+    }
+
     internal static bool Available(BATTLE_WORK w, int actor, int unite, bool requireUniteLegal = false)
     {
         if (!Plugin.Options.EnableStarBonds.Value || Combat.State is not { Bonds: true } state ||
@@ -17,9 +34,13 @@ internal static class StarBondRuntime
             units[actor] is not { IsPlayer: true } owner || !Able(owner, state.Manager)) return false;
 
         var bond = StarBondRules.Catalogue.Single(b => b.Unite == unite);
-        if (!bond.Members.Contains(owner.chara_id) || w.unite_data_table is not {} table || unite >= table.Length || w.GetUniteData(unite) is not {} native ||
-            native.func_no != bond.Function || native.player_id == null || native.player_kazu != bond.Members.Length ||
-            !native.player_id.Select(id => (int)id).SequenceEqual(bond.Members)) return false;
+        if (!bond.Members.Contains(owner.chara_id)) return false;
+        if (unite >= 0)
+        {
+            if (w.unite_data_table is not {} table || unite >= table.Length || w.GetUniteData(unite) is not {} native ||
+                native.func_no != bond.Function || native.player_id == null || native.player_kazu != bond.Members.Length ||
+                !native.player_id.Select(id => (int)id).SequenceEqual(bond.Members)) return false;
+        }
 
         foreach (int id in bond.Members)
         {
@@ -42,10 +63,13 @@ internal static class StarBondRuntime
 
     internal static void Guard(BATTLE_WORK w, PM_DATA defender, MONSTER_ATTACK_DATA attack, ref int damage)
     {
-        if (defender.chara_id == 7 && (attack.attack_zokusei & 0x10) != 0 && attack.attack_type is 1 or 2 &&
-            (defender.status & b_game_h.STATUS_GUARD) != 0 &&
-            (defender.status & b_game_h.STATUS_NO_GUARD) == 0 &&
-            StarBondRules.Wounded(defender.hp, defender.max_hp) && Available(w, defender.chara_no, 30))
+        if ((attack.attack_zokusei & 0x10) == 0 || attack.attack_type is not (1 or 2) ||
+            (defender.status & b_game_h.STATUS_GUARD) == 0 ||
+            (defender.status & b_game_h.STATUS_NO_GUARD) != 0 ||
+            !StarBondRules.Wounded(defender.hp, defender.max_hp)) return;
+        if (defender.chara_id == 7 && Available(w, defender.chara_no, 30))
+            damage -= StarBondRules.DamageBonus(damage, 8, 20);
+        else if (defender.chara_id is 1 or 18 && Available(w, defender.chara_no, -1))
             damage -= StarBondRules.DamageBonus(damage, 8, 20);
     }
 
@@ -72,12 +96,15 @@ internal static class StarBondAttackPatch
 {
     [HarmonyPostfix] static void Postfix(BattlePlayerCharacter __instance, int mokuhyo, ref int __result)
     {
-        if (__instance.Pointer != StarBondRuntime.AttackOwner || __instance.chara_id != 30 ||
-            __instance.c_koudou != battle_h.CMD_ATTACK) return;
+        if (__instance.Pointer != StarBondRuntime.AttackOwner || __instance.c_koudou != battle_h.CMD_ATTACK) return;
         var w = Framework.Singleton<BATTLE_WORK>.instance;
-        if (StarBondRuntime.Enemy(w, mokuhyo) is {} enemy && (enemy.status & b_game_h.STATUS_POISON) != 0 &&
+        if (StarBondRuntime.Enemy(w, mokuhyo) is not {} enemy) return;
+        if (__instance.chara_id == 30 && (enemy.status & b_game_h.STATUS_POISON) != 0 &&
             StarBondRuntime.Available(w!, __instance.chara_no, 7))
             __result += StarBondRules.DamageBonus(__result, 8, 15);
+        else if (__instance.chara_id is 2 or 3 && StarBondRules.Wounded(enemy.hp, enemy.max_hp) &&
+            StarBondRuntime.Available(w!, __instance.chara_no, -2))
+            __result += StarBondRules.DamageBonus(__result, 8, 16);
     }
 }
 
@@ -87,7 +114,7 @@ internal static class StarBondFireScope
     [HarmonyPrefix] static void Prefix(BattlePlayerCharacter __instance, byte magi_no, out IntPtr __state)
     {
         __state = StarBondRuntime.FireOwner;
-        StarBondRuntime.FireOwner = magi_no == 2 ? __instance.Pointer : IntPtr.Zero;
+        StarBondRuntime.FireOwner = magi_no == 2 || __instance.chara_id is 53 or 61 ? __instance.Pointer : IntPtr.Zero;
     }
     [HarmonyFinalizer] static Exception? Finalizer(IntPtr __state, Exception? __exception)
     { StarBondRuntime.FireOwner = __state; return __exception; }
@@ -98,11 +125,12 @@ internal static class StarBondFirePatch
 {
     [HarmonyPostfix] static void Postfix(BattlePlayerCharacter __instance, int mokuhyo, ref int __result)
     {
-        if (__instance.Pointer != StarBondRuntime.FireOwner || __instance.chara_id != 33 ||
-            __instance.c_koudou != battle_h.CMD_MAGIC) return;
+        if (__instance.Pointer != StarBondRuntime.FireOwner || __instance.c_koudou != battle_h.CMD_MAGIC) return;
         var w = Framework.Singleton<BATTLE_WORK>.instance;
-        if (StarBondRuntime.Enemy(w, mokuhyo)?.calc_para is { Length: > 3 } stats &&
-            stats[2] > stats[3] && StarBondRuntime.Available(w!, __instance.chara_no, 2))
+        if (StarBondRuntime.Enemy(w, mokuhyo)?.calc_para is not { Length: > 3 } stats || stats[2] <= stats[3]) return;
+        if (__instance.chara_id == 33 && StarBondRuntime.Available(w!, __instance.chara_no, 2))
+            __result += StarBondRules.DamageBonus(__result, 8, 18);
+        else if (__instance.chara_id is 53 or 61 && StarBondRuntime.Available(w!, __instance.chara_no, -3))
             __result += StarBondRules.DamageBonus(__result, 8, 18);
     }
 }

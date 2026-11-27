@@ -23,6 +23,14 @@
   with live status badges (`[!] Report Ready`, `[★] Morale`), Left/Right fast
   page-flipping, hold-to-repeat Up/Down scrolling, animated cursor bob, nested
   breadcrumbs, Commander XP progress bar, and color-coded availability tones.
+- Added opt-in **Multi-NPC Castle Hub** (`EnableExpandedCastleNpcs = false`):
+  flanking **Drill Sergeant** (direct Army Training) and **Echo Archivist**
+  (direct Hall of Echoes) with collision-free tile checks, plus a live
+  **Pre-Battle Readiness Strip** (party avg level, active Star Bonds, morale) on
+  Hunt and Hall confirmation screens.
+- Wired native **Story War victories** into `ArmyProgressionRuntime` and added
+  3 lore-driven **Star Bonds** (*Genkaku's Legacy*: Riou & Nanami; *Mercenary
+  Veterans*: Flik & Viktor; *Arcane Resonance*: Luc & Mazus).
 - Applied hot-path optimizations: streaming startup SHA256 verification, cached
   Harmony compatibility targets (removing per-frame reflection in
   `CastleGuildRuntime`), early-exit target discovery and hoisted ally scans in

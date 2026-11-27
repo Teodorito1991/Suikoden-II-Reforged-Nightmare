@@ -18,7 +18,16 @@ internal static class StarBondRules
             "Up to 18 extra damage when physical defense\nis higher than magic defense."),
         new(42, 127, new[]{58,59,60}, "Bandit Finish", "Gijimu, Koyu and Lo Wen",
             "Use Bandit Attack against an enemy at half HP or less.",
-            "Up to 24 extra damage.\nKnockdown follows the usual rules.")
+            "Up to 24 extra damage.\nKnockdown follows the usual rules."),
+        new(-1, 0, new[]{1,18}, "Genkaku's Legacy", "Riou and Nanami",
+            "Riou or Nanami uses Defend at half HP or less.\nBoth must be able to act.",
+            "Up to 20 less damage from a direct physical hit."),
+        new(-2, 0, new[]{2,3}, "Mercenary Veterans", "Flik and Viktor",
+            "Flik or Viktor uses Attack on a wounded enemy.\nBoth must be able to act.",
+            "Adds up to 16 damage to the hit."),
+        new(-3, 0, new[]{53,61}, "Arcane Resonance", "Luc and Mazus",
+            "Luc or Mazus casts an offensive spell.\nBoth must be able to act.",
+            "Up to 18 extra damage when physical defense\nis higher than magic defense.")
     };
 
     internal static bool Includes(StarBond bond, IReadOnlyCollection<int> party) =>

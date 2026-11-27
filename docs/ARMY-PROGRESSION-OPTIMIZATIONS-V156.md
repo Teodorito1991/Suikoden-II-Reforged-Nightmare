@@ -63,6 +63,9 @@ Assigned per commander in the Castle Guild (**Army Training → Commander Roster
 - **Army Training Victory:** `50 XP` (Standard) / `90 XP` (Veteran) + `+20 XP`
   if the unit did not rout. Subcommanders earn `75%` of leader XP (rounded).
   Multiplied by any fulfilled **Drill Directive**.
+- **Story War Victory:** `60 XP` + `+20 XP` survival bonus (`75%` for
+  subcommanders) awarded on audited native story-war victories when
+  `EnableArmyProgression = true`.
 - **Hall of Echoes Nightmare Clear** *(with `EnableCrossTheaterSynergy = true`)*:
   `+35 XP` to surviving party members who have a war commander profile.
 
@@ -120,6 +123,21 @@ Accessible inside **Army Training** without shifting any existing top-level
     top-right nested breadcrumbs, gold-framed Commander XP progress bar in
     `Commander Roster`, and semantic row note colors (`success` emerald for
     completed/active/high-rank items, `alert` amber for locked/unavailable/OFF).
+  - **Multi-NPC Castle Hub** *(opt-in via `[Castle Guild] EnableExpandedCastleNpcs = false`)*:
+    Stations a **Drill Sergeant** (opens Army Training directly) and an **Echo
+    Archivist** (opens Hall of Echoes directly) beside the Guild Attendant in
+    `vk07` using audited sprites and collision-free tile guards.
+  - **Pre-Battle Readiness Strip:** Displays live party average level, active
+    Star Bonds, and armed Morale charges on Hunt Contract and Hall Echo
+    confirmation cards.
+- **Expanded Lore Star Bonds (`StarBondRules`, `StarBondRuntime`):** Added 3
+  classic pairings alongside the 4 existing Unite-backed bonds:
+  - **Genkaku's Legacy** (Riou & Nanami): Guarding at ≤50% HP reduces direct
+    physical hit damage by up to 20.
+  - **Mercenary Veterans** (Flik & Viktor): Attacking a wounded enemy adds up to
+    16 damage.
+  - **Arcane Resonance** (Luc & Mazus): Offensive spells deal up to 18 extra
+    damage against targets with higher physical defense than magic defense.
 
 ---
 
