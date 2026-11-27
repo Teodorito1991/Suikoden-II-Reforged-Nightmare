@@ -156,3 +156,4 @@ WarResourceOwnershipTests.Run();
 FieldContinuationTests.Run();
 GuildPolishTests.Run();
 BossCombatQualityTests.Run();
+ArmyProgressionTests.Run();

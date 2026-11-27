@@ -53,6 +53,7 @@ public sealed class Plugin : BasePlugin
             BossTacticsRuntime.Initialize();
             LegendaryBossRuntime.Initialize();
             NativeWarWitness.Initialize();
+            ArmyProgressionRuntime.Initialize();
             if(NativeFieldObserver.Requested)AddComponent<NativeFieldObserver>();
             if(HuntGuildRuntime.RenderSmoke||(HuntGuildRuntime.Config.EnableSelector&&Options.EnableDeveloperTools.Value)||CastleGuildRuntime.Config.Enabled)AddComponent<HuntGuildOverlay>();
             if(HuntRuntime.Config.EnableExperimentalHunt||HuntGuildRuntime.Config.EnableSelector) AddComponent<HuntAccessControl>();
@@ -108,7 +109,13 @@ public sealed class Plugin : BasePlugin
 
     private static bool SupportedBuild()
     {
-        bool Match(string path, string hash) => File.Exists(path) && Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))) == hash;
+        static bool Match(string path, string hash)
+        {
+            if (!File.Exists(path)) return false;
+            using var stream = File.OpenRead(path);
+            using var sha = SHA256.Create();
+            return Convert.ToHexString(sha.ComputeHash(stream)) == hash;
+        }
         try
         {
             return Match(Path.Combine(Paths.GameRootPath, "GameAssembly.dll"), "E093F175EAF3734D293CA0A236C652DD7FCC72EA5FA10D7B21103EDF12F11C3A") &&
@@ -130,10 +137,22 @@ public sealed class Plugin : BasePlugin
             .Where(p => p.declaringType != null && p.methodName != null)
             .Select(p => AccessTools.Method(p.declaringType, p.methodName));
 
+    static MethodBase?[]? cachedCompatibilityTargets;
+    static bool cachedCompatibilityHallFlag;
+
     // Also protect nearby template/recovery hooks used by the reference mod.
-    internal static bool CheckCompatibility() => CheckPatchTargets(
-        PatchTargets(ActivePatchTypes()).Append(AccessTools.Method(typeof(BattleManager), nameof(BattleManager.BattleEnd))),
-        hallOnly: false);
+    internal static bool CheckCompatibility()
+    {
+        if (cachedCompatibilityTargets == null || cachedCompatibilityHallFlag != HallFirstContact.EnabledAtStartup)
+        {
+            cachedCompatibilityHallFlag = HallFirstContact.EnabledAtStartup;
+            cachedCompatibilityTargets = PatchTargets(ActivePatchTypes())
+                .Append(AccessTools.Method(typeof(BattleManager), nameof(BattleManager.BattleEnd)))
+                .Distinct()
+                .ToArray();
+        }
+        return CheckPatchTargets(cachedCompatibilityTargets, hallOnly: false);
+    }
 
     static bool CheckPatchTargets(IEnumerable<MethodBase?> targets, bool hallOnly)
     {
@@ -156,5 +175,5 @@ public sealed class Plugin : BasePlugin
     }
 
     internal static void Debug(string message) { if (Options.EnableDebugLogging.Value) Logger.LogInfo(message); }
-    public override bool Unload() { harmony?.UnpatchSelf(); Combat.Clear(); WarRuntime.Clear(); NativeWarRemix.Clear(); War2Runtime.Clear(); TotalWarRuntime.Clear(); WarTacticsRuntime.Clear(); CombatReforgedRuntime.Clear(); return true; }
+    public override bool Unload() { harmony?.UnpatchSelf(); Combat.Clear(); WarRuntime.Clear(); NativeWarRemix.Clear(); War2Runtime.Clear(); TotalWarRuntime.Clear(); WarTacticsRuntime.Clear(); CombatReforgedRuntime.Clear(); ArmyProgressionRuntime.Clear(); return true; }
 }

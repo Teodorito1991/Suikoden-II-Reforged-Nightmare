@@ -259,6 +259,100 @@ public sealed class HuntGuildOverlay:MonoBehaviour
            (itemLabel == null ? "" : $"\nPossible item  {itemLabel}"), reason, status, confirm, back, preview));
   }
 
+  if (page == GuildPage.ArmyRoster)
+  {
+   var roster = ArmyProgressionRuntime.RosterSnapshot();
+   if (roster.Length == 0)
+   {
+    return new("COMMANDER ROSTER", new[] { new GuildMenuRow("No veterans yet", ArmyProgressionRuntime.Enabled ? "Complete a drill" : "Disabled in settings") }, 0,
+        "Army Progression", ArmyProgressionRuntime.Enabled ? "Ready" : "EnableArmyProgression = false",
+        "Allied commanders earn persistent XP from qualifying Army Training victories and Hall Nightmare clears.",
+        "Ranks: Recruit -> Lieutenant (100) -> Captain (250) -> General (500) -> Marshal (900).",
+        "Stored in a content-addressed save-bound ledger. Native save files are untouched.",
+        status, "Back", back, preview);
+   }
+   focus = Math.Clamp(focus, 0, roster.Length - 1);
+   var rows = roster.Select(c =>
+   {
+    var rank = ArmyProgressionRules.RankForXp(c.Xp);
+    return new GuildMenuRow(c.Name, $"{ArmyProgressionRules.RankTitle(rank)} · {c.Xp} XP · {ArmyProgressionRules.DoctrineTitle(c.Doctrine)}");
+   }).ToArray();
+   var sel = roster[focus];
+   var selRank = ArmyProgressionRules.RankForXp(sel.Xp);
+   int nextXp = ArmyProgressionRules.NextRankXp(selRank);
+   string nextNote = selRank == ArmyRank.Marshal ? "Maximum rank reached" : $"Next rank at {nextXp} XP";
+   return GuildRebornScreen.Paginate(new("COMMANDER ROSTER", rows, focus, sel.Name,
+       $"{ArmyProgressionRules.RankTitle(selRank)}  ·  {sel.Xp} XP ({nextNote})",
+       $"Doctrine: {ArmyProgressionRules.DoctrineTitle(sel.Doctrine)}\n{ArmyProgressionRules.DoctrineDescription(sel.Doctrine)}",
+       $"Drills won: {sel.DrillsWon}   Story wars: {sel.StoryWarsWon}   Nightmare clears: {sel.NightmareClears}",
+       "Confirm cycles Doctrine (None / Vanguard / Bulwark / Tactician). Save at an inn or orb to bind progress.",
+       status, "Cycle Doctrine", back, preview));
+  }
+
+  if (page == GuildPage.Codex)
+  {
+   var ledger = ArmyProgressionRuntime.Current;
+   int[] party = preview ? new[]{7,8,30,26,33,32} : StarBondRuntime.FieldParty();
+   int activeBonds = StarBondRules.Catalogue.Count(b => StarBondRules.Includes(b, party));
+   var codexRows = new[]
+   {
+    new GuildMenuRow("Army Campaign", $"{ledger.TotalDrillsWon} drills · {ledger.Commanders.Count} commanders"),
+    new GuildMenuRow("Cross-Theater", $"{ledger.MoraleBonusCharges} morale charge(s) · {ledger.HallNightmareClears} Nightmare"),
+    new GuildMenuRow("Hunt Guild", $"{CastleGuildRuntime.Completions} session completion(s)"),
+    new GuildMenuRow("Active Star Bonds", $"{activeBonds} active in current party")
+   };
+   focus = Math.Clamp(focus, 0, codexRows.Length - 1);
+   var (cTitle, cArea, cDesc, cReward, cCond) = focus switch
+   {
+    0 => ("Army Campaign Record", $"Drills: {ledger.TotalDrillsWon} ({ledger.TotalVeteranDrillsWon} Veteran)",
+          $"Tracked commanders: {ledger.Commanders.Count}. Active Directive: {ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective)}.",
+          ArmyProgressionRuntime.Enabled ? "Army Progression ON" : "Army Progression OFF (EnableArmyProgression)",
+          "Progress binds automatically to your save fingerprint whenever you save."),
+    1 => ("Cross-Theater Synergy", ArmyProgressionRuntime.SynergyEnabled ? "Synergy ON" : "Synergy OFF (EnableCrossTheaterSynergy)",
+          "Veteran drills arm +1 morale rune charge for your next RPG victory. Hall Nightmare clears grant +35 War XP to party commanders.",
+          $"Armed Morale Charges: {ledger.MoraleBonusCharges}   ·   Nightmare Clears: {ledger.HallNightmareClears}",
+          "Respects RuneRecoveryMaxLevel and all native save/combat guards."),
+    2 => ("Hunt Guild Record", $"Session completions: {CastleGuildRuntime.Completions}",
+          CastleGuildRuntime.QuestSummary,
+          "Contracts: 10 audited routes across Dunan.",
+          "Contracts remain session-only; loading a save clears unreported contracts."),
+    _ => ("Party Star Bonds", $"{activeBonds} of {StarBondRules.Catalogue.Length} active",
+          "Check Party Strategy from the main Guild menu for exact triggers and bonuses.",
+          "Normal battles without scripted commands.",
+          "All bond partners must be alive and able to act.")
+   };
+   return new("TACTICIAN'S CODEX", codexRows, focus, cTitle, cArea, cDesc, cReward, cCond, status, "Back", back, preview);
+  }
+
+  if (page == GuildPage.Training && focus >= GuildMenuNavigation.TrainingDrillCount)
+  {
+   var trainingAllRows = Drills.Select((row, i) =>
+       new GuildMenuRow(row.Title, preview || TrainingWar.Unavailable((TrainingWar.Drill)i).Length == 0 ? row.Note : "Unavailable"))
+       .Concat(new[]
+       {
+        new GuildMenuRow("Commander Roster", ArmyProgressionRuntime.Enabled ? $"{ArmyProgressionRuntime.Current.Commanders.Count} tracked" : "Progression OFF"),
+        new GuildMenuRow("Drill Directive", ArmyProgressionRuntime.DirectivesEnabled ? ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective) : "Directives OFF"),
+        new GuildMenuRow("Tactician's Codex", "Campaign & synergy summary")
+       }).ToArray();
+   var (mTitle, mArea, mDesc, mReward, mCond, mConfirm) = focus switch
+   {
+    GuildMenuNavigation.RosterRow => ("Commander Roster & Doctrines", ArmyProgressionRuntime.Enabled ? "Army Progression ON" : "Optional opt-in",
+        "Inspect persistent commander ranks, XP, and assign Vanguard, Bulwark, or Tactician doctrines.",
+        "Ranks unlock stat bonuses and safe native SP_* abilities.",
+        "Bound to save fingerprints in army-ledger.json; native saves stay vanilla.", "Open Roster"),
+    GuildMenuNavigation.DirectiveRow => ("Drill Directive: " + ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective),
+        ArmyProgressionRuntime.DirectivesEnabled ? "Active for next drill" : "EnableDrillDirectives = false",
+        ArmyProgressionRules.DirectiveDescription(ArmyProgressionRuntime.ActiveDirective),
+        $"XP x{ArmyProgressionRules.DirectiveXpMultiplier(ArmyProgressionRuntime.ActiveDirective):0.00}   ·   Potch x{ArmyProgressionRules.DirectivePotchMultiplier(ArmyProgressionRuntime.ActiveDirective):0.00}",
+        "Confirm cycles: Standard -> Iron Wall -> No Field Medicine -> Forced March.",
+        ArmyProgressionRuntime.DirectivesEnabled ? "Cycle Directive" : "Disabled"),
+    _ => ("Tactician's Codex", "Dunan War & Guild Overview",
+        "View Army Progression records, Cross-Theater Synergy morale charges, Hunt stats, and active Star Bonds.",
+        "Read-only campaign telemetry.", "No campaign flags or saves are modified.", "Open Codex")
+   };
+   return GuildRebornScreen.Paginate(new("ARMY TRAINING", trainingAllRows, focus, mTitle, mArea, mDesc, mReward, mCond, status, mConfirm, back, preview));
+  }
+
   var drill = (TrainingWar.Drill)(page == GuildPage.Difficulty ? drillIndex : focus);
   string unavailable = preview ? "" : TrainingWar.Unavailable(drill);
   bool veteranAllowed = preview || TrainingWar.VeteranAvailable(drill);
@@ -272,20 +366,28 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   };
   var trainingRows = page == GuildPage.Training ? Drills.Select((row,i) =>
       new GuildMenuRow(row.Title, preview || TrainingWar.Unavailable((TrainingWar.Drill)i).Length == 0 ?
-          row.Note : "Unavailable")).ToArray() :
+          row.Note : "Unavailable"))
+      .Concat(new[]
+      {
+       new GuildMenuRow("Commander Roster", ArmyProgressionRuntime.Enabled ? $"{ArmyProgressionRuntime.Current.Commanders.Count} tracked" : "Progression OFF"),
+       new GuildMenuRow("Drill Directive", ArmyProgressionRuntime.DirectivesEnabled ? ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective) : "Directives OFF"),
+       new GuildMenuRow("Tactician's Codex", "Campaign & synergy summary")
+      }).ToArray() :
       new[] { new GuildMenuRow("Standard", "Current scenario rules"),
           new GuildMenuRow("Veteran", veteranAllowed ? "Coordinated enemy tactics" : "Unavailable") };
+  string directiveNote = ArmyProgressionRuntime.DirectivesEnabled && ArmyProgressionRuntime.ActiveDirective != DrillDirective.None
+      ? $"  ·  Directive: {ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective)}" : "";
   string reward = Plugin.Options.EnableTrainingRewards.Value ?
       (page == GuildPage.Training && veteranAllowed ?
-          $"{TrainingResultRules.Potch(false):N0} Standard  /  {TrainingResultRules.Potch(true):N0} Veteran Potch" :
-          TrainingResultRules.Potch(veteran).ToString("N0") + " Potch") : "Training rewards disabled";
+          $"{TrainingResultRules.Potch(false):N0} Standard  /  {TrainingResultRules.Potch(true):N0} Veteran Potch{directiveNote}" :
+          TrainingResultRules.Potch(veteran).ToString("N0") + " Potch" + directiveNote) : "Training rewards disabled";
   string condition = unavailable.Length != 0 ? unavailable : veteran && !veteranAllowed ?
       "Veteran requires the native tactics options and a verified battlefield." :
       "Rewards require routing the opposing commander. Timed endings and defeat pay no Potch.";
-  return new(page == GuildPage.Training ? "ARMY TRAINING" : "CHOOSE DIFFICULTY", trainingRows, focus,
+  return GuildRebornScreen.Paginate(new(page == GuildPage.Training ? "ARMY TRAINING" : "CHOOSE DIFFICULTY", trainingRows, focus,
       Drills[(int)drill].Title, Drills[(int)drill].Note, description, reward, condition, status,
       unavailable.Length != 0 || veteran && !veteranAllowed ? "Unavailable" :
-          page == GuildPage.Training ? "Choose difficulty" : "Start drill", back, preview);
+          page == GuildPage.Training ? "Choose difficulty" : "Start drill", back, preview));
  }
 
  [Il2CppInterop.Runtime.Attributes.HideFromIl2Cpp]

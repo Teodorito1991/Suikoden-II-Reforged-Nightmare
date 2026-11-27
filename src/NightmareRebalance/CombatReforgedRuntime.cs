@@ -105,20 +105,23 @@ internal static class CombatReforgedRuntime
             var team=Config.EnableTeamwork&&!c.Plan.Boss&&c.Attacker.Pointer==u.Pointer?TeamworkRuntime.Bound(w):null;
             int magic=u.calc_para is { Length: > 1 } p?p[1]:0;
             bool escort=team!=null&&TeamworkRuntime.LivingCaster(w,team,u);
+            var allies=Targets(w,false);
+            bool anyAllyLow=allies.Any(t=>t.Hp*3<=t.MaxHp);
+            bool ordinary=!c.Plan.Boss&&!(HuntRuntime.Active!=null&&HuntRuntime.Work==w.Pointer);
             CombatAction bestAction=default;
-            foreach(int i in Enumerable.Range(0,4).OrderBy(i=>i==original?0:1))
+            for(int step=0;step<4;step++)
             {
+                int i=step==0?original:(step<=original?step-1:step);
                 var a=attacks[i];if(a==null||a.attack_prob==0||a is {attack:0,status:0}||a.attack_type is not(1 or 2 or 5)||!u.CheckMonsterAttackCnt(i)||!u.AttackModeKyoriCheck(i)||(w.b_magic_status.water_silent_cnt>0&&(a.attack_zokusei&0x20)!=0))continue;
                 if((a.attack_zokusei&0x10)==0?!u.MagicCanCheck():!u.AttackCanCheck())continue;
-                var enemies=Targets(w,true,a.status);var allies=Targets(w,false);
+                var enemies=Targets(w,true,a.status);
                 bool multi=(a.attack_seishitsu&0xf00) is 0x200 or 0x400 or 0x800;
                 var option=new CombatAction(i,a.attack_type,a.attack,(a.attack_zokusei&0x10)!=0,multi,a.status,a.attack_prob,w.pm_attack_data[u.chara_no].curent_use_cnt[i],true);
-                bool ordinary=!c.Plan.Boss&&!(HuntRuntime.Active!=null&&HuntRuntime.Work==w.Pointer);
-                int score=CombatReforgedRules.ActionScore(c.Plan.Behavior,option,enemies,allies,u.calc_para is {Length:>1}?u.calc_para[1]:0,Previous.GetValueOrDefault(u.Pointer,-1),Config.RepeatPenalty,Config.HealingThreshold,ordinary:ordinary);
+                int score=CombatReforgedRules.ActionScore(c.Plan.Behavior,option,enemies,allies,magic,Previous.GetValueOrDefault(u.Pointer,-1),Config.RepeatPenalty,Config.HealingThreshold,ordinary:ordinary);
                 int baseScore=score;
                 if(score!=int.MinValue&&team!=null)
                     score+=TacticalTeamwork.ActionBonus(team.Style,option,enemies,magic,escort,
-                        allies.Any(t=>t.Hp*3<=t.MaxHp),multi&&team.AreaReserved(u.chara_no,a.status));
+                        anyAllyLow,multi&&team.AreaReserved(u.chara_no,a.status));
                 if(score!=int.MinValue){if(ordinary&&Config.EnablePacing&&PM_DATA.status_henkan_table is {Length:>10} masks&&masks[10]==b_game_h.STATUS_SLEEP)
                     score-=CombatReforgedRules.OrdinarySleepPenalty(option,enemies);
                 if(HallFirstContact.NightmareId(w,u) is {} echoId)score=HallNightmareRules.Score(echoId,w.battle_kaisuu,option,enemies);
@@ -143,13 +146,24 @@ internal static class CombatReforgedRuntime
         bool legacy=c==null&&Plugin.Options.EnableEnemyTargeting.Value&&Combat.Matches(w)&&w!.pm_data is {} units&&attacker>=0&&attacker<units.Length&&units[attacker] is {} enemy&&TargetingRuntime.Raiders.Contains(enemy.monster_data?.id??"");
         if(c==null&&!legacy)return;
         var saved=UnityEngine.Random.state;var choices=new HashSet<int>{result};
+        int maxLegalPlayers=0;
+        if(w?.pm_data is {} pmUnits)
+            for(int p=0;p<pmUnits.Length;p++)
+                if(pmUnits[p] is {IsPlayer:true,hp:>0,IsDead:false} pu && pu.MokuhyoCanCheck())maxLegalPlayers++;
         try
         {
             // These audited native routines only read combat state, allocate scratch
             // buffers and draw RNG. Native callers retain their complete target
             // legality filters. Restore RNG after discovery, including exceptions.
             Sampling=true;
-            for(int i=0;i<128;i++){int choice=party.MonsterFindKojinMokuhyo(attacker);if(choice>=0)choices.Add(choice);}
+            int stale=0;
+            for(int i=0;i<128;i++)
+            {
+                if(maxLegalPlayers>0&&choices.Count>=maxLegalPlayers)break;
+                int choice=party.MonsterFindKojinMokuhyo(attacker);
+                if(choice>=0&&choices.Add(choice))stale=0;
+                else if(++stale>=24)break;
+            }
         }
         catch(Exception e){if(c!=null)Faulted.Add(c.Attacker.Pointer);Plugin.Logger.LogWarning("Native target discovery disabled for this enemy: "+e.Message);return;}
         finally{Sampling=false;UnityEngine.Random.state=saved;}

@@ -28,8 +28,11 @@ internal static class TrainingWar
         internal readonly int FadeFrame = Time.frameCount;
         internal readonly IntPtr PartyOwner = game.party_data.Pointer;
         internal readonly bool Veteran = veteran;
+        internal readonly DrillDirective Directive = ArmyProgressionRuntime.DirectivesEnabled ? ArmyProgressionRuntime.ActiveDirective : DrillDirective.None;
         internal WarChapter? War;
         internal int NativeResult, Ending, GameOver;
+        internal long TurnCount;
+        internal List<CommanderParticipation> Participants = new();
         internal bool CommanderRouted, AlliesRemain, FortVictory;
         internal readonly Drill SelectedDrill = drill;
         internal readonly byte WarNumber = drill switch { Drill.FortDefense => 2, Drill.War3 => 3, _ => 1 };
@@ -358,19 +361,29 @@ internal static class TrainingWar
         int reward = TrainingResultRules.VictoryPotch(session.WarNumber, session.Veteran,
             session.NativeResult, session.Ending, session.GameOver, session.CommanderRouted,
             session.AlliesRemain, session.FortVictory);
+        if (reward > 0 && ArmyProgressionRuntime.DirectivesEnabled)
+            reward = ArmyProgressionRules.AdjustedPotch(reward, session.Directive, session.TurnCount);
         uint before = session.Game.party_data.gold;
         if (reward > 0 && Plugin.Options.EnableTrainingRewards.Value)
             G2_SYS.G2_party_gold(1, reward);
         long credited = (long)session.Game.party_data.gold - before;
 
+        XpAwardSummary xpSummary = default;
+        if (reward > 0)
+            xpSummary = ArmyProgressionRuntime.RecordTrainingVictory(session.Participants, session.Veteran, session.Directive, session.TurnCount);
+
+        string xpNote = xpSummary.CommandersUpdated > 0
+            ? $" Commanders +{xpSummary.LeaderXp} XP" + (xpSummary.RanksGained > 0 ? $" ({xpSummary.RanksGained} promoted!)" : "") + "."
+            : "";
+
         string message = session.NativeResult == 2 || session.GameOver != 0
             ? "Training defeat. Your troops have returned to the castle."
             : reward == 0 ? "Drill complete. Route the enemy commander to earn Potch."
-            : credited > 0 ? $"Training victory. You earned {credited:N0} Potch."
-            : Plugin.Options.EnableTrainingRewards.Value ? "Training victory. Your purse is full."
-            : "Training victory.";
+            : credited > 0 ? $"Training victory. You earned {credited:N0} Potch.{xpNote}"
+            : Plugin.Options.EnableTrainingRewards.Value ? $"Training victory. Your purse is full.{xpNote}"
+            : $"Training victory.{xpNote}";
         CastleGuildRuntime.TrainingFeedback(message);
-        Plugin.Logger.LogInfo($"Training War {session.WarNumber} receipt: ending={session.Ending}, gameOver={session.GameOver}, commanderRouted={session.CommanderRouted}, alliesRemain={session.AlliesRemain}, fortVictory={session.FortVictory}, earned={reward}, credited={credited}.");
+        Plugin.Logger.LogInfo($"Training War {session.WarNumber} receipt: ending={session.Ending}, gameOver={session.GameOver}, commanderRouted={session.CommanderRouted}, alliesRemain={session.AlliesRemain}, fortVictory={session.FortVictory}, directive={session.Directive}, turns={session.TurnCount}, earned={reward}, credited={credited}, xpUpdated={xpSummary.CommandersUpdated}.");
     }
 
     // Read the original outcome at the decision point, before ending scripts can clear the roster.
@@ -391,6 +404,9 @@ internal static class TrainingWar
             session.FortVictory = War2Runtime.Outcome == War2Outcome.TacticalVictory;
             session.Ending = war_sys.end_event_no;
             session.GameOver = war_sys.game_over_flag;
+            session.TurnCount = war_sys.turn;
+            if (ArmyProgressionRuntime.Enabled || ArmyProgressionRuntime.SynergyEnabled)
+                session.Participants = ArmyProgressionRuntime.CaptureAlliedParticipants();
         }
     }
 

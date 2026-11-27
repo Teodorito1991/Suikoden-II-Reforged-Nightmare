@@ -508,6 +508,7 @@ internal static class HallFirstContact
         if(HallLucaSession.IsStage(t.Definition.Id))t.StageHandoff|=HallLucaSession.Outcome(work,win);
         t.Win |= win;
         t.Loss |= !win&&!t.StageHandoff;
+        if (win && t.Nightmare && !t.StageHandoff) ArmyProgressionRuntime.RecordHallNightmareVictory(work);
         Plugin.Logger.LogInfo($"HallFirstContact: original terminal handler; win={win}.");
     }
 

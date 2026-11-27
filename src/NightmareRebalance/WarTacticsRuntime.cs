@@ -111,9 +111,10 @@ internal static class WarTacticsRuntime
         }
         var evidence=new CandidateEvidence(c.Pointer.ToInt64(),c.act,c.tx,c.ty,c.target,before,after);
         if(scope.TacticalCandidates.Count<2048)scope.TacticalCandidates.Add(evidence);else scope.Overflow=true;
-        int existing=scope.Candidates.FindIndex(e=>e.Pointer==evidence.Pointer);
         var native=evidence with{Before=originalNative};
-        if(existing>=0)scope.Candidates[existing]=native;else if(scope.Candidates.Count<2048)scope.Candidates.Add(native);else scope.Overflow=true;
+        if(scope.CandidateIndex.TryGetValue(evidence.Pointer,out int existing))scope.Candidates[existing]=native;
+        else if(scope.Candidates.Count<2048){scope.CandidateIndex[evidence.Pointer]=scope.Candidates.Count;scope.Candidates.Add(native);}
+        else scope.Overflow=true;
         if(after!=before&&!Probe)
         {ScoreChanges++;if(ScoreTrace.Count<16)ScoreTrace.Add(new{Turn=war_sys.turn,Unit=slot,Action=c.act,X=c.tx,Y=c.ty,Before=before,After=after,Threat=facts.Threat,Support=facts.CoveredSupport,Focus=facts.Focus,NativePathFrom=from,NativePathTo=to});}
         return after;

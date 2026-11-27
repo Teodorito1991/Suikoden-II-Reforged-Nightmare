@@ -2,14 +2,15 @@ using Il2CppInterop.Runtime.InteropTypes.Arrays;
 namespace NightmareRebalance;
 internal sealed class NativeTacticsBoard
 {
+    static readonly (int dx,int dy)[] Directions={(1,0),(-1,0),(0,1),(0,-1)};
     internal readonly int[] Threat=new int[192],Immediate=new int[192],GoalCosts=new int[192];
     internal readonly List<TacticalUnit> Friends=new(),Enemies=new();
     internal TacticalUnit Actor;
     internal int GoalX,GoalY;
     internal static bool Cell(int x,int y)=>x is >=0 and <16&&y is >=0 and <12;
-    internal static byte[] Reach(int side,int slot)
+    internal static byte[] Reach(int side,int slot,Il2CppStructArray<byte>? scratch=null)
     {
-        var u=w_unit.unit[side][slot];var mask=new Il2CppStructArray<byte>(192);
+        var u=w_unit.unit[side][slot];var mask=scratch??new Il2CppStructArray<byte>(192);
         w_hyoka.InitMovePossibility(mask);
         int move=w_unit.GetUnitMove(side,slot);if(move is <0 or >12)return new byte[192];
         w_hyoka.AssessMovePossibility(u.x,u.y,move,mask,side,slot);
@@ -17,7 +18,7 @@ internal sealed class NativeTacticsBoard
     }
     internal static int[] Costs(int side,int slot,int gx,int gy,int range,bool occupancy)
     {
-        var distance=Enumerable.Repeat(10000,192).ToArray();var done=new bool[192];
+        var distance=new int[192];Array.Fill(distance,10000);var done=new bool[192];
         for(int y=0;y<12;y++)for(int x=0;x<16;x++)
             if(w_data.CheckFieldOnStage(x,y)!=0&&TotalWarRules.Distance(x,y,gx,gy)<=range&&(!occupancy||w_unit.GetUnitNumber(x,y,side^1)==-1))distance[y*16+x]=0;
         for(int step=0;step<192;step++)
@@ -25,8 +26,9 @@ internal sealed class NativeTacticsBoard
             int at=-1;for(int i=0;i<192;i++)if(!done[i]&&(at<0||distance[i]<distance[at]))at=i;
             if(at<0||distance[at]>=10000)break;done[at]=true;
             int x=at%16,y=at/16;
-            foreach(var (dx,dy) in new[]{(1,0),(-1,0),(0,1),(0,-1)})
+            for(int d=0;d<Directions.Length;d++)
             {
+                var (dx,dy)=Directions[d];
                 int nx=x+dx,ny=y+dy;if(!Cell(nx,ny)||w_data.CheckFieldOnStage(nx,ny)==0||(occupancy&&w_unit.GetUnitNumber(nx,ny,side^1)!=-1))continue;
                 int cost=w_data.GetMoveCost(nx,ny,x,y,side,slot);
                 if(cost is <1 or >=255)continue;
@@ -48,18 +50,21 @@ internal sealed class NativeTacticsBoard
         int war=war_h.g_w_war_no;var goal=b.Enemies.OrderBy(u=>u.Slot).FirstOrDefault();
         (b.GoalX,b.GoalY)=war==2?(4,7):war==6?(3,2):war==13?(5,8):(goal.X,goal.Y);
         var costs=Costs(1,slot,b.GoalX,b.GoalY,1,true);Array.Copy(costs,b.GoalCosts,192);
+        var moveScratch=new Il2CppStructArray<byte>(192);
+        var attackScratch=new Il2CppStructArray<byte>(192);
+        var currentScratch=new Il2CppStructArray<byte>(192);
         foreach(var hostile in b.Enemies)
         {
             int range=hostile.Range;if(range is <1 or >8)continue;
-            byte[] moves=Reach(0,hostile.Slot);
-            var attack=new Il2CppStructArray<byte>(192);var current=new Il2CppStructArray<byte>(192);
-            w_hyoka.AssessAttackPossibility(hostile.X,hostile.Y,range,current,0);
+            byte[] moves=Reach(0,hostile.Slot,moveScratch);
+            for(int at=0;at<192;at++){attackScratch[at]=0;currentScratch[at]=0;}
+            w_hyoka.AssessAttackPossibility(hostile.X,hostile.Y,range,currentScratch,0);
             for(int at=0;at<192;at++)
             {
                 if(moves[at]!=1||w_unit.GetUnitNumber(at%16,at/16,0) is int occupied&&occupied!=-1&&occupied!=hostile.Slot)continue;
-                w_hyoka.AssessAttackPossibility(at%16,at/16,range,attack,0);
+                w_hyoka.AssessAttackPossibility(at%16,at/16,range,attackScratch,0);
             }
-            for(int at=0;at<192;at++){if(attack[at]==1)b.Threat[at]++;if(current[at]==1)b.Immediate[at]++;}
+            for(int at=0;at<192;at++){if(attackScratch[at]==1)b.Threat[at]++;if(currentScratch[at]==1)b.Immediate[at]++;}
         }
         return b;
     }

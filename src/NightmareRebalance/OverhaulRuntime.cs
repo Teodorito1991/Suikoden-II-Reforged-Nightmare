@@ -44,8 +44,8 @@ internal static class WarRuntime
     static readonly HashSet<int> unsafeAbilities=new();
     internal static bool Active=>session.Active;
     internal static int Generation=>session.Generation;
-    internal static void Arm(){if(!TrainingWar.Active)session.Arm();unsafeAbilities.Clear();}
-    internal static void Begin(){unsafeAbilities.Clear();session.Begin(!TrainingWar.Active&&Plugin.Options.EnableWarUnitProfiles.Value&&Plugin.CheckCompatibility(),war_h.g_w_war_no);}
+    internal static void Arm(){if(!TrainingWar.Active||ArmyProgressionRuntime.Enabled||ArmyProgressionRuntime.DirectivesEnabled)session.Arm();unsafeAbilities.Clear();}
+    internal static void Begin(){unsafeAbilities.Clear();bool allowTraining=TrainingWar.Active&&(ArmyProgressionRuntime.Enabled||ArmyProgressionRuntime.DirectivesEnabled);session.Begin(((!TrainingWar.Active&&Plugin.Options.EnableWarUnitProfiles.Value)||allowTraining)&&Plugin.CheckCompatibility(),war_h.g_w_war_no);}
     internal static void Clear(){session.Clear();unsafeAbilities.Clear();}
     static string Branch(byte type)=>type==war_data_h.INFANTRY?"Infantry":type==war_data_h.ARCHER?"Archer":type==war_data_h.MAGICIANS?"Magicians":"Unknown";
     static bool Usable(int id)
@@ -60,7 +60,9 @@ internal static class WarRuntime
         if(!Active||original==null)return original!;
         if(session.TryGet(original.Pointer.ToInt64(),out var cached))return cached!;
         if(session.Count>=512)return original;
-        var profile=TotalWarRuntime.Specialize(original)??OverhaulRules.Select(OverhaulRuntime.Commanders,original.name,Branch(original.force_type));
+        bool isEnemy=TotalWarRuntime.IsEnemyPointer(original);
+        CommanderProfile? profile=TrainingWar.Active?null:(TotalWarRuntime.Specialize(original)??OverhaulRules.Select(OverhaulRuntime.Commanders,original.name,Branch(original.force_type)));
+        profile=ArmyProgressionRuntime.Enhance(original,profile,isEnemy);
         if(profile==null)return original;
         var ids=profile.Abilities.Select(a=>Array.IndexOf(OverhaulRules.Abilities,a)).ToArray();
         if(ids.Any(id=>!Usable(id)))

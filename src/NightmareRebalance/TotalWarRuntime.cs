@@ -97,18 +97,29 @@ internal static class TotalWarRuntime
         if(Ending!=null)return;Ending=war_sys.end_event_no;Result=reason;Transition="Ending selected; playback pending";
         if(!Probe)Plugin.Logger.LogInfo($"Total War {ActiveWar} OUTCOME: {reason}; turn={war_sys.turn}; native ending={Ending}; original interpreter/campaign callbacks retained.");
     }
+    static int cachedEnemyWar = -1;
+    static readonly HashSet<IntPtr> cachedEnemyPointers = new();
+    internal static bool IsEnemyPointer(WAR_CHARA_TYPE original)
+    {
+        int war=war_h.g_w_war_no;
+        if(war<=0)return false;
+        if(cachedEnemyWar!=war)
+        {
+            cachedEnemyPointers.Clear();
+            var chars=Characters(war);if(chars==null)return false;
+            var type=typeof(w_dat_2).Assembly.GetType("w_dat_"+war);
+            var prop=type?.GetProperty("unit_init_data_"+war);
+            if(prop?.GetValue(null) is not Il2CppReferenceArray<Il2CppReferenceArray<Il2CppStructArray<sbyte>>> rows || rows.Length<2)return false;
+            foreach(var u in rows[1])for(int i=3;i<6;i++)if(u[i]>=0&&u[i]<chars.Length&&chars[u[i]] is {} ch)cachedEnemyPointers.Add(ch.Pointer);
+            cachedEnemyWar=war;
+        }
+        return cachedEnemyPointers.Contains(original.Pointer);
+    }
     internal static CommanderProfile? Specialize(WAR_CHARA_TYPE original)
     {
         int war=war_h.g_w_war_no;
         if(!Armed||!Plugin.Options.EnableWarSpecializations.Value||!(Verified.Contains(war)||(war==2&&War2Runtime.DefinitionsVerified)))return null;
-        var chars=Characters(war);if(chars==null)return null;
-        // Source pointer must belong to an audited enemy roster member. Never rebalance
-        // an allied copy of Kiba or a saved normal character that shares a name.
-        var type=typeof(w_dat_2).Assembly.GetType("w_dat_"+war)!;
-        var rows=(Il2CppReferenceArray<Il2CppReferenceArray<Il2CppStructArray<sbyte>>>)type.GetProperty("unit_init_data_"+war)!.GetValue(null)!;
-        bool enemy=false;
-        foreach(var u in rows[1])for(int i=3;i<6;i++)if(u[i]>=0&&u[i]<chars.Length&&chars[u[i]]?.Pointer==original.Pointer)enemy=true;
-        if(!enemy)return null;
+        if(!IsEnemyPointer(original))return null;
         string branch=original.force_type==0?"Infantry":original.force_type==1?"Archer":original.force_type==2?"Magicians":"Unknown";
         return OverhaulRules.Select(Specializations,original.name,branch);
     }

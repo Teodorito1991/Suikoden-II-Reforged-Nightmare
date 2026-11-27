@@ -1,5 +1,36 @@
 # Development history
 
+## Unreleased (v1.56 development) — Army Progression, Drill Directives, Synergy & Optimizations
+
+- Added opt-in **Permanent Army Progression** (`EnableArmyProgression = false`):
+  commanders earn persistent XP from qualifying Army Training victories and
+  advance through five military ranks (Recruit → Marshal) with selectable
+  **Vanguard / Bulwark / Tactician** Doctrines using safe, delegate-verified
+  native `SP_*` abilities on disposable `WAR_CHARA_TYPE` clones.
+- Solved save-branching safely via a **content-addressed save-bound sidecar
+  ledger** (`BepInEx/NightmareRebalance/army-ledger.json`) keyed by the SHA256
+  fingerprint of native campaign records on `SystemSave.Save` /
+  `GSD2SaveData.LoadDataCore`. Native `gsd2/DataXX` saves remain 100% vanilla.
+- Added opt-in **Drill Directives** (`EnableDrillDirectives = false`): `Iron Wall`,
+  `No Field Medicine`, and `Forced March` (6-turn cap) with bonus XP and Potch.
+- Added opt-in **Cross-Theater Synergy** (`EnableCrossTheaterSynergy = false`):
+  Veteran drills arm `+1` morale rune charge for the next ordinary RPG victory,
+  and Hall of Echoes Nightmare clears award `+35 War XP` to party commanders.
+- Added **Commander Roster**, **Drill Directive**, and **Tactician's Codex**
+  entries inside the Castle Guild's Army Training menu while preserving all
+  existing top-level Services indices and Guild navigation tests.
+- Applied hot-path optimizations: streaming startup SHA256 verification, cached
+  Harmony compatibility targets (removing per-frame reflection in
+  `CastleGuildRuntime`), early-exit target discovery and hoisted ally scans in
+  `CombatReforgedRuntime`, pooled IL2CPP scratch buffers in `NativeTacticsBoard`,
+  cached enemy commander pointers in `TotalWarRuntime`, and `O(1)` candidate
+  indexing in `WarTacticsRuntime`.
+- Verified with a clean `Release` plugin build (`0 warnings, 0 errors`), the full
+  managed regression suite plus 39 new `ArmyProgressionTests`, profile tests, and
+  publication audit. Live in-game playtest acceptance is pending; the owner's
+  installed `v1.55` Steam DLL and 14 saves remain untouched. See
+  [docs/ARMY-PROGRESSION-OPTIMIZATIONS-V156.md](docs/ARMY-PROGRESSION-OPTIMIZATIONS-V156.md).
+
 ## v1.55 final installation — full gameplay playtest, no rebuild
 
 - Installed the exact accepted C5BE2F48…7055E DLL into the supported Steam game

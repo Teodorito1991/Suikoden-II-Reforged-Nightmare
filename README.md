@@ -1,5 +1,13 @@
 # Suikoden II: Reforged Nightmare
 
+**Latest source development (uninstalled): v1.56 — Army Progression, Drill Directives, Cross-Theater Synergy & Optimizations.**
+Adds opt-in persistent commander XP, military ranks (Recruit → Marshal),
+Vanguard/Bulwark/Tactician Doctrines backed by a content-addressed save-bound
+sidecar ledger (zero native save edits), tactical Drill Directives, RPG ↔ War
+Cross-Theater Synergy, Castle Guild Roster/Codex views, and hot-path combat/war/
+guild optimizations. Compiled and managed-tested; live gameplay acceptance is
+pending. [Design, configuration and verification limits](docs/ARMY-PROGRESSION-OPTIMIZATIONS-V156.md).
+
 **Installed for the owner's full gameplay playtest: exact v1.55.** Full Content
 plus selectable Nightmare/growth rewards and the explicitly unverified training
 defeat-return opt-in are applied. Spoiler Mode starts OFF; its normal warning and

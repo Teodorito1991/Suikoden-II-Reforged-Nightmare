@@ -181,13 +181,14 @@ internal static class Combat
             return;
         }
         MaintenanceRuntime.Charges("BeforeRegeneration",manager.battle_work);
+        int chargeBudget = Plugin.Options.RuneChargesPerVictory.Value + (ArmyProgressionRuntime.ConsumeMoraleBonus() ? 1 : 0);
         Span<byte> values = stackalloc byte[4];
         foreach (var data in State.Eligible)
         {
             var mp = data.mp;
             if (mp == null || mp.Length != 4) continue;
             for (int i = 0; i < 4; i++) values[i] = mp[i];
-            int restored = Rules.Recover(values, Plugin.Options.RuneChargesPerVictory.Value, Plugin.Options.RuneRecoveryPriority.Value, Plugin.Options.RuneRecoveryMaxLevel.Value);
+            int restored = Rules.Recover(values, chargeBudget, Plugin.Options.RuneRecoveryPriority.Value, Plugin.Options.RuneRecoveryMaxLevel.Value);
             if (restored == 0) continue;
             CombatReforgedDiagnostics.RuneRestored+=restored;
             CombatRealityRuntime.Event("RuneRegeneration","Applied","victory",new{Restored=restored,Priority=Plugin.Options.RuneRecoveryPriority.Value.ToString(),MaximumLevel=Plugin.Options.RuneRecoveryMaxLevel.Value});

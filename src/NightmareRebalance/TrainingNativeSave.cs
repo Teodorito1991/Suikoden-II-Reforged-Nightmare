@@ -15,6 +15,12 @@ internal static class TrainingNativeSave
         catch (Exception error) { Plugin.Logger.LogWarning("Refused save callback failed: " + error.GetType().Name); }
         return false;
     }
+
+    static void Postfix(string path, bool __result)
+    {
+        if (__result && !TrainingWar.Active && !HallLucaSession.Active)
+            ArmyProgressionRuntime.ObserveCampaignSave(path);
+    }
 }
 [HarmonyPatch(typeof(UISaveLoad2), nameof(UISaveLoad2.Save))]
 internal static class TrainingSaveIntent
@@ -36,4 +42,10 @@ internal static class TrainingSaveFailure
 }
 [HarmonyPatch(typeof(GSD2SaveData), nameof(GSD2SaveData.LoadDataCore))]
 internal static class TrainingLoaded
-{ static void Postfix() => TrainingWar.NativeLoadCompleted(); }
+{
+    static void Postfix()
+    {
+        TrainingWar.NativeLoadCompleted();
+        ArmyProgressionRuntime.ObserveCampaignLoad();
+    }
+}

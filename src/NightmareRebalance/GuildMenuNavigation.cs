@@ -1,7 +1,7 @@
 namespace NightmareRebalance;
 
-internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy, Echoes, EchoDifficulty, SpoilerWarning, LucaParties }
-internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave, StartEcho, SetSpoilers, RestoreStory, ChooseLuca }
+internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy, Echoes, EchoDifficulty, SpoilerWarning, LucaParties, ArmyRoster, Codex }
+internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave, StartEcho, SetSpoilers, RestoreStory, ChooseLuca, CycleDoctrine, CycleDirective }
 
 internal static class GuildApproach
 {
@@ -33,12 +33,20 @@ internal sealed class GuildMenuNavigation
     internal int EchoCount { get; set; } = 1;
     internal int SpoilerRow {get;set;}=-1;
 
+    internal const int TrainingDrillCount = 4;
+    internal const int RosterRow = 4;
+    internal const int DirectiveRow = 5;
+    internal const int CodexRow = 6;
+    internal int ArmyRosterCount { get; set; } = 1;
+
     internal int LucaChoiceCount;
     internal void BeginLuca(int count){LucaChoiceCount=count;Enter(GuildPage.LucaParties,0);}
     internal int RowCount => Page switch
     {
         GuildPage.Services => Services.Length + 1,
-        GuildPage.Training => 4,
+        GuildPage.Training => 7,
+        GuildPage.ArmyRoster => Math.Max(1, ArmyRosterCount),
+        GuildPage.Codex => 4,
         GuildPage.Strategy => StarBondRules.Catalogue.Length,
         GuildPage.Hunts => HuntCount,
         GuildPage.LucaParties=>LucaChoiceCount,
@@ -77,6 +85,8 @@ internal sealed class GuildMenuNavigation
             case GuildPage.EchoDifficulty: Enter(GuildPage.Echoes, Echo); break;
             case GuildPage.SpoilerWarning: Enter(GuildPage.Echoes, EchoCount-1); break;
             case GuildPage.Difficulty: Enter(GuildPage.Training, Drill); break;
+            case GuildPage.ArmyRoster: Enter(GuildPage.Training, RosterRow); break;
+            case GuildPage.Codex: Enter(GuildPage.Training, CodexRow); break;
             case GuildPage.Hunts: Enter(GuildPage.Services, 0); break;
             case GuildPage.Training: Enter(GuildPage.Services, 1); break;
             case GuildPage.Status: Enter(GuildPage.Services, 2); break;
@@ -102,9 +112,22 @@ internal sealed class GuildMenuNavigation
                 Enter(Services[Focus], 0);
                 return GuildChoice.None;
             case GuildPage.Hunts when HuntCount>0: return GuildChoice.Accept;
-            case GuildPage.Training when drillAvailable:
+            case GuildPage.Training when Focus == RosterRow:
+                Enter(GuildPage.ArmyRoster, 0);
+                return GuildChoice.None;
+            case GuildPage.Training when Focus == DirectiveRow:
+                return GuildChoice.CycleDirective;
+            case GuildPage.Training when Focus == CodexRow:
+                Enter(GuildPage.Codex, 0);
+                return GuildChoice.None;
+            case GuildPage.Training when Focus < TrainingDrillCount && drillAvailable:
                 Drill = Focus;
                 Enter(GuildPage.Difficulty, 0);
+                return GuildChoice.None;
+            case GuildPage.ArmyRoster:
+                return GuildChoice.CycleDoctrine;
+            case GuildPage.Codex:
+                Back();
                 return GuildChoice.None;
             case GuildPage.Difficulty: return GuildChoice.Start;
             case GuildPage.Echoes when Focus==SpoilerRow:

@@ -49,7 +49,41 @@ internal static class CastleGuildRuntime
   }catch{UnityEngine.Object.Destroy(copy);throw;}
  }
  internal static bool InteractionDifficultySupported=>DifficultyProvenance.Difficulty(out _,out _);
- internal static bool Compatible=>new[]{AccessTools.Method(typeof(MACHICON),nameof(MACHICON.EventInit)),AccessTools.Method(typeof(EVENTCON),nameof(EVENTCON.EventMain)),AccessTools.Method(typeof(EVENTCON),nameof(EVENTCON.EventEnd))}.All(m=>Harmony.GetPatchInfo(m)?.Owners.All(o=>o==Plugin.Id)!=false);
+ static readonly System.Reflection.MethodBase?[] FieldHookTargets =
+ {
+  AccessTools.Method(typeof(MACHICON),nameof(MACHICON.EventInit)),
+  AccessTools.Method(typeof(EVENTCON),nameof(EVENTCON.EventMain)),
+  AccessTools.Method(typeof(EVENTCON),nameof(EVENTCON.EventEnd))
+ };
+ static readonly System.Reflection.MethodBase?[] HuntEntryTargets =
+ {
+  AccessTools.Method(typeof(EVENTCON),nameof(EVENTCON.EventBatlleCheck)),
+  AccessTools.Method(typeof(EVENTCON),nameof(EVENTCON.EventBatlleSet))
+ };
+ static bool CheckOwnedHooks(System.Reflection.MethodBase?[] targets)
+ {
+  for(int i=0;i<targets.Length;i++)
+  {
+   var info=Harmony.GetPatchInfo(targets[i]);
+   if(info==null)continue;
+   foreach(var owner in info.Owners)if(owner!=Plugin.Id)return false;
+  }
+  return true;
+ }
+ static bool? cachedCompatible;
+ static int compatibleCheckedFrame=-1;
+ internal static bool Compatible
+ {
+  get
+  {
+   int frame=Time.frameCount;
+   if(cachedCompatible.HasValue&&frame-compatibleCheckedFrame<60&&frame>=compatibleCheckedFrame)return cachedCompatible.Value;
+   compatibleCheckedFrame=frame;
+   bool result=CheckOwnedHooks(FieldHookTargets);
+   cachedCompatible=result;
+   return result;
+  }
+ }
  internal static void BeforeInit(MACHICON m)
  {
   ObserveQuestOwner(Framework.Singleton<GAME_WORK>.instance?.party_data?.Pointer??IntPtr.Zero);
@@ -105,6 +139,7 @@ internal static class CastleGuildRuntime
   Modal=true;
   Menu.EchoCount = HallTrialCatalogue.Entries.Length+1;
   Menu.SpoilerRow=HallTrialCatalogue.Entries.Length;
+  Menu.ArmyRosterCount = Math.Max(1, ArmyProgressionRuntime.RosterSnapshot().Length);
   Menu.Open(Quest.State==GuildQuestState.AwaitingReport,HuntRuntime.BrowseOrder.Length);
   HuntGuildRuntime.Visible=true;
   HuntGuildRuntime.LastRenderFrame=-1;
@@ -129,10 +164,11 @@ internal static class CastleGuildRuntime
    e.EventPlayerDisp(false);
    return false;
   }
-  string restriction=Menu.Page==GuildPage.Training?TrainingWar.Unavailable((TrainingWar.Drill)Menu.Focus):"";
+  string restriction=Menu.Page==GuildPage.Training&&Menu.Focus<GuildMenuNavigation.TrainingDrillCount?TrainingWar.Unavailable((TrainingWar.Drill)Menu.Focus):"";
   if(decide&&Menu.ConfirmReleased&&restriction.Length!=0)Status=restriction;
   if(decide&&Menu.ConfirmReleased&&Menu.Page==GuildPage.Echoes&&!HallAvailability.CanSelect(Menu.Focus))
    Status=HallAvailability.Reason(Menu.Focus);
+  Menu.ArmyRosterCount = Math.Max(1, ArmyProgressionRuntime.RosterSnapshot().Length);
   var choice=Menu.Confirm(decide,Held(GRInputManager.Type.Decide),Quest.State,restriction.Length==0
       ,HallFirstContact.Available && HallAvailability.CanSelect(Menu.Page==GuildPage.EchoDifficulty?Menu.Echo:Menu.Focus),
       HallNightmareRuntime.CanSelect(Menu.Echo)
@@ -144,6 +180,8 @@ internal static class CastleGuildRuntime
    GuildChoice.StartEcho => HallFirstContact.Request(Menu.Echo, Menu.Focus==1),
    GuildChoice.SetSpoilers => SetSpoilerPreference(),
    GuildChoice.ChooseLuca => HallLucaSession.Choose(Menu.Focus),
+   GuildChoice.CycleDoctrine => CycleCommanderDoctrine(Menu.Focus),
+   GuildChoice.CycleDirective => CycleDrillDirective(),
    GuildChoice.Report => ReportContract(),
    GuildChoice.Withdraw => WithdrawContract(),
    GuildChoice.Leave => true,
@@ -153,6 +191,23 @@ internal static class CastleGuildRuntime
   e.EventPlayerDisp(false);return false;
  }
  static bool SetSpoilerPreference(){if(HallSpoilerMode.Set(!Plugin.Options.UnlockAllBosses.Value))Menu.Back();return false;}
+ static bool CycleCommanderDoctrine(int index)
+ {
+  if(!ArmyProgressionRuntime.Enabled){Status="Enable EnableArmyProgression in settings to assign Doctrines.";return false;}
+  var roster=ArmyProgressionRuntime.RosterSnapshot();
+  if(index<0||index>=roster.Length){Status="Complete a qualifying Army Training drill to enlist commanders.";return false;}
+  var c=roster[index];
+  var next=ArmyProgressionRuntime.CycleDoctrine(c.NameId);
+  Status=$"{c.Name}: Doctrine set to {ArmyProgressionRules.DoctrineTitle(next)}. Save your game to persist.";
+  return false;
+ }
+ static bool CycleDrillDirective()
+ {
+  if(!ArmyProgressionRuntime.DirectivesEnabled){Status="Enable EnableDrillDirectives in settings to use tactical Directives.";return false;}
+  var next=ArmyProgressionRuntime.CycleDirective();
+  Status=$"Drill Directive set to {ArmyProgressionRules.DirectiveTitle(next)}.";
+  return false;
+ }
  internal static void Close(bool fence){if(HallLucaSession.Selecting)HallLucaSession.Cancel();if(Modal){Closes++;HuntGuildRuntime.Visible=false;HuntGuildRuntime.LastRenderFrame=-1;}Modal=false;ReleaseFence=fence;releaseFrames=0;}
  internal static void Detach(){Close(false);if(Owner!=null&&Copy!=null&&Owner.mdat?.Pointer==Copy.Pointer)Owner.mdat=Source;if(Copy!=null)UnityEngine.Object.Destroy(Copy);Owner=null;Source=null;Copy=null;Field=null;Clerk=null;Party=IntPtr.Zero;ObjectIndex=-1;}
  internal static string FeedbackText="";static long feedbackUntil;
@@ -187,7 +242,7 @@ internal static class CastleGuildRuntime
   if(had){Status=reason+". Contracts are session-only.";Notify(Status);Journal("SessionCleared");}
  }
  internal static void ObserveQuestOwner(IntPtr now){if(ContractParty!=IntPtr.Zero&&now!=IntPtr.Zero&&now!=ContractParty)ClearContract("A different party session was loaded");}
- internal static bool HuntEntryCompatible=>new[]{AccessTools.Method(typeof(EVENTCON),nameof(EVENTCON.EventBatlleCheck)),AccessTools.Method(typeof(EVENTCON),nameof(EVENTCON.EventBatlleSet))}.All(m=>Harmony.GetPatchInfo(m)?.Owners.All(o=>o==Plugin.Id)!=false);
+ internal static bool HuntEntryCompatible=>CheckOwnedHooks(HuntEntryTargets);
  internal static bool WalkingSceneMatches(EVENTCON e,BATTLE_DATA? table,HuntDefinition hunt)
  {
   if(table==null||e?.mcon is not {} m||m.econ?.Pointer!=e.Pointer||e.mdat is not {} field||

@@ -38,7 +38,7 @@ internal static class TotalWarAi
         }
         var c=new AiCandidate(candidate.act,candidate.tx,candidate.ty,candidate.target,targetDamage,chance,utility);
         int adjusted=TotalWarRules.Score(original,p,new(slot,actor.x,actor.y,actor.damage,branch),c,goal.x,goal.y,home.x,home.y,friends,enemies);
-        if(scope.Candidates.Count<2048)scope.Candidates.Add(new(candidate.Pointer.ToInt64(),candidate.act,candidate.tx,candidate.ty,candidate.target,baseline,adjusted));else scope.Overflow=true;
+        if(scope.Candidates.Count<2048){scope.CandidateIndex[candidate.Pointer.ToInt64()]=scope.Candidates.Count;scope.Candidates.Add(new(candidate.Pointer.ToInt64(),candidate.act,candidate.tx,candidate.ty,candidate.target,baseline,adjusted));}else scope.Overflow=true;
         if(adjusted!=original&&!TotalWarRuntime.Probe)
         {
             TotalWarRuntime.AiChanges++;
