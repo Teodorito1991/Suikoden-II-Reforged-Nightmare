@@ -377,6 +377,23 @@ internal static class ArmyProgressionTests
         Check(NightmareReworkRules.ComputeThornedReflect(100, 50) == 12 && NightmareReworkRules.ComputeThornedReflect(100, 10) == 9, "Thorned reflects 12% and never kills attacker");
         Check(NightmareReworkRules.ComputeVampiricHeal(100) == 35 && NightmareReworkRules.ComputeDefendHeal(200) == 20, "Vampiric 35% leech & Defend 10% heal");
 
-        Console.WriteLine($"PASS: Reforged 7.0 full suite {checks} checks.");
+        // 20. Reforged 7.5: Living Castle Hub & Multi-Page NPC Dialogue System
+        var kaelenScript = CastleDialogueScripts.Build(CastleNpcRole.TowerKeeper, ledger, towerPendingDraft: true, towerFloor: 3);
+        Check(kaelenScript.Speaker == "Tower Keeper Kaelen" && kaelenScript.Pages.Length == 2 && kaelenScript.Choices[0].ActionId == "open-tower", "Kaelen Tower Keeper reactive Relic Draft dialogue");
+        ledger.ActiveNemesis = new NemesisRecord { Name = "Highland Capt", Title = "the Unbroken", Tier = 2, Affix = ApexAffix.Frenzied };
+        var lyraScript = CastleDialogueScripts.Build(CastleNpcRole.FieldScout, ledger, false, 0);
+        Check(lyraScript.Speaker == "Field Scout Lyra" && lyraScript.Pages[0].Contains("Highland Capt the Unbroken"), "Lyra Field Scout reacts dynamically to active Nemesis");
+        var orinScript = CastleDialogueScripts.Build(CastleNpcRole.WarChronicler, ledger, false, 0);
+        Check(orinScript.Speaker == "War Chronicler Orin" && orinScript.Choices.Any(c => c.ActionId == "export-chronicle"), "Orin War Chronicler dialogue & chronicle export choice");
+        var dlg = new CastleDialogueSession();
+        dlg.Open(kaelenScript);
+        Check(dlg.Active && !dlg.AtChoices && dlg.PageIndex == 0, "Dialogue opens at page 0");
+        Check(dlg.StepConfirm(false, false) == null, "Releasing confirm unlocks dialogue advance");
+        Check(dlg.StepConfirm(true, true) == null && dlg.PageIndex == 1 && dlg.AtChoices, "Confirm advances to final page and reveals choices");
+        dlg.Move(false, true);
+        Check(dlg.ChoiceFocus == 1, "Down moves choice cursor");
+        Check(dlg.StepConfirm(false, false) == null && dlg.StepConfirm(true, true) == "lore-tower", "Confirm selects highlighted dialogue choice");
+
+        Console.WriteLine($"PASS: Reforged 7.5 full suite {checks} checks.");
     }
 }

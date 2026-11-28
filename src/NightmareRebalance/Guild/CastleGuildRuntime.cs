@@ -11,9 +11,10 @@ internal sealed class CastleSubmapAudit {public int Index{get;set;} public int M
 internal static class CastleGuildRuntime
 {
  internal static CastleGuildOptions Config=new();internal static CastleGuildAudit Audit=null!;
- internal static MACHICON? Owner;internal static MACHIDAT? Source,Copy;internal static EVENTCON? Field;internal static EVENT_HUMAN? Clerk,DrillSergeant,EchoArchivist,Quartermaster;
+ internal static MACHICON? Owner;internal static MACHIDAT? Source,Copy;internal static EVENTCON? Field;internal static EVENT_HUMAN? Clerk,DrillSergeant,EchoArchivist,Quartermaster,TowerKeeper,FieldScout,WarChronicler;
  internal static CastleNpcRole ActiveNpc=CastleNpcRole.GuildAttendant;
- internal static int SergeantIndex=-1,ArchivistIndex=-1,QuartermasterIndex=-1;
+ internal static int SergeantIndex=-1,ArchivistIndex=-1,QuartermasterIndex=-1,TowerKeeperIndex=-1,FieldScoutIndex=-1,WarChroniclerIndex=-1;
+ internal static readonly CastleDialogueSession Dialogue=new();
  internal static IntPtr Party;internal static int ObjectIndex=-1,Insertions,Opens,Accepts,Closes,AutoRequests;internal static bool Modal,ReleaseFence;internal static readonly GuildMenuNavigation Menu=new();static readonly MenuRepeatTimer repeatUp=new(),repeatDown=new();static int releaseFrames;static int inputFrame=-1;
  internal static string Status="Castle Guild not visited";internal static string ObservedMap="";internal static int ObservedVariant=-1,ObservedCtyp=-1,RoomInitCalls,EventInitCalls;internal static bool LastSourceMatched;
  internal static void ObserveMap(MACHICON m){if(!Config.Enabled||UnityEngine.Application.isBatchMode)return;ObservedMap=m.GetMapName();ObservedVariant=m.mno;ObservedCtyp=m.ctyp;RoomInitCalls++;}internal static GuildQuest Quest=new();internal static string? Contract=>Quest.ContractId;internal static IntPtr ContractParty;internal static string? RunningReceipt=>Quest.RunningReceipt;internal static long Completions=>Quest.Completions;
@@ -57,7 +58,7 @@ internal static class CastleGuildRuntime
  {
   if(!proven||!Audit.SupportedIndices.Contains(index))throw new InvalidOperationException("Unverified castle source/variant");
   var copy=UnityEngine.Object.Instantiate(source);copy.name=source.name;
-  SergeantIndex=-1;ArchivistIndex=-1;QuartermasterIndex=-1;
+  SergeantIndex=-1;ArchivistIndex=-1;QuartermasterIndex=-1;TowerKeeperIndex=-1;FieldScoutIndex=-1;WarChroniclerIndex=-1;
   bool expanded=Plugin.Options?.EnableExpandedCastleNpcs.Value==true;
   try{
    var events=new EVENTDAT();events.sce_msg=source.eventdata.sce_msg;events.mapeventdat=new Il2CppSystem.Collections.Generic.List<MAPEVDAT>();
@@ -66,7 +67,10 @@ internal static class CastleGuildRuntime
     bool addSergeant=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX-3,Audit.ObjectY);
     bool addArchivist=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX+3,Audit.ObjectY);
     bool addQuartermaster=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX-6,Audit.ObjectY);
-    int extra=(add?1:0)+(addSergeant?1:0)+(addArchivist?1:0)+(addQuartermaster?1:0);
+    bool addTowerKeeper=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX+6,Audit.ObjectY);
+    bool addFieldScout=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX-9,Audit.ObjectY);
+    bool addChronicler=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX+9,Audit.ObjectY);
+    int extra=(add?1:0)+(addSergeant?1:0)+(addArchivist?1:0)+(addQuartermaster?1:0)+(addTowerKeeper?1:0)+(addFieldScout?1:0)+(addChronicler?1:0);
     var map=new MAPEVDAT{mapno=old.mapno,batlno=old.batlno,batltim=old.batltim,batlpro=old.batlpro,mapst=old.mapst,okaz=checked((byte)(old.okaz+extra)),evkaz=old.evkaz,hkaz=old.hkaz};
     var objects=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_OBJ>(old.eventobj.Length+extra);
     for(int j=0;j<old.eventobj.Length;j++){var o=old.eventobj[j];objects[j]=new EVENT_OBJ{otyp=o.otyp,disp=o.disp,spd=o.spd,wt=o.wt,ano=o.ano,ityp=o.ityp,fpno=o.fpno,ozok=o.ozok,pri=o.pri,x=o.x,y=o.y,w=o.w,h=o.h};}
@@ -75,6 +79,9 @@ internal static class CastleGuildRuntime
     if(addSergeant){SergeantIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65059),ozok=0,pri=0,x=(short)(Audit.ObjectX-3),y=Audit.ObjectY,w=0,h=0};}
     if(addArchivist){ArchivistIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65086),ozok=0,pri=0,x=(short)(Audit.ObjectX+3),y=Audit.ObjectY,w=0,h=0};}
     if(addQuartermaster){QuartermasterIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65074),ozok=0,pri=0,x=(short)(Audit.ObjectX-6),y=Audit.ObjectY,w=0,h=0};}
+    if(addTowerKeeper){TowerKeeperIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65088),ozok=0,pri=0,x=(short)(Audit.ObjectX+6),y=Audit.ObjectY,w=0,h=0};}
+    if(addFieldScout){FieldScoutIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65065),ozok=0,pri=0,x=(short)(Audit.ObjectX-9),y=Audit.ObjectY,w=0,h=0};}
+    if(addChronicler){WarChroniclerIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65080),ozok=0,pri=0,x=(short)(Audit.ObjectX+9),y=Audit.ObjectY,w=0,h=0};}
     var scripts=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_WK>(old.eventdat.Length);for(int j=0;j<old.eventdat.Length;j++){var e=old.eventdat[j];scripts[j]=new EVENT_WK{etyp=e.etyp,eventForm=e.eventForm.ToArray(),eventCom=e.eventCom.ToArray()};}
     map.eventobj=objects;map.eventdat=scripts;events.mapeventdat.Add(map);
    }
@@ -151,11 +158,17 @@ internal static class CastleGuildRuntime
   if(EchoArchivist!=null){EchoArchivist.disp=1;EchoArchivist.forceHDDisable=false;}
   Quartermaster=QuartermasterIndex>=0&&QuartermasterIndex+8<e.ehuman.Count?e.ehuman[QuartermasterIndex+8]:null;
   if(Quartermaster!=null){Quartermaster.disp=1;Quartermaster.forceHDDisable=false;}
+  TowerKeeper=TowerKeeperIndex>=0&&TowerKeeperIndex+8<e.ehuman.Count?e.ehuman[TowerKeeperIndex+8]:null;
+  if(TowerKeeper!=null){TowerKeeper.disp=1;TowerKeeper.forceHDDisable=false;}
+  FieldScout=FieldScoutIndex>=0&&FieldScoutIndex+8<e.ehuman.Count?e.ehuman[FieldScoutIndex+8]:null;
+  if(FieldScout!=null){FieldScout.disp=1;FieldScout.forceHDDisable=false;}
+  WarChronicler=WarChroniclerIndex>=0&&WarChroniclerIndex+8<e.ehuman.Count?e.ehuman[WarChroniclerIndex+8]:null;
+  if(WarChronicler!=null){WarChronicler.disp=1;WarChronicler.forceHDDisable=false;}
   Insertions++;Status=QuestSummary;
  }
  internal static bool Owned=>Owner!=null&&Copy!=null&&Field!=null&&Clerk!=null&&Owner.mdat?.Pointer==Copy.Pointer&&Owner.econ?.Pointer==Field.Pointer&&Field.mdat?.Pointer==Copy.Pointer&&Field.mcon?.Pointer==Owner.Pointer&&Framework.Singleton<GAME_WORK>.instance?.party_data?.Pointer==Party;
  internal static bool Idle=>Owned&&Config.Enabled&&Compatible&&HuntFieldContext.Active&&Combat.State==null&&!WarRuntime.Active&&Field!.mstep==2&&Owner!.ctyp==0&&!EVENTCON.noScriptRunning&&Field.coml!=null&&Field.coml.All(c=>c==null||c.flg==0)&&!HuntGuildRuntime.PartyMenuOpen&&InteractionDifficultySupported&&WindowManager.instance!=null&&!WindowManager.instance.IsUseMessageWindow&&!WindowManager.instance.IsOpenCommonDialogWindow();
- static bool IsOwnedNpc(EVENT_HUMAN h)=>h.Pointer==Clerk!.Pointer||(DrillSergeant!=null&&h.Pointer==DrillSergeant.Pointer)||(EchoArchivist!=null&&h.Pointer==EchoArchivist.Pointer)||(Quartermaster!=null&&h.Pointer==Quartermaster.Pointer);
+ static bool IsOwnedNpc(EVENT_HUMAN h)=>h.Pointer==Clerk!.Pointer||(DrillSergeant!=null&&h.Pointer==DrillSergeant.Pointer)||(EchoArchivist!=null&&h.Pointer==EchoArchivist.Pointer)||(Quartermaster!=null&&h.Pointer==Quartermaster.Pointer)||(TowerKeeper!=null&&h.Pointer==TowerKeeper.Pointer)||(FieldScout!=null&&h.Pointer==FieldScout.Pointer)||(WarChronicler!=null&&h.Pointer==WarChronicler.Pointer);
  internal static bool Near
  {
   get{
@@ -167,6 +180,9 @@ internal static class CastleGuildRuntime
    else if(DrillSergeant is {disp:1} ds&&GuildApproach.AtCounter(x,y,ds.x.ss.inte,ds.y.ss.inte)){matched=ds;role=CastleNpcRole.DrillSergeant;}
    else if(EchoArchivist is {disp:1} ea&&GuildApproach.AtCounter(x,y,ea.x.ss.inte,ea.y.ss.inte)){matched=ea;role=CastleNpcRole.EchoArchivist;}
    else if(Quartermaster is {disp:1} qm&&GuildApproach.AtCounter(x,y,qm.x.ss.inte,qm.y.ss.inte)){matched=qm;role=CastleNpcRole.Quartermaster;}
+   else if(TowerKeeper is {disp:1} tk&&GuildApproach.AtCounter(x,y,tk.x.ss.inte,tk.y.ss.inte)){matched=tk;role=CastleNpcRole.TowerKeeper;}
+   else if(FieldScout is {disp:1} fs&&GuildApproach.AtCounter(x,y,fs.x.ss.inte,fs.y.ss.inte)){matched=fs;role=CastleNpcRole.FieldScout;}
+   else if(WarChronicler is {disp:1} wc&&GuildApproach.AtCounter(x,y,wc.x.ss.inte,wc.y.ss.inte)){matched=wc;role=CastleNpcRole.WarChronicler;}
    if(matched==null)return false;
    // Do not claim confirm beside another original NPC or native world device.
    for(int i=8;i<Field.ehuman.Count;i++){var h=Field.ehuman[i];if(h==null||IsOwnedNpc(h)||h.disp!=1||h.forceDisable||(h.otyp!=1&&h.otyp!=3))continue;if(Math.Abs(x-h.x.ss.inte)<=24&&Math.Abs(y-h.y.ss.inte)<=24)return false;}
@@ -191,6 +207,13 @@ internal static class CastleGuildRuntime
   Menu.ArmyRosterCount = Math.Max(1, ArmyProgressionRuntime.RosterSnapshot().Length);
   Menu.PartyMasteryCount = Math.Max(1, ArmyProgressionRuntime.PartyMasterySnapshot().Length);
   Menu.TowerRowCount = TowerOfDunanRuntime.PendingRelicDraft ? TowerOfDunanRuntime.DraftChoices.Length : 2;
+  if(ActiveNpc is CastleNpcRole.TowerKeeper or CastleNpcRole.FieldScout or CastleNpcRole.WarChronicler)
+  {
+   Dialogue.Open(CastleDialogueScripts.Build(ActiveNpc,ArmyProgressionRuntime.Current,TowerOfDunanRuntime.PendingRelicDraft,TowerOfDunanRuntime.FloorsCleared));
+   HuntGuildRuntime.Visible=false;
+   Opens++;
+   return;
+  }
   if(ActiveNpc==CastleNpcRole.DrillSergeant)Menu.OpenDirect(GuildPage.Training,HuntRuntime.BrowseOrder.Length);
   else if(ActiveNpc==CastleNpcRole.EchoArchivist)Menu.OpenDirect(GuildPage.Echoes,HuntRuntime.BrowseOrder.Length);
   else if(ActiveNpc==CastleNpcRole.Quartermaster)Menu.OpenDirect(GuildPage.Quartermaster,HuntRuntime.BrowseOrder.Length);
@@ -208,6 +231,25 @@ internal static class CastleGuildRuntime
   bool decide=Press(GRInputManager.Type.Decide),cancel=Press(GRInputManager.Type.Cancel);
   if(ReleaseFence){if(++releaseFrames>120||(!Held(GRInputManager.Type.Decide)&&!Held(GRInputManager.Type.Cancel))){ReleaseFence=false;return true;}e.EventPlayerDisp(false);return false;}
   if(!Modal)return true;
+  if(Dialogue.Active)
+  {
+   bool dUp=repeatUp.Step(Press(GRInputManager.Type.Up),Held(GRInputManager.Type.Up));
+   bool dDown=repeatDown.Step(Press(GRInputManager.Type.Down),Held(GRInputManager.Type.Down));
+   Dialogue.Move(dUp,dDown);
+   if(cancel){PlayGuildAudio(Plugin.Options.GuildAudioCancelId.Value);Dialogue.Close();Close(true);e.EventPlayerDisp(false);return false;}
+   string? act=Dialogue.StepConfirm(decide,Held(GRInputManager.Type.Decide));
+   if(act!=null)
+   {
+    PlayGuildAudio(Plugin.Options.GuildAudioConfirmId.Value);
+    if(act=="close"){Dialogue.Close();Close(true);}
+    else if(act.StartsWith("lore-"))Dialogue.Open(CastleDialogueScripts.LoreScript(act));
+    else if(act=="export-chronicle"){Dialogue.Close();Close(true);TrainingFeedback(ArmyProgressionRuntime.ExportChronicle());}
+    else if(act=="open-tower"){Dialogue.Close();Menu.OpenDirect(GuildPage.TowerOfDunan,HuntRuntime.BrowseOrder.Length);HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;}
+    else if(act=="open-talents"){Dialogue.Close();Menu.OpenDirect(GuildPage.PartyTalents,HuntRuntime.BrowseOrder.Length);HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;}
+    else if(act=="open-warsquads"){Dialogue.Close();Menu.OpenDirect(GuildPage.WarSquads,HuntRuntime.BrowseOrder.Length);HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;}
+   }
+   e.EventPlayerDisp(false);return false;
+  }
   if(!HuntGuildRuntime.Visible||HuntGuildRuntime.RenderFaulted){Close(false);return true;}
   if(!HuntGuildRuntime.RenderReady)return true;
   bool moveUp=repeatUp.Step(Press(GRInputManager.Type.Up),Held(GRInputManager.Type.Up));
@@ -354,8 +396,8 @@ internal static class CastleGuildRuntime
   Status=msg;
   return false;
  }
- internal static void Close(bool fence){repeatUp.Reset();repeatDown.Reset();if(HallLucaSession.Selecting)HallLucaSession.Cancel();if(Modal){Closes++;HuntGuildRuntime.Visible=false;HuntGuildRuntime.LastRenderFrame=-1;}Modal=false;ReleaseFence=fence;releaseFrames=0;}
- internal static void Detach(){Close(false);if(Owner!=null&&Copy!=null&&Owner.mdat?.Pointer==Copy.Pointer)Owner.mdat=Source;if(Copy!=null)UnityEngine.Object.Destroy(Copy);Owner=null;Source=null;Copy=null;Field=null;Clerk=null;DrillSergeant=null;EchoArchivist=null;Quartermaster=null;ActiveNpc=CastleNpcRole.GuildAttendant;Party=IntPtr.Zero;ObjectIndex=-1;SergeantIndex=-1;ArchivistIndex=-1;QuartermasterIndex=-1;}
+ internal static void Close(bool fence){Dialogue.Close();repeatUp.Reset();repeatDown.Reset();if(HallLucaSession.Selecting)HallLucaSession.Cancel();if(Modal){Closes++;HuntGuildRuntime.Visible=false;HuntGuildRuntime.LastRenderFrame=-1;}Modal=false;ReleaseFence=fence;releaseFrames=0;}
+ internal static void Detach(){Close(false);if(Owner!=null&&Copy!=null&&Owner.mdat?.Pointer==Copy.Pointer)Owner.mdat=Source;if(Copy!=null)UnityEngine.Object.Destroy(Copy);Owner=null;Source=null;Copy=null;Field=null;Clerk=null;DrillSergeant=null;EchoArchivist=null;Quartermaster=null;TowerKeeper=null;FieldScout=null;WarChronicler=null;ActiveNpc=CastleNpcRole.GuildAttendant;Party=IntPtr.Zero;ObjectIndex=-1;SergeantIndex=-1;ArchivistIndex=-1;QuartermasterIndex=-1;TowerKeeperIndex=-1;FieldScoutIndex=-1;WarChroniclerIndex=-1;}
  internal static string FeedbackText="";static long feedbackUntil;
  internal static bool FeedbackVisible=>Environment.TickCount64<feedbackUntil&&HuntFieldContext.Active&&Combat.State==null&&!WarRuntime.Active&&!HuntGuildRuntime.PartyMenuOpen&&WindowManager.instance!=null&&!WindowManager.instance.IsUseMessageWindow&&!WindowManager.instance.IsOpenCommonDialogWindow();
  internal static void TrainingFeedback(string text)

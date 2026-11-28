@@ -56,7 +56,19 @@ internal static class GuildPresentation
         }
         if (role == CastleNpcRole.Quartermaster)
         {
-            return ("Castle Quartermaster", "Bring me Dunan Commendations from Hunts, Skirmishes, or the Hall for rare Runes and Growth Stones.");
+            return ("Castle Quartermaster", "Bring me Dunan Commendations from Hunts, Skirmishes, or the Hall for permanent Castle Upgrades, Runes, and supplies.");
+        }
+        if (role == CastleNpcRole.TowerKeeper)
+        {
+            return ("Tower Keeper Kaelen", "The endless Tower of Dunan awaits. Speak with me to ascend or learn of the Warden Relics.");
+        }
+        if (role == CastleNpcRole.FieldScout)
+        {
+            return ("Field Scout Lyra", "Fresh recon from the Dunan roads—speak with me for Nemesis intel, Nightmare tactics, or Party Talents.");
+        }
+        if (role == CastleNpcRole.WarChronicler)
+        {
+            return ("War Chronicler Orin", "Every skirmish and Honor is chronicled here. Speak with me for War Squads, lore, or chronicle.md.");
         }
         if (state == GuildQuestState.AwaitingReport)
         {

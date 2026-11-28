@@ -88,7 +88,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    }
    catch(Exception e){Plugin.Debug("Local contract prompt unavailable: "+e.GetType().Name);}
   }
-  if(HuntGuildRuntime.Visible||CastleGuildRuntime.FeedbackVisible||fieldOffer!=null)GuildVisualResources.Poll();
+  if(HuntGuildRuntime.Visible||CastleGuildRuntime.FeedbackVisible||CastleGuildRuntime.Dialogue.Active||fieldOffer!=null)GuildVisualResources.Poll();
   if(faulted||(!CastleGuildRuntime.Modal&&
       (!HuntGuildRuntime.Config.EnableSelector||!Plugin.Options.EnableDeveloperTools.Value)))return;
   try{
@@ -696,13 +696,14 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   if(previewSmoke&&(nextCaptureAt<0||smokeScreen>=SmokeScreens.Length||Event.current?.type!=EventType.Repaint))return;
   var offer=previewSmoke&&SmokeScreens[smokeScreen].FieldOffer
       ? HuntRuntime.BrowseOrder.FirstOrDefault() :fieldOffer;
-  bool prompt=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.Idle&&CastleGuildRuntime.Near;
-  bool feedback=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.FeedbackVisible;
+  bool dialogue=!previewSmoke&&CastleGuildRuntime.Dialogue.Active;
+  bool prompt=!previewSmoke&&!dialogue&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.Idle&&CastleGuildRuntime.Near;
+  bool feedback=!previewSmoke&&!dialogue&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.FeedbackVisible;
   bool battleHud=!previewSmoke&&Combat.State is {Ready:true}&&((!Reforged2Runtime.CleanHudMode&&(Plugin.Options?.EnableBattleTacticalHud.Value==true||NightmareReworkRuntime.HasAnyActiveMechanics))||Reforged2Runtime.BannerVisible||Reforged2Runtime.ScannerVisible);
   bool warHud=!previewSmoke&&WarRuntime.Active&&!Reforged2Runtime.CleanHudMode&&Plugin.Options?.EnableBattleTacticalHud.Value==true;
   bool helpCard=!previewSmoke&&Reforged2Runtime.HelpCardVisible;
   bool bestiaryCard=!previewSmoke&&Reforged2Runtime.BestiaryVisible;
-  if(smokeExitRequested||faulted||(!previewSmoke&&!helpCard&&!bestiaryCard&&!warHud&&!battleHud&&!prompt&&!feedback&&offer==null&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
+  if(smokeExitRequested||faulted||(!previewSmoke&&!dialogue&&!helpCard&&!bestiaryCard&&!warHud&&!battleHud&&!prompt&&!feedback&&offer==null&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
   try
   {
    var matrix=GUI.matrix;var color=GUI.color;
@@ -804,7 +805,44 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       }
      }
     }
-    if(!battleHud&&!prompt&&!feedback&&offer==null&&!HuntGuildRuntime.Visible)return;
+    if(!dialogue&&!battleHud&&!prompt&&!feedback&&offer==null&&!HuntGuildRuntime.Visible)return;
+    if(dialogue&&CastleGuildRuntime.Dialogue.Script is {} dScript)
+    {
+     var dlg=CastleGuildRuntime.Dialogue;
+     float width=Math.Min(920,Screen.width-48);
+     var box=new Rect((Screen.width-width)/2,Screen.height-154,width,126);
+     Window(box);
+     string plateText=$"{dScript.Speaker}  ·  {dScript.RoleTitle}";
+     float plateW=Math.Min(520,Math.Max(260,plateText.Length*10.5f+44));
+     var plate=new Rect(box.x+18,box.y-30,plateW,36);
+     Window(plate);
+     Label(new(new(16,6,plateW-32,24),plateText,17,"gold"),plate.x,plate.y,1);
+     Label(new(new(28,22,width-56,72),dlg.CurrentPage,20),box.x,box.y,1);
+     string footerText=dlg.AtChoices?"↑/↓ Choose  ·  Confirm Select  ·  Cancel Close":$"Page {dlg.PageIndex+1}/{dScript.Pages.Length}  ·  ▼ Confirm to continue";
+     float pulse=0.65f+0.35f*Mathf.Sin(Time.unscaledTime*5f);
+     GUI.color=new Color(1,1,1,pulse);
+     Label(new(new(width-340,94,316,24),footerText,15,"gold"),box.x,box.y,1);
+     GUI.color=Color.white;
+     if(dlg.AtChoices)
+     {
+      float cw=390,ch=26+dScript.Choices.Length*36;
+      var cbox=new Rect(box.x+width-cw,box.y-ch-12,cw,ch);
+      Window(cbox);
+      for(int ci=0;ci<dScript.Choices.Length;ci++)
+      {
+       float ry=13+ci*36;
+       if(ci==dlg.ChoiceFocus)
+       {
+        EnsureGradients();
+        GUI.DrawTexture(new Rect(cbox.x+12,cbox.y+ry,cw-24,32),rowGradTex!,ScaleMode.StretchToFill,true);
+        Fill(new Rect(cbox.x+12,cbox.y+ry,4,32),new Color(.96f,.82f,.44f,.95f));
+       }
+       string prefix=ci==dlg.ChoiceFocus?"▶ ":"   ";
+       Label(new(new(20,ry+4,cw-40,26),prefix+dScript.Choices[ci].Label,17,ci==dlg.ChoiceFocus?"gold":"normal"),cbox.x,cbox.y,1);
+      }
+     }
+     return;
+    }
     if(battleHud)
     {
      if(!Reforged2Runtime.CleanHudMode&&Plugin.Options?.EnableBattleTacticalHud.Value==true)

@@ -7,14 +7,14 @@ using HarmonyLib;
 
 namespace NightmareRebalance;
 
-[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "7.0.0")]
+[BepInPlugin(Id, "Suikoden II Reforged Nightmare", "7.5.0")]
 [BepInDependency("d3xMachina.suikoden_fix", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("faospark.pkcore", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("nightmare.suikoden2.rebalance", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("s2_character_mod", BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class Plugin : BasePlugin
 {
-    internal const string BuildLabel = "7.0.0-nightmare-rework.1";
+    internal const string BuildLabel = "7.5.0-living-castle.1";
     public const string Id = "nightmare.suikoden2.reforged";
     internal static Settings Options = null!;
     internal static ManualLogSource Logger = null!;
