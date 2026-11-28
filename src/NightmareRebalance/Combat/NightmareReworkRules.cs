@@ -175,3 +175,52 @@ internal sealed class EnemyChargeTracker
         return 1.0;
     }
 }
+
+// Pure shield/reaction commit state machine separating pure damage queries from committed native hits.
+internal sealed class ShieldReactionState
+{
+    internal int MaxShields;
+    internal int Shields;
+    internal int StaggeredUntilTurn = -1;
+    internal readonly EnemyChargeTracker Charge = new();
+    internal bool IsBoss;
+    internal bool IsElite;
+
+    internal bool IsStaggered(int currentTurn)
+    {
+        if (StaggeredUntilTurn < 0) return false;
+        if (currentTurn > StaggeredUntilTurn)
+        {
+            StaggeredUntilTurn = -1;
+            if (MaxShields > 0) Shields = MaxShields;
+            return false;
+        }
+        return true;
+    }
+
+    // Pure damage calculation: never mutates shields, stagger, or charge state.
+    internal int CalculatePlayerDamage(int baseDamage, int currentTurn)
+    {
+        if (baseDamage <= 0) return baseDamage;
+        bool staggered = IsStaggered(currentTurn);
+        return NightmareReworkRules.ApplyShieldAndStaggerDamage(baseDamage, Shields, staggered);
+    }
+
+    // Committed native reaction hit: mutates shields/stagger/interrupt once per actual committed hit.
+    internal bool CommitPlayerHit(int currentTurn, bool hitWeak, bool comboProcced, bool hasDragonTrophy, out bool interruptedCharge)
+    {
+        interruptedCharge = false;
+        if (IsStaggered(currentTurn) || Shields <= 0) return false;
+        int breakAmt = NightmareReworkRules.ShieldBreakAmount(hitWeak, comboProcced);
+        if (comboProcced && hasDragonTrophy) breakAmt++;
+        Shields = Math.Max(0, Shields - breakAmt);
+        if (Shields == 0)
+        {
+            StaggeredUntilTurn = currentTurn + 1;
+            interruptedCharge = Charge.IsChargingForUi(currentTurn);
+            Charge.Interrupt();
+            return true;
+        }
+        return false;
+    }
+}

@@ -84,9 +84,6 @@ internal static class EnemyDamagePatch
         {
             __result = Reforged2Runtime.ApplyOverdriveDefense(w, mokuhyo, __result);
             __result = NightmareReworkRuntime.ApplyDefendAndEnemyTraits(w, __instance, mokuhyo, __result);
-            SuperbossRuntime.OnSuperbossDealtDamage(__instance, __result);
-            CirculatingPathsRuntime.OnGuardianDealtDamage(__instance, __result);
-            Reforged2Runtime.ObservePlayerHit(w, __instance.chara_no, mokuhyo, __result);
         }
     }
     [HarmonyFinalizer] internal static Exception? Finalizer(Exception? __exception) => DamageScope.Exit(__exception);
@@ -162,4 +159,40 @@ internal static class EnemyCounterDamagePatch
  [HarmonyPrefix]static void Prefix(out bool __state)=>EnemyDamagePatch.Prefix(out __state);
  [HarmonyPostfix]static void Postfix(BattleMonsterCharacter __instance,int mokuhyo,bool __state,System.Reflection.MethodBase __originalMethod,ref int __result)=>EnemyDamagePatch.Postfix(__instance,mokuhyo,-1,__state,__originalMethod,ref __result);
  [HarmonyFinalizer]static Exception? Finalizer(Exception? __exception)=>EnemyDamagePatch.Finalizer(__exception);
+}
+
+// Verified native reaction commit hooks: fire only when a hit actually commits damage to a target's
+// reaction buffer (distinct from speculative/repeated damage calculation and cancelled/missed hits).
+[HarmonyPatch(typeof(PM_DATA), nameof(PM_DATA.DamageSetReActionData))]
+internal static class NativePhysicalReactionCommitPatch
+{
+    [HarmonyPrefix] static void Prefix(out bool __state) => __state = NightmareReworkRuntime.TryEnterReactionCommit();
+    [HarmonyPostfix] static void Postfix(PM_DATA __instance, int mokuhyo, int damage, bool __state)
+    {
+        if (!__state || damage <= 0 || Combat.State is not { Ready: true }) return;
+        var w = Framework.Singleton<BATTLE_WORK>.instance;
+        if (w?.pm_data == null || mokuhyo < 0 || mokuhyo >= w.pm_data.Length) return;
+        if (__instance.IsPlayer && __instance.TryCast<BattlePlayerCharacter>() is {} player)
+            NightmareReworkRuntime.CommitPlayerHit(w, player, w.pm_data[mokuhyo], damage, isMagic: false);
+        else if (!__instance.IsPlayer)
+            NightmareReworkRuntime.CommitEnemyHit(w, __instance, mokuhyo, damage);
+    }
+    [HarmonyFinalizer] static Exception? Finalizer(Exception? __exception) { NightmareReworkRuntime.ExitReactionCommit(); return __exception; }
+}
+
+[HarmonyPatch(typeof(PM_DATA), nameof(PM_DATA.SetMagicDamageChara))]
+internal static class NativeMagicReactionCommitPatch
+{
+    [HarmonyPrefix] static void Prefix(out bool __state) => __state = NightmareReworkRuntime.TryEnterReactionCommit();
+    [HarmonyPostfix] static void Postfix(PM_DATA __instance, int mokuhyo, int damage, bool __state)
+    {
+        if (!__state || damage <= 0 || Combat.State is not { Ready: true }) return;
+        var w = Framework.Singleton<BATTLE_WORK>.instance;
+        if (w?.pm_data == null || mokuhyo < 0 || mokuhyo >= w.pm_data.Length) return;
+        if (__instance.IsPlayer && __instance.TryCast<BattlePlayerCharacter>() is {} player)
+            NightmareReworkRuntime.CommitPlayerHit(w, player, w.pm_data[mokuhyo], damage, isMagic: true);
+        else if (!__instance.IsPlayer)
+            NightmareReworkRuntime.CommitEnemyHit(w, __instance, mokuhyo, damage);
+    }
+    [HarmonyFinalizer] static Exception? Finalizer(Exception? __exception) { NightmareReworkRuntime.ExitReactionCommit(); return __exception; }
 }

@@ -1,5 +1,13 @@
 # Development history
 
+## 9.0.0-stabilization.2 — Native Reaction Commit Separation & Immutable Save Snapshots
+
+- **Native Action/Reaction Ownership (`NightmareReworkRules.cs`, `NightmareReworkRuntime.cs`, `DifficultyPatches.cs`):**
+  - Separated pure damage calculation (`CalcPlayerDamage` / `PlayerCalcMagicDamage` / `CalcMonsterDamage`) from committed hit effects (`PM_DATA.DamageSetReActionData` and `PM_DATA.SetMagicDamageChara` with re-entrancy protection).
+  - Repeated damage calculations for the same hit now return identical values without mutating shields, stagger, HP, or Momentum; cancelled/missed attacks never consume effects; distinct legitimate same-turn attacks (multihits, Double-Beat, counters, AoE) each commit cleanly through native reaction calls.
+- **Immutable Pending Save Snapshots (`ArmyProgressionRules.cs`, `ArmyProgressionRuntime.cs`, `TrainingNativeSave.cs`):**
+  - `CapturePendingSave` now freezes an immutable `PendingCampaignSave` clone of `Current` at save start; `CommitObservedCampaignSave` commits that frozen snapshot only on confirmed success (`cb(true)`), rejects stale-owner completions after campaign switches, and preserves original native save callbacks via `try/finally`.
+
 ## 9.0.0-stabilization.1 — Stabilization & Ownership Repair Pass
 
 - **Priority 1 — Persistence Retention, Corruption Safety & Save Ordering (`ArmyProgressionRules.cs`, `ArmyProgressionRuntime.cs`, `TrainingNativeSave.cs`):**

@@ -78,41 +78,42 @@ internal static class ArmyProgressionRuntime
             Plugin.Logger.LogWarning("Army progression ledger write skipped/failed: " + (error ?? "unknown error"));
     }
 
-    internal static bool CapturePendingSave(string path, out string? hash, out IntPtr owner)
+    internal static ArmyProgressionRules.PendingCampaignSave? CapturePendingSave(string path)
     {
-        hash = null;
-        owner = IntPtr.Zero;
-        if (!Enabled && !SynergyEnabled) return false;
-        if (!TrainingPersistenceRules.IsCampaignPath(path)) return false;
+        if (!Enabled && !SynergyEnabled) return null;
+        if (!TrainingPersistenceRules.IsCampaignPath(path)) return null;
         var game = Framework.Singleton<GAME_WORK>.instance;
-        hash = ComputeLiveFingerprint(game);
-        if (hash == null || game?.game_data == null) return false;
-        owner = game.game_data.Pointer;
-        return true;
-    }
-
-    internal static void CommitObservedCampaignSave(string path, string? hash, IntPtr owner, bool succeeded)
-    {
-        if (!succeeded || string.IsNullOrWhiteSpace(hash) || owner == IntPtr.Zero) return;
-        if (!Enabled && !SynergyEnabled) return;
-        if (!TrainingPersistenceRules.IsCampaignPath(path)) return;
-        string slot = ArmyProgressionRules.ExtractSaveSlot(path);
+        string? hash = ComputeLiveFingerprint(game);
+        if (hash == null || game?.game_data == null) return null;
+        IntPtr owner = game.game_data.Pointer;
         lock (Sync)
         {
             if (boundCampaignOwner != IntPtr.Zero && owner != boundCampaignOwner)
+                return null;
+            return ArmyProgressionRules.CapturePendingSaveSnapshot(path, hash, owner, Current, DateTime.UtcNow.Ticks);
+        }
+    }
+
+    internal static void CommitObservedCampaignSave(ArmyProgressionRules.PendingCampaignSave? pending, bool succeeded)
+    {
+        if (!succeeded || pending == null) return;
+        if (!Enabled && !SynergyEnabled) return;
+        if (!TrainingPersistenceRules.IsCampaignPath(pending.Path)) return;
+        lock (Sync)
+        {
+            if (!ArmyProgressionRules.TryCommitPendingSave(index, pending, ref boundCampaignOwner, succeeded))
                 return;
-            boundCampaignOwner = owner;
-            ArmyProgressionRules.BindSnapshot(index, hash, Current, DateTime.UtcNow.Ticks, slot);
             PersistIndexLocked();
             ExportChronicleLocked();
         }
-        Plugin.Debug($"Army progression ledger bound to save fingerprint {hash[..12]}... (slot={slot})");
+        Plugin.Debug($"Army progression ledger bound frozen snapshot to save fingerprint {pending.SaveHash[..12]}... (slot={pending.SaveSlot})");
     }
 
     internal static void ObserveCampaignSave(string path)
     {
-        if (CapturePendingSave(path, out string? hash, out IntPtr owner))
-            CommitObservedCampaignSave(path, hash, owner, succeeded: true);
+        var pending = CapturePendingSave(path);
+        if (pending != null)
+            CommitObservedCampaignSave(pending, succeeded: true);
     }
 
     internal static string ExportChronicle()

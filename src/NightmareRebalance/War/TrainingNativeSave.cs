@@ -4,7 +4,7 @@ namespace NightmareRebalance;
 [HarmonyPatch(typeof(SystemSave), nameof(SystemSave.Save))]
 internal static class TrainingNativeSave
 {
-    internal readonly record struct PendingSaveState(bool HasCallback, string Path, string? Hash, IntPtr Owner);
+    internal readonly record struct PendingSaveState(bool HasCallback, ArmyProgressionRules.PendingCampaignSave? Pending);
 
     static bool Prefix(string path, string json, ref Il2CppSystem.Action<bool>? cb, ref bool __result, out PendingSaveState __state)
     {
@@ -13,24 +13,22 @@ internal static class TrainingNativeSave
             TrainingWar.AllowNativeSave(path))
         {
             if (!TrainingWar.Active && !HallLucaSession.Active &&
-                ArmyProgressionRuntime.CapturePendingSave(path, out string? hash, out IntPtr owner))
+                ArmyProgressionRuntime.CapturePendingSave(path) is {} pending)
             {
                 if (cb != null)
                 {
                     var original = cb;
-                    string capturedPath = path;
-                    string? capturedHash = hash;
-                    IntPtr capturedOwner = owner;
+                    var captured = pending;
                     cb = (Il2CppSystem.Action<bool>)new Action<bool>(ok =>
                     {
-                        if (ok) ArmyProgressionRuntime.CommitObservedCampaignSave(capturedPath, capturedHash, capturedOwner, true);
-                        original.Invoke(ok);
+                        try { if (ok) ArmyProgressionRuntime.CommitObservedCampaignSave(captured, true); }
+                        finally { original.Invoke(ok); }
                     });
-                    __state = new(true, path, hash, owner);
+                    __state = new(true, captured);
                 }
                 else
                 {
-                    __state = new(false, path, hash, owner);
+                    __state = new(false, pending);
                 }
             }
             return true;
@@ -46,10 +44,10 @@ internal static class TrainingNativeSave
     static void Postfix(string path, bool __result, PendingSaveState __state)
     {
         // Only commit synchronously here when the caller supplied no completion callback;
-        // when a callback was supplied, binding happens only on cb(true).
-        if (__result && !__state.HasCallback && !string.IsNullOrWhiteSpace(__state.Hash) &&
+        // when a callback was supplied, binding happens only on cb(true) using the frozen snapshot.
+        if (__result && !__state.HasCallback && __state.Pending != null &&
             !TrainingWar.Active && !HallLucaSession.Active)
-            ArmyProgressionRuntime.CommitObservedCampaignSave(__state.Path, __state.Hash, __state.Owner, true);
+            ArmyProgressionRuntime.CommitObservedCampaignSave(__state.Pending, true);
     }
 }
 [HarmonyPatch(typeof(UISaveLoad2), nameof(UISaveLoad2.Save))]

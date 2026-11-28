@@ -384,6 +384,40 @@ internal static class ArmyProgressionRules
         catch { return ""; }
     }
 
+    // Immutable snapshot frozen at save-start so later mutations or interleaved saves
+    // cannot corrupt an in-flight async save completion.
+    internal sealed record PendingCampaignSave(
+        string Path,
+        string SaveSlot,
+        string SaveHash,
+        IntPtr CampaignOwner,
+        ArmyLedgerState FrozenSnapshot,
+        long CapturedUtcTicks);
+
+    internal static PendingCampaignSave? CapturePendingSaveSnapshot(
+        string path, string? saveHash, IntPtr campaignOwner, ArmyLedgerState liveCurrent, long utcTicks)
+    {
+        if (string.IsNullOrWhiteSpace(saveHash) || campaignOwner == IntPtr.Zero || liveCurrent == null)
+            return null;
+        return new PendingCampaignSave(
+            path, ExtractSaveSlot(path), saveHash, campaignOwner, liveCurrent.Clone(), utcTicks);
+    }
+
+    internal static bool TryCommitPendingSave(
+        ArmyLedgerIndex index,
+        PendingCampaignSave? pending,
+        ref IntPtr boundCampaignOwner,
+        bool succeeded)
+    {
+        if (!succeeded || pending == null || string.IsNullOrWhiteSpace(pending.SaveHash) || pending.CampaignOwner == IntPtr.Zero)
+            return false;
+        if (boundCampaignOwner != IntPtr.Zero && pending.CampaignOwner != boundCampaignOwner)
+            return false;
+        boundCampaignOwner = pending.CampaignOwner;
+        BindSnapshot(index, pending.SaveHash, pending.FrozenSnapshot, pending.CapturedUtcTicks, pending.SaveSlot);
+        return true;
+    }
+
     internal readonly record struct LedgerDiskLoadResult(ArmyLedgerIndex Index, LedgerParseStatus Status, bool RecoveredFromBackup, bool WriteBlocked, string Note);
 
     internal static LedgerDiskLoadResult LoadIndexFromDisk(string ledgerPath)

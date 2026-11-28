@@ -495,6 +495,49 @@ internal static class ArmyProgressionTests
         double t6AfterInterrupt = ct.EvaluateDamageMultiplier(6, isBoss: true, isElite: false, staggered: false, out _, out bool unl6);
         Check(tele5 && t6AfterInterrupt == 1.0 && !unl6, "Stagger interrupt cancels armed charge before next turn");
 
-        Console.WriteLine($"PASS: Reforged 9.0 stabilization suite {checks} checks.");
+        // 24. Stabilization Pass 2: Pure Damage Calculation vs Native Hit Commit + Immutable PendingCampaignSave
+        // Finding 1: Repeated calculations return identical damage without mutating shields; two legitimate same-turn attacks both commit
+        var sr = new ShieldReactionState { MaxShields = 2, Shields = 2, IsBoss = true };
+        sr.Charge.EvaluateDamageMultiplier(2, isBoss: true, isElite: false, staggered: false, out _, out _);
+        int calc1 = sr.CalculatePlayerDamage(100, currentTurn: 2);
+        int calc2 = sr.CalculatePlayerDamage(100, currentTurn: 2);
+        int calc3 = sr.CalculatePlayerDamage(100, currentTurn: 2);
+        Check(calc1 == 65 && calc2 == 65 && calc3 == 65 && sr.Shields == 2 && !sr.IsStaggered(2),
+            "Repeated calculations of one hit return consistent shielded damage without mutating shields");
+        // First legitimate hit on Turn 2 commits (e.g. normal hit 1)
+        bool broke1 = sr.CommitPlayerHit(currentTurn: 2, hitWeak: false, comboProcced: false, hasDragonTrophy: false, out bool intr1);
+        Check(!broke1 && !intr1 && sr.Shields == 1, "First legitimate hit consumes 1 shield");
+        // Second legitimate hit on the SAME turn (e.g. multihit / Double-Beat / counter) calculates consistently and breaks final shield
+        int secondCalcA = sr.CalculatePlayerDamage(100, currentTurn: 2);
+        int secondCalcB = sr.CalculatePlayerDamage(100, currentTurn: 2);
+        Check(secondCalcA == 65 && secondCalcB == 65 && sr.Shields == 1, "Second same-turn attack calculation is pure and consistent");
+        bool broke2 = sr.CommitPlayerHit(currentTurn: 2, hitWeak: false, comboProcced: false, hasDragonTrophy: false, out bool intr2);
+        Check(broke2 && intr2 && sr.Shields == 0 && sr.IsStaggered(2), "Second legitimate same-turn attack commits, staggers, and interrupts charge");
+        Check(sr.CalculatePlayerDamage(100, currentTurn: 2) == 150 && sr.CalculatePlayerDamage(100, currentTurn: 2) == 150,
+            "Post-stagger repeated calculations consistently return +50% damage");
+
+        // Finding 2: Frozen PendingCampaignSave snapshot protects against live mutation, interleaved/failed saves, and stale owners
+        var asyncIdx = new ArmyLedgerIndex();
+        var liveState = new ArmyLedgerState { Commendations = 10, TotalDrillsWon = 1 };
+        IntPtr boundOwner = (IntPtr)0xA001;
+        var save1 = ArmyProgressionRules.CapturePendingSaveSnapshot("gsd2/Data01", "HASH_SAVE_1", (IntPtr)0xA001, liveState, 1000);
+        // Live state mutates before Save 1 completes, and an interleaved Save 2 starts and fails
+        liveState.Commendations = 99;
+        liveState.TotalDrillsWon = 5;
+        var save2 = ArmyProgressionRules.CapturePendingSaveSnapshot("gsd2/Data02", "HASH_SAVE_2", (IntPtr)0xA001, liveState, 2000);
+        Check(!ArmyProgressionRules.TryCommitPendingSave(asyncIdx, save2, ref boundOwner, succeeded: false) && !asyncIdx.Snapshots.ContainsKey("HASH_SAVE_2"),
+            "Failed async save never binds snapshot");
+        Check(ArmyProgressionRules.TryCommitPendingSave(asyncIdx, save1, ref boundOwner, succeeded: true),
+            "Confirmed async Save 1 commits cleanly");
+        var resolved1 = ArmyProgressionRules.ResolveSnapshot(asyncIdx, "HASH_SAVE_1");
+        Check(resolved1.Commendations == 10 && resolved1.TotalDrillsWon == 1,
+            "Save 1 committed its frozen pre-mutation snapshot (10), not later mutated live Current (99)");
+        // Campaign load switches owner to 0xB002; late stale-owner completion from 0xA001 must be rejected
+        boundOwner = (IntPtr)0xB002;
+        var staleSave = ArmyProgressionRules.CapturePendingSaveSnapshot("gsd2/Data03", "HASH_STALE", (IntPtr)0xA001, liveState, 3000);
+        Check(!ArmyProgressionRules.TryCommitPendingSave(asyncIdx, staleSave, ref boundOwner, succeeded: true) && !asyncIdx.Snapshots.ContainsKey("HASH_STALE"),
+            "Stale-owner async save completion is rejected after campaign switch");
+
+        Console.WriteLine($"PASS: Reforged 9.0.2 stabilization suite {checks} checks.");
     }
 }

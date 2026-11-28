@@ -2,25 +2,25 @@ namespace NightmareRebalance;
 
 internal sealed class EnemyTacticalState
 {
-    internal int MaxShields;
-    internal int Shields;
-    internal int StaggeredUntilTurn = -1;
-    internal readonly EnemyChargeTracker Charge = new();
+    internal readonly ShieldReactionState Reaction = new();
+    internal int MaxShields { get => Reaction.MaxShields; set => Reaction.MaxShields = value; }
+    internal int Shields { get => Reaction.Shields; set => Reaction.Shields = value; }
+    internal int StaggeredUntilTurn { get => Reaction.StaggeredUntilTurn; set => Reaction.StaggeredUntilTurn = value; }
+    internal EnemyChargeTracker Charge => Reaction.Charge;
     internal bool Charging => Charge.IsChargingForUi(Framework.Singleton<BATTLE_WORK>.instance?.battle_kaisuu ?? 0);
-    internal bool IsBoss;
-    internal bool IsElite;
+    internal bool IsBoss { get => Reaction.IsBoss; set => Reaction.IsBoss = value; }
+    internal bool IsElite { get => Reaction.IsElite; set => Reaction.IsElite = value; }
 }
 
 // Reforged 7.0: True Nightmare Combat Rework runtime.
-// Manages Octopath-style Guard Shields & Stagger, turn-scoped Boss/Elite Charge & Interrupt,
-// 50% Dungeon Pack Traits, Live Zone Hazards, optional Anti-Overleveling, Defend-Heal,
-// and Battle Fatigue.
+// Strictly separates pure damage calculation (CalcPlayerDamage / CalcMonsterDamage) from
+// committed native action/reaction effects (PM_DATA.DamageSetReActionData / SetMagicDamageChara).
 internal static class NightmareReworkRuntime
 {
     static readonly Dictionary<IntPtr, EnemyTacticalState> states = new();
-    static readonly HashSet<(int Turn, IntPtr Actor, IntPtr Target, bool IsMagic)> committedPlayerHits = new();
-    static readonly HashSet<(int Turn, IntPtr Attacker, int DefenderSlot)> committedEnemyHits = new();
+    static readonly Dictionary<(IntPtr Actor, IntPtr Target), bool> pendingComboFlags = new();
     static readonly System.Random rng = new();
+    static int reactionCommitDepth;
     internal static PackTrait ActivePackTrait { get; private set; }
     internal static ZoneHazard ActiveZoneHazard { get; private set; }
     internal static int PartyAvgLevel { get; private set; }
@@ -29,11 +29,14 @@ internal static class NightmareReworkRuntime
     internal static bool Enabled => Plugin.Options?.EnableTrueNightmareRework.Value == true;
     internal static bool AntiOverlevelEnabled => Plugin.Options?.EnableAntiOverlevelScaling.Value == true;
 
+    internal static bool TryEnterReactionCommit() => ++reactionCommitDepth == 1;
+    internal static void ExitReactionCommit() { if (reactionCommitDepth > 0) reactionCommitDepth--; }
+
     internal static void ClearBattle()
     {
         states.Clear();
-        committedPlayerHits.Clear();
-        committedEnemyHits.Clear();
+        pendingComboFlags.Clear();
+        reactionCommitDepth = 0;
         ActivePackTrait = PackTrait.None;
         ActiveZoneHazard = ZoneHazard.Calm;
         PartyAvgLevel = 0;
@@ -149,6 +152,8 @@ internal static class NightmareReworkRuntime
         return mult;
     }
 
+    // PURE damage calculation only: never mutates shields, stagger, actor HP, or Momentum.
+    // Repeated calculations of the same hit return identical damage.
     internal static int ApplyPlayerAttackOnEnemy(BATTLE_WORK w, BattlePlayerCharacter actor, PM_DATA? enemy, int damage, bool isMagic, bool comboProcced)
     {
         if (!Enabled || damage <= 0) return damage;
@@ -158,43 +163,11 @@ internal static class NightmareReworkRuntime
         if (ActivePackTrait == PackTrait.Berserk)
             result = Math.Max(result + 1, (int)Math.Round(result * 1.15, MidpointRounding.AwayFromZero));
 
-        int turn = w.battle_kaisuu;
-        bool firstCommit = enemy != null && committedPlayerHits.Add((turn, actor.Pointer, enemy.Pointer, isMagic));
-
-        if (enemy != null && StateFor(enemy) is {} st)
+        if (enemy != null)
         {
-            bool staggered = IsStaggered(st, turn);
-            result = NightmareReworkRules.ApplyShieldAndStaggerDamage(result, st.Shields, staggered);
-
-            if (firstCommit && !staggered && st.Shields > 0)
-            {
-                string weak = enemy.calc_para is { Length: > 3 } ? Reforged2Rules.TacticalWeaknessHint(enemy.calc_para[2], enemy.calc_para[3]) : "Balanced";
-                bool hitWeak = (isMagic && weak == "Weak: Magic") || (!isMagic && weak == "Weak: Phys");
-                int breakAmt = NightmareReworkRules.ShieldBreakAmount(hitWeak, comboProcced);
-                if (comboProcced && SuperbossRuntime.HasTrophy("awakened-dragon")) breakAmt++;
-                st.Shields = Math.Max(0, st.Shields - breakAmt);
-                if (st.Shields == 0)
-                {
-                    st.StaggeredUntilTurn = turn + 1;
-                    bool interrupted = st.Charge.IsChargingForUi(turn);
-                    st.Charge.Interrupt();
-                    string eName = Reforged2Runtime.ResolveEnemyDisplayName(enemy, out _);
-                    Reforged2Runtime.FlashBanner(
-                        interrupted ? $"★ {eName} STAGGERED & CHARGE INTERRUPTED! (+50% DMG Taken)" : $"💥 {eName} SHIELD BROKEN — STAGGERED! (+50% DMG Taken)",
-                        3400, "success");
-                    Reforged2Runtime.GrantBonusMomentum(25, w);
-                }
-            }
-        }
-
-        if (firstCommit && !isMagic && ActivePackTrait == PackTrait.Thorned && actor.hp > 1)
-        {
-            int reflect = NightmareReworkRules.ComputeThornedReflect(result, actor.hp);
-            if (reflect > 0)
-            {
-                actor.hp = (short)Math.Max(1, actor.hp - reflect);
-                Reforged2Runtime.FlashBanner($"🌵 Thorned Reflect! (-{reflect} HP)", 1800, "alert");
-            }
+            pendingComboFlags[(actor.Pointer, enemy.Pointer)] = comboProcced;
+            if (StateFor(enemy) is {} st)
+                result = st.Reaction.CalculatePlayerDamage(result, w.battle_kaisuu);
         }
         if (SuperbossRuntime.BattleInProgress)
             result = SuperbossRuntime.ApplySuperbossIncomingModifiers(w, actor, enemy, result, isMagic);
@@ -203,6 +176,42 @@ internal static class NightmareReworkRuntime
         return result;
     }
 
+    // Committed native reaction hit (PM_DATA.DamageSetReActionData / SetMagicDamageChara).
+    // Fires once per actual landed hit — preserves multihits, counters, AoE, and two distinct same-turn attacks,
+    // while repeated calculations or cancelled/missed hits never mutate state.
+    internal static void CommitPlayerHit(BATTLE_WORK? w, BattlePlayerCharacter actor, PM_DATA? enemy, int committedDamage, bool isMagic)
+    {
+        if (!Enabled || w == null || enemy == null || committedDamage <= 0) return;
+        int turn = w.battle_kaisuu;
+        bool comboProcced = pendingComboFlags.Remove((actor.Pointer, enemy.Pointer), out bool c) && c;
+
+        if (StateFor(enemy) is {} st)
+        {
+            string weak = enemy.calc_para is { Length: > 3 } ? Reforged2Rules.TacticalWeaknessHint(enemy.calc_para[2], enemy.calc_para[3]) : "Balanced";
+            bool hitWeak = (isMagic && weak == "Weak: Magic") || (!isMagic && weak == "Weak: Phys");
+            bool broke = st.Reaction.CommitPlayerHit(turn, hitWeak, comboProcced, SuperbossRuntime.HasTrophy("awakened-dragon"), out bool interrupted);
+            if (broke)
+            {
+                string eName = Reforged2Runtime.ResolveEnemyDisplayName(enemy, out _);
+                Reforged2Runtime.FlashBanner(
+                    interrupted ? $"★ {eName} STAGGERED & CHARGE INTERRUPTED! (+50% DMG Taken)" : $"💥 {eName} SHIELD BROKEN — STAGGERED! (+50% DMG Taken)",
+                    3400, "success");
+                Reforged2Runtime.GrantBonusMomentum(25, w);
+            }
+        }
+
+        if (!isMagic && ActivePackTrait == PackTrait.Thorned && actor.hp > 1)
+        {
+            int reflect = NightmareReworkRules.ComputeThornedReflect(committedDamage, actor.hp);
+            if (reflect > 0)
+            {
+                actor.hp = (short)Math.Max(1, actor.hp - reflect);
+                Reforged2Runtime.FlashBanner($"🌵 Thorned Reflect! (-{reflect} HP)", 1800, "alert");
+            }
+        }
+    }
+
+    // PURE damage mitigation only: Defend vs Charged Devastation reduction. Never mutates HP or Momentum.
     internal static int ApplyDefendAndEnemyTraits(BATTLE_WORK? w, PM_DATA? attacker, int defenderSlot, int incomingDamage)
     {
         if (!Enabled || incomingDamage <= 0 || w?.pm_data == null || defenderSlot < 0 || defenderSlot >= w.pm_data.Length)
@@ -213,27 +222,40 @@ internal static class NightmareReworkRuntime
         int result = incomingDamage;
         int turn = w.battle_kaisuu;
         bool guarding = (defender.status & b_game_h.STATUS_GUARD) != 0 && (defender.status & b_game_h.STATUS_NO_GUARD) == 0;
-        bool firstCommit = attacker != null && committedEnemyHits.Add((turn, attacker.Pointer, defenderSlot));
-        if (guarding)
+        if (guarding && StateFor(attacker) is {} st && st.Charge.IsUnleashing(turn))
+            result = Math.Max(1, (int)Math.Round(result * NightmareReworkRules.DefendVsChargedMultiplier, MidpointRounding.AwayFromZero));
+        return result;
+    }
+
+    // Committed native enemy hit (PM_DATA.DamageSetReActionData / SetMagicDamageChara).
+    internal static void CommitEnemyHit(BATTLE_WORK? w, PM_DATA? attacker, int defenderSlot, int committedDamage)
+    {
+        if (committedDamage <= 0 || w?.pm_data == null || defenderSlot < 0 || defenderSlot >= w.pm_data.Length)
+            return;
+        var defender = w.pm_data[defenderSlot];
+        if (defender == null || !defender.IsPlayer || defender.IsDead) return;
+
+        if (Enabled)
         {
-            if (StateFor(attacker) is {} st && st.Charge.IsUnleashing(turn))
-                result = Math.Max(1, (int)Math.Round(result * NightmareReworkRules.DefendVsChargedMultiplier, MidpointRounding.AwayFromZero));
-            if (firstCommit)
+            bool guarding = (defender.status & b_game_h.STATUS_GUARD) != 0 && (defender.status & b_game_h.STATUS_NO_GUARD) == 0;
+            if (guarding)
             {
                 int heal = NightmareReworkRules.ComputeDefendHeal(defender.max_hp);
                 if (heal > 0 && defender.hp > 0 && defender.hp < defender.max_hp)
                     defender.hp = (short)Math.Min(defender.max_hp, defender.hp + heal);
                 Reforged2Runtime.GrantBonusMomentum(20, w);
             }
+            if (ActivePackTrait == PackTrait.Vampiric && attacker != null && attacker.hp > 0 && attacker.hp < attacker.max_hp)
+            {
+                int leech = NightmareReworkRules.ComputeVampiricHeal(committedDamage);
+                if (leech > 0)
+                    attacker.hp = (short)Math.Min(attacker.max_hp, attacker.hp + leech);
+            }
         }
-
-        if (firstCommit && ActivePackTrait == PackTrait.Vampiric && attacker != null && attacker.hp > 0 && attacker.hp < attacker.max_hp)
-        {
-            int leech = NightmareReworkRules.ComputeVampiricHeal(result);
-            if (leech > 0)
-                attacker.hp = (short)Math.Min(attacker.max_hp, attacker.hp + leech);
-        }
-        return result;
+        SuperbossRuntime.OnSuperbossDealtDamage(attacker, committedDamage);
+        CirculatingPathsRuntime.OnGuardianDealtDamage(attacker, committedDamage);
+        if (attacker != null)
+            Reforged2Runtime.ObservePlayerHit(w, attacker.chara_no, defenderSlot, committedDamage);
     }
 
     internal static double ZonePotchMultiplier =>
