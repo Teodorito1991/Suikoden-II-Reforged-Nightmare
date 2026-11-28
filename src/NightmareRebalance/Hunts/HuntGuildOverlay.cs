@@ -698,7 +698,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       ? HuntRuntime.BrowseOrder.FirstOrDefault() :fieldOffer;
   bool prompt=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.Idle&&CastleGuildRuntime.Near;
   bool feedback=!previewSmoke&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.FeedbackVisible;
-  bool battleHud=!previewSmoke&&Combat.State is {Ready:true}&&((!Reforged2Runtime.CleanHudMode&&Plugin.Options?.EnableBattleTacticalHud.Value==true)||Reforged2Runtime.BannerVisible||Reforged2Runtime.ScannerVisible);
+  bool battleHud=!previewSmoke&&Combat.State is {Ready:true}&&((!Reforged2Runtime.CleanHudMode&&(Plugin.Options?.EnableBattleTacticalHud.Value==true||NightmareReworkRuntime.HasAnyActiveMechanics))||Reforged2Runtime.BannerVisible||Reforged2Runtime.ScannerVisible);
   bool warHud=!previewSmoke&&WarRuntime.Active&&!Reforged2Runtime.CleanHudMode&&Plugin.Options?.EnableBattleTacticalHud.Value==true;
   bool helpCard=!previewSmoke&&Reforged2Runtime.HelpCardVisible;
   bool bestiaryCard=!previewSmoke&&Reforged2Runtime.BestiaryVisible;
@@ -835,6 +835,28 @@ public sealed class HuntGuildOverlay:MonoBehaviour
        Label(new(new(18,9,bw-36,24),fl.Text,17,fl.Tone),banner.x,banner.y,1);
       }
      }
+     if(!Reforged2Runtime.CleanHudMode&&!Reforged2Runtime.ScannerVisible&&NightmareReworkRuntime.HasAnyActiveMechanics&&Framework.Singleton<BATTLE_WORK>.instance is {} liveBw&&liveBw.pm_data is {} liveUnits)
+     {
+      var activeEnemies=liveUnits.Where(u=>u!=null&&!u.IsPlayer&&u.hp>0&&!u.IsDead&&NightmareReworkRuntime.StateFor(u) is {MaxShields:>0} or {Charging:true}).Take(4).ToArray();
+      string hdr=NightmareReworkRuntime.ActivePackTrait!=PackTrait.None
+          ?$"⚔ {NightmareReworkRules.PackTraitTitle(NightmareReworkRuntime.ActivePackTrait)}"
+          :NightmareReworkRuntime.ActiveZoneHazard!=ZoneHazard.Calm
+          ?$"☁ {NightmareReworkRules.ZoneHazardTitle(NightmareReworkRuntime.ActiveZoneHazard)}"
+          :"NIGHTMARE GUARD SHIELDS";
+      float cw=440,ch=38+activeEnemies.Length*24;
+      var cbox=new Rect(18,16,cw,ch);
+      Window(cbox);
+      Label(new(new(14,8,cw-28,22),hdr,14,"gold"),cbox.x,cbox.y,1);
+      for(int ci=0;ci<activeEnemies.Length;ci++)
+      {
+       var ce=activeEnemies[ci]!;
+       var st=NightmareReworkRuntime.StateFor(ce)!;
+       bool stag=NightmareReworkRuntime.IsStaggered(st,liveBw.battle_kaisuu);
+       string eName=Reforged2Runtime.ResolveEnemyDisplayName(ce,out _);
+       string pips=stag?"[STAGGERED +50% DMG]":st.Charging?"[⚠ CHARGING — BREAK/DEFEND]":new string('◆',st.Shields)+new string('◇',Math.Max(0,st.MaxShields-st.Shields));
+       Label(new(new(14,32+ci*24,cw-28,22),$"{eName}  {pips}",13,stag?"success":st.Charging?"alert":"gold"),cbox.x,cbox.y,1);
+      }
+     }
      if(Reforged2Runtime.ScannerVisible&&Framework.Singleton<BATTLE_WORK>.instance?.pm_data is {} pmUnits)
      {
       var enemies=pmUnits.Where(u=>u!=null&&!u.IsPlayer&&u.hp>0&&!u.IsDead).Take(6).ToArray();
@@ -860,6 +882,13 @@ public sealed class HuntGuildOverlay:MonoBehaviour
         string statusTag=((e.status&b_game_h.STATUS_SLEEP)!=0?" [SLP]":"")+((e.status&b_game_h.STATUS_POISON)!=0?" [PSN]":"");
         int brk=Reforged2Runtime.ArmorBreakStacksFor(e);
         if(brk>0)statusTag+=$" [BRK x{brk}]";
+        if(NightmareReworkRuntime.StateFor(e) is {} nst)
+        {
+         bool stag=NightmareReworkRuntime.IsStaggered(nst,Framework.Singleton<BATTLE_WORK>.instance?.battle_kaisuu??0);
+         if(stag)statusTag+=" [STAGGERED]";
+         else if(nst.Charging)statusTag+=" [⚠ CHARGING]";
+         else if(nst.Shields>0)statusTag+=" "+new string('◆',nst.Shields);
+        }
         float hpFrac=e.max_hp>0?Math.Clamp((float)e.hp/e.max_hp,0f,1f):0f;
         float ry=44+i*56;
         Label(new(new(18,ry,sw-170,24),$"{displayName}{(lv>0?$" Lv{lv}":"")}{statusTag}",17),scanBox.x,scanBox.y,1);

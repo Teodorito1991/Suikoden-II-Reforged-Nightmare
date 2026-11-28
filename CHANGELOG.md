@@ -32,6 +32,11 @@
   6 lore-driven **Star Bonds** (10 total: *Genkaku's Legacy*, *Mercenary
   Veterans*, *Arcane Resonance*, *Vampire Hunters*, *Wandering Blades*, and
   *Rokaku Shadows*).
+- Added **Reforged 7.0: True Nightmare Combat Rework (`7.0.0-nightmare-rework.1`)** (`EnableTrueNightmareRework = false`, opt-in):
+  - **Enemy Guard Shields & Stagger:** Bosses (`5`), Elites/Apex/Hunts/Nemesis (`3`), and Shielded packs (`2`) take `-35%` damage while shielded; hitting Weaknesses or Combos breaks `2` shields (normal hits `1`); breaking all shields **Staggers** the foe (`+50%` damage taken, `-40%` damage dealt, `+25` Momentum) and **interrupts Charged attacks**.
+  - **Boss & Elite Charged Devastation:** Telegraphs a `1.8x` lethal strike (`⚠ CHARGING DEVASTATION`) that can be cancelled via Shield Break or absorbed (`-65%`) by **Defending**.
+  - **50% Dungeon Pack Traits & Live Zone Hazards:** *Thorned* (12% physical reflect), *Vampiric* (35% HP leech), *Shielded* (2 guard pips), *Berserk* (`+35%` DMG / `+15%` taken), plus *Arcane Storm*, *Blood Mist*, and *Highland Alert* zone hazards.
+  - **Anti-Overleveling Dynamic Scaling**, **Tactical Defend-Heal** (`10%` max HP + `+20` Momentum when hit while Guarding), **Battle Fatigue** (`+6%` enemy DMG/turn from Turn 6+), and an **always-visible compact Enemy Shield/Charge/Trait HUD strip** in combat.
 - **Reforged 6.0 Audit & Hardening (`6.0.0-reforged-dev.1`):**
   - Raised progression ledger `ParseIndex` limit from `2 MB` to `32 MB`
     (`MaxLedgerEntries = 512`) and added automatic `.bak` backup on parse

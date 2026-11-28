@@ -18,7 +18,7 @@ internal sealed class Settings
     internal readonly ConfigEntry<bool> EnableArmyProgression, EnableDrillDirectives, EnableCrossTheaterSynergy, EnableExpandedCastleNpcs;
     internal readonly ConfigEntry<bool> EnableHuntModifiers, EnableBattleTacticalHud, EnableGuildMenuAudio;
     internal readonly ConfigEntry<bool> EnableCombatCombos, EnableWeaponMilestonePerks, EnableBossTelegraphs;
-    internal readonly ConfigEntry<bool> EnableApexEncounters, EnableDesperationSurge, EnableMomentumOverdrive, EnableFieldBounties, AllowAllDifficulties;
+    internal readonly ConfigEntry<bool> EnableApexEncounters, EnableDesperationSurge, EnableMomentumOverdrive, EnableFieldBounties, AllowAllDifficulties, EnableTrueNightmareRework;
     internal readonly ConfigEntry<int> GuildAudioMoveId, GuildAudioConfirmId, GuildAudioCancelId;
     internal readonly ConfigEntry<bool> EnableNativeWarRemix,RunNativeWarSelfTest,ExportNativeWarResearch,EnableNativeWarAI,EnableWarSpecializations,EnableWarTactics,EnableWarManeuvers;
 
@@ -72,6 +72,8 @@ internal sealed class Settings
             "Enables rotating Field Bounties and automatic Hunter's Bestiary milestones awarding Dunan Commendations.");
         AllowAllDifficulties=config.Bind("Difficulty",nameof(AllowAllDifficulties),false,
             "Enables all Reforged features (Hunts, Star Bonds, Boss Tactics, Legendary Bosses, Teamwork, Castle Guild & Army Training) on Easy, Normal, and Hard difficulties instead of Normal-only.");
+        EnableTrueNightmareRework=config.Bind("Combat Reforged",nameof(EnableTrueNightmareRework),false,
+            "True Nightmare Combat Rework: Enemy Guard Shields & Stagger, Boss/Elite Charged Devastation & Interrupts, 50% Dungeon Pack Traits (Thorned/Vampiric/Shielded/Berserk), Live Zone Hazards, Anti-Overleveling, Defend-Heal, and Battle Fatigue.");
         EnableGuildMenuAudio=config.Bind("Castle Guild",nameof(EnableGuildMenuAudio),false,
             "Enables native OldSrcBase.SD_call audio chimes for Castle Guild menu navigation when valid sound IDs are configured.");
         GuildAudioMoveId=config.Bind("Castle Guild",nameof(GuildAudioMoveId),-1,"Native SD_call sound ID for Guild cursor move (-1 disables).");

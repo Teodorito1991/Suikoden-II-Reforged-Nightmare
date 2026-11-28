@@ -38,6 +38,7 @@ EnableBossTelegraphs = true
 EnableApexEncounters = true
 EnableDesperationSurge = true
 EnableMomentumOverdrive = true
+EnableTrueNightmareRework = true
 "@
 
 Add-Content -LiteralPath $cfgPath -Value $overlay -Encoding UTF8

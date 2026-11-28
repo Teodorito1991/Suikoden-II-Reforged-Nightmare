@@ -49,6 +49,7 @@
     <Compile Include="../src/NightmareRebalance/Core/HotkeyEdge.cs" Link="HotkeyEdge.cs" />
     <Compile Include="../src/NightmareRebalance/Core/ContentProfiles.cs" Link="ContentProfiles.cs" />
     <Compile Include="../src/NightmareRebalance/Progression/Reforged5Rules.cs" Link="Reforged5Rules.cs" />
+    <Compile Include="../src/NightmareRebalance/Combat/NightmareReworkRules.cs" Link="NightmareReworkRules.cs" />
     <EmbeddedResource Include="../src/NightmareRebalance/Content/*.json" LogicalName="ReforgedContent.%(Filename)%(Extension)" />
     <EmbeddedResource Include="../archive/embedded-arena-v0.5/last-bridge.json" LogicalName="ReforgedContent.last-bridge.json" />
   </ItemGroup>

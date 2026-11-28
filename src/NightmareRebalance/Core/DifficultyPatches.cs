@@ -19,6 +19,7 @@ internal static class DamageScope
             {
                 factor=CombatReforgedRuntime.Factor(state,acting,factor,false);
                 if (Reforged2Runtime.IsBossEnraged(acting)) factor *= Reforged2Rules.BossEnrageDamageMultiplier;
+                if (NightmareReworkRuntime.Enabled) factor *= NightmareReworkRuntime.EnemyDamageScalingFor(work, acting, isMagic: false);
             }
             if (Reforged2Runtime.ApexBattleActive)
                 factor *= Reforged2Rules.ApexDamageMultiplier * Reforged2Rules.ApexAffixDamageMultiplier(Reforged2Runtime.ActiveApexAffix);
@@ -69,6 +70,7 @@ internal static class EnemyDamagePatch
         if (__state && eligible && __result > 0)
         {
             __result = Reforged2Runtime.ApplyOverdriveDefense(w, mokuhyo, __result);
+            __result = NightmareReworkRuntime.ApplyDefendAndEnemyTraits(w, __instance, mokuhyo, __result);
             Reforged2Runtime.ObservePlayerHit(w, __instance.chara_no, mokuhyo, __result);
         }
     }
@@ -123,7 +125,7 @@ internal static class PotchPatch
             double apexPotch = Reforged2Runtime.NemesisBattleActive ? 2.50
                 : Reforged2Runtime.ApexBattleActive ? Reforged2Rules.ApexAffixPotchMultiplier(Reforged2Runtime.ActiveApexAffix) : 1.0;
             double bonusPotch = Reforged2Runtime.VictoryPotchMultiplier(battle_work);
-            double potchFactor = Plugin.Options.PotchMultiplier.Value * apexPotch * bonusPotch;
+            double potchFactor = Plugin.Options.PotchMultiplier.Value * apexPotch * bonusPotch * NightmareReworkRuntime.ZonePotchMultiplier;
             exit.monster_okane = Rules.Scale(exit.monster_okane, potchFactor, int.MaxValue);
             int configured=exit.monster_okane;
             HuntRuntime.Reward(battle_work,exit);

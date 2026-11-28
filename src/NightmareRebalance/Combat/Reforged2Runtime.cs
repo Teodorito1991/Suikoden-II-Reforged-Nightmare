@@ -181,6 +181,8 @@ internal static class Reforged2Runtime
         }
     }
 
+    internal static void GrantBonusMomentum(int delta, BATTLE_WORK? w) => GainMomentum(delta, w);
+
     static void GainMomentum(int delta, BATTLE_WORK? w, CharacterTalent actorTalent = CharacterTalent.None)
     {
         if (!MomentumEnabled || delta <= 0 || OverdriveActive(w)) return;
@@ -624,7 +626,9 @@ internal static class Reforged2Runtime
             GainMomentum(15, w, talent);
         }
 
-        if (CombosEnabled && StarBondRuntime.Enemy(w, mokuhyo) is {} enemy)
+        bool comboProcced = false;
+        var targetEnemy = StarBondRuntime.Enemy(w, mokuhyo);
+        if (CombosEnabled && targetEnemy is {} enemy)
         {
             int stacks = armorBreaks.GetValueOrDefault(enemy.Pointer, 0);
             if (stacks > 0) result = Reforged2Rules.ApplyArmorBreak(result, stacks);
@@ -645,6 +649,7 @@ internal static class Reforged2Runtime
                 combo = Reforged2Rules.EvaluateSpellbladeResonance(result, true);
             if (combo.BonusDamage > 0)
             {
+                comboProcced = true;
                 int bonus = combo.BonusDamage;
                 if (TowerOfDunanRuntime.HasRelic("shatter-gauntlet"))
                     bonus = (int)Math.Round(bonus * 1.30, MidpointRounding.AwayFromZero);
@@ -659,11 +664,12 @@ internal static class Reforged2Runtime
             }
         }
 
+        result = NightmareReworkRuntime.ApplyPlayerAttackOnEnemy(w, attacker, targetEnemy, result, isMagic: false, comboProcced);
         RecordDamage(attacker, result);
         return result;
     }
 
-    internal static int ApplyPlayerMagic(BattlePlayerCharacter caster, int damage)
+    internal static int ApplyPlayerMagic(BattlePlayerCharacter caster, int mokuhyo, int damage)
     {
         if (damage <= 0 || Combat.State is not { Ready: true }) return damage;
         var w = Framework.Singleton<BATTLE_WORK>.instance;
@@ -730,6 +736,7 @@ internal static class Reforged2Runtime
             if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.OverdrivesOrSurges) is {} bm)
                 FlashBanner("★ " + bm, 3200, "success");
         }
+        bool magicCombo = false;
         if (CombosEnabled)
         {
             if (w.battle_kaisuu != lastTurn)
@@ -743,6 +750,7 @@ internal static class Reforged2Runtime
             var combo = Reforged2Rules.EvaluateArcaneChain(result, spellsThisTurn);
             if (combo.BonusDamage > 0)
             {
+                magicCombo = true;
                 int bonus = TowerOfDunanRuntime.HasRelic("shatter-gauntlet") ? (int)Math.Round(combo.BonusDamage * 1.30, MidpointRounding.AwayFromZero) : combo.BonusDamage;
                 result += bonus;
                 if (newCast)
@@ -756,6 +764,8 @@ internal static class Reforged2Runtime
             }
         }
 
+        var magicTarget = StarBondRuntime.Enemy(w, mokuhyo);
+        result = NightmareReworkRuntime.ApplyPlayerAttackOnEnemy(w, caster, magicTarget, result, isMagic: true, magicCombo);
         RecordDamage(caster, result);
         return result;
     }
@@ -850,10 +860,10 @@ internal static class Reforged2PhysicalPatch
 internal static class Reforged2MagicPatch
 {
     [HarmonyPostfix]
-    static void Postfix(BattlePlayerCharacter __instance, ref int __result)
+    static void Postfix(BattlePlayerCharacter __instance, int mokuhyo, ref int __result)
     {
         if (__instance.c_koudou != battle_h.CMD_MAGIC) return;
-        __result = Reforged2Runtime.ApplyPlayerMagic(__instance, __result);
+        __result = Reforged2Runtime.ApplyPlayerMagic(__instance, mokuhyo, __result);
         Reforged2Runtime.CheckBossTelegraphs(Framework.Singleton<BATTLE_WORK>.instance);
     }
 }

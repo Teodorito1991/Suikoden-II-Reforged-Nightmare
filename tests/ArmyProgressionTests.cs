@@ -367,6 +367,16 @@ internal static class ArmyProgressionTests
         Check(Reforged5Rules.DraftRelics(allOwnedRelics, seed: 7).Length == 0,
             "Tower Relic draft never re-offers already-owned unstackable relics");
 
-        Console.WriteLine($"PASS: Reforged 6.0 full suite {checks} checks.");
+        // 19. Reforged 7.0: True Nightmare Combat Rework (Shields, Stagger, Charge, Traits, Hazards, Anti-Overleveling, Fatigue)
+        Check(NightmareReworkRules.InitialShields(true, false, PackTrait.None) == 5 && NightmareReworkRules.InitialShields(false, true, PackTrait.None) == 3 && NightmareReworkRules.InitialShields(false, false, PackTrait.Shielded) == 2, "Boss/Elite/Shielded Guard Shield counts");
+        Check(NightmareReworkRules.ApplyShieldAndStaggerDamage(100, shields: 2, staggered: false) == 65 && NightmareReworkRules.ApplyShieldAndStaggerDamage(100, shields: 0, staggered: true) == 150, "Shielded -35% / Staggered +50% damage math");
+        Check(NightmareReworkRules.ShieldBreakAmount(true, false) == 2 && NightmareReworkRules.ShieldBreakAmount(false, false) == 1, "Weakness/Combo breaks 2 shields; normal hit breaks 1");
+        Check(NightmareReworkRules.ShouldChargeThisTurn(2, true, false, false) && !NightmareReworkRules.ShouldChargeThisTurn(2, true, false, true), "Boss charges on turn 2 unless Staggered");
+        Check(NightmareReworkRules.AntiOverlevelHpMultiplier(30, 20) > 1.4 && NightmareReworkRules.AntiOverlevelHpMultiplier(20, 20) == 1.0, "Anti-overleveling scales underleveled enemies up");
+        Check(NightmareReworkRules.BattleFatigueMultiplier(5, ZoneHazard.Calm) == 1.0 && NightmareReworkRules.BattleFatigueMultiplier(8, ZoneHazard.Calm) > 1.15 && NightmareReworkRules.BattleFatigueMultiplier(4, ZoneHazard.BloodMist) > 1.0, "Battle Fatigue ramps on long fights and earlier in Blood Mist");
+        Check(NightmareReworkRules.ComputeThornedReflect(100, 50) == 12 && NightmareReworkRules.ComputeThornedReflect(100, 10) == 9, "Thorned reflects 12% and never kills attacker");
+        Check(NightmareReworkRules.ComputeVampiricHeal(100) == 35 && NightmareReworkRules.ComputeDefendHeal(200) == 20, "Vampiric 35% leech & Defend 10% heal");
+
+        Console.WriteLine($"PASS: Reforged 7.0 full suite {checks} checks.");
     }
 }

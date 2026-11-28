@@ -30,6 +30,7 @@ internal static class Combat
         CombatReforgedRuntime.Clear();
         CombatEvolutionRuntime.BossTables.Clear();
         Reforged2Runtime.ClearBattle();
+        NightmareReworkRuntime.ClearBattle();
         State = null;
     }
 
@@ -103,6 +104,7 @@ internal static class Combat
             }
         Plugin.Debug($"Battle initialized: party={w.monster_party_data?.id}, allowed={s.Allowed}, players={w.player_kazu}, enemies={w.monster_kazu}");
         Reforged2Runtime.TryArmApexBattle(s, w);
+        NightmareReworkRuntime.ReadyBattle(s, w);
         if (s.StatsAllowed && w.pm_data != null) foreach (var unit in w.pm_data) ScaleEnemy(unit);
         MaintenanceRuntime.BaselineHp(w);
         CoverageRuntime.Emit(s.Report, "initialized");
@@ -124,6 +126,7 @@ internal static class Combat
         if (Reforged2Runtime.ApexBattleActive) factor *= Reforged2Rules.ApexHpMultiplier;
         if (Reforged2Runtime.NemesisBattleActive) factor *= Reforged2Runtime.ActiveNemesisHpMultiplier;
         if (TowerOfDunanRuntime.BattleInProgress) factor *= TowerOfDunanRuntime.ActiveHpMultiplier;
+        if (NightmareReworkRuntime.Enabled) factor *= NightmareReworkRuntime.EnemyHpScalingFor(unit);
         unit.max_hp = (ushort)Math.Max(1, Rules.Scale(unit.max_hp, factor, short.MaxValue));
         unit.hp = (short)Math.Clamp(Rules.Scale(unit.hp, factor, short.MaxValue), 1, unit.max_hp);
         s.Report?.Applied("EnemyMaxHp", unit.chara_no, beforeMax, unit.max_hp, factor);
