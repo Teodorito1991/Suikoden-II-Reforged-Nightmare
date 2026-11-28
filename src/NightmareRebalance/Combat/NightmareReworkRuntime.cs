@@ -193,6 +193,8 @@ internal static class NightmareReworkRuntime
         }
         if (SuperbossRuntime.BattleInProgress)
             result = SuperbossRuntime.ApplySuperbossIncomingModifiers(w, actor, enemy, result, isMagic);
+        if (CirculatingPathsRuntime.BattleInProgress)
+            result = CirculatingPathsRuntime.ApplyGuardianIncomingModifiers(w, actor, enemy, result, isMagic);
         return result;
     }
 

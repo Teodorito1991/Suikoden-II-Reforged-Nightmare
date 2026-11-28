@@ -189,6 +189,8 @@ internal static class Reforged2Runtime
         int scaled = Reforged5Rules.MomentumBonusForTalent(delta, actorTalent);
         if (SuperbossRuntime.HasTrophy("true-luca"))
             scaled = Math.Max(scaled + 1, (int)Math.Round(scaled * 1.15, MidpointRounding.AwayFromZero));
+        if (CirculatingPathsRuntime.HasBlessing("sindar-pulse"))
+            scaled = Math.Max(scaled + 1, (int)Math.Round(scaled * 1.25, MidpointRounding.AwayFromZero));
         Momentum = Reforged2Rules.AddMomentum(Momentum, scaled, out bool triggered);
         if (triggered)
         {
@@ -579,10 +581,17 @@ internal static class Reforged2Runtime
             result = Math.Max(result + 1, (int)Math.Round(result * 1.12, MidpointRounding.AwayFromZero));
         if (CirculatingPathsRuntime.CycleRank > 0)
             result = Math.Max(result + 1, (int)Math.Round(result * CirculatingPathsRules.CycleDamageBonus(CirculatingPathsRuntime.CycleRank), MidpointRounding.AwayFromZero));
+        if (CirculatingPathsRuntime.HasBlessing("serpent-fang"))
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.15, MidpointRounding.AwayFromZero));
         if (SuperbossRuntime.HasTrophy("eternal-neclord") && attacker.hp > 0 && attacker.hp < attacker.max_hp)
         {
             int trophyHeal = Math.Max(1, (int)Math.Round(result * 0.08, MidpointRounding.AwayFromZero));
             attacker.hp = (short)Math.Min(attacker.max_hp, attacker.hp + trophyHeal);
+        }
+        if (CirculatingPathsRuntime.HasBlessing("vampiric-seal") && attacker.hp > 0 && attacker.hp < attacker.max_hp)
+        {
+            int sealHeal = Math.Max(1, (int)Math.Round(result * 0.10, MidpointRounding.AwayFromZero));
+            attacker.hp = (short)Math.Min(attacker.max_hp, attacker.hp + sealHeal);
         }
 
         if (attacker.chara_no is >= 3 and < 6 && (CombosEnabled || PerksEnabled))
@@ -712,10 +721,17 @@ internal static class Reforged2Runtime
             result = Math.Max(result + 1, (int)Math.Round(result * 1.12, MidpointRounding.AwayFromZero));
         if (CirculatingPathsRuntime.CycleRank > 0)
             result = Math.Max(result + 1, (int)Math.Round(result * CirculatingPathsRules.CycleDamageBonus(CirculatingPathsRuntime.CycleRank), MidpointRounding.AwayFromZero));
+        if (CirculatingPathsRuntime.HasBlessing("serpent-fang"))
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.15, MidpointRounding.AwayFromZero));
         if (SuperbossRuntime.HasTrophy("eternal-neclord") && caster.hp > 0 && caster.hp < caster.max_hp)
         {
             int trophyHeal = Math.Max(1, (int)Math.Round(result * 0.08, MidpointRounding.AwayFromZero));
             caster.hp = (short)Math.Min(caster.max_hp, caster.hp + trophyHeal);
+        }
+        if (CirculatingPathsRuntime.HasBlessing("vampiric-seal") && caster.hp > 0 && caster.hp < caster.max_hp)
+        {
+            int sealHeal = Math.Max(1, (int)Math.Round(result * 0.10, MidpointRounding.AwayFromZero));
+            caster.hp = (short)Math.Min(caster.max_hp, caster.hp + sealHeal);
         }
         if (caster.chara_no is >= 3 and < 6 && (CombosEnabled || PerksEnabled))
         {

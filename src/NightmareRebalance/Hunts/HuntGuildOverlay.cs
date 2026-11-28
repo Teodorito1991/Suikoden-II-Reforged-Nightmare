@@ -811,6 +811,47 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     if(dialogue&&CastleGuildRuntime.Dialogue.Script is {} dScript)
     {
      var dlg=CastleGuildRuntime.Dialogue;
+     if(dScript.RoleTitle.Contains("Tower of Circulating Paths")||dScript.RoleTitle.Contains("Sajah Summit"))
+     {
+      float mw=560,mh=292;
+      var mbox=new Rect(60,38,mw,mh);
+      Window(mbox);
+      Label(new(new(20,12,mw-40,26),$"TOWER OF CIRCULATING PATHS  ·  CYCLE {CirculatingPathsRuntime.CycleRank}",17,"gold"),mbox.x,mbox.y,1);
+      // Left column: vertical 6-floor Sindar spire map (Floor 6 at top -> Floor 1 at bottom)
+      for(int f=CirculatingPathsRules.TotalFloors;f>=1;f--)
+      {
+       var fs=CirculatingPathsRules.Floor(f);
+       float fy=46+(CirculatingPathsRules.TotalFloors-f)*37;
+       bool isCur=f==CirculatingPathsRuntime.CurrentFloor&&!CirculatingPathsRuntime.SummitCrystalReady;
+       bool cleared=f<CirculatingPathsRuntime.CurrentFloor||(f==CirculatingPathsRuntime.CurrentFloor&&CirculatingPathsRuntime.GuardianDefeatedThisFloor)||CirculatingPathsRuntime.SummitCrystalReady;
+       string prefix=isCur?"► ":cleared?"✓ ":"· ";
+       string tone=isCur?"gold":cleared?"success":"muted";
+       if(isCur)Fill(new Rect(mbox.x+16,mbox.y+fy-2,208,30),new Color(.90f,.72f,.24f,.18f));
+       Label(new(new(22,fy,200,26),prefix+fs.ShortTag,16,tone),mbox.x,mbox.y,1);
+      }
+      // Vertical divider
+      Fill(new Rect(mbox.x+232,mbox.y+44,2,mh-60),new Color(.88f,.75f,.42f,.45f));
+      // Right column: 8 Red Orb Sockets, Active Blessings & Current Guardian Intel
+      int orbs=CirculatingPathsRuntime.RedOrbsCollected;
+      Label(new(new(248,46,296,22),$"RED ORB SOCKETS  ({orbs}/{CirculatingPathsRules.TotalRedOrbs})",14,"gold"),mbox.x,mbox.y,1);
+      for(int oi=0;oi<CirculatingPathsRules.TotalRedOrbs;oi++)
+      {
+       float ox=mbox.x+250+oi*34;
+       float oy=mbox.y+74;
+       bool lit=oi<orbs;
+       Fill(new Rect(ox,oy,24,24),lit?new Color(.92f,.16f,.22f,.96f):new Color(.12f,.14f,.22f,.90f));
+       Fill(new Rect(ox+4,oy+4,16,16),lit?new Color(1f,.48f,.44f,.95f):new Color(.06f,.08f,.14f,.95f));
+      }
+      var curSpec=CirculatingPathsRules.Floor(CirculatingPathsRuntime.CurrentFloor);
+      Label(new(new(248,112,296,22),"STAIRWELL GUARDIAN",13,"muted"),mbox.x,mbox.y,1);
+      Label(new(new(248,132,296,24),$"{curSpec.GuardianName}  ({new string('◆',curSpec.Shields)})",15,"alert"),mbox.x,mbox.y,1);
+      Label(new(new(248,156,296,22),$"{curSpec.GuardianMechanicName}: {curSpec.GuardianMechanicDesc}",13),mbox.x,mbox.y,1);
+      Label(new(new(248,190,296,22),"ACTIVE SPIRE BLESSINGS",13,"muted"),mbox.x,mbox.y,1);
+      string blessLine=CirculatingPathsRuntime.ActiveBlessings.Count==0
+          ?"None yet — visit floor shrines!"
+          :string.Join("\n",CirculatingPathsRuntime.ActiveBlessings.Select(id=>CirculatingPathsRules.FindBlessing(id) is {} b?$"★ {b.Name}: {b.Summary}":id));
+      Label(new(new(248,210,296,74),blessLine,13,CirculatingPathsRuntime.ActiveBlessings.Count>0?"success":"muted"),mbox.x,mbox.y,1);
+     }
      float width=Math.Min(1020,vw-120);
      float height=166;
      var box=new Rect((vw-width)/2,vh-height-30,width,height);

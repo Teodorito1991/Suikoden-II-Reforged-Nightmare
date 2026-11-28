@@ -30,7 +30,10 @@ internal static class DamageScope
             if (SuperbossRuntime.BattleInProgress)
                 factor *= SuperbossRuntime.ActiveDamageMultiplier(work);
             if (CirculatingPathsRuntime.BattleInProgress)
-                factor *= CirculatingPathsRuntime.ActiveDamageMultiplier;
+            {
+                var actingUnit = work?.pm_data is {} u && attacker >= 0 && attacker < u.Length ? u[attacker] : null;
+                factor *= CirculatingPathsRuntime.ActiveDamageMultiplier(work, actingUnit);
+            }
             if (SuperbossRuntime.HasTrophy("omega-beast"))
                 factor *= 0.90;
             if (DamageScaling.Apply(outer, eligible, ref result, factor))
@@ -78,6 +81,7 @@ internal static class EnemyDamagePatch
             __result = Reforged2Runtime.ApplyOverdriveDefense(w, mokuhyo, __result);
             __result = NightmareReworkRuntime.ApplyDefendAndEnemyTraits(w, __instance, mokuhyo, __result);
             SuperbossRuntime.OnSuperbossDealtDamage(__instance, __result);
+            CirculatingPathsRuntime.OnGuardianDealtDamage(__instance, __result);
             Reforged2Runtime.ObservePlayerHit(w, __instance.chara_no, mokuhyo, __result);
         }
     }

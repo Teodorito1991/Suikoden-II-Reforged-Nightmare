@@ -142,7 +142,7 @@ internal static class CastleDialogueScripts
         return new("Hooded Stranger", "Keeper of Forbidden Seals", pages.ToArray(), choices.ToArray());
     }
 
-    internal static DialogueScript CirculatingPathsScript(int floor, int orbs, bool alcoveSearched, bool guardianDefeated, bool summitReady, int cycleRank, string? statusNote = null)
+    internal static DialogueScript CirculatingPathsScript(int floor, int orbs, bool alcoveSearched, bool shrineVisited, bool guardianDefeated, bool summitReady, int cycleRank, string? statusNote = null)
     {
         if (summitReady)
         {
@@ -162,18 +162,37 @@ internal static class CastleDialogueScripts
         string bar = CirculatingPathsRules.OrbProgressBar(orbs);
         var pages = new List<string>(2);
         if (!string.IsNullOrEmpty(statusNote)) pages.Add(statusNote);
-        pages.Add($"{spec.Atmosphere}\nRed Orbs: {bar} ({orbs}/{CirculatingPathsRules.TotalRedOrbs})  ·  Cycle Rank: {cycleRank}");
+        pages.Add($"{spec.Atmosphere}\nRed Orbs: {bar} ({orbs}/{CirculatingPathsRules.TotalRedOrbs})  ·  Guardian: {spec.GuardianName} ({spec.GuardianMechanicName})");
 
-        var choices = new List<DialogueChoiceSpec>(5);
+        var choices = new List<DialogueChoiceSpec>(6);
         if (!alcoveSearched && spec.OrbsOnFloor > 0)
-            choices.Add(new DialogueChoiceSpec($"Search Sindar Alcove (+{spec.OrbsOnFloor} Red Orb(s) & Cache)", "sajah-search"));
+            choices.Add(new DialogueChoiceSpec($"Explore Sindar Puzzle (+{spec.OrbsOnFloor} Red Orb(s) & Cache)", "sajah-puzzle"));
+        if (!shrineVisited)
+        {
+            string cost = spec.ShrinePotchCost > 0 ? $"{spec.ShrinePotchCost:N0} Potch" : $"{spec.ShrineCommCost} Comm.";
+            choices.Add(new DialogueChoiceSpec($"Secret Chamber: {spec.ShrineTitle} ({cost})", "sajah-shrine"));
+        }
         if (!guardianDefeated)
-            choices.Add(new DialogueChoiceSpec($"Fight Stairwell Guardian: {spec.GuardianName}", "sajah-guardian"));
+            choices.Add(new DialogueChoiceSpec($"Fight Guardian: {spec.GuardianName} [{spec.GuardianMechanicName}]", "sajah-guardian"));
         else
             choices.Add(new DialogueChoiceSpec(floor < CirculatingPathsRules.TotalFloors ? $"Ascend to Floor {floor + 1}/6" : "Approach the Violet Crystal", "sajah-ascend"));
         choices.Add(new DialogueChoiceSpec("Read Ancient Sindar Inscription", "sajah-lore"));
         choices.Add(new DialogueChoiceSpec("Return to Castle (Progress Saved)", "close"));
         return new(spec.Name, $"Tower of Circulating Paths · Floor {floor}/6", pages.ToArray(), choices.ToArray());
+    }
+
+    internal static DialogueScript CirculatingPuzzleScript(int floor)
+    {
+        var spec = CirculatingPathsRules.Floor(floor);
+        return new($"Sindar Puzzle — {spec.ShortTag}", $"Tower of Circulating Paths · Floor {floor}/6", new[]
+        {
+            spec.PuzzlePrompt
+        }, new[]
+        {
+            new DialogueChoiceSpec(spec.PuzzleChoiceSafe, "sajah-puzzle-safe"),
+            new DialogueChoiceSpec(spec.PuzzleChoiceRisky + " (Risky · Bonus Potch)", "sajah-puzzle-risky"),
+            new DialogueChoiceSpec("Step Back", "open-sajah")
+        });
     }
 
     internal static DialogueScript SuperbossConfirmScript(string id, ArmyLedgerState ledger)

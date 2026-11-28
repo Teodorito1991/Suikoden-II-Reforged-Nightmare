@@ -418,13 +418,16 @@ internal static class ArmyProgressionTests
         Check(CirculatingPathsRules.Floors.Length == 6 && CirculatingPathsRules.Floors.Sum(f => f.OrbsOnFloor) == 8, "Sajah Cut Dungeon has 6 floors totaling exactly 8 Red Orbs");
         Check(CirculatingPathsRules.OrbProgressBar(3) == "●●●○○○○○" && CirculatingPathsRules.OrbProgressBar(8) == "●●●●●●●●", "Red Orb progress bar renders 0..8 orbs");
         Check(CirculatingPathsRules.CycleDamageBonus(2) > 1.09 && CirculatingPathsRules.CyclePotchMultiplier(2) > 1.29, "Cycle Rank blessings scale party DMG & Potch");
-        var floor1Dlg = CastleDialogueScripts.CirculatingPathsScript(1, 0, false, false, false, 0);
-        Check(floor1Dlg.Choices.Any(c => c.ActionId == "sajah-search") && floor1Dlg.Choices.Any(c => c.ActionId == "sajah-guardian"), "Floor 1 dialogue offers Sindar Alcove search & Stairwell Guardian");
-        var summitDlg = CastleDialogueScripts.CirculatingPathsScript(6, 8, true, true, true, 1);
+        var floor1Dlg = CastleDialogueScripts.CirculatingPathsScript(1, 0, false, false, false, false, 0);
+        Check(floor1Dlg.Choices.Any(c => c.ActionId == "sajah-puzzle") && floor1Dlg.Choices.Any(c => c.ActionId == "sajah-shrine") && floor1Dlg.Choices.Any(c => c.ActionId == "sajah-guardian"), "Floor 1 dialogue offers Sindar Puzzle, Secret Shrine & Stairwell Guardian");
+        var puzDlg = CastleDialogueScripts.CirculatingPuzzleScript(2);
+        Check(puzDlg.Choices.Length == 3 && puzDlg.Choices[0].ActionId == "sajah-puzzle-safe" && puzDlg.Choices[1].ActionId == "sajah-puzzle-risky", "Sindar Puzzle offers safe vs risky choice");
+        Check(CirculatingPathsRules.Blessings.Length == 4 && CirculatingPathsRules.FindBlessing("serpent-fang") != null && CirculatingPathsRules.Floors.All(f => !string.IsNullOrEmpty(f.GuardianMechanicName)), "All 4 Spire Blessings & 6 Guardian Mechanics defined");
+        var summitDlg = CastleDialogueScripts.CirculatingPathsScript(6, 8, true, true, true, true, 1);
         Check(summitDlg.Speaker == "Rune of Circulating Paths" && summitDlg.Choices[0].ActionId == "sajah-cycle-yes", "Summit violet crystal offers Rune of Circulating Paths Cycle blessing");
         ledger.CirculatingCycleRank = 2; ledger.CirculatingClears = 2;
         Check(ledger.Clone().CirculatingCycleRank == 2 && ledger.Clone().CirculatingClears == 2, "Circulating Cycle Rank persists & clones cleanly");
 
-        Console.WriteLine($"PASS: Reforged 8.5 full suite {checks} checks.");
+        Console.WriteLine($"PASS: Reforged 8.6 full suite {checks} checks.");
     }
 }
