@@ -52,17 +52,18 @@ internal static class NightmareReworkRuntime
         ActiveZoneHazard = NightmareReworkRules.RollZoneHazard(w.battle_data?.id);
         bool hasBoss = w.pm_data.Any(u => u != null && !u.IsPlayer && u.max_hp >= 1200);
         bool isEliteBattle = Reforged2Runtime.ApexBattleActive || Reforged2Runtime.NemesisBattleActive ||
-            HuntRuntime.Active != null || TowerOfDunanRuntime.BattleInProgress || SuperbossRuntime.BattleInProgress;
+            HuntRuntime.Active != null || TowerOfDunanRuntime.BattleInProgress || SuperbossRuntime.BattleInProgress || CirculatingPathsRuntime.BattleInProgress;
 
         if (!hasBoss && !isEliteBattle && s.Allowed && s.StatsAllowed)
             ActivePackTrait = NightmareReworkRules.RollPackTrait(rng.Next(100));
 
-        int superbossShields = SuperbossRuntime.InitialShieldsForSuperboss();
+        int customShields = SuperbossRuntime.InitialShieldsForSuperboss();
+        if (customShields <= 0) customShields = CirculatingPathsRuntime.InitialShieldsForGuardian();
         foreach (var unit in w.pm_data)
         {
             if (unit == null || unit.IsPlayer || unit.hp <= 0 || unit.IsDead) continue;
-            bool isBoss = unit.max_hp >= 1200 || SuperbossRuntime.BattleInProgress;
-            int shields = superbossShields > 0 ? superbossShields : NightmareReworkRules.InitialShields(isBoss, isEliteBattle, ActivePackTrait);
+            bool isBoss = unit.max_hp >= 1200 || SuperbossRuntime.BattleInProgress || CirculatingPathsRuntime.BattleInProgress;
+            int shields = customShields > 0 ? customShields : NightmareReworkRules.InitialShields(isBoss, isEliteBattle, ActivePackTrait);
             states[unit.Pointer] = new EnemyTacticalState
             {
                 MaxShields = shields,

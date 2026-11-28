@@ -406,7 +406,7 @@ internal static class ArmyProgressionTests
         var necSpec = SuperbossRules.Find("eternal-neclord")!;
         Check(SuperbossRules.EvaluatePhase(necSpec, 6000, 10000) == 1 && SuperbossRules.EvaluatePhase(necSpec, 4500, 10000) == 2, "Sindar 2-phase threshold (50%)");
         var strangerScript = CastleDialogueScripts.Build(CastleNpcRole.SuperbossSeer, ledger, false, 0);
-        Check(strangerScript.Speaker == "Hooded Stranger" && strangerScript.Choices.Length == 6 && strangerScript.Choices[0].ActionId == "confirm-superboss:true-luca", "Hooded Stranger offers all 4 Secret Superbosses + lore");
+        Check(strangerScript.Speaker == "Hooded Stranger" && strangerScript.Choices.Length == 7 && strangerScript.Choices[0].ActionId == "open-sajah" && strangerScript.Choices[1].ActionId == "confirm-superboss:true-luca", "Hooded Stranger offers Sajah Cut Dungeon + all 4 Secret Superbosses + lore");
         var confirmScript = CastleDialogueScripts.SuperbossConfirmScript("omega-beast", ledger);
         Check(confirmScript.Choices[0].ActionId == "launch-superboss:omega-beast", "Superboss seal confirmation launches exact encounter");
         foreach (var bossSpec in SuperbossRules.All) ledger.DefeatedSuperbosses.Add(bossSpec.Id);
@@ -414,6 +414,17 @@ internal static class ArmyProgressionTests
         var clearedStranger = CastleDialogueScripts.Build(CastleNpcRole.SuperbossSeer, ledger, false, 0);
         Check(clearedStranger.Pages[0].Contains("Sovereign of Dunan"), "Hooded Stranger reacts when all 4 Secret Superbosses are vanquished");
 
-        Console.WriteLine($"PASS: Reforged 8.0 full suite {checks} checks.");
+        // 22. Reforged 8.5: Cut Sajah Dungeon Restoration ("Tower of Circulating Paths")
+        Check(CirculatingPathsRules.Floors.Length == 6 && CirculatingPathsRules.Floors.Sum(f => f.OrbsOnFloor) == 8, "Sajah Cut Dungeon has 6 floors totaling exactly 8 Red Orbs");
+        Check(CirculatingPathsRules.OrbProgressBar(3) == "●●●○○○○○" && CirculatingPathsRules.OrbProgressBar(8) == "●●●●●●●●", "Red Orb progress bar renders 0..8 orbs");
+        Check(CirculatingPathsRules.CycleDamageBonus(2) > 1.09 && CirculatingPathsRules.CyclePotchMultiplier(2) > 1.29, "Cycle Rank blessings scale party DMG & Potch");
+        var floor1Dlg = CastleDialogueScripts.CirculatingPathsScript(1, 0, false, false, false, 0);
+        Check(floor1Dlg.Choices.Any(c => c.ActionId == "sajah-search") && floor1Dlg.Choices.Any(c => c.ActionId == "sajah-guardian"), "Floor 1 dialogue offers Sindar Alcove search & Stairwell Guardian");
+        var summitDlg = CastleDialogueScripts.CirculatingPathsScript(6, 8, true, true, true, 1);
+        Check(summitDlg.Speaker == "Rune of Circulating Paths" && summitDlg.Choices[0].ActionId == "sajah-cycle-yes", "Summit violet crystal offers Rune of Circulating Paths Cycle blessing");
+        ledger.CirculatingCycleRank = 2; ledger.CirculatingClears = 2;
+        Check(ledger.Clone().CirculatingCycleRank == 2 && ledger.Clone().CirculatingClears == 2, "Circulating Cycle Rank persists & clones cleanly");
+
+        Console.WriteLine($"PASS: Reforged 8.5 full suite {checks} checks.");
     }
 }

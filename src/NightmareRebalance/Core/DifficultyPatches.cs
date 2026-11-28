@@ -29,6 +29,8 @@ internal static class DamageScope
                 factor *= TowerOfDunanRuntime.ActiveDamageMultiplier;
             if (SuperbossRuntime.BattleInProgress)
                 factor *= SuperbossRuntime.ActiveDamageMultiplier(work);
+            if (CirculatingPathsRuntime.BattleInProgress)
+                factor *= CirculatingPathsRuntime.ActiveDamageMultiplier;
             if (SuperbossRuntime.HasTrophy("omega-beast"))
                 factor *= 0.90;
             if (DamageScaling.Apply(outer, eligible, ref result, factor))

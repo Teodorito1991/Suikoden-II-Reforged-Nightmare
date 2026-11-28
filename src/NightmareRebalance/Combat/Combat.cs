@@ -105,6 +105,7 @@ internal static class Combat
         Plugin.Debug($"Battle initialized: party={w.monster_party_data?.id}, allowed={s.Allowed}, players={w.player_kazu}, enemies={w.monster_kazu}");
         Reforged2Runtime.TryArmApexBattle(s, w);
         SuperbossRuntime.OnBattleStart();
+        CirculatingPathsRuntime.OnBattleStart();
         NightmareReworkRuntime.ReadyBattle(s, w);
         if (s.StatsAllowed && w.pm_data != null) foreach (var unit in w.pm_data) ScaleEnemy(unit);
         MaintenanceRuntime.BaselineHp(w);
@@ -117,7 +118,7 @@ internal static class Combat
         if (s is not { Ready: true, StatsAllowed: true } || unit == null || unit.IsPlayer ||
             unit.TryCast<BattleMonsterCharacter>() == null || unit.hp <= 0 || unit.max_hp == 0 || !s.ScaledEnemies.Add(unit.Pointer.ToInt64())) return;
         bool originalHall = HallFirstContact.UsesOriginalHp();
-        if (originalHall && !TowerOfDunanRuntime.BattleInProgress && !SuperbossRuntime.BattleInProgress)
+        if (originalHall && !TowerOfDunanRuntime.BattleInProgress && !SuperbossRuntime.BattleInProgress && !CirculatingPathsRuntime.BattleInProgress)
             return;
         // Mutate live instances only. MONSTER_DATA templates remain vanilla, including across encounters.
         int beforeHp = unit.hp, beforeMax = unit.max_hp;
@@ -128,6 +129,7 @@ internal static class Combat
         if (Reforged2Runtime.NemesisBattleActive) factor *= Reforged2Runtime.ActiveNemesisHpMultiplier;
         if (TowerOfDunanRuntime.BattleInProgress) factor *= TowerOfDunanRuntime.ActiveHpMultiplier;
         if (SuperbossRuntime.BattleInProgress) factor *= SuperbossRuntime.ActiveHpMultiplier;
+        if (CirculatingPathsRuntime.BattleInProgress) factor *= CirculatingPathsRuntime.ActiveHpMultiplier;
         if (NightmareReworkRuntime.Enabled) factor *= NightmareReworkRuntime.EnemyHpScalingFor(unit);
         unit.max_hp = (ushort)Math.Max(1, Rules.Scale(unit.max_hp, factor, short.MaxValue));
         unit.hp = (short)Math.Clamp(Rules.Scale(unit.hp, factor, short.MaxValue), 1, unit.max_hp);
@@ -270,6 +272,7 @@ internal static class VictoryPatch
         HallFirstContact.Outcome(__instance.battle_work, true);
         TowerOfDunanRuntime.OnHallBattleFinished(true);
         SuperbossRuntime.OnHallBattleFinished(true);
+        CirculatingPathsRuntime.OnHallBattleFinished(true);
     }
 }
 
@@ -282,6 +285,7 @@ internal static class NonVictoryPatch
         HallFirstContact.Outcome(__instance.battle_work, false);
         TowerOfDunanRuntime.OnHallBattleFinished(false);
         SuperbossRuntime.OnHallBattleFinished(false);
+        CirculatingPathsRuntime.OnHallBattleFinished(false);
     }
 }
 

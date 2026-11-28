@@ -481,6 +481,19 @@ internal static class ArmyProgressionRuntime
         }
     }
 
+    internal static int RecordCirculatingPathsClear(bool newCycle)
+    {
+        lock (Sync)
+        {
+            Current.CirculatingClears++;
+            if (newCycle && Current.CirculatingCycleRank < CirculatingPathsRules.MaxCycleRank)
+                Current.CirculatingCycleRank++;
+            Current.UnlockedHonors ??= new HashSet<string>(StringComparer.Ordinal);
+            Current.UnlockedHonors.Add("circulating-paths");
+            return Current.CirculatingCycleRank;
+        }
+    }
+
     internal static DrillDirective CycleDirective()
     {
         ActiveDirective = (DrillDirective)(((int)ActiveDirective + 1) % 4);

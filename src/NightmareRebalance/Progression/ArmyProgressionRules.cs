@@ -85,6 +85,8 @@ internal sealed class ArmyLedgerState
     public HashSet<string> CastleUpgrades { get; set; } = new(StringComparer.Ordinal);
     public HashSet<string> UnlockedHonors { get; set; } = new(StringComparer.Ordinal);
     public HashSet<string> DefeatedSuperbosses { get; set; } = new(StringComparer.Ordinal);
+    public int CirculatingCycleRank { get; set; }
+    public int CirculatingClears { get; set; }
     public Dictionary<string, BestiaryEntry> Bestiary { get; set; } = new(StringComparer.Ordinal);
     public NemesisRecord? ActiveNemesis { get; set; }
     public int NemesesSlain { get; set; }
@@ -114,6 +116,8 @@ internal sealed class ArmyLedgerState
             ActiveNemesis = ActiveNemesis?.Clone(),
             NemesesSlain = NemesesSlain,
             HighestTowerFloor = HighestTowerFloor,
+            CirculatingCycleRank = CirculatingCycleRank,
+            CirculatingClears = CirculatingClears,
             BestiaryMilestonesClaimed = BestiaryMilestonesClaimed,
             ApexPacksCleared = ApexPacksCleared,
             TotalCombosLanded = TotalCombosLanded,

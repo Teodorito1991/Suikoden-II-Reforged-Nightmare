@@ -129,7 +129,9 @@ internal static class CastleDialogueScripts
             pages.Add("Hidden beyond the Hall of Echoes lie four forbidden seals—True Luca Blight, the Omega Beast Rune, Eternal Neclord, and the Awakened Bone Dragon. Break a seal, and claim their permanent Trophy.");
         }
 
-        var choices = new List<DialogueChoiceSpec>(6);
+        var choices = new List<DialogueChoiceSpec>(7);
+        string sajahTag = ledger.CirculatingCycleRank > 0 ? $" [Cycle {ledger.CirculatingCycleRank}]" : " [6 Floors · 8 Orbs]";
+        choices.Add(new DialogueChoiceSpec($"Tower of Circulating Paths (Sajah Cut Dungeon){sajahTag}", "open-sajah"));
         foreach (var s in SuperbossRules.All)
         {
             string tag = defeated.Contains(s.Id) ? " [CLEARED]" : " [SEALED]";
@@ -138,6 +140,40 @@ internal static class CastleDialogueScripts
         choices.Add(new DialogueChoiceSpec("Inspect Superboss Trophies", "lore-superboss"));
         choices.Add(new DialogueChoiceSpec("Step Back", "close"));
         return new("Hooded Stranger", "Keeper of Forbidden Seals", pages.ToArray(), choices.ToArray());
+    }
+
+    internal static DialogueScript CirculatingPathsScript(int floor, int orbs, bool alcoveSearched, bool guardianDefeated, bool summitReady, int cycleRank, string? statusNote = null)
+    {
+        if (summitReady)
+        {
+            return new("Rune of Circulating Paths", $"Sajah Summit · Cycle {cycleRank}", new[]
+            {
+                "A radiant violet crystal floats above the Sanctum altar, humming with the power of the cut Sajah spire.",
+                "\"You who have walked the six halls and gathered the eight crimson orbs... Do you seek a new path? Embrace the Cycle to permanently empower your army (+5% Party DMG & +15% Potch per Cycle, +100,000 Potch, +25 Commendations).\""
+            }, new[]
+            {
+                new DialogueChoiceSpec("Embrace the New Cycle (Cycle +1 Blessing)", "sajah-cycle-yes"),
+                new DialogueChoiceSpec("Claim the Sindar Vault (+75,000 Potch & +15 Commendations)", "sajah-cycle-vault"),
+                new DialogueChoiceSpec("Return to Castle HQ", "close")
+            });
+        }
+
+        var spec = CirculatingPathsRules.Floor(floor);
+        string bar = CirculatingPathsRules.OrbProgressBar(orbs);
+        var pages = new List<string>(2);
+        if (!string.IsNullOrEmpty(statusNote)) pages.Add(statusNote);
+        pages.Add($"{spec.Atmosphere}\nRed Orbs: {bar} ({orbs}/{CirculatingPathsRules.TotalRedOrbs})  ·  Cycle Rank: {cycleRank}");
+
+        var choices = new List<DialogueChoiceSpec>(5);
+        if (!alcoveSearched && spec.OrbsOnFloor > 0)
+            choices.Add(new DialogueChoiceSpec($"Search Sindar Alcove (+{spec.OrbsOnFloor} Red Orb(s) & Cache)", "sajah-search"));
+        if (!guardianDefeated)
+            choices.Add(new DialogueChoiceSpec($"Fight Stairwell Guardian: {spec.GuardianName}", "sajah-guardian"));
+        else
+            choices.Add(new DialogueChoiceSpec(floor < CirculatingPathsRules.TotalFloors ? $"Ascend to Floor {floor + 1}/6" : "Approach the Violet Crystal", "sajah-ascend"));
+        choices.Add(new DialogueChoiceSpec("Read Ancient Sindar Inscription", "sajah-lore"));
+        choices.Add(new DialogueChoiceSpec("Return to Castle (Progress Saved)", "close"));
+        return new(spec.Name, $"Tower of Circulating Paths · Floor {floor}/6", pages.ToArray(), choices.ToArray());
     }
 
     internal static DialogueScript SuperbossConfirmScript(string id, ArmyLedgerState ledger)

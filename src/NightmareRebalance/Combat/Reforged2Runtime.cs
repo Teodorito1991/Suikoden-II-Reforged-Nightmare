@@ -577,6 +577,8 @@ internal static class Reforged2Runtime
             result = Math.Max(result + 1, (int)Math.Round(result * 1.10, MidpointRounding.AwayFromZero));
         if (SuperbossRuntime.HasTrophy("awakened-dragon"))
             result = Math.Max(result + 1, (int)Math.Round(result * 1.12, MidpointRounding.AwayFromZero));
+        if (CirculatingPathsRuntime.CycleRank > 0)
+            result = Math.Max(result + 1, (int)Math.Round(result * CirculatingPathsRules.CycleDamageBonus(CirculatingPathsRuntime.CycleRank), MidpointRounding.AwayFromZero));
         if (SuperbossRuntime.HasTrophy("eternal-neclord") && attacker.hp > 0 && attacker.hp < attacker.max_hp)
         {
             int trophyHeal = Math.Max(1, (int)Math.Round(result * 0.08, MidpointRounding.AwayFromZero));
@@ -708,6 +710,8 @@ internal static class Reforged2Runtime
             result = Math.Max(result + 1, (int)Math.Round(result * 1.12, MidpointRounding.AwayFromZero));
         if (SuperbossRuntime.HasTrophy("awakened-dragon"))
             result = Math.Max(result + 1, (int)Math.Round(result * 1.12, MidpointRounding.AwayFromZero));
+        if (CirculatingPathsRuntime.CycleRank > 0)
+            result = Math.Max(result + 1, (int)Math.Round(result * CirculatingPathsRules.CycleDamageBonus(CirculatingPathsRuntime.CycleRank), MidpointRounding.AwayFromZero));
         if (SuperbossRuntime.HasTrophy("eternal-neclord") && caster.hp > 0 && caster.hp < caster.max_hp)
         {
             int trophyHeal = Math.Max(1, (int)Math.Round(result * 0.08, MidpointRounding.AwayFromZero));
