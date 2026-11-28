@@ -292,6 +292,7 @@ internal static class CastleDialogueScripts
             pages.Add($"Whispers spread through the keep! You have vanquished {sbCleared}/{SuperbossRules.All.Length} of the Hooded Stranger's Secret Superbosses.");
         return new("War Chronicler Orin", "Castle Historian", pages.ToArray(), new[]
         {
+            new DialogueChoiceSpec("Inspect Bestiary, Honors & Dossier", "toggle-chronicle-view"),
             new DialogueChoiceSpec("Open War Squads Builder", "open-warsquads"),
             new DialogueChoiceSpec("Export Campaign Chronicle", "export-chronicle"),
             new DialogueChoiceSpec("Hear a Dunan War Tale", "lore-war"),

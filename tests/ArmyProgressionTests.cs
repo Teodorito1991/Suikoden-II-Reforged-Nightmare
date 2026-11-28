@@ -538,6 +538,17 @@ internal static class ArmyProgressionTests
         Check(!ArmyProgressionRules.TryCommitPendingSave(asyncIdx, staleSave, ref boundOwner, succeeded: true) && !asyncIdx.Snapshots.ContainsKey("HASH_STALE"),
             "Stale-owner async save completion is rejected after campaign switch");
 
-        Console.WriteLine($"PASS: Reforged 9.0.2 stabilization suite {checks} checks.");
+        // 25. Native Integration & Polish Pass (9.0.0-polish.1): Stacked damage soft-cap & in-world Chronicler
+        Check(Reforged2Rules.ApplyStackedPlayerDamageCap(100, 400, endgameOptional: false) == 225,
+            "Campaign player damage soft-caps at 2.25x base damage");
+        Check(Reforged2Rules.ApplyStackedPlayerDamageCap(100, 400, endgameOptional: true) == 275,
+            "Endgame optional player damage soft-caps at 2.75x base damage");
+        Check(Reforged2Rules.ApplyStackedPlayerDamageCap(100, 180, endgameOptional: false) == 180,
+            "Moderate damage buffs below soft-cap pass through untouched");
+        var orinPolish = CastleDialogueScripts.Build(CastleNpcRole.WarChronicler, ledger, false, 0);
+        Check(orinPolish.Choices[0].ActionId == "toggle-chronicle-view",
+            "War Chronicler Orin exposes in-world Bestiary/Honors/Dossier inspection");
+
+        Console.WriteLine($"PASS: Reforged 9.0.0-polish.1 suite {checks} checks.");
     }
 }

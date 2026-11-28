@@ -686,6 +686,8 @@ internal static class Reforged2Runtime
             }
         }
 
+        bool endgameOptPhys = TowerOfDunanRuntime.BattleInProgress || SuperbossRuntime.BattleInProgress || CirculatingPathsRuntime.BattleInProgress;
+        result = Reforged2Rules.ApplyStackedPlayerDamageCap(damage, result, endgameOptPhys);
         result = NightmareReworkRuntime.ApplyPlayerAttackOnEnemy(w, attacker, targetEnemy, result, isMagic: false, comboProcced);
         RecordDamage(attacker, result);
         return result;
@@ -805,6 +807,8 @@ internal static class Reforged2Runtime
         }
 
         var magicTarget = StarBondRuntime.Enemy(w, mokuhyo);
+        bool endgameOptMagic = TowerOfDunanRuntime.BattleInProgress || SuperbossRuntime.BattleInProgress || CirculatingPathsRuntime.BattleInProgress;
+        result = Reforged2Rules.ApplyStackedPlayerDamageCap(damage, result, endgameOptMagic);
         result = NightmareReworkRuntime.ApplyPlayerAttackOnEnemy(w, caster, magicTarget, result, isMagic: true, magicCombo);
         RecordDamage(caster, result);
         return result;

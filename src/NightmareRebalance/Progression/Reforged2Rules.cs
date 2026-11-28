@@ -434,6 +434,16 @@ internal static class Reforged2Rules
     internal static int ApplyOverdriveAttack(int damage) =>
         damage <= 0 ? damage : Math.Max(damage + 1, (int)Math.Round(damage * 1.20, MidpointRounding.AwayFromZero));
 
+    // Soft ceiling on stacked player damage buffs (Weapon Perks + Talents + Overdrive + Relics + Trophies + Cycle)
+    // so stacking synergies stays rewarding without trivializing Suikoden II boss pacing.
+    internal static int ApplyStackedPlayerDamageCap(int baseDamage, int modifiedDamage, bool endgameOptional)
+    {
+        if (baseDamage <= 0 || modifiedDamage <= baseDamage) return modifiedDamage;
+        double maxMult = endgameOptional ? 2.75 : 2.25;
+        int cap = Math.Max(baseDamage + 1, (int)Math.Round(baseDamage * maxMult, MidpointRounding.AwayFromZero));
+        return Math.Min(modifiedDamage, cap);
+    }
+
     internal static int ApplyOverdriveDefense(int damage) =>
         damage <= 1 ? damage : Math.Max(1, (int)Math.Round(damage * 0.85, MidpointRounding.AwayFromZero));
 

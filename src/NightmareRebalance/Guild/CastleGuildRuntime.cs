@@ -434,6 +434,7 @@ internal static class CastleGuildRuntime
    if(act=="close"){Dialogue.Close();}
    else if(act.StartsWith("lore-"))Dialogue.Open(CastleDialogueScripts.LoreScript(act));
    else if(act=="export-chronicle"){Dialogue.Close();TrainingFeedback(ArmyProgressionRuntime.ExportChronicle());}
+   else if(act=="toggle-chronicle-view"){Dialogue.Close();Reforged2Runtime.ToggleBestiary();TrainingFeedback("Chronicle ledger opened (press F5 to cycle Bestiary / Honors / Dossier or close).");}
    else if(act=="open-tower"){Dialogue.Close();Menu.OpenDirect(GuildPage.TowerOfDunan,HuntRuntime.BrowseOrder.Length);HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;}
    else if(act=="open-talents"){Dialogue.Close();Menu.OpenDirect(GuildPage.PartyTalents,HuntRuntime.BrowseOrder.Length);HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;}
    else if(act=="open-warsquads"){Dialogue.Close();Menu.OpenDirect(GuildPage.WarSquads,HuntRuntime.BrowseOrder.Length);HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;}

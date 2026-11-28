@@ -1,5 +1,14 @@
 # Development history
 
+## 9.0.0-polish.1 — Native Integration, HUD Minimalism & Balance Polish
+
+- **Ornate-Corner Padding Audit (`HuntGuildOverlay.cs`):** Padded every `UI_Com_Frame001_001` window (War Command bar, Sindar Spire HUD pill, Battle Pill, Battle Callout Banner, Guard Shield Strip, `F3` Guide, `F4` Tactical Scanner & Party Panel, `F5` Bestiary/Honors/Dossier) clear of the `26×26` ornate corner glyphs so text never collides with borders.
+- **Native Suikoden II Battle Minimalism (`HuntGuildOverlay.cs`):**
+  - Removed the default `"F4 Scan · F3 Guide"` corner tutorial nag on ordinary fights — the corner pill now appears only when real combat state (Star Bonds, Momentum/Overdrive, Apex/Nemesis/Tower/Superboss/Spire, Streak, or Morale) is active.
+  - Consolidated the 3-box stacked combat feed into a single clean top-center Suikoden II-style battle callout banner.
+- **Stacked Player Damage Soft-Cap (`Reforged2Rules.cs`, `Reforged2Runtime.cs`):** Added a clean multiplier ceiling (`2.25×` in ordinary/campaign fights, `2.75×` in endgame optional encounters) so stacking Perks, Talents, Overdrive, Relics, Trophies, and Cycle bonuses stays rewarding without breaking boss pacing.
+- **In-World Castle Access (`CastleDialogue.cs`, `CastleGuildRuntime.cs`):** Added `"Inspect Bestiary, Honors & Dossier"` directly inside **War Chronicler Orin**'s dialogue so players can read their chronicle in-world without needing function keys.
+
 ## 9.0.0-stabilization.2 — Native Reaction Commit Separation & Immutable Save Snapshots
 
 - **Native Action/Reaction Ownership (`NightmareReworkRules.cs`, `NightmareReworkRuntime.cs`, `DifficultyPatches.cs`):**

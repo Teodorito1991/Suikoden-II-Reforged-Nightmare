@@ -721,34 +721,34 @@ public sealed class HuntGuildOverlay:MonoBehaviour
      string obj=CirculatingPathsRuntime.SummitCrystalReady?"Touch the Violet Crystal!"
          :CirculatingPathsRuntime.GuardianDefeatedThisFloor?$"Portal Unlocked -> Floor {CirculatingPathsRuntime.CurrentFloor+1}/6"
          :$"Guardian: {fspec.GuardianName}";
-     string dText=$"SAJAH SPIRE  ·  {fspec.ShortTag}  ·  Orbs {CirculatingPathsRules.OrbProgressBar(CirculatingPathsRuntime.RedOrbsCollected)} ({CirculatingPathsRuntime.RedOrbsCollected}/8)  ·  {obj}";
-     float dw=Math.Min(780,Math.Max(420,dText.Length*9.2f+48));
-     var dbox=new Rect(18,16,dw,42);
+     string dText=$"SINDAR SPIRE  ·  {fspec.ShortTag}  ·  Orbs {CirculatingPathsRules.OrbProgressBar(CirculatingPathsRuntime.RedOrbsCollected)} ({CirculatingPathsRuntime.RedOrbsCollected}/8)  ·  {obj}";
+     float dw=Math.Min(820,Math.Max(440,dText.Length*9.2f+72));
+     var dbox=new Rect(18,14,dw,48);
      Window(dbox);
-     Label(new(new(24,10,dw-48,24),dText,15,"gold"),dbox.x,dbox.y,1);
+     Label(new(new(34,13,dw-68,24),dText,15,"gold"),dbox.x,dbox.y,1);
     }
     if(warHud)
     {
      string warText=$"WAR COMMAND  ·  {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)}  ·  {Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)}"+(ArmyProgressionRuntime.ActiveDirective!=DrillDirective.None?$"  ·  {ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective)}":"");
-     float ww=Math.Min(740,Math.Max(360,warText.Length*10+44));
-     var wbox=new Rect((vw-ww)/2,14,ww,40);
+     float ww=Math.Min(780,Math.Max(380,warText.Length*10+72));
+     var wbox=new Rect((vw-ww)/2,14,ww,48);
      Window(wbox);
-     Label(new(new(18,9,ww-36,24),warText,16,"gold"),wbox.x,wbox.y,1);
+     Label(new(new(34,13,ww-68,24),warText,16,"gold"),wbox.x,wbox.y,1);
     }
     if(helpCard)
     {
      var led=ArmyProgressionRuntime.Current;
      var hr=Reforged2Rules.HunterRankForClears(led.HuntsCompleted);
      var bounty=Reforged2Rules.ActiveBounty(led.ActiveBountyIndex);
-     float hw=490,hh=298;
-     var hbox=new Rect(vw-hw-18,66,hw,hh);
+     float hw=520,hh=316;
+     var hbox=new Rect(vw-hw-18,68,hw,hh);
      Window(hbox);
-     Label(new(new(18,12,hw-36,26),"REFORGED 7.5 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
-     Label(new(new(18,44,hw-36,124),
-         "F2   Toggle Clean HUD Mode\nF4   Battle Scanner · Turn Order · Buffs · Live DPS\nF5   Cycle Bestiary -> Honors -> Army Dossier -> Off\nF6   Accept Local Field Hunt\n←/→  Fast Page-Flip in Castle Guild",15),hbox.x,hbox.y,1);
+     Label(new(new(32,16,hw-64,26),"REFORGED NIGHTMARE GUIDE   (F3)",17,"gold"),hbox.x,hbox.y,1);
+     Label(new(new(32,50,hw-64,124),
+         "F2   Toggle Clean HUD Mode\nF4   Battle Scanner · Turn Order · Buffs · DPS\nF5   Cycle Bestiary -> Honors -> Dossier -> Off\nF6   Accept Local Field Hunt\n←/→  Fast Page-Flip in Castle Guild",15),hbox.x,hbox.y,1);
      string nemLine=led.ActiveNemesis is {} an?$"☠ Wanted: {an.Name} {an.Title} (T{an.Tier} · +{Reforged5Rules.NemesisCommendationReward(an.Tier)} Comm.)":$"Bounty: {bounty.Title} ({led.ActiveBountyProgress}/{bounty.Target})";
-     Label(new(new(18,172,hw-36,44),nemLine,14,led.ActiveNemesis!=null?"alert":"gold"),hbox.x,hbox.y,1);
-     Label(new(new(18,220,hw-36,68),
+     Label(new(new(32,180,hw-64,44),nemLine,14,led.ActiveNemesis!=null?"alert":"gold"),hbox.x,hbox.y,1);
+     Label(new(new(32,228,hw-64,72),
          $"Commendations: {led.Commendations}  ·  {Reforged2Rules.HunterRankTitle(hr)}  ·  Honors: {led.UnlockedHonors?.Count??0}/{Reforged2Rules.Honors.Length}\nStance: {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)}  ·  Mutator: {Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)}\nUpgrades: {led.CastleUpgrades?.Count??0}/{Reforged2Rules.CastleUpgrades.Length}  ·  Streak: {Reforged2Runtime.WinStreak}  ·  Bestiary: {led.Bestiary?.Count??0}",14,"success"),hbox.x,hbox.y,1);
     }
     if(bestiaryCard)
@@ -758,40 +758,40 @@ public sealed class HuntGuildOverlay:MonoBehaviour
      {
       var roster=ArmyProgressionRuntime.RosterSnapshot().Take(6).ToArray();
       int hallClears=led.HallRecords?.Values.Count(r=>r.OriginalCleared||r.NightmareCleared)??0;
-      float dw=540,dh=104+Math.Max(1,roster.Length)*32;
-      var dbox=new Rect(18,66,dw,dh);
+      float dw=560,dh=118+Math.Max(1,roster.Length)*32;
+      var dbox=new Rect(18,68,dw,dh);
       Window(dbox);
-      Label(new(new(18,12,dw-36,26),$"COMMANDER'S DOSSIER  ({led.Commanders.Count} Enlisted · {hallClears} Hall Medals)",16,"gold"),dbox.x,dbox.y,1);
-      Label(new(new(18,38,dw-36,20),$"Drills: {led.TotalDrillsWon} ({led.TotalVeteranDrillsWon} Vet) · Story Wars: {led.TotalStoryWarsWon} · Hall NM: {led.HallNightmareClears}  (F5)",13,"muted"),dbox.x,dbox.y,1);
+      Label(new(new(32,16,dw-64,26),$"COMMANDER'S DOSSIER  ({led.Commanders.Count} Enlisted · {hallClears} Hall Medals)",16,"gold"),dbox.x,dbox.y,1);
+      Label(new(new(32,44,dw-64,20),$"Drills: {led.TotalDrillsWon} ({led.TotalVeteranDrillsWon} Vet) · Story Wars: {led.TotalStoryWarsWon} · Hall NM: {led.HallNightmareClears}  (F5)",13,"muted"),dbox.x,dbox.y,1);
       if(roster.Length==0)
-       Label(new(new(18,68,dw-36,24),"Win an Army Training Drill or Skirmish to enlist commanders!",15),dbox.x,dbox.y,1);
+       Label(new(new(32,76,dw-64,24),"Win an Army Training Drill or Skirmish to enlist commanders!",15),dbox.x,dbox.y,1);
       else
       {
        for(int ci=0;ci<roster.Length;ci++)
        {
         var c=roster[ci];
         var rk=ArmyProgressionRules.RankForXp(c.Xp);
-        float ry=68+ci*32;
-        Label(new(new(18,ry,dw-210,22),$"{c.Name}  ·  {ArmyProgressionRules.RankTitle(rk)}",15),dbox.x,dbox.y,1);
-        Label(new(new(dw-192,ry,174,22),$"{c.Xp} XP · {ArmyProgressionRules.DoctrineTitle(c.Doctrine)}",14,"success"),dbox.x,dbox.y,1);
+        float ry=76+ci*32;
+        Label(new(new(32,ry,dw-230,22),$"{c.Name}  ·  {ArmyProgressionRules.RankTitle(rk)}",15),dbox.x,dbox.y,1);
+        Label(new(new(dw-196,ry,164,22),$"{c.Xp} XP · {ArmyProgressionRules.DoctrineTitle(c.Doctrine)}",14,"success"),dbox.x,dbox.y,1);
        }
       }
      }
      else if(Reforged2Runtime.BestiaryViewMode==2)
      {
       int unlockedCount=led.UnlockedHonors?.Count??0;
-      float hw2=560,hh2=82+((Reforged2Rules.Honors.Length+1)/2)*30;
-      var hbox2=new Rect(18,66,hw2,hh2);
+      float hw2=580,hh2=98+((Reforged2Rules.Honors.Length+1)/2)*30;
+      var hbox2=new Rect(18,68,hw2,hh2);
       Window(hbox2);
-      Label(new(new(18,12,hw2-36,26),$"DUNAN HONORS  ({unlockedCount}/{Reforged2Rules.Honors.Length} Unlocked · +2 Comm. Each)",16,"gold"),hbox2.x,hbox2.y,1);
-      Label(new(new(18,38,hw2-36,20),"F5 again for Army Dossier · Combos: "+led.TotalCombosLanded+" · S-Ranks: "+led.TotalSRanks+" · Overdrives: "+led.TotalOverdrivesTriggered,13,"muted"),hbox2.x,hbox2.y,1);
+      Label(new(new(32,16,hw2-64,26),$"DUNAN HONORS  ({unlockedCount}/{Reforged2Rules.Honors.Length} Unlocked · +2 Comm. Each)",16,"gold"),hbox2.x,hbox2.y,1);
+      Label(new(new(32,44,hw2-64,20),"F5 again for Army Dossier · Combos: "+led.TotalCombosLanded+" · S-Ranks: "+led.TotalSRanks+" · Overdrives: "+led.TotalOverdrivesTriggered,13,"muted"),hbox2.x,hbox2.y,1);
       for(int hi=0;hi<Reforged2Rules.Honors.Length;hi++)
       {
        var h=Reforged2Rules.Honors[hi];
        bool got=led.UnlockedHonors?.Contains(h.Id)==true;
-       float colX=(hi%2==0)?18:hw2/2+6;
-       float rowY=66+(hi/2)*30;
-       Label(new(new(colX,rowY,hw2/2-24,24),(got?"★ ":"○ ")+h.Title,14,got?"success":"muted"),hbox2.x,hbox2.y,1);
+       float colX=(hi%2==0)?32:hw2/2+8;
+       float rowY=74+(hi/2)*30;
+       Label(new(new(colX,rowY,hw2/2-40,24),(got?"★ ":"○ ")+h.Title,14,got?"success":"muted"),hbox2.x,hbox2.y,1);
       }
      }
      else
@@ -802,22 +802,22 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       int totalApex=entries.Sum(e=>e.ApexKills);
       int nextMilestone=(totalSpecies/10+1)*10;
       int shown=Math.Min(8,totalSpecies);
-      float bw=500,bh=94+Math.Max(1,shown)*34;
-      var bbox=new Rect(18,66,bw,bh);
+      float bw=528,bh=110+Math.Max(1,shown)*34;
+      var bbox=new Rect(18,68,bw,bh);
       Window(bbox);
-      Label(new(new(18,12,bw-36,26),$"HUNTER'S BESTIARY  ({totalSpecies} Species · Next +1 Comm: {totalSpecies}/{nextMilestone})",16,"gold"),bbox.x,bbox.y,1);
-      Label(new(new(18,38,bw-36,20),$"Lifetime Kills: {totalKills:N0}  ·  Apex: {totalApex}  ·  F5 again for Honors",13,"muted"),bbox.x,bbox.y,1);
+      Label(new(new(32,16,bw-64,26),$"HUNTER'S BESTIARY  ({totalSpecies} Species · Next +1 Comm: {totalSpecies}/{nextMilestone})",16,"gold"),bbox.x,bbox.y,1);
+      Label(new(new(32,44,bw-64,20),$"Lifetime Kills: {totalKills:N0}  ·  Apex: {totalApex}  ·  F5 again for Honors",13,"muted"),bbox.x,bbox.y,1);
       if(shown==0)
-       Label(new(new(18,66,bw-36,24),"No enemies catalogued yet. Win battles to fill your Bestiary!",15),bbox.x,bbox.y,1);
+       Label(new(new(32,76,bw-64,24),"No enemies catalogued yet. Win battles to fill your Bestiary!",15),bbox.x,bbox.y,1);
       else
       {
        for(int i=0;i<shown;i++)
        {
         var be=entries[i];
-        float ry=66+i*34;
+        float ry=76+i*34;
         string apexStr=be.ApexKills>0?$"  ★{be.ApexKills} Apex":"";
-        Label(new(new(18,ry,bw-150,22),$"{be.Name}{(be.HighestLevel>0?$" Lv{be.HighestLevel}":"")}  ({be.WeaknessHint})",15),bbox.x,bbox.y,1);
-        Label(new(new(bw-132,ry,114,22),$"{be.Kills} kills{apexStr}",14,"success"),bbox.x,bbox.y,1);
+        Label(new(new(32,ry,bw-184,22),$"{be.Name}{(be.HighestLevel>0?$" Lv{be.HighestLevel}":"")}  ({be.WeaknessHint})",15),bbox.x,bbox.y,1);
+        Label(new(new(bw-146,ry,114,22),$"{be.Kills} kills{apexStr}",14,"success"),bbox.x,bbox.y,1);
        }
       }
      }
@@ -915,49 +915,59 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       int[] party=StarBondRuntime.FieldParty();
       var active=StarBondRules.Catalogue.Where(b=>StarBondRules.Includes(b,party)).Select(b=>b.Title).ToArray();
       int morale=ArmyProgressionRuntime.Current.MoraleBonusCharges;
-      string apexTag=Reforged2Runtime.NemesisBattleActive?"☠ NEMESIS · "
-          :TowerOfDunanRuntime.BattleInProgress?$"TOWER FL.{TowerOfDunanRuntime.CurrentFloor} · "
-          :Reforged2Runtime.ApexBattleActive?$"⚠ APEX {Reforged2Rules.ApexAffixShort(Reforged2Runtime.ActiveApexAffix)} · ":"";
-      string momTag=Reforged2Runtime.MomentumEnabled?(Reforged2Runtime.OverdriveActive()?" ★ OVERDRIVE!":$" · Mom {Reforged2Runtime.Momentum}%"):"";
-      string streakTag=Reforged2Runtime.WinStreak>=3?$" · Streak x{Reforged2Runtime.WinStreak}":"";
-      string text=apexTag+(active.Length>0?"★ "+string.Join(" · ",active.Take(2)):"F4 Scan · F3 Guide")+momTag+streakTag+(morale>0?$" · Morale +{morale}":"");
-      float w=Math.Min(600,Math.Max(260,text.Length*9.5f+36));
-      var pill=new Rect(vw-w-18,16,w,40);
-      Window(pill);
-      Label(new(new(14,9,w-28,24),text,15,Reforged2Runtime.OverdriveActive()?"success":"gold"),pill.x,pill.y,1);
+      var parts=new List<string>(4);
+      if(Reforged2Runtime.NemesisBattleActive)parts.Add("☠ NEMESIS");
+      else if(SuperbossRuntime.BattleInProgress&&SuperbossRuntime.Active is {} sba)parts.Add($"★ {sba.Name}");
+      else if(CirculatingPathsRuntime.BattleInProgress)parts.Add($"SPIRE F{CirculatingPathsRuntime.CurrentFloor}/6");
+      else if(TowerOfDunanRuntime.BattleInProgress)parts.Add($"TOWER FL.{TowerOfDunanRuntime.CurrentFloor}");
+      else if(Reforged2Runtime.ApexBattleActive)parts.Add($"⚠ APEX {Reforged2Rules.ApexAffixShort(Reforged2Runtime.ActiveApexAffix)}");
+      if(active.Length>0)parts.Add("★ "+string.Join(" · ",active.Take(2)));
+      if(Reforged2Runtime.MomentumEnabled)parts.Add(Reforged2Runtime.OverdriveActive()?"★ OVERDRIVE!":$"Mom {Reforged2Runtime.Momentum}%");
+      if(Reforged2Runtime.WinStreak>=3)parts.Add($"Streak x{Reforged2Runtime.WinStreak}");
+      if(morale>0)parts.Add($"Morale +{morale}");
+      // Only show the corner pill when real combat state is active — never nag with "F4 Scan · F3 Guide"
+      if(parts.Count>0)
+      {
+       string text=string.Join("  ·  ",parts);
+       float w=Math.Min(640,Math.Max(260,text.Length*9.5f+72));
+       var pill=new Rect(vw-w-18,14,w,46);
+       Window(pill);
+       Label(new(new(32,12,w-64,24),text,15,Reforged2Runtime.OverdriveActive()?"success":"gold"),pill.x,pill.y,1);
+      }
      }
      var feedLines=Reforged2Runtime.ActiveFeed();
      if(feedLines.Length>0)
      {
-      for(int fi=0;fi<feedLines.Length;fi++)
-      {
-       var fl=feedLines[fi];
-       float bw=Math.Min(680,Math.Max(300,fl.Text.Length*11.5f+48));
-       var banner=new Rect((vw-bw)/2,18+fi*46,bw,40);
-       Window(banner);
-       Label(new(new(18,9,bw-36,24),fl.Text,17,fl.Tone),banner.x,banner.y,1);
-      }
+      // Single clean Suikoden II-style battle callout banner instead of 3 stacked boxes
+      var fl=feedLines[^1];
+      float bw=Math.Min(720,Math.Max(320,fl.Text.Length*11.2f+76));
+      var banner=new Rect((vw-bw)/2,14,bw,48);
+      Window(banner);
+      Label(new(new(34,13,bw-68,24),fl.Text,17,fl.Tone),banner.x,banner.y,1);
      }
      if(!Reforged2Runtime.CleanHudMode&&!Reforged2Runtime.ScannerVisible&&NightmareReworkRuntime.HasAnyActiveMechanics&&Framework.Singleton<BATTLE_WORK>.instance is {} liveBw&&liveBw.pm_data is {} liveUnits)
      {
       var activeEnemies=liveUnits.Where(u=>u!=null&&!u.IsPlayer&&u.hp>0&&!u.IsDead&&NightmareReworkRuntime.StateFor(u) is {MaxShields:>0} or {Charging:true}).Take(4).ToArray();
-      string hdr=NightmareReworkRuntime.ActivePackTrait!=PackTrait.None
-          ?$"⚔ {NightmareReworkRules.PackTraitTitle(NightmareReworkRuntime.ActivePackTrait)}"
-          :NightmareReworkRuntime.ActiveZoneHazard!=ZoneHazard.Calm
-          ?$"☁ {NightmareReworkRules.ZoneHazardTitle(NightmareReworkRuntime.ActiveZoneHazard)}"
-          :"NIGHTMARE GUARD SHIELDS";
-      float cw=440,ch=38+activeEnemies.Length*24;
-      var cbox=new Rect(18,16,cw,ch);
-      Window(cbox);
-      Label(new(new(14,8,cw-28,22),hdr,14,"gold"),cbox.x,cbox.y,1);
-      for(int ci=0;ci<activeEnemies.Length;ci++)
+      if(activeEnemies.Length>0)
       {
-       var ce=activeEnemies[ci]!;
-       var st=NightmareReworkRuntime.StateFor(ce)!;
-       bool stag=NightmareReworkRuntime.IsStaggered(st,liveBw.battle_kaisuu);
-       string eName=Reforged2Runtime.ResolveEnemyDisplayName(ce,out _);
-       string pips=stag?"[STAGGERED +50% DMG]":st.Charging?"[⚠ CHARGING — BREAK/DEFEND]":new string('◆',st.Shields)+new string('◇',Math.Max(0,st.MaxShields-st.Shields));
-       Label(new(new(14,32+ci*24,cw-28,22),$"{eName}  {pips}",13,stag?"success":st.Charging?"alert":"gold"),cbox.x,cbox.y,1);
+       string hdr=NightmareReworkRuntime.ActivePackTrait!=PackTrait.None
+           ?$"⚔ {NightmareReworkRules.PackTraitTitle(NightmareReworkRuntime.ActivePackTrait)}"
+           :NightmareReworkRuntime.ActiveZoneHazard!=ZoneHazard.Calm
+           ?$"☁ {NightmareReworkRules.ZoneHazardTitle(NightmareReworkRuntime.ActiveZoneHazard)}"
+           :"GUARD SHIELDS";
+       float cw=460,ch=54+activeEnemies.Length*24;
+       var cbox=new Rect(18,14,cw,ch);
+       Window(cbox);
+       Label(new(new(30,14,cw-60,22),hdr,14,"gold"),cbox.x,cbox.y,1);
+       for(int ci=0;ci<activeEnemies.Length;ci++)
+       {
+        var ce=activeEnemies[ci]!;
+        var st=NightmareReworkRuntime.StateFor(ce)!;
+        bool stag=NightmareReworkRuntime.IsStaggered(st,liveBw.battle_kaisuu);
+        string eName=Reforged2Runtime.ResolveEnemyDisplayName(ce,out _);
+        string pips=stag?"[STAGGERED +50% DMG]":st.Charging?"[⚠ CHARGING — BREAK/DEFEND]":new string('◆',st.Shields)+new string('◇',Math.Max(0,st.MaxShields-st.Shields));
+        Label(new(new(30,38+ci*24,cw-60,22),$"{eName}  {pips}",13,stag?"success":st.Charging?"alert":"gold"),cbox.x,cbox.y,1);
+       }
       }
      }
      if(Reforged2Runtime.ScannerVisible&&Framework.Singleton<BATTLE_WORK>.instance?.pm_data is {} pmUnits)
@@ -965,8 +975,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       var enemies=pmUnits.Where(u=>u!=null&&!u.IsPlayer&&u.hp>0&&!u.IsDead).Take(6).ToArray();
       if(enemies.Length>0)
       {
-       float sw=500,sh=52+enemies.Length*56;
-       var scanBox=new Rect(18,16,sw,sh);
+       float sw=524,sh=66+enemies.Length*56;
+       var scanBox=new Rect(18,14,sw,sh);
        Window(scanBox);
        string scanHeader=Reforged2Runtime.NemesisBattleActive
            ?$"TACTICAL SCANNER  [☠ NEMESIS · {Reforged2Rules.ApexAffixShort(Reforged2Runtime.ActiveApexAffix)}]  (F4)"
@@ -974,8 +984,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
            ?$"TACTICAL SCANNER  [TOWER FL.{TowerOfDunanRuntime.CurrentFloor}]  (F4)"
            :Reforged2Runtime.ApexBattleActive
            ?$"TACTICAL SCANNER  [APEX · {Reforged2Rules.ApexAffixShort(Reforged2Runtime.ActiveApexAffix)}]  (F4)"
-           :"TACTICAL SCANNER   (F4 to hide)";
-       Label(new(new(18,10,sw-36,28),scanHeader,18,"gold"),scanBox.x,scanBox.y,1);
+           :"TACTICAL SCANNER   (F4)";
+       Label(new(new(32,16,sw-64,26),scanHeader,17,"gold"),scanBox.x,scanBox.y,1);
        for(int i=0;i<enemies.Length;i++)
        {
         var e=enemies[i]!;
@@ -993,12 +1003,12 @@ public sealed class HuntGuildOverlay:MonoBehaviour
          else if(nst.Shields>0)statusTag+=" "+new string('◆',nst.Shields);
         }
         float hpFrac=e.max_hp>0?Math.Clamp((float)e.hp/e.max_hp,0f,1f):0f;
-        float ry=44+i*56;
-        Label(new(new(18,ry,sw-170,24),$"{displayName}{(lv>0?$" Lv{lv}":"")}{statusTag}",17),scanBox.x,scanBox.y,1);
-        Label(new(new(sw-152,ry+1,134,22),$"{e.hp} / {e.max_hp}",16,"gold"),scanBox.x,scanBox.y,1);
-        Label(new(new(18,ry+21,sw-36,18),$"{role}  ·  {weak}",14,"muted"),scanBox.x,scanBox.y,1);
-        Fill(new Rect(scanBox.x+18,scanBox.y+ry+40,sw-36,9),new Color(.04f,.07f,.16f,.95f));
-        Fill(new Rect(scanBox.x+20,scanBox.y+ry+42,(sw-40)*hpFrac,5),hpFrac<=0.25f?new Color(.95f,.35f,.30f,.98f):hpFrac<=0.50f?new Color(.96f,.76f,.32f,.98f):new Color(.38f,.90f,.58f,.98f));
+        float ry=50+i*56;
+        Label(new(new(32,ry,sw-198,24),$"{displayName}{(lv>0?$" Lv{lv}":"")}{statusTag}",16),scanBox.x,scanBox.y,1);
+        Label(new(new(sw-162,ry+1,130,22),$"{e.hp} / {e.max_hp}",15,"gold"),scanBox.x,scanBox.y,1);
+        Label(new(new(32,ry+21,sw-64,18),$"{role}  ·  {weak}",14,"muted"),scanBox.x,scanBox.y,1);
+        Fill(new Rect(scanBox.x+32,scanBox.y+ry+40,sw-64,9),new Color(.04f,.07f,.16f,.95f));
+        Fill(new Rect(scanBox.x+34,scanBox.y+ry+42,(sw-68)*hpFrac,5),hpFrac<=0.25f?new Color(.95f,.35f,.30f,.98f):hpFrac<=0.50f?new Color(.96f,.76f,.32f,.98f):new Color(.38f,.90f,.58f,.98f));
        }
        var bwInst=Framework.Singleton<BATTLE_WORK>.instance;
        var (frontAlive,backAlive)=Reforged2Runtime.FormationCounts(bwInst);
@@ -1013,23 +1023,23 @@ public sealed class HuntGuildOverlay:MonoBehaviour
        if(formTags.Count>0||partyBuffs.Length>0||turnOrder.Length>0||dpsList.Length>0)
        {
         float py=scanBox.y+scanBox.height+8;
-        float ph=34+(turnOrder.Length>0?22:0)+(formTags.Count>0?22:0)+Math.Min(3,partyBuffs.Length)*19+(dpsList.Length>0?22+Math.Min(4,dpsList.Length)*19:0);
+        float ph=48+(turnOrder.Length>0?22:0)+(formTags.Count>0?22:0)+Math.Min(3,partyBuffs.Length)*19+(dpsList.Length>0?22+Math.Min(4,dpsList.Length)*19:0);
         bool dockRight=py+ph>vh-140&&!helpCard;
-        var pbox=dockRight?new Rect(vw-sw-18,66,sw,ph):new Rect(18,py,sw,ph);
+        var pbox=dockRight?new Rect(vw-sw-18,68,sw,ph):new Rect(18,py,sw,ph);
         Window(pbox);
-        Label(new(new(18,8,sw-36,22),"PARTY BUFFS, TURN ORDER & LIVE DPS",14,"gold"),pbox.x,pbox.y,1);
-        float cy=28;
-        if(turnOrder.Length>0){Label(new(new(18,cy,sw-36,20),"SPD: "+string.Join(" > ",turnOrder),12,"muted"),pbox.x,pbox.y,1);cy+=22;}
-        if(formTags.Count>0){Label(new(new(18,cy,sw-36,20),string.Join("  ·  ",formTags),13,"success"),pbox.x,pbox.y,1);cy+=22;}
-        for(int bi=0;bi<Math.Min(3,partyBuffs.Length);bi++){Label(new(new(18,cy,sw-36,18),partyBuffs[bi],12),pbox.x,pbox.y,1);cy+=19;}
+        Label(new(new(32,14,sw-64,22),"PARTY BUFFS, TURN ORDER & LIVE DPS",14,"gold"),pbox.x,pbox.y,1);
+        float cy=38;
+        if(turnOrder.Length>0){Label(new(new(32,cy,sw-64,20),"SPD: "+string.Join(" > ",turnOrder),12,"muted"),pbox.x,pbox.y,1);cy+=22;}
+        if(formTags.Count>0){Label(new(new(32,cy,sw-64,20),string.Join("  ·  ",formTags),13,"success"),pbox.x,pbox.y,1);cy+=22;}
+        for(int bi=0;bi<Math.Min(3,partyBuffs.Length);bi++){Label(new(new(32,cy,sw-64,18),partyBuffs[bi],12),pbox.x,pbox.y,1);cy+=19;}
         if(dpsList.Length>0)
         {
-         Label(new(new(18,cy+2,sw-36,18),"LIVE BATTLE DAMAGE",12,"gold"),pbox.x,pbox.y,1);cy+=20;
+         Label(new(new(32,cy+2,sw-64,18),"LIVE BATTLE DAMAGE",12,"gold"),pbox.x,pbox.y,1);cy+=20;
          for(int di=0;di<Math.Min(4,dpsList.Length);di++)
          {
           var d=dpsList[di];
-          Label(new(new(18,cy,sw-130,18),$"{d.Name}  ({(int)Math.Round(d.Share*100)}%)",12),pbox.x,pbox.y,1);
-          Label(new(new(sw-110,cy,92,18),$"{d.Damage:N0}",12,"gold"),pbox.x,pbox.y,1);
+          Label(new(new(32,cy,sw-158,18),$"{d.Name}  ({(int)Math.Round(d.Share*100)}%)",12),pbox.x,pbox.y,1);
+          Label(new(new(sw-124,cy,92,18),$"{d.Damage:N0}",12,"gold"),pbox.x,pbox.y,1);
           cy+=19;
          }
         }
