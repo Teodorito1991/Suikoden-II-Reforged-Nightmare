@@ -49,10 +49,20 @@ internal static class CastleGuildRuntime
   if(id<0||Plugin.Options?.EnableGuildMenuAudio.Value!=true)return;
   try{OldSrcBase.SD_call(id,null);}catch{}
  }
- static bool TileClear(Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_OBJ> objects, int x, int y)
+ static bool TileClear(Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_OBJ> objects, List<(int X, int Y)> placed, int x, int y)
  {
-  for(int i=0;i<objects.Length;i++){var o=objects[i];if(o!=null&&Math.Abs(o.x-x)<=2&&Math.Abs(o.y-y)<=2)return false;}
+  for(int i=0;i<objects.Length;i++){var o=objects[i];if(o!=null&&Math.Abs(o.x-x)<=1&&Math.Abs(o.y-y)<=1)return false;}
+  for(int i=0;i<placed.Count;i++)if(Math.Abs(placed[i].X-x)<=1&&Math.Abs(placed[i].Y-y)<=1)return false;
   return true;
+ }
+ static (short X, short Y)? FindClearSlot(Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_OBJ> objects, List<(int X, int Y)> placed, (int Dx, int Dy)[] candidates)
+ {
+  foreach(var (dx,dy) in candidates)
+  {
+   int cx=Audit.ObjectX+dx, cy=Audit.ObjectY+dy;
+   if(TileClear(objects,placed,cx,cy)){placed.Add((cx,cy));return ((short)cx,(short)cy);}
+  }
+  return null;
  }
  static MACHIDAT PrepareCore(MACHIDAT source,int index,bool proven)
  {
@@ -64,24 +74,27 @@ internal static class CastleGuildRuntime
    var events=new EVENTDAT();events.sce_msg=source.eventdata.sce_msg;events.mapeventdat=new Il2CppSystem.Collections.Generic.List<MAPEVDAT>();
    for(int i=0;i<source.eventdata.mapeventdat.Count;i++){
     var old=source.eventdata.mapeventdat[i];bool add=i==index;
-    bool addSergeant=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX-3,Audit.ObjectY);
-    bool addArchivist=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX+3,Audit.ObjectY);
-    bool addQuartermaster=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX-6,Audit.ObjectY);
-    bool addTowerKeeper=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX+6,Audit.ObjectY);
-    bool addFieldScout=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX-9,Audit.ObjectY);
-    bool addChronicler=add&&expanded&&TileClear(old.eventobj,Audit.ObjectX+9,Audit.ObjectY);
-    int extra=(add?1:0)+(addSergeant?1:0)+(addArchivist?1:0)+(addQuartermaster?1:0)+(addTowerKeeper?1:0)+(addFieldScout?1:0)+(addChronicler?1:0);
+    var placed=new List<(int X,int Y)>();
+    if(add)placed.Add((Audit.ObjectX,Audit.ObjectY));
+    var sgPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(-2,0),(-3,0),(-2,3)}):null;
+    var arPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(2,0),(3,0),(2,3)}):null;
+    var qmPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(-4,0),(-5,0),(-4,3),(-2,4)}):null;
+    var tkPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(4,0),(5,0),(4,3),(2,4)}):null;
+    var fsPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(-6,0),(-3,4),(0,4),(-6,3)}):null;
+    var wcPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(6,0),(3,4),(5,4),(6,3)}):null;
+    int extra=(add?1:0)+(sgPos!=null?1:0)+(arPos!=null?1:0)+(qmPos!=null?1:0)+(tkPos!=null?1:0)+(fsPos!=null?1:0)+(wcPos!=null?1:0);
     var map=new MAPEVDAT{mapno=old.mapno,batlno=old.batlno,batltim=old.batltim,batlpro=old.batlpro,mapst=old.mapst,okaz=checked((byte)(old.okaz+extra)),evkaz=old.evkaz,hkaz=old.hkaz};
     var objects=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_OBJ>(old.eventobj.Length+extra);
     for(int j=0;j<old.eventobj.Length;j++){var o=old.eventobj[j];objects[j]=new EVENT_OBJ{otyp=o.otyp,disp=o.disp,spd=o.spd,wt=o.wt,ano=o.ano,ityp=o.ityp,fpno=o.fpno,ozok=o.ozok,pri=o.pri,x=o.x,y=o.y,w=o.w,h=o.h};}
     int slot=old.eventobj.Length;
     if(add)objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=(ushort)Audit.Sprite,ozok=0,pri=0,x=Audit.ObjectX,y=Audit.ObjectY,w=0,h=0};
-    if(addSergeant){SergeantIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65059),ozok=0,pri=0,x=(short)(Audit.ObjectX-3),y=Audit.ObjectY,w=0,h=0};}
-    if(addArchivist){ArchivistIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65086),ozok=0,pri=0,x=(short)(Audit.ObjectX+3),y=Audit.ObjectY,w=0,h=0};}
-    if(addQuartermaster){QuartermasterIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65074),ozok=0,pri=0,x=(short)(Audit.ObjectX-6),y=Audit.ObjectY,w=0,h=0};}
-    if(addTowerKeeper){TowerKeeperIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65088),ozok=0,pri=0,x=(short)(Audit.ObjectX+6),y=Audit.ObjectY,w=0,h=0};}
-    if(addFieldScout){FieldScoutIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65065),ozok=0,pri=0,x=(short)(Audit.ObjectX-9),y=Audit.ObjectY,w=0,h=0};}
-    if(addChronicler){WarChroniclerIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65080),ozok=0,pri=0,x=(short)(Audit.ObjectX+9),y=Audit.ObjectY,w=0,h=0};}
+    if(sgPos is {} sg){SergeantIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65059),ozok=0,pri=0,x=sg.X,y=sg.Y,w=0,h=0};}
+    if(arPos is {} ar){ArchivistIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65086),ozok=0,pri=0,x=ar.X,y=ar.Y,w=0,h=0};}
+    if(qmPos is {} qm){QuartermasterIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65074),ozok=0,pri=0,x=qm.X,y=qm.Y,w=0,h=0};}
+    if(tkPos is {} tk){TowerKeeperIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65153),ozok=0,pri=0,x=tk.X,y=tk.Y,w=0,h=0};}
+    if(fsPos is {} fs){FieldScoutIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,42241),ozok=0,pri=0,x=fs.X,y=fs.Y,w=0,h=0};}
+    if(wcPos is {} wc){WarChroniclerIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,33109),ozok=0,pri=0,x=wc.X,y=wc.Y,w=0,h=0};}
+    if(add)Plugin.Logger.LogInfo($"Castle Hub NPCs placed ({extra} total): Attendant=({Audit.ObjectX},{Audit.ObjectY}), Sergeant={sgPos}, Archivist={arPos}, Quartermaster={qmPos}, Kaelen={tkPos}, Lyra={fsPos}, Orin={wcPos}.");
     var scripts=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_WK>(old.eventdat.Length);for(int j=0;j<old.eventdat.Length;j++){var e=old.eventdat[j];scripts[j]=new EVENT_WK{etyp=e.etyp,eventForm=e.eventForm.ToArray(),eventCom=e.eventCom.ToArray()};}
     map.eventobj=objects;map.eventdat=scripts;events.mapeventdat.Add(map);
    }

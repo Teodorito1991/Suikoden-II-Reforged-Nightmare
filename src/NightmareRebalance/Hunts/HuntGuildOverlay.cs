@@ -88,7 +88,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    }
    catch(Exception e){Plugin.Debug("Local contract prompt unavailable: "+e.GetType().Name);}
   }
-  if(HuntGuildRuntime.Visible||CastleGuildRuntime.FeedbackVisible||CastleGuildRuntime.Dialogue.Active||fieldOffer!=null)GuildVisualResources.Poll();
+  if(!faulted)GuildVisualResources.Poll();
   if(faulted||(!CastleGuildRuntime.Modal&&
       (!HuntGuildRuntime.Config.EnableSelector||!Plugin.Options.EnableDeveloperTools.Value)))return;
   try{
@@ -709,12 +709,14 @@ public sealed class HuntGuildOverlay:MonoBehaviour
    var matrix=GUI.matrix;var color=GUI.color;
    try
    {
-    GUI.matrix=Matrix4x4.identity;GUI.color=Color.white;
+    float uiScale=Math.Max(1f,Math.Min(Screen.width/1280f,Screen.height/720f));
+    float vw=Screen.width/uiScale,vh=Screen.height/uiScale;
+    GUI.matrix=Matrix4x4.Scale(new Vector3(uiScale,uiScale,1f));GUI.color=Color.white;
     if(warHud)
     {
      string warText=$"WAR COMMAND  ·  {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)}  ·  {Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)}"+(ArmyProgressionRuntime.ActiveDirective!=DrillDirective.None?$"  ·  {ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective)}":"");
      float ww=Math.Min(740,Math.Max(360,warText.Length*10+44));
-     var wbox=new Rect((Screen.width-ww)/2,14,ww,40);
+     var wbox=new Rect((vw-ww)/2,14,ww,40);
      Window(wbox);
      Label(new(new(18,9,ww-36,24),warText,16,"gold"),wbox.x,wbox.y,1);
     }
@@ -724,9 +726,9 @@ public sealed class HuntGuildOverlay:MonoBehaviour
      var hr=Reforged2Rules.HunterRankForClears(led.HuntsCompleted);
      var bounty=Reforged2Rules.ActiveBounty(led.ActiveBountyIndex);
      float hw=490,hh=298;
-     var hbox=new Rect(Screen.width-hw-18,66,hw,hh);
+     var hbox=new Rect(vw-hw-18,66,hw,hh);
      Window(hbox);
-     Label(new(new(18,12,hw-36,26),"REFORGED 6.0 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
+     Label(new(new(18,12,hw-36,26),"REFORGED 7.5 QUICK GUIDE   (F3 to hide)",17,"gold"),hbox.x,hbox.y,1);
      Label(new(new(18,44,hw-36,124),
          "F2   Toggle Clean HUD Mode\nF4   Battle Scanner · Turn Order · Buffs · Live DPS\nF5   Cycle Bestiary -> Honors -> Army Dossier -> Off\nF6   Accept Local Field Hunt\n←/→  Fast Page-Flip in Castle Guild",15),hbox.x,hbox.y,1);
      string nemLine=led.ActiveNemesis is {} an?$"☠ Wanted: {an.Name} {an.Title} (T{an.Tier} · +{Reforged5Rules.NemesisCommendationReward(an.Tier)} Comm.)":$"Bounty: {bounty.Title} ({led.ActiveBountyProgress}/{bounty.Target})";
@@ -809,36 +811,41 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     if(dialogue&&CastleGuildRuntime.Dialogue.Script is {} dScript)
     {
      var dlg=CastleGuildRuntime.Dialogue;
-     float width=Math.Min(920,Screen.width-48);
-     var box=new Rect((Screen.width-width)/2,Screen.height-154,width,126);
+     float width=Math.Min(1020,vw-120);
+     float height=166;
+     var box=new Rect((vw-width)/2,vh-height-30,width,height);
      Window(box);
-     string plateText=$"{dScript.Speaker}  ·  {dScript.RoleTitle}";
-     float plateW=Math.Min(520,Math.Max(260,plateText.Length*10.5f+44));
-     var plate=new Rect(box.x+18,box.y-30,plateW,36);
+     string plateText=dScript.Speaker;
+     float plateW=Math.Min(420,Math.Max(220,plateText.Length*13+56));
+     var plate=new Rect(box.x+20,box.y-34,plateW,42);
      Window(plate);
-     Label(new(new(16,6,plateW-32,24),plateText,17,"gold"),plate.x,plate.y,1);
-     Label(new(new(28,22,width-56,72),dlg.CurrentPage,20),box.x,box.y,1);
-     string footerText=dlg.AtChoices?"↑/↓ Choose  ·  Confirm Select  ·  Cancel Close":$"Page {dlg.PageIndex+1}/{dScript.Pages.Length}  ·  ▼ Confirm to continue";
-     float pulse=0.65f+0.35f*Mathf.Sin(Time.unscaledTime*5f);
-     GUI.color=new Color(1,1,1,pulse);
-     Label(new(new(width-340,94,316,24),footerText,15,"gold"),box.x,box.y,1);
-     GUI.color=Color.white;
-     if(dlg.AtChoices)
+     Label(new(new(20,8,plateW-40,26),plateText,21,"gold"),plate.x,plate.y,1);
+     Label(new(new(34,26,width-68,94),dlg.VisiblePageText(),24),box.x,box.y,1);
+     float bobY=Mathf.Sin(Time.unscaledTime*6f)*3f;
+     var cur=GuildVisualResources.Cursor;
+     if(!dlg.AtChoices)
      {
-      float cw=390,ch=26+dScript.Choices.Length*36;
+      Label(new(new(34,height-32,200,22),$"{dlg.PageIndex+1} / {dScript.Pages.Length}",14,"muted"),box.x,box.y,1);
+      if(cur!=null)GUI.DrawTexture(new Rect(box.x+width-46,box.y+height-36+bobY,22,20),cur.texture,ScaleMode.StretchToFill,true);
+      else Label(new(new(width-46,height-36+bobY,26,24),"▼",18,"gold"),box.x,box.y,1);
+     }
+     else
+     {
+      float cw=420,ch=32+dScript.Choices.Length*42;
       var cbox=new Rect(box.x+width-cw,box.y-ch-12,cw,ch);
       Window(cbox);
+      float bobX=Mathf.Sin(Time.unscaledTime*7f)*3f;
       for(int ci=0;ci<dScript.Choices.Length;ci++)
       {
-       float ry=13+ci*36;
+       float ry=16+ci*42;
        if(ci==dlg.ChoiceFocus)
        {
         EnsureGradients();
-        GUI.DrawTexture(new Rect(cbox.x+12,cbox.y+ry,cw-24,32),rowGradTex!,ScaleMode.StretchToFill,true);
-        Fill(new Rect(cbox.x+12,cbox.y+ry,4,32),new Color(.96f,.82f,.44f,.95f));
+        GUI.DrawTexture(new Rect(cbox.x+16,cbox.y+ry,cw-32,36),rowGradTex!,ScaleMode.StretchToFill,true);
+        Fill(new Rect(cbox.x+16,cbox.y+ry,4,36),new Color(.96f,.82f,.44f,.95f));
+        if(cur!=null)GUI.DrawTexture(new Rect(cbox.x+24+bobX,cbox.y+ry+8,20,18),cur.texture,ScaleMode.StretchToFill,true);
        }
-       string prefix=ci==dlg.ChoiceFocus?"▶ ":"   ";
-       Label(new(new(20,ry+4,cw-40,26),prefix+dScript.Choices[ci].Label,17,ci==dlg.ChoiceFocus?"gold":"normal"),cbox.x,cbox.y,1);
+       Label(new(new(50,ry+6,cw-68,26),dScript.Choices[ci].Label,19,ci==dlg.ChoiceFocus?"gold":"normal"),cbox.x,cbox.y,1);
       }
      }
      return;
@@ -857,7 +864,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       string streakTag=Reforged2Runtime.WinStreak>=3?$" · Streak x{Reforged2Runtime.WinStreak}":"";
       string text=apexTag+(active.Length>0?"★ "+string.Join(" · ",active.Take(2)):"F4 Scan · F3 Guide")+momTag+streakTag+(morale>0?$" · Morale +{morale}":"");
       float w=Math.Min(600,Math.Max(260,text.Length*9.5f+36));
-      var pill=new Rect(Screen.width-w-18,16,w,40);
+      var pill=new Rect(vw-w-18,16,w,40);
       Window(pill);
       Label(new(new(14,9,w-28,24),text,15,Reforged2Runtime.OverdriveActive()?"success":"gold"),pill.x,pill.y,1);
      }
@@ -868,7 +875,7 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       {
        var fl=feedLines[fi];
        float bw=Math.Min(680,Math.Max(300,fl.Text.Length*11.5f+48));
-       var banner=new Rect((Screen.width-bw)/2,18+fi*46,bw,40);
+       var banner=new Rect((vw-bw)/2,18+fi*46,bw,40);
        Window(banner);
        Label(new(new(18,9,bw-36,24),fl.Text,17,fl.Tone),banner.x,banner.y,1);
       }
@@ -949,8 +956,8 @@ public sealed class HuntGuildOverlay:MonoBehaviour
        {
         float py=scanBox.y+scanBox.height+8;
         float ph=34+(turnOrder.Length>0?22:0)+(formTags.Count>0?22:0)+Math.Min(3,partyBuffs.Length)*19+(dpsList.Length>0?22+Math.Min(4,dpsList.Length)*19:0);
-        bool dockRight=py+ph>Screen.height-140&&!helpCard;
-        var pbox=dockRight?new Rect(Screen.width-sw-18,66,sw,ph):new Rect(18,py,sw,ph);
+        bool dockRight=py+ph>vh-140&&!helpCard;
+        var pbox=dockRight?new Rect(vw-sw-18,66,sw,ph):new Rect(18,py,sw,ph);
         Window(pbox);
         Label(new(new(18,8,sw-36,22),"PARTY BUFFS, TURN ORDER & LIVE DPS",14,"gold"),pbox.x,pbox.y,1);
         float cy=28;
@@ -975,33 +982,35 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     }
     if(prompt||feedback||offer!=null)
     {
-     float width=Math.Min(880,Screen.width-48);
-     var box=new Rect((Screen.width-width)/2,Screen.height-128,width,100);
+     float width=Math.Min(1000,vw-120);
+     float height=138;
+     var box=new Rect((vw-width)/2,vh-height-30,width,height);
      Window(box);
      if(offer!=null)
-      Label(new(new(26,20,width-52,60),$"Local contract: {offer.Name}\nF6 or hold L1 and press R1 to accept",20),box.x,box.y,1);
+      Label(new(new(32,26,width-64,84),$"Local contract: {offer.Name}\nF6 or hold L1 and press R1 to accept",22),box.x,box.y,1);
      else if(feedback)
-      Label(new(new(26,20,width-52,60),CastleGuildRuntime.FeedbackText,20),box.x,box.y,1);
+      Label(new(new(32,26,width-64,84),CastleGuildRuntime.FeedbackText,22),box.x,box.y,1);
      else
      {
       var (header,greeting)=GuildPresentation.NpcBanner(CastleGuildRuntime.Quest.State,CastleGuildRuntime.Contract,
           ArmyProgressionRuntime.Current.MoraleBonusCharges,ArmyProgressionRuntime.Current.Commanders.Count,
           ArmyProgressionRuntime.Enabled,CastleGuildRuntime.ActiveNpc);
       // Classic Suikoden II floating Speaker Nameplate perched on top-left of dialogue box
-      float plateW=Math.Min(420,Math.Max(220,header.Length*11+40));
-      var plate=new Rect(box.x+18,box.y-30,plateW,36);
+      float plateW=Math.Min(460,Math.Max(220,header.Length*12+48));
+      var plate=new Rect(box.x+20,box.y-34,plateW,42);
       Window(plate);
-      Label(new(new(16,6,plateW-32,24),header,18,"gold"),plate.x,plate.y,1);
-      Label(new(new(28,22,width-56,48),greeting,20),box.x,box.y,1);
-      float pulse=previewSmoke?1f:0.65f+0.35f*Mathf.Sin(Time.unscaledTime*5f);
-      GUI.color=new Color(1,1,1,pulse);
-      Label(new(new(width-210,66,184,24),"▼  Confirm to speak",16,"gold"),box.x,box.y,1);
-      GUI.color=Color.white;
+      Label(new(new(20,8,plateW-40,26),header,20,"gold"),plate.x,plate.y,1);
+      Label(new(new(34,26,width-68,72),greeting,23),box.x,box.y,1);
+      float bobY=previewSmoke?0f:Mathf.Sin(Time.unscaledTime*6f)*3f;
+      var cur=GuildVisualResources.Cursor;
+      if(cur!=null)GUI.DrawTexture(new Rect(box.x+width-46,box.y+height-34+bobY,22,20),cur.texture,ScaleMode.StretchToFill,true);
+      else Label(new(new(width-210,height-34,184,24),"▼  Confirm to speak",16,"gold"),box.x,box.y,1);
      }
      if(previewSmoke)CapturePreview();
      return;
     }
 
+    GUI.matrix=Matrix4x4.identity;
     var menu=CastleGuildRuntime.Menu;
     bool developer=!CastleGuildRuntime.Modal&&!previewSmoke;
     var page=developer ? GuildPage.Hunts : menu.Page;

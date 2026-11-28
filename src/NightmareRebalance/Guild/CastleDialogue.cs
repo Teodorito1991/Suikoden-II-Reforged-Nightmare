@@ -11,17 +11,41 @@ internal sealed class CastleDialogueSession
     internal int PageIndex { get; private set; }
     internal int ChoiceFocus { get; private set; }
     internal bool ConfirmReleased { get; private set; }
+    long pageOpenedAtMs;
+    bool lineRevealed;
 
     internal bool Active => Script != null;
-    internal bool AtChoices => Script != null && PageIndex >= Script.Pages.Length - 1 && Script.Choices.Length > 0;
+    internal bool AtChoices => Script != null && PageIndex >= Script.Pages.Length - 1 && Script.Choices.Length > 0 && IsPageFullyRevealed();
     internal string CurrentPage => Script != null && PageIndex >= 0 && PageIndex < Script.Pages.Length ? Script.Pages[PageIndex] : "";
 
-    internal void Open(DialogueScript script)
+    internal bool IsPageFullyRevealed()
+    {
+        if (lineRevealed) return true;
+        string full = CurrentPage;
+        if (full.Length == 0) return true;
+        long elapsed = Math.Max(0, Environment.TickCount64 - pageOpenedAtMs);
+        if (elapsed * 65 / 1000 >= full.Length) { lineRevealed = true; return true; }
+        return false;
+    }
+
+    internal string VisiblePageText()
+    {
+        string full = CurrentPage;
+        if (lineRevealed || full.Length == 0) return full;
+        long elapsed = Math.Max(0, Environment.TickCount64 - pageOpenedAtMs);
+        int chars = (int)Math.Min(full.Length, Math.Max(1, elapsed * 65 / 1000));
+        if (chars >= full.Length) lineRevealed = true;
+        return full[..chars];
+    }
+
+    internal void Open(DialogueScript script, bool instantReveal = false)
     {
         Script = script;
         PageIndex = 0;
         ChoiceFocus = 0;
         ConfirmReleased = false;
+        pageOpenedAtMs = Environment.TickCount64;
+        lineRevealed = instantReveal;
     }
 
     internal void Close()
@@ -30,6 +54,7 @@ internal sealed class CastleDialogueSession
         PageIndex = 0;
         ChoiceFocus = 0;
         ConfirmReleased = false;
+        lineRevealed = false;
     }
 
     internal void Move(bool up, bool down)
@@ -49,9 +74,16 @@ internal sealed class CastleDialogueSession
         if (!ConfirmReleased) return null;
         ConfirmReleased = false;
 
+        if (!IsPageFullyRevealed())
+        {
+            lineRevealed = true;
+            return null;
+        }
         if (PageIndex < Script.Pages.Length - 1)
         {
             PageIndex++;
+            pageOpenedAtMs = Environment.TickCount64;
+            lineRevealed = false;
             return null;
         }
         if (Script.Choices.Length == 0)

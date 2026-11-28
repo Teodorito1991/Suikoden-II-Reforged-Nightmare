@@ -386,10 +386,11 @@ internal static class ArmyProgressionTests
         var orinScript = CastleDialogueScripts.Build(CastleNpcRole.WarChronicler, ledger, false, 0);
         Check(orinScript.Speaker == "War Chronicler Orin" && orinScript.Choices.Any(c => c.ActionId == "export-chronicle"), "Orin War Chronicler dialogue & chronicle export choice");
         var dlg = new CastleDialogueSession();
-        dlg.Open(kaelenScript);
+        dlg.Open(kaelenScript, instantReveal: true);
         Check(dlg.Active && !dlg.AtChoices && dlg.PageIndex == 0, "Dialogue opens at page 0");
         Check(dlg.StepConfirm(false, false) == null, "Releasing confirm unlocks dialogue advance");
-        Check(dlg.StepConfirm(true, true) == null && dlg.PageIndex == 1 && dlg.AtChoices, "Confirm advances to final page and reveals choices");
+        Check(dlg.StepConfirm(true, true) == null && dlg.PageIndex == 1 && !dlg.AtChoices, "Confirm advances to page 1 (typewriter active)");
+        Check(dlg.StepConfirm(false, false) == null && dlg.StepConfirm(true, true) == null && dlg.AtChoices, "Confirm fast-completes typewriter and reveals choices");
         dlg.Move(false, true);
         Check(dlg.ChoiceFocus == 1, "Down moves choice cursor");
         Check(dlg.StepConfirm(false, false) == null && dlg.StepConfirm(true, true) == "lore-tower", "Confirm selects highlighted dialogue choice");
