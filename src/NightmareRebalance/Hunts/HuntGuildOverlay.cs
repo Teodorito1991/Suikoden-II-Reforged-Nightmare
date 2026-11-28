@@ -813,80 +813,82 @@ public sealed class HuntGuildOverlay:MonoBehaviour
      var dlg=CastleGuildRuntime.Dialogue;
      if(dScript.RoleTitle.Contains("Tower of Circulating Paths")||dScript.RoleTitle.Contains("Sajah Summit"))
      {
-      float mw=560,mh=292;
-      var mbox=new Rect(60,38,mw,mh);
+      float mw=580,mh=312;
+      var mbox=new Rect(60,32,mw,mh);
       Window(mbox);
-      Label(new(new(20,12,mw-40,26),$"TOWER OF CIRCULATING PATHS  ·  CYCLE {CirculatingPathsRuntime.CycleRank}",17,"gold"),mbox.x,mbox.y,1);
+      Label(new(new(34,18,mw-68,26),$"TOWER OF CIRCULATING PATHS  ·  CYCLE {CirculatingPathsRuntime.CycleRank}",17,"gold"),mbox.x,mbox.y,1);
       // Left column: vertical 6-floor Sindar spire map (Floor 6 at top -> Floor 1 at bottom)
       for(int f=CirculatingPathsRules.TotalFloors;f>=1;f--)
       {
        var fs=CirculatingPathsRules.Floor(f);
-       float fy=46+(CirculatingPathsRules.TotalFloors-f)*37;
+       float fy=56+(CirculatingPathsRules.TotalFloors-f)*38;
        bool isCur=f==CirculatingPathsRuntime.CurrentFloor&&!CirculatingPathsRuntime.SummitCrystalReady;
        bool cleared=f<CirculatingPathsRuntime.CurrentFloor||(f==CirculatingPathsRuntime.CurrentFloor&&CirculatingPathsRuntime.GuardianDefeatedThisFloor)||CirculatingPathsRuntime.SummitCrystalReady;
        string prefix=isCur?"► ":cleared?"✓ ":"· ";
        string tone=isCur?"gold":cleared?"success":"muted";
-       if(isCur)Fill(new Rect(mbox.x+16,mbox.y+fy-2,208,30),new Color(.90f,.72f,.24f,.18f));
-       Label(new(new(22,fy,200,26),prefix+fs.ShortTag,16,tone),mbox.x,mbox.y,1);
+       if(isCur)Fill(new Rect(mbox.x+24,mbox.y+fy-2,204,30),new Color(.90f,.72f,.24f,.18f));
+       Label(new(new(30,fy,196,26),prefix+fs.ShortTag,16,tone),mbox.x,mbox.y,1);
       }
       // Vertical divider
-      Fill(new Rect(mbox.x+232,mbox.y+44,2,mh-60),new Color(.88f,.75f,.42f,.45f));
+      Fill(new Rect(mbox.x+240,mbox.y+54,2,mh-74),new Color(.88f,.75f,.42f,.45f));
       // Right column: 8 Red Orb Sockets, Active Blessings & Current Guardian Intel
       int orbs=CirculatingPathsRuntime.RedOrbsCollected;
-      Label(new(new(248,46,296,22),$"RED ORB SOCKETS  ({orbs}/{CirculatingPathsRules.TotalRedOrbs})",14,"gold"),mbox.x,mbox.y,1);
+      Label(new(new(256,56,300,22),$"RED ORB SOCKETS  ({orbs}/{CirculatingPathsRules.TotalRedOrbs})",14,"gold"),mbox.x,mbox.y,1);
       for(int oi=0;oi<CirculatingPathsRules.TotalRedOrbs;oi++)
       {
-       float ox=mbox.x+250+oi*34;
-       float oy=mbox.y+74;
+       float ox=mbox.x+258+oi*34;
+       float oy=mbox.y+84;
        bool lit=oi<orbs;
        Fill(new Rect(ox,oy,24,24),lit?new Color(.92f,.16f,.22f,.96f):new Color(.12f,.14f,.22f,.90f));
        Fill(new Rect(ox+4,oy+4,16,16),lit?new Color(1f,.48f,.44f,.95f):new Color(.06f,.08f,.14f,.95f));
       }
       var curSpec=CirculatingPathsRules.Floor(CirculatingPathsRuntime.CurrentFloor);
-      Label(new(new(248,112,296,22),"STAIRWELL GUARDIAN",13,"muted"),mbox.x,mbox.y,1);
-      Label(new(new(248,132,296,24),$"{curSpec.GuardianName}  ({new string('◆',curSpec.Shields)})",15,"alert"),mbox.x,mbox.y,1);
-      Label(new(new(248,156,296,22),$"{curSpec.GuardianMechanicName}: {curSpec.GuardianMechanicDesc}",13),mbox.x,mbox.y,1);
-      Label(new(new(248,190,296,22),"ACTIVE SPIRE BLESSINGS",13,"muted"),mbox.x,mbox.y,1);
+      Label(new(new(256,122,300,22),"STAIRWELL GUARDIAN",13,"muted"),mbox.x,mbox.y,1);
+      Label(new(new(256,142,300,24),$"{curSpec.GuardianName}  ({new string('◆',curSpec.Shields)})",15,"alert"),mbox.x,mbox.y,1);
+      Label(new(new(256,166,300,22),$"{curSpec.GuardianMechanicName}: {curSpec.GuardianMechanicDesc}",13),mbox.x,mbox.y,1);
+      Label(new(new(256,200,300,22),"ACTIVE SPIRE BLESSINGS",13,"muted"),mbox.x,mbox.y,1);
       string blessLine=CirculatingPathsRuntime.ActiveBlessings.Count==0
           ?"None yet — visit floor shrines!"
           :string.Join("\n",CirculatingPathsRuntime.ActiveBlessings.Select(id=>CirculatingPathsRules.FindBlessing(id) is {} b?$"★ {b.Name}: {b.Summary}":id));
-      Label(new(new(248,210,296,74),blessLine,13,CirculatingPathsRuntime.ActiveBlessings.Count>0?"success":"muted"),mbox.x,mbox.y,1);
+      Label(new(new(256,220,300,74),blessLine,13,CirculatingPathsRuntime.ActiveBlessings.Count>0?"success":"muted"),mbox.x,mbox.y,1);
      }
      float width=Math.Min(1020,vw-120);
      float height=166;
      var box=new Rect((vw-width)/2,vh-height-30,width,height);
      Window(box);
      string plateText=dScript.Speaker;
-     float plateW=Math.Min(420,Math.Max(220,plateText.Length*13+56));
-     var plate=new Rect(box.x+20,box.y-34,plateW,42);
+     float plateW=Math.Min(560,Math.Max(240,plateText.Length*13+84));
+     var plate=new Rect(box.x+20,box.y-38,plateW,48);
      Window(plate);
-     Label(new(new(20,8,plateW-40,26),plateText,21,"gold"),plate.x,plate.y,1);
-     Label(new(new(34,26,width-68,94),dlg.VisiblePageText(),24),box.x,box.y,1);
+     Label(new(new(34,12,plateW-68,26),plateText,20,"gold"),plate.x,plate.y,1);
+     Label(new(new(36,28,width-72,94),dlg.VisiblePageText(),23),box.x,box.y,1);
      float bobY=Mathf.Sin(Time.unscaledTime*6f)*3f;
      var cur=GuildVisualResources.Cursor;
      if(!dlg.AtChoices)
      {
-      Label(new(new(34,height-32,200,22),$"{dlg.PageIndex+1} / {dScript.Pages.Length}",14,"muted"),box.x,box.y,1);
+      Label(new(new(36,height-32,200,22),$"{dlg.PageIndex+1} / {dScript.Pages.Length}",14,"muted"),box.x,box.y,1);
       if(cur!=null)GUI.DrawTexture(new Rect(box.x+width-46,box.y+height-36+bobY,22,20),cur.texture,ScaleMode.StretchToFill,true);
       else Label(new(new(width-46,height-36+bobY,26,24),"▼",18,"gold"),box.x,box.y,1);
      }
      else
      {
-      float cw=420,ch=32+dScript.Choices.Length*42;
+      int maxLen=dScript.Choices.Max(c=>c.Label.Length);
+      float cw=Math.Min(600,Math.Max(420,maxLen*10.5f+92));
+      float ch=48+dScript.Choices.Length*42;
       var cbox=new Rect(box.x+width-cw,box.y-ch-12,cw,ch);
       Window(cbox);
       float bobX=Mathf.Sin(Time.unscaledTime*7f)*3f;
       for(int ci=0;ci<dScript.Choices.Length;ci++)
       {
-       float ry=16+ci*42;
+       float ry=24+ci*42;
        if(ci==dlg.ChoiceFocus)
        {
         EnsureGradients();
-        GUI.DrawTexture(new Rect(cbox.x+16,cbox.y+ry,cw-32,36),rowGradTex!,ScaleMode.StretchToFill,true);
-        Fill(new Rect(cbox.x+16,cbox.y+ry,4,36),new Color(.96f,.82f,.44f,.95f));
-        if(cur!=null)GUI.DrawTexture(new Rect(cbox.x+24+bobX,cbox.y+ry+8,20,18),cur.texture,ScaleMode.StretchToFill,true);
+        GUI.DrawTexture(new Rect(cbox.x+22,cbox.y+ry,cw-44,36),rowGradTex!,ScaleMode.StretchToFill,true);
+        Fill(new Rect(cbox.x+22,cbox.y+ry,4,36),new Color(.96f,.82f,.44f,.95f));
+        if(cur!=null)GUI.DrawTexture(new Rect(cbox.x+30+bobX,cbox.y+ry+8,20,18),cur.texture,ScaleMode.StretchToFill,true);
        }
-       Label(new(new(50,ry+6,cw-68,26),dScript.Choices[ci].Label,19,ci==dlg.ChoiceFocus?"gold":"normal"),cbox.x,cbox.y,1);
+       Label(new(new(56,ry+6,cw-82,26),dScript.Choices[ci].Label,18,ci==dlg.ChoiceFocus?"gold":"normal"),cbox.x,cbox.y,1);
       }
      }
      return;
@@ -1037,10 +1039,10 @@ public sealed class HuntGuildOverlay:MonoBehaviour
           ArmyProgressionRuntime.Current.MoraleBonusCharges,ArmyProgressionRuntime.Current.Commanders.Count,
           ArmyProgressionRuntime.Enabled,CastleGuildRuntime.ActiveNpc);
       // Classic Suikoden II floating Speaker Nameplate perched on top-left of dialogue box
-      float plateW=Math.Min(460,Math.Max(220,header.Length*12+48));
-      var plate=new Rect(box.x+20,box.y-34,plateW,42);
+      float plateW=Math.Min(500,Math.Max(240,header.Length*12+80));
+      var plate=new Rect(box.x+20,box.y-38,plateW,46);
       Window(plate);
-      Label(new(new(20,8,plateW-40,26),header,20,"gold"),plate.x,plate.y,1);
+      Label(new(new(34,11,plateW-68,26),header,19,"gold"),plate.x,plate.y,1);
       Label(new(new(34,26,width-68,72),greeting,23),box.x,box.y,1);
       float bobY=previewSmoke?0f:Mathf.Sin(Time.unscaledTime*6f)*3f;
       var cur=GuildVisualResources.Cursor;
