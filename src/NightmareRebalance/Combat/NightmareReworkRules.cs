@@ -183,8 +183,8 @@ internal sealed class ShieldReactionState
     internal int Shields;
     internal int StaggeredUntilTurn = -1;
     internal readonly EnemyChargeTracker Charge = new();
-    internal bool IsBoss;
-    internal bool IsElite;
+    internal bool IsBoss { get; set; }
+    internal bool IsElite { get; set; }
 
     internal bool IsStaggered(int currentTurn)
     {

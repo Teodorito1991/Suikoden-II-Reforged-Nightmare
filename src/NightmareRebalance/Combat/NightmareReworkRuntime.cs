@@ -152,27 +152,30 @@ internal static class NightmareReworkRuntime
         return mult;
     }
 
-    // PURE damage calculation only: never mutates shields, stagger, actor HP, or Momentum.
+    // PURE damage calculation only: never mutates shields, stagger, actor HP, phase, or Momentum.
     // Repeated calculations of the same hit return identical damage.
     internal static int ApplyPlayerAttackOnEnemy(BATTLE_WORK w, BattlePlayerCharacter actor, PM_DATA? enemy, int damage, bool isMagic, bool comboProcced)
     {
-        if (!Enabled || damage <= 0) return damage;
+        if (damage <= 0) return damage;
         int result = damage;
-        if (isMagic && ActiveZoneHazard == ZoneHazard.ArcaneStorm)
-            result = Math.Max(result + 1, (int)Math.Round(result * 1.30, MidpointRounding.AwayFromZero));
-        if (ActivePackTrait == PackTrait.Berserk)
-            result = Math.Max(result + 1, (int)Math.Round(result * 1.15, MidpointRounding.AwayFromZero));
-
-        if (enemy != null)
+        if (Enabled)
         {
-            pendingComboFlags[(actor.Pointer, enemy.Pointer)] = comboProcced;
-            if (StateFor(enemy) is {} st)
-                result = st.Reaction.CalculatePlayerDamage(result, w.battle_kaisuu);
+            if (isMagic && ActiveZoneHazard == ZoneHazard.ArcaneStorm)
+                result = Math.Max(result + 1, (int)Math.Round(result * 1.30, MidpointRounding.AwayFromZero));
+            if (ActivePackTrait == PackTrait.Berserk)
+                result = Math.Max(result + 1, (int)Math.Round(result * 1.15, MidpointRounding.AwayFromZero));
+
+            if (enemy != null)
+            {
+                pendingComboFlags[(actor.Pointer, enemy.Pointer)] = comboProcced;
+                if (StateFor(enemy) is {} st)
+                    result = st.Reaction.CalculatePlayerDamage(result, w.battle_kaisuu);
+            }
         }
         if (SuperbossRuntime.BattleInProgress)
-            result = SuperbossRuntime.ApplySuperbossIncomingModifiers(w, actor, enemy, result, isMagic);
+            result = SuperbossRuntime.ApplySuperbossDamageModifier(enemy, result, isMagic);
         if (CirculatingPathsRuntime.BattleInProgress)
-            result = CirculatingPathsRuntime.ApplyGuardianIncomingModifiers(w, actor, enemy, result, isMagic);
+            result = CirculatingPathsRuntime.ApplyGuardianDamageModifier(enemy, result, isMagic);
         return result;
     }
 

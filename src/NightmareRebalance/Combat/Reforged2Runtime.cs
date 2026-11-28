@@ -41,7 +41,26 @@ internal static class Reforged2Runtime
     static readonly HashSet<IntPtr> surgedPlayers = new();
     static readonly HashSet<IntPtr> ripostePlayers = new();
     static readonly Dictionary<int, int> battleDamageByChara = new();
+    static readonly Dictionary<(IntPtr Actor, IntPtr Target), PendingPlayerHitEffects> pendingHits = new();
     static readonly System.Random rng = new();
+
+    readonly record struct PendingPlayerHitEffects(
+        bool IsMagic,
+        CharacterTalent Talent,
+        int SelfHeal,
+        bool ConsumeFirstStrike,
+        string FirstStrikeName,
+        int FirstStrikeBonus,
+        bool ConsumeSurge,
+        int SurgeBonus,
+        bool ConsumeRiposte,
+        int RiposteBonus,
+        int AddArmorBreakStacks,
+        bool ComboProcced,
+        string ComboName,
+        int ComboBonus,
+        bool GrantArcaneConclaveMomentum,
+        bool RegisterSpellCast);
 
     internal static bool CombosEnabled => Plugin.Options?.EnableCombatCombos.Value == true;
     internal static bool PerksEnabled => Plugin.Options?.EnableWeaponMilestonePerks.Value == true;
@@ -107,6 +126,7 @@ internal static class Reforged2Runtime
         surgedPlayers.Clear();
         ripostePlayers.Clear();
         battleDamageByChara.Clear();
+        pendingHits.Clear();
         feed.Clear();
     }
 
@@ -547,6 +567,9 @@ internal static class Reforged2Runtime
         battleDamageByChara[actor.chara_id] = battleDamageByChara.GetValueOrDefault(actor.chara_id) + amount;
     }
 
+    // PURE damage calculation only: never mutates HP, Surge/Riposte, First Strike,
+    // Armor Break stacks, Momentum, Bounties, or DPS tracking. Repeated calls for the
+    // same hit return identical damage.
     internal static int ApplyPlayerPhysical(BattlePlayerCharacter attacker, int mokuhyo, int damage)
     {
         if (damage <= 0 || Combat.State is not { Ready: true }) return damage;
@@ -560,17 +583,16 @@ internal static class Reforged2Runtime
         result = Reforged2Rules.ApplyGrandArmory(result, ArmyProgressionRuntime.HasUpgrade("grand-armory"));
 
         var (talent, mRank) = ArmyProgressionRuntime.GetCharacterTalent(attacker.chara_id);
-        result = Reforged5Rules.ApplyTalentPhysical(result, talent, mRank, out int talentHeal);
+        result = Reforged5Rules.ApplyTalentPhysical(result, talent, mRank, out int selfHeal);
         if (ActiveTalentSet == TalentSetBonus.BalancedVanguard)
             result = Math.Max(result + 1, (int)Math.Round(result * 1.08, MidpointRounding.AwayFromZero));
         else if (ActiveTalentSet == TalentSetBonus.WarbandFury)
         {
             result = Math.Max(result + 1, (int)Math.Round(result * 1.10, MidpointRounding.AwayFromZero));
-            talentHeal += Math.Max(1, (int)Math.Round(result * 0.03, MidpointRounding.AwayFromZero));
+            selfHeal += Math.Max(1, (int)Math.Round(result * 0.03, MidpointRounding.AwayFromZero));
         }
-        int relicHeal = TowerOfDunanRuntime.HasRelic("vampiric-fang") ? Math.Max(1, (int)Math.Round(result * 0.10, MidpointRounding.AwayFromZero)) : 0;
-        if (talentHeal + relicHeal > 0 && attacker.hp > 0 && attacker.hp < attacker.max_hp)
-            attacker.hp = (short)Math.Min(attacker.max_hp, attacker.hp + talentHeal + relicHeal);
+        if (TowerOfDunanRuntime.HasRelic("vampiric-fang"))
+            selfHeal += Math.Max(1, (int)Math.Round(result * 0.10, MidpointRounding.AwayFromZero));
         if (TowerOfDunanRuntime.HasRelic("blood-pact"))
             result = Math.Max(result + 1, (int)Math.Round(result * 1.25, MidpointRounding.AwayFromZero));
         if (TowerOfDunanRuntime.HasRelic("black-sword-echo"))
@@ -583,16 +605,10 @@ internal static class Reforged2Runtime
             result = Math.Max(result + 1, (int)Math.Round(result * CirculatingPathsRules.CycleDamageBonus(CirculatingPathsRuntime.CycleRank), MidpointRounding.AwayFromZero));
         if (CirculatingPathsRuntime.HasBlessing("serpent-fang"))
             result = Math.Max(result + 1, (int)Math.Round(result * 1.15, MidpointRounding.AwayFromZero));
-        if (SuperbossRuntime.HasTrophy("eternal-neclord") && attacker.hp > 0 && attacker.hp < attacker.max_hp)
-        {
-            int trophyHeal = Math.Max(1, (int)Math.Round(result * 0.08, MidpointRounding.AwayFromZero));
-            attacker.hp = (short)Math.Min(attacker.max_hp, attacker.hp + trophyHeal);
-        }
-        if (CirculatingPathsRuntime.HasBlessing("vampiric-seal") && attacker.hp > 0 && attacker.hp < attacker.max_hp)
-        {
-            int sealHeal = Math.Max(1, (int)Math.Round(result * 0.10, MidpointRounding.AwayFromZero));
-            attacker.hp = (short)Math.Min(attacker.max_hp, attacker.hp + sealHeal);
-        }
+        if (SuperbossRuntime.HasTrophy("eternal-neclord"))
+            selfHeal += Math.Max(1, (int)Math.Round(result * 0.08, MidpointRounding.AwayFromZero));
+        if (CirculatingPathsRuntime.HasBlessing("vampiric-seal"))
+            selfHeal += Math.Max(1, (int)Math.Round(result * 0.10, MidpointRounding.AwayFromZero));
 
         if (attacker.chara_no is >= 3 and < 6 && (CombosEnabled || PerksEnabled))
         {
@@ -612,56 +628,53 @@ internal static class Reforged2Runtime
         if (SurgeEnabled)
             result = Reforged2Rules.ApplyLastStandAttack(result, KoAllyCount(w));
 
+        bool consumeFirstStrike = false;
+        string firstStrikeName = "";
+        int firstStrikeBonus = 0;
         if (CombosEnabled && !firstActionUsed)
         {
             var fs = Reforged2Rules.EvaluateFirstStrike(result, w.battle_kaisuu, firstActionUsed);
-            firstActionUsed = true;
+            consumeFirstStrike = true;
             if (fs.BonusDamage > 0)
             {
-                int bonus = TowerOfDunanRuntime.HasRelic("stormcaller-sigil") ? (int)Math.Round(fs.BonusDamage * 1.20, MidpointRounding.AwayFromZero) : fs.BonusDamage;
-                result += bonus;
-                FlashBanner($"⚡ {fs.Name}! (+{bonus})", 2000, "gold");
-                GainMomentum(10, w, talent);
+                firstStrikeBonus = TowerOfDunanRuntime.HasRelic("stormcaller-sigil") ? (int)Math.Round(fs.BonusDamage * 1.20, MidpointRounding.AwayFromZero) : fs.BonusDamage;
+                firstStrikeName = fs.Name;
+                result += firstStrikeBonus;
             }
         }
 
-        if (SurgeEnabled && surgedPlayers.Remove(attacker.Pointer))
+        bool consumeSurge = false, consumeRiposte = false;
+        int surgeBonus = 0, riposteBonus = 0;
+        if (SurgeEnabled && surgedPlayers.Contains(attacker.Pointer))
         {
             int before = result;
             result = Reforged2Rules.ApplyDesperationSurge(result);
             if (TowerOfDunanRuntime.HasRelic("iron-riposte"))
                 result += Math.Max(1, (int)Math.Round((result - before) * 0.25, MidpointRounding.AwayFromZero));
-            battleSurges++;
-            FlashBanner($"★ Desperation Surge! (+{result - before})", 2400, "gold");
-            GainMomentum(30, w, talent);
-            if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.OverdrivesOrSurges) is {} bm)
-                FlashBanner("★ " + bm, 3200, "success");
+            consumeSurge = true;
+            surgeBonus = result - before;
         }
-        else if (SurgeEnabled && ripostePlayers.Remove(attacker.Pointer))
+        else if (SurgeEnabled && ripostePlayers.Contains(attacker.Pointer))
         {
             int before = result;
             result = Reforged2Rules.ApplyRiposte(result, bulwark: talent == CharacterTalent.Bulwark);
             if (TowerOfDunanRuntime.HasRelic("iron-riposte"))
                 result += Math.Max(1, (int)Math.Round((result - before) * 0.25, MidpointRounding.AwayFromZero));
-            battleSurges++;
-            FlashBanner($"⚔ Riposte Counter! (+{result - before})", 2300, "success");
-            GainMomentum(15, w, talent);
+            consumeRiposte = true;
+            riposteBonus = result - before;
         }
 
         bool comboProcced = false;
+        string comboName = "";
+        int comboBonus = 0;
+        int addArmorBreakStacks = 0;
         var targetEnemy = StarBondRuntime.Enemy(w, mokuhyo);
         if (CombosEnabled && targetEnemy is {} enemy)
         {
             int stacks = armorBreaks.GetValueOrDefault(enemy.Pointer, 0);
             if (stacks > 0) result = Reforged2Rules.ApplyArmorBreak(result, stacks);
-            int addStacks = talent == CharacterTalent.Tactician ? 2 : 1;
-            if (stacks < Reforged2Rules.MaxArmorBreakStacks)
-            {
-                int nextStacks = Math.Min(Reforged2Rules.MaxArmorBreakStacks, stacks + addStacks);
-                armorBreaks[enemy.Pointer] = nextStacks;
-                if (nextStacks == Reforged2Rules.MaxArmorBreakStacks)
-                    FlashBanner("⚔ Armor Shattered! (Max Break +15% DMG)", 2100, "alert");
-            }
+            addArmorBreakStacks = talent == CharacterTalent.Tactician ? 2 : 1;
+
             bool sleeping = (enemy.status & b_game_h.STATUS_SLEEP) != 0;
             bool poisoned = (enemy.status & b_game_h.STATUS_POISON) != 0;
             var combo = Reforged2Rules.EvaluatePhysicalCombo(result, sleeping, false, poisoned);
@@ -672,44 +685,63 @@ internal static class Reforged2Runtime
             if (combo.BonusDamage > 0)
             {
                 comboProcced = true;
-                int bonus = combo.BonusDamage;
+                comboName = combo.Name;
+                comboBonus = combo.BonusDamage;
                 if (TowerOfDunanRuntime.HasRelic("shatter-gauntlet"))
-                    bonus = (int)Math.Round(bonus * 1.30, MidpointRounding.AwayFromZero);
+                    comboBonus = (int)Math.Round(comboBonus * 1.30, MidpointRounding.AwayFromZero);
                 if (combo.Name == "Spellblade Resonance" && TowerOfDunanRuntime.HasRelic("stormcaller-sigil"))
-                    bonus = (int)Math.Round(bonus * 1.20, MidpointRounding.AwayFromZero);
-                result += bonus;
-                battleCombos++;
-                FlashBanner($"★ {combo.Name}! (+{bonus})", 2200, "gold");
-                GainMomentum(25, w, talent);
-                if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.Combos) is {} bm)
-                    FlashBanner("★ " + bm, 3200, "success");
+                    comboBonus = (int)Math.Round(comboBonus * 1.20, MidpointRounding.AwayFromZero);
+                result += comboBonus;
             }
         }
 
         bool endgameOptPhys = TowerOfDunanRuntime.BattleInProgress || SuperbossRuntime.BattleInProgress || CirculatingPathsRuntime.BattleInProgress;
         result = Reforged2Rules.ApplyStackedPlayerDamageCap(damage, result, endgameOptPhys);
         result = NightmareReworkRuntime.ApplyPlayerAttackOnEnemy(w, attacker, targetEnemy, result, isMagic: false, comboProcced);
-        RecordDamage(attacker, result);
+        if (targetEnemy != null)
+        {
+            pendingHits[(attacker.Pointer, targetEnemy.Pointer)] = new PendingPlayerHitEffects(
+                IsMagic: false,
+                Talent: talent,
+                SelfHeal: selfHeal,
+                ConsumeFirstStrike: consumeFirstStrike,
+                FirstStrikeName: firstStrikeName,
+                FirstStrikeBonus: firstStrikeBonus,
+                ConsumeSurge: consumeSurge,
+                SurgeBonus: surgeBonus,
+                ConsumeRiposte: consumeRiposte,
+                RiposteBonus: riposteBonus,
+                AddArmorBreakStacks: addArmorBreakStacks,
+                ComboProcced: comboProcced,
+                ComboName: comboName,
+                ComboBonus: comboBonus,
+                GrantArcaneConclaveMomentum: false,
+                RegisterSpellCast: false);
+        }
         return result;
     }
 
+    // PURE damage calculation only: never mutates HP, Surge, First Strike, spellsThisTurn,
+    // Momentum, Bounties, or DPS tracking. Repeated calls return identical damage.
     internal static int ApplyPlayerMagic(BattlePlayerCharacter caster, int mokuhyo, int damage)
     {
         if (damage <= 0 || Combat.State is not { Ready: true }) return damage;
         var w = Framework.Singleton<BATTLE_WORK>.instance;
         if (w == null) return damage;
         int result = damage;
+        int selfHeal = 0;
 
         result = Reforged2Rules.ApplyGrandArmory(result, ArmyProgressionRuntime.HasUpgrade("grand-armory"));
 
         var (mTalent, mRank) = ArmyProgressionRuntime.GetCharacterTalent(caster.chara_id);
         result = Reforged5Rules.ApplyTalentMagic(result, mTalent, mRank);
+        bool grantArcaneConclaveMom = false;
         if (ActiveTalentSet == TalentSetBonus.BalancedVanguard)
             result = Math.Max(result + 1, (int)Math.Round(result * 1.08, MidpointRounding.AwayFromZero));
         else if (ActiveTalentSet == TalentSetBonus.ArcaneConclave)
         {
             result = Math.Max(result + 1, (int)Math.Round(result * 1.12, MidpointRounding.AwayFromZero));
-            GainMomentum(8, w);
+            grantArcaneConclaveMom = true;
         }
         if (TowerOfDunanRuntime.HasRelic("arcane-battery"))
             result = Math.Max(result + 1, (int)Math.Round(result * 1.25, MidpointRounding.AwayFromZero));
@@ -725,16 +757,10 @@ internal static class Reforged2Runtime
             result = Math.Max(result + 1, (int)Math.Round(result * CirculatingPathsRules.CycleDamageBonus(CirculatingPathsRuntime.CycleRank), MidpointRounding.AwayFromZero));
         if (CirculatingPathsRuntime.HasBlessing("serpent-fang"))
             result = Math.Max(result + 1, (int)Math.Round(result * 1.15, MidpointRounding.AwayFromZero));
-        if (SuperbossRuntime.HasTrophy("eternal-neclord") && caster.hp > 0 && caster.hp < caster.max_hp)
-        {
-            int trophyHeal = Math.Max(1, (int)Math.Round(result * 0.08, MidpointRounding.AwayFromZero));
-            caster.hp = (short)Math.Min(caster.max_hp, caster.hp + trophyHeal);
-        }
-        if (CirculatingPathsRuntime.HasBlessing("vampiric-seal") && caster.hp > 0 && caster.hp < caster.max_hp)
-        {
-            int sealHeal = Math.Max(1, (int)Math.Round(result * 0.10, MidpointRounding.AwayFromZero));
-            caster.hp = (short)Math.Min(caster.max_hp, caster.hp + sealHeal);
-        }
+        if (SuperbossRuntime.HasTrophy("eternal-neclord"))
+            selfHeal += Math.Max(1, (int)Math.Round(result * 0.08, MidpointRounding.AwayFromZero));
+        if (CirculatingPathsRuntime.HasBlessing("vampiric-seal"))
+            selfHeal += Math.Max(1, (int)Math.Round(result * 0.10, MidpointRounding.AwayFromZero));
         if (caster.chara_no is >= 3 and < 6 && (CombosEnabled || PerksEnabled))
         {
             var (_, backAlive) = FormationCounts(w);
@@ -753,56 +779,50 @@ internal static class Reforged2Runtime
         if (SurgeEnabled)
             result = Reforged2Rules.ApplyLastStandAttack(result, KoAllyCount(w));
 
+        bool consumeFirstStrike = false;
+        string firstStrikeName = "";
+        int firstStrikeBonus = 0;
         if (CombosEnabled && !firstActionUsed)
         {
             var fs = Reforged2Rules.EvaluateFirstStrike(result, w.battle_kaisuu, firstActionUsed);
-            firstActionUsed = true;
+            consumeFirstStrike = true;
             if (fs.BonusDamage > 0)
             {
-                int bonus = TowerOfDunanRuntime.HasRelic("stormcaller-sigil") ? (int)Math.Round(fs.BonusDamage * 1.20, MidpointRounding.AwayFromZero) : fs.BonusDamage;
-                result += bonus;
-                FlashBanner($"⚡ {fs.Name}! (+{bonus})", 2000, "gold");
-                GainMomentum(10, w, mTalent);
+                firstStrikeBonus = TowerOfDunanRuntime.HasRelic("stormcaller-sigil") ? (int)Math.Round(fs.BonusDamage * 1.20, MidpointRounding.AwayFromZero) : fs.BonusDamage;
+                firstStrikeName = fs.Name;
+                result += firstStrikeBonus;
             }
         }
 
-        if (SurgeEnabled && surgedPlayers.Remove(caster.Pointer))
+        bool consumeSurge = false;
+        int surgeBonus = 0;
+        if (SurgeEnabled && surgedPlayers.Contains(caster.Pointer))
         {
             int before = result;
             result = Reforged2Rules.ApplyDesperationSurge(result);
             if (TowerOfDunanRuntime.HasRelic("iron-riposte"))
                 result += Math.Max(1, (int)Math.Round((result - before) * 0.25, MidpointRounding.AwayFromZero));
-            battleSurges++;
-            FlashBanner($"★ Desperation Surge! (+{result - before})", 2400, "gold");
-            GainMomentum(30, w, mTalent);
-            if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.OverdrivesOrSurges) is {} bm)
-                FlashBanner("★ " + bm, 3200, "success");
+            consumeSurge = true;
+            surgeBonus = result - before;
         }
+
         bool magicCombo = false;
+        string comboName = "";
+        int comboBonus = 0;
+        bool registerSpellCast = false;
         if (CombosEnabled)
         {
-            if (w.battle_kaisuu != lastTurn)
-            {
-                lastTurn = w.battle_kaisuu;
-                spellsThisTurn = 0;
-                castersThisTurn.Clear();
-            }
-            bool newCast = castersThisTurn.Add(caster.Pointer);
-            if (newCast) spellsThisTurn++;
-            var combo = Reforged2Rules.EvaluateArcaneChain(result, spellsThisTurn);
+            int projectedSpells = w.battle_kaisuu == lastTurn
+                ? spellsThisTurn + (castersThisTurn.Contains(caster.Pointer) ? 0 : 1)
+                : 1;
+            registerSpellCast = true;
+            var combo = Reforged2Rules.EvaluateArcaneChain(result, projectedSpells);
             if (combo.BonusDamage > 0)
             {
                 magicCombo = true;
-                int bonus = TowerOfDunanRuntime.HasRelic("shatter-gauntlet") ? (int)Math.Round(combo.BonusDamage * 1.30, MidpointRounding.AwayFromZero) : combo.BonusDamage;
-                result += bonus;
-                if (newCast)
-                {
-                    battleCombos++;
-                    FlashBanner($"★ {combo.Name}! (+{bonus})", 2200, "gold");
-                    GainMomentum(25, w, mTalent);
-                    if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.Combos) is {} bm)
-                        FlashBanner("★ " + bm, 3200, "success");
-                }
+                comboName = combo.Name;
+                comboBonus = TowerOfDunanRuntime.HasRelic("shatter-gauntlet") ? (int)Math.Round(combo.BonusDamage * 1.30, MidpointRounding.AwayFromZero) : combo.BonusDamage;
+                result += comboBonus;
             }
         }
 
@@ -810,8 +830,107 @@ internal static class Reforged2Runtime
         bool endgameOptMagic = TowerOfDunanRuntime.BattleInProgress || SuperbossRuntime.BattleInProgress || CirculatingPathsRuntime.BattleInProgress;
         result = Reforged2Rules.ApplyStackedPlayerDamageCap(damage, result, endgameOptMagic);
         result = NightmareReworkRuntime.ApplyPlayerAttackOnEnemy(w, caster, magicTarget, result, isMagic: true, magicCombo);
-        RecordDamage(caster, result);
+        if (magicTarget != null)
+        {
+            pendingHits[(caster.Pointer, magicTarget.Pointer)] = new PendingPlayerHitEffects(
+                IsMagic: true,
+                Talent: mTalent,
+                SelfHeal: selfHeal,
+                ConsumeFirstStrike: consumeFirstStrike,
+                FirstStrikeName: firstStrikeName,
+                FirstStrikeBonus: firstStrikeBonus,
+                ConsumeSurge: consumeSurge,
+                SurgeBonus: surgeBonus,
+                ConsumeRiposte: false,
+                RiposteBonus: 0,
+                AddArmorBreakStacks: 0,
+                ComboProcced: magicCombo,
+                ComboName: comboName,
+                ComboBonus: comboBonus,
+                GrantArcaneConclaveMomentum: grantArcaneConclaveMom,
+                RegisterSpellCast: registerSpellCast);
+        }
         return result;
+    }
+
+    // Committed native reaction hit (PM_DATA.DamageSetReActionData / SetMagicDamageChara).
+    // Applies lifesteal, Surge/Riposte/First Strike consumption, Armor Break, Arcane Chain,
+    // Momentum, Bounties, DPS tracking, and Boss Telegraphs exactly once per actual landed hit.
+    internal static void CommitPlayerHit(BATTLE_WORK? w, BattlePlayerCharacter actor, PM_DATA? enemy, int committedDamage, bool isMagic)
+    {
+        if (w == null || enemy == null || committedDamage <= 0) return;
+        RecordDamage(actor, committedDamage);
+
+        if (pendingHits.Remove((actor.Pointer, enemy.Pointer), out var fx))
+        {
+            if (fx.SelfHeal > 0 && actor.hp > 0 && actor.hp < actor.max_hp)
+                actor.hp = (short)Math.Min(actor.max_hp, actor.hp + fx.SelfHeal);
+
+            if (fx.GrantArcaneConclaveMomentum)
+                GainMomentum(8, w);
+
+            if (fx.ConsumeFirstStrike && !firstActionUsed)
+            {
+                firstActionUsed = true;
+                if (fx.FirstStrikeBonus > 0)
+                {
+                    FlashBanner($"⚡ {fx.FirstStrikeName}! (+{fx.FirstStrikeBonus})", 2000, "gold");
+                    GainMomentum(10, w, fx.Talent);
+                }
+            }
+
+            if (fx.ConsumeSurge && surgedPlayers.Remove(actor.Pointer))
+            {
+                battleSurges++;
+                FlashBanner($"★ Desperation Surge! (+{fx.SurgeBonus})", 2400, "gold");
+                GainMomentum(30, w, fx.Talent);
+                if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.OverdrivesOrSurges) is {} bm)
+                    FlashBanner("★ " + bm, 3200, "success");
+            }
+            else if (fx.ConsumeRiposte && ripostePlayers.Remove(actor.Pointer))
+            {
+                battleSurges++;
+                FlashBanner($"⚔ Riposte Counter! (+{fx.RiposteBonus})", 2300, "success");
+                GainMomentum(15, w, fx.Talent);
+            }
+
+            if (fx.AddArmorBreakStacks > 0)
+            {
+                int stacks = armorBreaks.GetValueOrDefault(enemy.Pointer, 0);
+                if (stacks < Reforged2Rules.MaxArmorBreakStacks)
+                {
+                    int nextStacks = Math.Min(Reforged2Rules.MaxArmorBreakStacks, stacks + fx.AddArmorBreakStacks);
+                    armorBreaks[enemy.Pointer] = nextStacks;
+                    if (nextStacks == Reforged2Rules.MaxArmorBreakStacks)
+                        FlashBanner("⚔ Armor Shattered! (Max Break +15% DMG)", 2100, "alert");
+                }
+            }
+
+            bool recordCombo = fx.ComboProcced;
+            if (fx.RegisterSpellCast)
+            {
+                if (w.battle_kaisuu != lastTurn)
+                {
+                    lastTurn = w.battle_kaisuu;
+                    spellsThisTurn = 0;
+                    castersThisTurn.Clear();
+                }
+                bool newCast = castersThisTurn.Add(actor.Pointer);
+                if (newCast) spellsThisTurn++;
+                recordCombo = fx.ComboProcced && newCast;
+            }
+
+            if (recordCombo && fx.ComboBonus > 0)
+            {
+                battleCombos++;
+                FlashBanner($"★ {fx.ComboName}! (+{fx.ComboBonus})", 2200, "gold");
+                GainMomentum(25, w, fx.Talent);
+                if (ArmyProgressionRuntime.AdvanceBounty(FieldBountyKind.Combos) is {} bm)
+                    FlashBanner("★ " + bm, 3200, "success");
+            }
+        }
+
+        CheckBossTelegraphs(w);
     }
 
     internal static int ApplyDefenderWeaponPerk(BATTLE_WORK? w, int defenderSlot, int damage)
@@ -896,7 +1015,6 @@ internal static class Reforged2PhysicalPatch
     {
         if (__instance.c_koudou != battle_h.CMD_ATTACK) return;
         __result = Reforged2Runtime.ApplyPlayerPhysical(__instance, mokuhyo, __result);
-        Reforged2Runtime.CheckBossTelegraphs(Framework.Singleton<BATTLE_WORK>.instance);
     }
 }
 
@@ -908,6 +1026,5 @@ internal static class Reforged2MagicPatch
     {
         if (__instance.c_koudou != battle_h.CMD_MAGIC) return;
         __result = Reforged2Runtime.ApplyPlayerMagic(__instance, mokuhyo, __result);
-        Reforged2Runtime.CheckBossTelegraphs(Framework.Singleton<BATTLE_WORK>.instance);
     }
 }

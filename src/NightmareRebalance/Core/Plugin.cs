@@ -14,7 +14,7 @@ namespace NightmareRebalance;
 [BepInDependency("s2_character_mod", BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class Plugin : BasePlugin
 {
-    internal const string BuildLabel = "9.0.0-polish.1";
+    internal const string BuildLabel = "9.0.0-phoenix.1";
     public const string Id = "nightmare.suikoden2.reforged";
     internal static Settings Options = null!;
     internal static ManualLogSource Logger = null!;

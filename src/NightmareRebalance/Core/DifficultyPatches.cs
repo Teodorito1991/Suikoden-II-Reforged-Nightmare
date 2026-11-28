@@ -173,7 +173,13 @@ internal static class NativePhysicalReactionCommitPatch
         var w = Framework.Singleton<BATTLE_WORK>.instance;
         if (w?.pm_data == null || mokuhyo < 0 || mokuhyo >= w.pm_data.Length) return;
         if (__instance.IsPlayer && __instance.TryCast<BattlePlayerCharacter>() is {} player)
-            NightmareReworkRuntime.CommitPlayerHit(w, player, w.pm_data[mokuhyo], damage, isMagic: false);
+        {
+            var target = w.pm_data[mokuhyo];
+            Reforged2Runtime.CommitPlayerHit(w, player, target, damage, isMagic: false);
+            NightmareReworkRuntime.CommitPlayerHit(w, player, target, damage, isMagic: false);
+            SuperbossRuntime.CommitSuperbossPlayerHit(w, player, target, damage, isMagic: false);
+            CirculatingPathsRuntime.CommitGuardianPlayerHit(player, target, damage, isMagic: false);
+        }
         else if (!__instance.IsPlayer)
             NightmareReworkRuntime.CommitEnemyHit(w, __instance, mokuhyo, damage);
     }
@@ -190,7 +196,13 @@ internal static class NativeMagicReactionCommitPatch
         var w = Framework.Singleton<BATTLE_WORK>.instance;
         if (w?.pm_data == null || mokuhyo < 0 || mokuhyo >= w.pm_data.Length) return;
         if (__instance.IsPlayer && __instance.TryCast<BattlePlayerCharacter>() is {} player)
-            NightmareReworkRuntime.CommitPlayerHit(w, player, w.pm_data[mokuhyo], damage, isMagic: true);
+        {
+            var target = w.pm_data[mokuhyo];
+            Reforged2Runtime.CommitPlayerHit(w, player, target, damage, isMagic: true);
+            NightmareReworkRuntime.CommitPlayerHit(w, player, target, damage, isMagic: true);
+            SuperbossRuntime.CommitSuperbossPlayerHit(w, player, target, damage, isMagic: true);
+            CirculatingPathsRuntime.CommitGuardianPlayerHit(player, target, damage, isMagic: true);
+        }
         else if (!__instance.IsPlayer)
             NightmareReworkRuntime.CommitEnemyHit(w, __instance, mokuhyo, damage);
     }

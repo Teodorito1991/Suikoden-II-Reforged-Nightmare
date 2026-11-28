@@ -178,3 +178,45 @@ internal static class CirculatingPathsRules
     internal static double GuardianCycleHpScale(int cycleRank) =>
         1.0 + Math.Clamp(cycleRank, 0, MaxCycleRank) * 0.12;
 }
+
+// Pure rollback + save-fencing coordinator for experimental map warps.
+internal readonly record struct WarpCoordinateSnapshot(
+    int GameArea, int GameTown, int GameMap,
+    int MachiArea, int MachiTown, int MachiMap, int MachiCtyp,
+    bool DungeonModeActive, int ReturnAno, int ReturnVno, int ReturnMno);
+
+internal sealed class WarpTransitionGuard
+{
+    internal bool TransitionPending { get; private set; }
+
+    internal bool TryExecute(
+        WarpCoordinateSnapshot before,
+        Action applyTargetCoordinates,
+        Action invokeNativeTransition,
+        Action<WarpCoordinateSnapshot> restoreCoordinates,
+        out Exception? failure)
+    {
+        if (TransitionPending)
+        {
+            failure = new InvalidOperationException("Warp transition already in progress.");
+            return false;
+        }
+        TransitionPending = true;
+        try
+        {
+            applyTargetCoordinates();
+            invokeNativeTransition();
+            failure = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            TransitionPending = false;
+            try { restoreCoordinates(before); } catch { }
+            failure = ex;
+            return false;
+        }
+    }
+
+    internal void MarkTransitionSettled() => TransitionPending = false;
+}

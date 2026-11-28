@@ -420,11 +420,41 @@ internal static class ArmyProgressionRules
 
     internal readonly record struct LedgerDiskLoadResult(ArmyLedgerIndex Index, LedgerParseStatus Status, bool RecoveredFromBackup, bool WriteBlocked, string Note);
 
+    static void TryRepairPrimaryFromBackup(string ledgerPath, string validBackupRaw)
+    {
+        try
+        {
+            string tmp = ledgerPath + ".repair.tmp";
+            File.WriteAllText(tmp, validBackupRaw, Encoding.UTF8);
+            File.Move(tmp, ledgerPath, overwrite: true);
+        }
+        catch { }
+    }
+
     internal static LedgerDiskLoadResult LoadIndexFromDisk(string ledgerPath)
     {
         string backupPath = ledgerPath + ".bak";
         if (!File.Exists(ledgerPath))
+        {
+            if (File.Exists(backupPath))
+            {
+                try
+                {
+                    string bakRaw = File.ReadAllText(backupPath, Encoding.UTF8);
+                    if (TryParseIndex(bakRaw, out var bakParsed, out var bakStatus) && bakStatus == LedgerParseStatus.Ok)
+                    {
+                        TryRepairPrimaryFromBackup(ledgerPath, bakRaw);
+                        return new(bakParsed, LedgerParseStatus.Ok, true, false, $"Recovered {bakParsed.Snapshots.Count} snapshot(s) from backup after missing primary.");
+                    }
+                    return new(new ArmyLedgerIndex(), bakStatus, false, true, $"Primary ledger missing and backup is {bakStatus}; writes blocked to prevent overwriting progression.");
+                }
+                catch (Exception ex)
+                {
+                    return new(new ArmyLedgerIndex(), LedgerParseStatus.Corrupt, false, true, $"Primary ledger missing and backup read failed ({ex.GetType().Name}); writes blocked.");
+                }
+            }
             return new(new ArmyLedgerIndex(), LedgerParseStatus.Empty, false, false, "No existing ledger; starting fresh.");
+        }
         try
         {
             string raw = File.ReadAllText(ledgerPath, Encoding.UTF8);
@@ -445,7 +475,10 @@ internal static class ArmyProgressionRules
                 {
                     string bakRaw = File.ReadAllText(backupPath, Encoding.UTF8);
                     if (TryParseIndex(bakRaw, out var bakParsed, out var bakStatus) && bakStatus == LedgerParseStatus.Ok)
+                    {
+                        TryRepairPrimaryFromBackup(ledgerPath, bakRaw);
                         return new(bakParsed, LedgerParseStatus.Ok, true, false, $"Recovered {bakParsed.Snapshots.Count} snapshot(s) from backup after {status} primary.");
+                    }
                 }
                 catch { }
             }
@@ -459,7 +492,10 @@ internal static class ArmyProgressionRules
                 {
                     string bakRaw = File.ReadAllText(backupPath, Encoding.UTF8);
                     if (TryParseIndex(bakRaw, out var bakParsed, out var bakStatus) && bakStatus == LedgerParseStatus.Ok)
+                    {
+                        TryRepairPrimaryFromBackup(ledgerPath, bakRaw);
                         return new(bakParsed, LedgerParseStatus.Ok, true, false, $"Recovered {bakParsed.Snapshots.Count} snapshot(s) from backup after read error.");
+                    }
                 }
                 catch { }
             }
@@ -485,7 +521,15 @@ internal static class ArmyProgressionRules
             File.WriteAllText(tmp, payload, Encoding.UTF8);
             if (File.Exists(ledgerPath))
             {
-                try { File.Copy(ledgerPath, bak, overwrite: true); } catch { }
+                // Only promote the existing primary to .bak if it parses cleanly,
+                // so a corrupt/oversized primary can never overwrite a known-good backup.
+                try
+                {
+                    string existingRaw = File.ReadAllText(ledgerPath, Encoding.UTF8);
+                    if (TryParseIndex(existingRaw, out _, out var existingStatus) && existingStatus == LedgerParseStatus.Ok)
+                        File.Copy(ledgerPath, bak, overwrite: true);
+                }
+                catch { }
             }
             File.Move(tmp, ledgerPath, overwrite: true);
             error = null;

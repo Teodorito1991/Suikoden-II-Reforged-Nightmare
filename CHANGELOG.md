@@ -1,5 +1,19 @@
 # Development history
 
+## 9.0.0-phoenix.1 — Project Phoenix Deep Stabilization & Audit Pass
+
+- **Persistence Backup-Clobber & Missing-Primary Recovery (`ArmyProgressionRules.cs`):**
+  - Fixed a P0 backup-clobber defect where recovering from `.bak` left a corrupt primary on disk that `SaveIndexToDisk` would copy over `.bak` on the next save. `LoadIndexFromDisk` now immediately repairs primary atomically from `.bak`, and `SaveIndexToDisk` validates the existing primary via `TryParseIndex` before promoting it to `.bak`.
+  - Added missing-primary `.bak` recovery (repairs primary if `.bak` is valid; fails closed with `WriteBlocked = true` if `.bak` is corrupt).
+- **100% Pure Combat Calculation vs Committed Native Hits (`Reforged2Runtime.cs`, `SuperbossRuntime.cs`, `CirculatingPathsRuntime.cs`, `NightmareReworkRuntime.cs`, `DifficultyPatches.cs`):**
+  - Removed all remaining side-effects from `CalcPlayerDamage` / `PlayerCalcMagicDamage` (`ApplyPlayerPhysical`, `ApplyPlayerMagic`, Superboss Flame Barrier / phase shifts, and Spire Guardian Mirror Reflection / Chrono Cataclysm).
+  - All lifesteal, Surge/Riposte/First Strike consumption, Armor Break stacks, Arcane Chain counts, Momentum, Bounties, DPS tracking, Boss Telegraphs, reflect damage, and boss phase/shield refills now commit exclusively inside `PM_DATA.DamageSetReActionData` / `PM_DATA.SetMagicDamageChara`.
+- **Experimental Warp Atomic Rollback & Save Fencing (`CirculatingPathsRules.cs`, `WalkableDungeonRuntime.cs`, `TrainingNativeSave.cs`):**
+  - Added `WarpCoordinateSnapshot` and `WarpTransitionGuard`: failed `WarpIntoSindarDungeon` / `WarpBackToCastle` calls now roll back all 11 native coordinate/mode fields on exception, reject re-entrant warps, and fence campaign saves (`TrainingNativeSave` / `TrainingSaveIntent`) until map initialization settles.
+- **Zero-Warning Build & Adversarial Regression Suite (`NightmareReworkRules.cs`, `tests/ArmyProgressionTests.cs`):**
+  - Eliminated the CS0649 test-project warning (`0 warnings` across both plugin and test projects) and expanded the managed suite to `247` Reforged v9 checks covering backup-clobber prevention, missing-primary recovery, 14-slot retention, warp rollback/save-fencing, and balance-cap composition.
+  - Added comprehensive audit report in [docs/V9-DEEP-STABILIZATION-REPORT.md](docs/V9-DEEP-STABILIZATION-REPORT.md).
+
 ## 9.0.0-polish.1 — Native Integration, HUD Minimalism & Balance Polish
 
 - **Ornate-Corner Padding Audit (`HuntGuildOverlay.cs`):** Padded every `UI_Com_Frame001_001` window (War Command bar, Sindar Spire HUD pill, Battle Pill, Battle Callout Banner, Guard Shield Strip, `F3` Guide, `F4` Tactical Scanner & Party Panel, `F5` Bestiary/Honors/Dossier) clear of the `26×26` ornate corner glyphs so text never collides with borders.

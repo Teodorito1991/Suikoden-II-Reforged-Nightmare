@@ -10,23 +10,23 @@ An unofficial Windows Steam gameplay overhaul and expansion for **Suikoden II HD
 
 | Track | Version | Status | Details |
 |---|---|---|---|
-| **Latest Source (Development)** | `9.0.0-polish.1` | Compiled (`0 warnings/errors`) + managed/profile/audit verification passing; **live gameplay acceptance pending** | [Changelog](CHANGELOG.md) |
+| **Latest Source (Development)** | `9.0.0-phoenix.1` | Compiled (`0 warnings/errors`) + managed/profile/audit verification passing; **live copied-runtime gameplay acceptance pending** | [V9 Stabilization Report](docs/V9-DEEP-STABILIZATION-REPORT.md) · [Changelog](CHANGELOG.md) |
 | **Installed Owner Playtest Fallback** | `1.55.0-story-bosses.1` (`C5BE…7055E`) | Launcher/plugin startup verified on Steam; Full Content + playtest opt-ins; 14 saves untouched | [v1.55 Installation Status](docs/INSTALLATION-STATUS-V155.md) |
 | **Latest Accepted Checkpoint** | `1.53.0-army-training.1` (`5414…A286`) | Owner-played Commander Rout Standard victory, castle return, autosave readback & reload passed | [v1.53 Acceptance](docs/history/ARMY-TRAINING-RESULTS-V153.md) |
 
 ---
 
-## Honest Feature-Status Matrix (`9.0.0-stabilization.1`)
+## Honest Feature-Status Matrix (`9.0.0-phoenix.1`)
 
 | Subsystem | Default | Verification Level | Known Limits / Notes |
 |---|---|---|---|
 | **Core RPG Rebalance, Star Bonds, Hunts, Original Hall (22), Luca Gauntlet, Story Wars, Native Army Training** | Preserved (`config.example.cfg`) | Managed + profile + historical native/gameplay checkpoints (`v1.53`–`v1.55`) | Retains strict `vk07` Hall invariants and untouched native saves |
-| **Army Progression Ledger (`army-ledger.json`)** | `EnableArmyProgression = false` | Managed regression tests (600+ save slot retention, `.bak` recovery, fail-closed corrupt write-block) | Live async `SystemSave.Save` callback ordering awaits owner save/reload test |
-| **Owned Optional Encounters (Tower of Dunan, 4 Secret Superbosses, Sindar Spire Guardians)** | Opt-in via Castle Hub / Hall | Managed `OptionalEncounterLease` regression tests (exact-once payout, unrelated-battle isolation, abort teardown) | Live in-game boss completion & Tower post-victory heal await owner playtest |
-| **True Nightmare Combat Rework (Shields, Stagger, Turn-Scoped Charge, Traits, Hazards, Defend-Heal, Fatigue)** | `EnableTrueNightmareRework = false` | Managed `EnemyChargeTracker` AoE/Defend/Interrupt & rule tests | `EnableAntiOverlevelScaling` is now independently configurable (`false` default) |
+| **Army Progression Ledger (`army-ledger.json`)** | `EnableArmyProgression = false` | Managed regression tests (14-slot retention, missing-primary `.bak` recovery, backup-clobber protection, fail-closed corrupt write-block, frozen async save snapshots) | Live async `SystemSave.Save` callback ordering awaits copied-runtime playtest |
+| **Owned Optional Encounters (Tower of Dunan, 4 Secret Superbosses, Sindar Spire Guardians)** | Opt-in via Castle Hub / Hall | Managed `OptionalEncounterLease` regression tests (exact-once payout, unrelated-battle isolation, abort teardown) | Live in-game boss completion & Tower post-victory heal await copied-runtime playtest |
+| **True Nightmare Combat Rework & Pure Calc / Commit Separation** | `EnableTrueNightmareRework = false` | Managed pure-calc vs native reaction commit tests (`Reforged2Runtime`, `NightmareReworkRuntime`, Superboss & Spire Guardians, `EnemyChargeTracker`, `2.25×/2.75×` damage cap) | `EnableAntiOverlevelScaling` is independently configurable (`false` default); live multihit/AoE/counter check pending |
 | **Sindar Spire Gauntlet (6 Logical Stages, 8 Red Orbs, Puzzles, Shrines)** | Accessible from `vk07` Hooded Stranger | Managed rules & dialogue tests | **Mod-authored 6-stage logical gauntlet inspired by Sajah cut-dungeon lore** — NOT recovered original cut maps or 6 distinct native floors |
 | **Multi-Room Castle NPCs (`vk01`–`vk08`)** | `EnableExperimentalCastleRoomNpcs = false` | Build-verified with `BGCON.EventMapAtariCheckF1` + `tokusyu_atari` trigger-clearance & generic `v*` 4×12 sprite filter | Explicitly gated experimental; live room-by-room visual check pending |
-| **Sindar Ruins (`vc12`) Native Map Warp** | `EnableExperimentalSindarDungeonWarp = false` | Build-verified with idle/save/script/war preconditions | Explicitly gated experimental; reuses native `vc12` with logical floor state; live warp/return acceptance pending |
+| **Sindar Ruins (`vc12`) Native Map Warp** | `EnableExperimentalSindarDungeonWarp = false` | Build + `WarpTransitionGuard` rollback/save-fencing tests | Explicitly gated experimental; reuses native `vc12` with logical floor state; live warp/return acceptance pending |
 
 ---
 

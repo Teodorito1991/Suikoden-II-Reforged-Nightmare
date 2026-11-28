@@ -175,21 +175,31 @@ internal static class CirculatingPathsRuntime
         catch { }
     }
 
-    internal static int ApplyGuardianIncomingModifiers(BATTLE_WORK w, BattlePlayerCharacter actor, PM_DATA? target, int damage, bool isMagic)
+    // PURE damage modifier only: never mutates actor HP, phase flags, or Guard Shields.
+    internal static int ApplyGuardianDamageModifier(PM_DATA? target, int damage, bool isMagic)
     {
         if (!BattleInProgress || damage <= 0 || target == null) return damage;
-        int result = damage;
         var st = NightmareReworkRuntime.StateFor(target);
         bool shielded = st != null && st.Shields > 0;
 
         // Floor 2 Stone Aegis: -15% physical taken while shielded
         if (CurrentFloor == 2 && !isMagic && shielded)
-            result = Math.Max(1, (int)Math.Round(result * 0.85, MidpointRounding.AwayFromZero));
+            return Math.Max(1, (int)Math.Round(damage * 0.85, MidpointRounding.AwayFromZero));
+
+        return damage;
+    }
+
+    // Committed native reaction hit: applies Floor 3 Mirror Reflection and Floor 6 Chrono Cataclysm once per landed hit.
+    internal static void CommitGuardianPlayerHit(BattlePlayerCharacter actor, PM_DATA? target, int committedDamage, bool isMagic)
+    {
+        if (!BattleInProgress || committedDamage <= 0 || target == null) return;
+        var st = NightmareReworkRuntime.StateFor(target);
+        bool shielded = st != null && st.Shields > 0;
 
         // Floor 3 Mirror Reflection: reflects 8% magic while shielded
         if (CurrentFloor == 3 && isMagic && shielded && actor.hp > 1)
         {
-            int reflect = Math.Max(1, (int)Math.Round(result * 0.08, MidpointRounding.AwayFromZero));
+            int reflect = Math.Max(1, (int)Math.Round(committedDamage * 0.08, MidpointRounding.AwayFromZero));
             actor.hp = (short)Math.Max(1, actor.hp - Math.Min(reflect, actor.hp - 1));
             Reforged2Runtime.FlashBanner($"🪞 Mirror Reflection! (-{reflect} HP)", 1600, "alert");
         }
@@ -197,7 +207,7 @@ internal static class CirculatingPathsRuntime
         // Floor 6 Bone Dragon of the Cycle: Chrono Cataclysm phase shift at <=50% HP
         if (CurrentFloor == 6 && !GuardianPhase2Triggered && target.max_hp > 0)
         {
-            int afterHp = Math.Max(0, target.hp - result);
+            int afterHp = Math.Max(0, target.hp - committedDamage);
             if (afterHp * 100 / target.max_hp <= 50)
             {
                 GuardianPhase2Triggered = true;
@@ -209,7 +219,6 @@ internal static class CirculatingPathsRuntime
                 }
             }
         }
-        return result;
     }
 
     internal static void OnGuardianDealtDamage(PM_DATA? attacker, int dealtDamage)

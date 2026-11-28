@@ -15,6 +15,8 @@ internal static class WalkableDungeonRuntime
 
     internal static bool DungeonModeActive { get; private set; }
     internal static int ReturnAno = 10, ReturnVno = 6, ReturnMno = 3;
+    static readonly WarpTransitionGuard warpGuard = new();
+    internal static bool WarpTransitionPending => warpGuard.TransitionPending;
 
     internal static MACHICON? Owner;
     internal static MACHIDAT? Source, Copy;
@@ -62,8 +64,29 @@ internal static class WalkableDungeonRuntime
 
     internal static void ClearOnCampaignLoad()
     {
+        warpGuard.MarkTransitionSettled();
         DungeonModeActive = false;
         Detach();
+    }
+
+    static WarpCoordinateSnapshot CaptureSnapshot(GAME_WORK g, MACHICON mcon) => new(
+        g.game_data.area_no, g.game_data.town_no, g.game_data.map_no,
+        mcon.ano, mcon.vno, mcon.mno, mcon.ctyp,
+        DungeonModeActive, ReturnAno, ReturnVno, ReturnMno);
+
+    static void RestoreSnapshot(GAME_WORK g, MACHICON mcon, WarpCoordinateSnapshot snap)
+    {
+        g.game_data.area_no = snap.GameArea;
+        g.game_data.town_no = snap.GameTown;
+        g.game_data.map_no = snap.GameMap;
+        mcon.ano = snap.MachiArea;
+        mcon.vno = snap.MachiTown;
+        mcon.mno = snap.MachiMap;
+        mcon.ctyp = snap.MachiCtyp;
+        DungeonModeActive = snap.DungeonModeActive;
+        ReturnAno = snap.ReturnAno;
+        ReturnVno = snap.ReturnVno;
+        ReturnMno = snap.ReturnMno;
     }
 
     internal static bool WarpIntoSindarDungeon(out string feedback)
@@ -78,9 +101,9 @@ internal static class WalkableDungeonRuntime
         var mcon = sys?.mcon;
         if (g?.game_data == null || sys == null || mcon == null ||
             sys.game_mode != 1 || sys.now_save != 0 || mcon._mstep != 20 ||
-            EVENTCON.noScriptRunning || TrainingWar.Active || HallLucaSession.Active || HuntAccess.Ticket.Armed)
+            EVENTCON.noScriptRunning || TrainingWar.Active || HallLucaSession.Active || HuntAccess.Ticket.Armed || WarpTransitionPending)
         {
-            feedback = "Cannot open the Sindar portal right now (field must be idle with no active save or war).";
+            feedback = "Cannot open the Sindar portal right now (field must be idle with no active save, war, or pending warp).";
             return false;
         }
         var loc = FindMapLocation(DungeonMapId);
@@ -89,63 +112,70 @@ internal static class WalkableDungeonRuntime
             feedback = $"Sindar Ruins ({DungeonMapId}) routing not found.";
             return false;
         }
-        ReturnAno = mcon.ano;
-        ReturnVno = mcon.vno;
-        ReturnMno = mcon.mno;
-        DungeonModeActive = true;
-        CirculatingPathsRuntime.EnterOrResume();
-        try
+        var before = CaptureSnapshot(g, mcon);
+        if (warpGuard.TryExecute(
+            before,
+            () =>
+            {
+                ReturnAno = mcon.ano;
+                ReturnVno = mcon.vno;
+                ReturnMno = mcon.mno;
+                DungeonModeActive = true;
+                CirculatingPathsRuntime.EnterOrResume();
+                g.game_data.area_no = (sbyte)target.Area;
+                g.game_data.town_no = (sbyte)target.Town;
+                g.game_data.map_no = 0;
+                mcon.ano = (sbyte)target.Area;
+                mcon.vno = (sbyte)target.Town;
+                mcon.mno = 0;
+                mcon.ctyp = 0;
+            },
+            () => mcon.MachiOutCom(),
+            snap => RestoreSnapshot(g, mcon, snap),
+            out var ex))
         {
-            g.game_data.area_no = (sbyte)target.Area;
-            g.game_data.town_no = (sbyte)target.Town;
-            g.game_data.map_no = 0;
-            mcon.ano = (sbyte)target.Area;
-            mcon.vno = (sbyte)target.Town;
-            mcon.mno = 0;
-            mcon.ctyp = 0;
-            mcon.MachiOutCom();
             Plugin.Logger.LogInfo($"WalkableDungeonRuntime: experimental warp into {DungeonMapId} (ano={target.Area}, vno={target.Town}) for logical Stage {CirculatingPathsRuntime.CurrentFloor}/6.");
             feedback = $"Experimental warp to Sindar Ruins ({DungeonMapId}) — Logical Stage {CirculatingPathsRuntime.CurrentFloor}/6.";
             return true;
         }
-        catch (Exception ex)
-        {
-            DungeonModeActive = false;
-            Plugin.Logger.LogWarning($"WalkableDungeonRuntime: warp failed: {ex.Message}");
-            feedback = "Experimental Sindar portal warp failed; returning to safe vk07 interface.";
-            return false;
-        }
+        Plugin.Logger.LogWarning($"WalkableDungeonRuntime: warp failed and rolled back: {ex?.Message}");
+        feedback = "Experimental Sindar portal warp failed; coordinates restored. Using safe vk07 interface.";
+        return false;
     }
 
     internal static bool WarpBackToCastle(out string feedback)
     {
         var g = Framework.Singleton<GAME_WORK>.instance;
         var mcon = g?.sys_work?.mcon;
-        if (g?.game_data == null || mcon == null)
+        if (g?.game_data == null || mcon == null || WarpTransitionPending)
         {
             feedback = "Cannot return to Castle right now.";
             return false;
         }
-        DungeonModeActive = false;
-        try
+        var before = CaptureSnapshot(g, mcon);
+        if (warpGuard.TryExecute(
+            before,
+            () =>
+            {
+                DungeonModeActive = false;
+                g.game_data.area_no = (sbyte)ReturnAno;
+                g.game_data.town_no = (sbyte)ReturnVno;
+                g.game_data.map_no = (sbyte)ReturnMno;
+                mcon.ano = (sbyte)ReturnAno;
+                mcon.vno = (sbyte)ReturnVno;
+                mcon.mno = (sbyte)ReturnMno;
+                mcon.ctyp = 0;
+            },
+            () => mcon.MachiOutCom(),
+            snap => RestoreSnapshot(g, mcon, snap),
+            out var ex))
         {
-            g.game_data.area_no = (sbyte)ReturnAno;
-            g.game_data.town_no = (sbyte)ReturnVno;
-            g.game_data.map_no = (sbyte)ReturnMno;
-            mcon.ano = (sbyte)ReturnAno;
-            mcon.vno = (sbyte)ReturnVno;
-            mcon.mno = (sbyte)ReturnMno;
-            mcon.ctyp = 0;
-            mcon.MachiOutCom();
             feedback = "Returning to Dunan Castle HQ...";
             return true;
         }
-        catch (Exception ex)
-        {
-            Plugin.Logger.LogWarning($"WalkableDungeonRuntime: return warp failed: {ex.Message}");
-            feedback = "Return portal failed — exit Sindar Ruins on foot.";
-            return false;
-        }
+        Plugin.Logger.LogWarning($"WalkableDungeonRuntime: return warp failed and rolled back: {ex?.Message}");
+        feedback = "Return portal failed; state restored — exit Sindar Ruins on foot.";
+        return false;
     }
 
     static (int Area, int Town)? FindMapLocation(string mapId)
@@ -187,6 +217,7 @@ internal static class WalkableDungeonRuntime
 
     internal static void BeforeInit(MACHICON m)
     {
+        warpGuard.MarkTransitionSettled();
         if (!ExperimentalWarpEnabled || !CastleGuildRuntime.Config.Enabled || Application.isBatchMode || !CastleGuildRuntime.Compatible) return;
         if (Combat.State != null || WarRuntime.Active || Owner != null || m?.mdat is not {} source) return;
         string mapId = MachiLoader.GetMachiID(m.ano, m.vno);

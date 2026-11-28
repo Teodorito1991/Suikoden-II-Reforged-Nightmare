@@ -9,10 +9,10 @@ internal static class TrainingNativeSave
     static bool Prefix(string path, string json, ref Il2CppSystem.Action<bool>? cb, ref bool __result, out PendingSaveState __state)
     {
         __state = default;
-        if ((!TrainingPersistenceRules.IsCampaignPath(path) || !HallLucaSession.Active) &&
+        if ((!TrainingPersistenceRules.IsCampaignPath(path) || (!HallLucaSession.Active && !WalkableDungeonRuntime.WarpTransitionPending)) &&
             TrainingWar.AllowNativeSave(path))
         {
-            if (!TrainingWar.Active && !HallLucaSession.Active &&
+            if (!TrainingWar.Active && !HallLucaSession.Active && !WalkableDungeonRuntime.WarpTransitionPending &&
                 ArmyProgressionRuntime.CapturePendingSave(path) is {} pending)
             {
                 if (cb != null)
@@ -55,7 +55,7 @@ internal static class TrainingSaveIntent
 {
     static bool Prefix(Il2CppSystem.Action<bool, GSD2SaveData.TmpSave>? onFinish)
     {
-        if (!HallLucaSession.Active && TrainingWar.AllowSaveIntent()) return true;
+        if (!HallLucaSession.Active && !WalkableDungeonRuntime.WarpTransitionPending && TrainingWar.AllowSaveIntent()) return true;
         TrainingSaveFailure.Complete(onFinish);
         return false;
     }

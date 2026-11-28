@@ -64,7 +64,8 @@ internal static class SuperbossRuntime
     internal static int InitialShieldsForSuperboss() =>
         BattleInProgress && Active != null ? Active.InitialShields : 0;
 
-    internal static int ApplySuperbossIncomingModifiers(BATTLE_WORK w, BattlePlayerCharacter actor, PM_DATA? target, int damage, bool isMagic)
+    // PURE damage modifier only: never mutates actor HP, CurrentPhase, or Guard Shields.
+    internal static int ApplySuperbossDamageModifier(PM_DATA? target, int damage, bool isMagic)
     {
         if (!BattleInProgress || Active == null || damage <= 0 || target == null) return damage;
         int result = damage;
@@ -80,16 +81,27 @@ internal static class SuperbossRuntime
         if (Active.Id == "omega-beast" && CurrentPhase >= 2 && isMagic)
             result = Math.Max(result + 1, (int)Math.Round(result * 1.20, MidpointRounding.AwayFromZero));
 
+        return result;
+    }
+
+    // Committed native reaction hit: applies Flame Barrier reflect, phase transitions, and shield refills once per landed hit.
+    internal static void CommitSuperbossPlayerHit(BATTLE_WORK? w, BattlePlayerCharacter actor, PM_DATA? target, int committedDamage, bool isMagic)
+    {
+        if (!BattleInProgress || Active == null || w == null || committedDamage <= 0 || target == null) return;
+
+        var st = NightmareReworkRuntime.StateFor(target);
+        bool shielded = st != null && st.Shields > 0;
+
         // True Luca Phase 1: Flame Barrier reflects 8% of physical damage while shields are intact
         if (Active.Id == "true-luca" && CurrentPhase == 1 && !isMagic && shielded && actor.hp > 1)
         {
-            int reflect = Math.Max(1, (int)Math.Round(result * 0.08, MidpointRounding.AwayFromZero));
+            int reflect = Math.Max(1, (int)Math.Round(committedDamage * 0.08, MidpointRounding.AwayFromZero));
             actor.hp = (short)Math.Max(1, actor.hp - Math.Min(reflect, actor.hp - 1));
             Reforged2Runtime.FlashBanner($"🔥 Flame Barrier! (-{reflect} HP)", 1600, "alert");
         }
 
-        // Check Phase Transitions based on boss HP after this hit (or overall remaining HP for multi-part Omega Beast)
-        int curHp = Math.Max(0, target.hp - result);
+        // Check Phase Transitions based on remaining boss HP after committed hit (or overall HP for multi-part Omega Beast)
+        int curHp = Math.Max(0, target.hp - committedDamage);
         int maxHp = Math.Max(1, (int)target.max_hp);
         if (Active.Id == "omega-beast" && w.pm_data != null)
         {
@@ -98,7 +110,7 @@ internal static class SuperbossRuntime
             {
                 if (u == null || u.IsPlayer) continue;
                 totalMax += u.max_hp;
-                totalCur += Math.Max(0, u.Pointer == target.Pointer ? u.hp - result : u.hp);
+                totalCur += Math.Max(0, u.Pointer == target.Pointer ? u.hp - committedDamage : u.hp);
             }
             if (totalMax > 0) { curHp = totalCur; maxHp = totalMax; }
         }
@@ -121,7 +133,6 @@ internal static class SuperbossRuntime
                 st.StaggeredUntilTurn = -1;
             }
         }
-        return result;
     }
 
     internal static void OnSuperbossDealtDamage(PM_DATA? attacker, int dealtDamage)

@@ -549,6 +549,119 @@ internal static class ArmyProgressionTests
         Check(orinPolish.Choices[0].ActionId == "toggle-chronicle-view",
             "War Chronicler Orin exposes in-world Bestiary/Honors/Dossier inspection");
 
-        Console.WriteLine($"PASS: Reforged 9.0.0-polish.1 suite {checks} checks.");
+        // 26. Project Phoenix Deep Stabilization (9.0.0-phoenix.1):
+        // 26a. Persistence: Missing primary + valid .bak recovery, corrupt primary never clobbers .bak, unsupported schema, leftover .tmp, 14-slot retention
+        string phoenixDir = Path.Combine(Path.GetTempPath(), "reforged-phoenix-test-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Directory.CreateDirectory(phoenixDir);
+            string ledgerFile = Path.Combine(phoenixDir, "army-ledger.json");
+            string bakFile = ledgerFile + ".bak";
+            string tmpFile = ledgerFile + ".tmp";
+
+            // Seed valid primary + .bak
+            var pIdx = new ArmyLedgerIndex();
+            ArmyProgressionRules.BindSnapshot(pIdx, "H_SLOT1", new ArmyLedgerState { Commendations = 33 }, 100, "Data01");
+            Check(ArmyProgressionRules.SaveIndexToDisk(ledgerFile, pIdx, false, out _), "Phoenix: initial save succeeds");
+            ArmyProgressionRules.BindSnapshot(pIdx, "H_SLOT2", new ArmyLedgerState { Commendations = 66 }, 200, "Data02");
+            Check(ArmyProgressionRules.SaveIndexToDisk(ledgerFile, pIdx, false, out _), "Phoenix: second save creates valid .bak");
+
+            // Case 1: Missing primary, valid .bak -> recovers AND repairs primary
+            File.Delete(ledgerFile);
+            var missRec = ArmyProgressionRules.LoadIndexFromDisk(ledgerFile);
+            Check(missRec.RecoveredFromBackup && !missRec.WriteBlocked && missRec.Index.Snapshots.ContainsKey("H_SLOT1") && File.Exists(ledgerFile),
+                "Phoenix: missing primary recovers from valid .bak and repairs primary on disk");
+
+            // Case 2: Corrupt primary + valid .bak -> recovers, repairs primary, and subsequent save preserves valid .bak (never copies corrupt bytes to .bak!)
+            File.WriteAllText(ledgerFile, "{ CORRUPT_PRIMARY_BYTES");
+            var corRec = ArmyProgressionRules.LoadIndexFromDisk(ledgerFile);
+            Check(corRec.RecoveredFromBackup && !corRec.WriteBlocked, "Phoenix: corrupt primary recovers from valid .bak");
+            ArmyProgressionRules.BindSnapshot(corRec.Index, "H_SLOT3", new ArmyLedgerState { Commendations = 99 }, 300, "Data03");
+            Check(ArmyProgressionRules.SaveIndexToDisk(ledgerFile, corRec.Index, corRec.WriteBlocked, out _), "Phoenix: post-recovery save succeeds");
+            string bakAfterSave = File.ReadAllText(bakFile);
+            Check(ArmyProgressionRules.TryParseIndex(bakAfterSave, out _, out var bakAfterStatus) && bakAfterStatus == ArmyProgressionRules.LedgerParseStatus.Ok,
+                "Phoenix: .bak remains valid JSON after post-recovery save (never clobbered by corrupt primary)");
+
+            // Case 3: Even if primary is corrupted externally right before SaveIndexToDisk, SaveIndexToDisk refuses to copy corrupt primary onto .bak
+            File.WriteAllText(ledgerFile, "{ CORRUPT_BEFORE_SAVE");
+            Check(ArmyProgressionRules.SaveIndexToDisk(ledgerFile, corRec.Index, false, out _), "Phoenix: save overwrites externally corrupted primary atomically");
+            string bakProtected = File.ReadAllText(bakFile);
+            Check(ArmyProgressionRules.TryParseIndex(bakProtected, out _, out var bakProtStatus) && bakProtStatus == ArmyProgressionRules.LedgerParseStatus.Ok,
+                "Phoenix: SaveIndexToDisk never copies corrupt primary over valid .bak");
+
+            // Case 4: Missing primary + corrupt .bak -> fail-closed WriteBlocked
+            File.Delete(ledgerFile);
+            File.WriteAllText(bakFile, "{ CORRUPT_BAK");
+            var missCor = ArmyProgressionRules.LoadIndexFromDisk(ledgerFile);
+            Check(missCor.WriteBlocked && !missCor.RecoveredFromBackup, "Phoenix: missing primary + corrupt .bak fails closed");
+
+            // Case 5: Unsupported future schema version -> fail-closed WriteBlocked
+            File.Delete(bakFile);
+            File.WriteAllText(ledgerFile, "{\"SchemaVersion\":99,\"Snapshots\":{}}");
+            var futureVer = ArmyProgressionRules.LoadIndexFromDisk(ledgerFile);
+            Check(futureVer.WriteBlocked && futureVer.Status == ArmyProgressionRules.LedgerParseStatus.Corrupt,
+                "Phoenix: unsupported schema version blocks writes fail-closed");
+
+            // Case 6: Leftover interrupted .tmp ignored when primary is valid
+            Check(ArmyProgressionRules.SaveIndexToDisk(ledgerFile, pIdx, false, out _), "Phoenix: restore valid primary");
+            File.WriteAllText(tmpFile, "{ PARTIAL_INTERRUPTED_TMP");
+            var withTmp = ArmyProgressionRules.LoadIndexFromDisk(ledgerFile);
+            Check(!withTmp.WriteBlocked && withTmp.Status == ArmyProgressionRules.LedgerParseStatus.Ok && withTmp.Index.Snapshots.ContainsKey("H_SLOT2"),
+                "Phoenix: leftover interrupted .tmp file does not corrupt valid primary load");
+
+            // Case 7: 14 distinct save slots all survive 600+ saves in Slot 1 + pruning
+            var multiSlot = new ArmyLedgerIndex();
+            for (int slot = 1; slot <= 14; slot++)
+                ArmyProgressionRules.BindSnapshot(multiSlot, $"SLOT_{slot:D2}_INIT", new ArmyLedgerState { Commendations = slot * 10 }, 10 + slot, $"Data{slot:D2}");
+            for (int i = 0; i < 600; i++)
+                ArmyProgressionRules.BindSnapshot(multiSlot, $"SLOT_01_SAVE_{i:D4}", new ArmyLedgerState { Commendations = 1000 + i }, 100 + i, "Data01");
+            ArmyProgressionRules.PruneExcessUnpinned(multiSlot, maxEntries: 64);
+            bool all14Survived = true;
+            for (int slot = 2; slot <= 14; slot++)
+                if (ArmyProgressionRules.ResolveSnapshot(multiSlot, $"SLOT_{slot:D2}_INIT").Commendations != slot * 10)
+                    all14Survived = false;
+            Check(all14Survived && ArmyProgressionRules.ResolveSnapshot(multiSlot, "SLOT_01_SAVE_0599").Commendations == 1599,
+                "Phoenix: all 14 distinct save slots survive 600+ saves & pruning in Slot 1");
+        }
+        finally { try { if (Directory.Exists(phoenixDir)) Directory.Delete(phoenixDir, true); } catch { } }
+
+        // 26b. Experimental WarpTransitionGuard: rollback on exception, re-entry guard & save fencing
+        var warpGuard = new WarpTransitionGuard();
+        int gArea = 10, gTown = 6, gMap = 3, mArea = 10, mTown = 6, mMap = 3;
+        int mCtyp = 2;
+        bool dMode = false;
+        int retA = 10, retV = 6, retM = 3;
+        var snapBefore = new WarpCoordinateSnapshot(gArea, gTown, gMap, mArea, mTown, mMap, mCtyp, dMode, retA, retV, retM);
+        bool warpFailed = warpGuard.TryExecute(
+            snapBefore,
+            () => { gArea = 4; gTown = 12; gMap = 0; mArea = 4; mTown = 12; mMap = 0; mCtyp = 0; dMode = true; retA = 10; retV = 6; retM = 3; },
+            () => throw new InvalidOperationException("Simulated native MachiOutCom failure"),
+            s => { gArea = s.GameArea; gTown = s.GameTown; gMap = s.GameMap; mArea = s.MachiArea; mTown = s.MachiTown; mMap = s.MachiMap; mCtyp = s.MachiCtyp; dMode = s.DungeonModeActive; retA = s.ReturnAno; retV = s.ReturnVno; retM = s.ReturnMno; },
+            out var warpEx);
+        Check(!warpFailed && warpEx != null && !warpGuard.TransitionPending && gArea == 10 && gTown == 6 && gMap == 3 && mArea == 10 && mTown == 6 && mMap == 3 && mCtyp == 2 && !dMode,
+            "Phoenix: failed warp rolls back ALL native coordinates, ctyp, and DungeonModeActive cleanly");
+
+        bool warpOk = warpGuard.TryExecute(
+            snapBefore,
+            () => { gArea = 4; gTown = 12; gMap = 0; mArea = 4; mTown = 12; mMap = 0; mCtyp = 0; dMode = true; },
+            () => { },
+            _ => { },
+            out _);
+        Check(warpOk && warpGuard.TransitionPending, "Phoenix: active warp sets TransitionPending save-fence until map init settles");
+        bool reentrant = warpGuard.TryExecute(snapBefore, () => { }, () => { }, _ => { }, out _);
+        Check(!reentrant, "Phoenix: re-entrant warp rejected while transition is pending");
+        warpGuard.MarkTransitionSettled();
+        Check(!warpGuard.TransitionPending, "Phoenix: MarkTransitionSettled clears save-fence");
+
+        // 26c. Balance cap + Shield/Stagger composition & Superboss/Skirmish coverage sanity
+        int cappedEndgame = Reforged2Rules.ApplyStackedPlayerDamageCap(200, 900, endgameOptional: true);
+        int shieldedAfterCap = NightmareReworkRules.ApplyShieldAndStaggerDamage(cappedEndgame, shields: 4, staggered: false);
+        int staggeredAfterCap = NightmareReworkRules.ApplyShieldAndStaggerDamage(cappedEndgame, shields: 0, staggered: true);
+        Check(cappedEndgame == 550 && shieldedAfterCap == 358 && staggeredAfterCap == 825,
+            "Phoenix: 2.75x endgame player damage cap composes cleanly with Shield (-35%) and Stagger (+50%)");
+        Check(Reforged2Rules.Skirmishes.Length == 10 && Reforged2Rules.Skirmishes.All(s => !string.IsNullOrWhiteSpace(s.Name) && !string.IsNullOrWhiteSpace(s.Id)),
+            "Phoenix: all 10 custom war skirmishes are well-formed");
+
+        Console.WriteLine($"PASS: Reforged 9.0.0-phoenix.1 suite {checks} checks.");
     }
 }
