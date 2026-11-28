@@ -70,20 +70,51 @@ internal static class CastleRoomNpcRuntime
         return 0;
     }
 
-    static bool TileClear(Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_OBJ> objects, int x, int y)
+    static bool TileWalkable(MACHIDAT source, MAPEVDAT old, int x, int y)
     {
         if (x < 4 || y < 4 || x > 120 || y > 120) return false;
-        for (int i = 0; i < objects.Length; i++)
+        for (int i = 0; i < old.eventobj.Length; i++)
         {
-            var o = objects[i];
+            var o = old.eventobj[i];
             if (o != null && Math.Abs(o.x - x) <= 2 && Math.Abs(o.y - y) <= 2) return false;
         }
-        return true;
+        // Verify actual native MAP collision grid before admitting any tile.
+        try
+        {
+            if (source.map == null || old.mapno < 0 || old.mapno >= source.map.Count) return false;
+            var mapData = source.map[old.mapno];
+            if (mapData?.index == null || mapData.srn_type == null || mapData.srn_type.Count == 0) return false;
+            var bg = new BGCON
+            {
+                map = mapData,
+                index = mapData.index,
+                srn = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<TSRN>(
+                    Enumerable.Range(0, mapData.srn_type.Count).Select(i => new TSRN
+                    {
+                        sw = mapData.srn_type[i].w,
+                        sh = mapData.srn_type[i].h
+                    }).ToArray())
+            };
+            int px = x * 8, py = y * 8;
+            int Collide(int cx, int cy) => Enumerable.Range(0, mapData.srn_kazu).Sum(i => bg.EventMapAtariCheckF1(0, i, cx, cy));
+            if (Collide(px, py) != 0 || Collide(px, py + 16) != 0 || Collide(px - 7, py + 16) != 0 || Collide(px + 7, py + 16) != 0)
+                return false;
+            if (mapData.tokusyu_atari != null)
+            {
+                for (int i = 0; i < mapData.tokusyu_atari.Count; i++)
+                {
+                    var area = mapData.tokusyu_atari[i];
+                    if (!(area.x > px + 7 || area.x + area.w < px - 7 || area.y > py + 22 || area.y + area.h < py))
+                        return false;
+                }
+            }
+            return true;
+        }
+        catch { return false; }
     }
 
-    static (short X, short Y)? PickSafeFloorSpot(MAPEVDAT old)
+    static (short X, short Y)? PickSafeFloorSpot(MACHIDAT source, MAPEVDAT old)
     {
-        // Anchor near an existing standing resident in this room so we stay inside walkable room bounds!
         var anchors = new List<(int X, int Y)>();
         for (int i = 0; i < old.eventobj.Length; i++)
         {
@@ -97,7 +128,7 @@ internal static class CastleRoomNpcRuntime
             foreach (var (dx, dy) in offsets)
             {
                 int cx = ax + dx, cy = ay + dy;
-                if (TileClear(old.eventobj, cx, cy))
+                if (TileWalkable(source, old, cx, cy))
                     return ((short)cx, (short)cy);
             }
         }
@@ -106,7 +137,7 @@ internal static class CastleRoomNpcRuntime
 
     internal static void BeforeInit(MACHICON m)
     {
-        if (!CastleGuildRuntime.Config.Enabled || Plugin.Options?.EnableExpandedCastleNpcs.Value != true) return;
+        if (!CastleGuildRuntime.Config.Enabled || Plugin.Options?.EnableExperimentalCastleRoomNpcs.Value != true) return;
         if (Application.isBatchMode || !CastleGuildRuntime.Compatible || Combat.State != null || WarRuntime.Active) return;
         if (Owner != null || m?.mdat is not {} source) return;
         string mapId = MachiLoader.GetMachiID(m.ano, m.vno);
@@ -121,7 +152,7 @@ internal static class CastleRoomNpcRuntime
         }
         var oldRoom = source.eventdata.mapeventdat[m.mno];
         if (oldRoom?.eventobj == null || oldRoom.eventdat == null) return;
-        var spot = PickSafeFloorSpot(oldRoom);
+        var spot = PickSafeFloorSpot(source, oldRoom);
         if (spot is not {} pos) return;
 
         var party = Framework.Singleton<GAME_WORK>.instance?.party_data;

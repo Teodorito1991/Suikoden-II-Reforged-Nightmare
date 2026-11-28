@@ -58,13 +58,29 @@ internal static class WalkableDungeonRuntime
     internal static bool Context => Modal && Idle && Near && !HuntGuildRuntime.RenderFaulted;
     internal static bool PromptVisible => !Modal && !ReleaseFence && Idle && Near && !HuntGuildRuntime.RenderFaulted;
 
+    internal static bool ExperimentalWarpEnabled => Plugin.Options?.EnableExperimentalSindarDungeonWarp.Value == true;
+
+    internal static void ClearOnCampaignLoad()
+    {
+        DungeonModeActive = false;
+        Detach();
+    }
+
     internal static bool WarpIntoSindarDungeon(out string feedback)
     {
-        var g = Framework.Singleton<GAME_WORK>.instance;
-        var mcon = g?.sys_work?.mcon;
-        if (g?.game_data == null || mcon == null)
+        if (!ExperimentalWarpEnabled)
         {
-            feedback = "Cannot open the Sindar portal right now.";
+            feedback = "Experimental Sindar Ruins warp is disabled (EnableExperimentalSindarDungeonWarp = false). Using safe vk07 Sindar Spire interface.";
+            return false;
+        }
+        var g = Framework.Singleton<GAME_WORK>.instance;
+        var sys = g?.sys_work;
+        var mcon = sys?.mcon;
+        if (g?.game_data == null || sys == null || mcon == null ||
+            sys.game_mode != 1 || sys.now_save != 0 || mcon._mstep != 20 ||
+            EVENTCON.noScriptRunning || TrainingWar.Active || HallLucaSession.Active || HuntAccess.Ticket.Armed)
+        {
+            feedback = "Cannot open the Sindar portal right now (field must be idle with no active save or war).";
             return false;
         }
         var loc = FindMapLocation(DungeonMapId);
@@ -88,14 +104,15 @@ internal static class WalkableDungeonRuntime
             mcon.mno = 0;
             mcon.ctyp = 0;
             mcon.MachiOutCom();
-            Plugin.Logger.LogInfo($"WalkableDungeonRuntime: warping into {DungeonMapId} (ano={target.Area}, vno={target.Town}) for Sajah Floor {CirculatingPathsRuntime.CurrentFloor}/6.");
-            feedback = $"Warping into Sindar Ruins — Tower of Circulating Paths (Floor {CirculatingPathsRuntime.CurrentFloor}/6)!";
+            Plugin.Logger.LogInfo($"WalkableDungeonRuntime: experimental warp into {DungeonMapId} (ano={target.Area}, vno={target.Town}) for logical Stage {CirculatingPathsRuntime.CurrentFloor}/6.");
+            feedback = $"Experimental warp to Sindar Ruins ({DungeonMapId}) — Logical Stage {CirculatingPathsRuntime.CurrentFloor}/6.";
             return true;
         }
         catch (Exception ex)
         {
+            DungeonModeActive = false;
             Plugin.Logger.LogWarning($"WalkableDungeonRuntime: warp failed: {ex.Message}");
-            feedback = "Sindar portal warp failed — you can also walk to Sindar Ruins (near White Deer Inn) directly!";
+            feedback = "Experimental Sindar portal warp failed; returning to safe vk07 interface.";
             return false;
         }
     }
@@ -170,7 +187,7 @@ internal static class WalkableDungeonRuntime
 
     internal static void BeforeInit(MACHICON m)
     {
-        if (!CastleGuildRuntime.Config.Enabled || Application.isBatchMode || !CastleGuildRuntime.Compatible) return;
+        if (!ExperimentalWarpEnabled || !CastleGuildRuntime.Config.Enabled || Application.isBatchMode || !CastleGuildRuntime.Compatible) return;
         if (Combat.State != null || WarRuntime.Active || Owner != null || m?.mdat is not {} source) return;
         string mapId = MachiLoader.GetMachiID(m.ano, m.vno);
         if (!string.Equals(mapId, DungeonMapId, StringComparison.OrdinalIgnoreCase)) return;

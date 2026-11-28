@@ -406,7 +406,7 @@ internal static class ArmyProgressionTests
         var necSpec = SuperbossRules.Find("eternal-neclord")!;
         Check(SuperbossRules.EvaluatePhase(necSpec, 6000, 10000) == 1 && SuperbossRules.EvaluatePhase(necSpec, 4500, 10000) == 2, "Sindar 2-phase threshold (50%)");
         var strangerScript = CastleDialogueScripts.Build(CastleNpcRole.SuperbossSeer, ledger, false, 0);
-        Check(strangerScript.Speaker == "Hooded Stranger" && strangerScript.Choices.Length == 7 && strangerScript.Choices[0].ActionId == "warp-sajah" && strangerScript.Choices[1].ActionId == "confirm-superboss:true-luca", "Hooded Stranger offers walkable Sajah Cut Dungeon + all 4 Secret Superbosses + lore");
+        Check(strangerScript.Speaker == "Hooded Stranger" && strangerScript.Choices.Length == 7 && strangerScript.Choices[0].ActionId == "open-sajah" && strangerScript.Choices[1].ActionId == "confirm-superboss:true-luca", "Hooded Stranger offers safe vk07 Sindar Spire + all 4 Secret Superbosses + lore");
         var confirmScript = CastleDialogueScripts.SuperbossConfirmScript("omega-beast", ledger);
         Check(confirmScript.Choices[0].ActionId == "launch-superboss:omega-beast", "Superboss seal confirmation launches exact encounter");
         foreach (var bossSpec in SuperbossRules.All) ledger.DefeatedSuperbosses.Add(bossSpec.Id);
@@ -428,6 +428,73 @@ internal static class ArmyProgressionTests
         ledger.CirculatingCycleRank = 2; ledger.CirculatingClears = 2;
         Check(ledger.Clone().CirculatingCycleRank == 2 && ledger.Clone().CirculatingClears == 2, "Circulating Cycle Rank persists & clones cleanly");
 
-        Console.WriteLine($"PASS: Reforged 8.6 full suite {checks} checks.");
+        // 23. Stabilization Pass (Priorities 1-4): Persistence Retention/Recovery, Optional Lease Ownership, Turn-Scoped Charging
+        // Priority 1a: Save-slot pinning prevents old saves from being evicted by 600+ saves in another slot
+        var retentionIndex = new ArmyLedgerIndex();
+        var oldSlotState = new ArmyLedgerState { Commendations = 77, TotalDrillsWon = 9 };
+        ArmyProgressionRules.BindSnapshot(retentionIndex, "OLD_SAVE_SLOT_01", oldSlotState, 100, "Data01");
+        for (int i = 0; i < 600; i++)
+            ArmyProgressionRules.BindSnapshot(retentionIndex, $"SLOT02_HIST_{i:D4}", new ArmyLedgerState { Commendations = i }, 200 + i, "Data02");
+        ArmyProgressionRules.PruneExcessUnpinned(retentionIndex, maxEntries: 50);
+        Check(ArmyProgressionRules.ResolveSnapshot(retentionIndex, "OLD_SAVE_SLOT_01").Commendations == 77, "Pinned older save slot survives 600+ saves & pruning in another slot");
+        Check(ArmyProgressionRules.ResolveSnapshot(retentionIndex, "SLOT02_HIST_0599").Commendations == 599, "Latest snapshot of active slot is pinned");
+
+        // Priority 1b: Disk backup recovery & fail-closed write blocking on corrupt ledger
+        string tmpDir = Path.Combine(Path.GetTempPath(), "reforged-ledger-test-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            string ledgerFile = Path.Combine(tmpDir, "army-ledger.json");
+            var idx1 = new ArmyLedgerIndex();
+            ArmyProgressionRules.BindSnapshot(idx1, "HASH_A", new ArmyLedgerState { Commendations = 12 }, 10, "Data01");
+            Check(ArmyProgressionRules.SaveIndexToDisk(ledgerFile, idx1, writeBlocked: false, out _), "Initial disk save succeeds");
+            ArmyProgressionRules.BindSnapshot(idx1, "HASH_B", new ArmyLedgerState { Commendations = 24 }, 20, "Data01");
+            Check(ArmyProgressionRules.SaveIndexToDisk(ledgerFile, idx1, writeBlocked: false, out _), "Second save creates .bak backup and updates primary");
+            Check(File.Exists(ledgerFile + ".bak"), ".bak backup file created before atomic overwrite");
+
+            // Corrupt primary only -> recovers from .bak
+            File.WriteAllText(ledgerFile, "{ CORRUPT JSON !!!");
+            var rec = ArmyProgressionRules.LoadIndexFromDisk(ledgerFile);
+            Check(rec.RecoveredFromBackup && !rec.WriteBlocked && rec.Index.Snapshots.ContainsKey("HASH_A"), "Corrupt primary recovers cleanly from .bak backup");
+
+            // Corrupt BOTH primary and .bak -> writeBlocked = true, refuses to overwrite
+            File.WriteAllText(ledgerFile, "{ CORRUPT PRIMARY");
+            File.WriteAllText(ledgerFile + ".bak", "{ CORRUPT BACKUP");
+            var failed = ArmyProgressionRules.LoadIndexFromDisk(ledgerFile);
+            Check(failed.WriteBlocked && !failed.RecoveredFromBackup, "Corrupt primary + backup blocks writes fail-closed");
+            Check(!ArmyProgressionRules.SaveIndexToDisk(ledgerFile, new ArmyLedgerIndex(), failed.WriteBlocked, out _), "Write-blocked ledger refuses to overwrite on-disk file");
+        }
+        finally { try { if (Directory.Exists(tmpDir)) Directory.Delete(tmpDir, true); } catch { } }
+
+        // Priority 2: OptionalEncounterLease explicit ownership & exact-once victory payout
+        var lease = new OptionalEncounterLease(OptionalEncounterKind.TowerOfDunan, "tower-f1");
+        Check(!lease.BattleActive && !lease.TryClaimVictory((IntPtr)0x1111), "Unaccepted lease cannot claim victory");
+        Check(lease.MarkAccepted("rat") && lease.BindBattleWork((IntPtr)0x1111) && lease.BattleActive, "Accepted lease binds to exact BATTLE_WORK pointer");
+        Check(!lease.TryClaimVictory((IntPtr)0x2222) && lease.BattleActive, "Unrelated BATTLE_WORK cannot complete or clear owned optional lease");
+        Check(!lease.TryClaimNonVictory((IntPtr)0x2222) && lease.BattleActive, "Unrelated NotWinEnd cannot abort owned optional lease");
+        Check(lease.TryClaimVictory((IntPtr)0x1111) && !lease.BattleActive, "Matching BATTLE_WORK claims victory and retires BattleActive");
+        Check(!lease.TryClaimVictory((IntPtr)0x1111), "Duplicate victory callback cannot double-award");
+
+        var abortedLease = new OptionalEncounterLease(OptionalEncounterKind.SecretSuperboss, "true-luca");
+        abortedLease.MarkAccepted("superboss-true-luca");
+        Check(abortedLease.CancelOrTeardown() && !abortedLease.BindBattleWork((IntPtr)0x3333), "Cancelled/aborted lease cannot later bind or award");
+
+        // Priority 3: Turn-scoped EnemyChargeTracker (AoE never charges on target 1 and unleashes on target 2; Defend sees unleash across all targets)
+        var ct = new EnemyChargeTracker();
+        double t2Hit1 = ct.EvaluateDamageMultiplier(2, isBoss: true, isElite: false, staggered: false, out bool tele1, out bool unl1);
+        double t2Hit2 = ct.EvaluateDamageMultiplier(2, isBoss: true, isElite: false, staggered: false, out bool tele2, out bool unl2);
+        Check(t2Hit1 == 1.0 && tele1 && !unl1 && t2Hit2 == 1.0 && !tele2 && !unl2, "Turn 2 AoE telegraphs once on target 1 and never unleashes on target 2");
+        double t3Hit1 = ct.EvaluateDamageMultiplier(3, isBoss: true, isElite: false, staggered: false, out bool tele3, out bool unl3);
+        bool defendSeesHit1 = ct.IsUnleashing(3);
+        double t3Hit2 = ct.EvaluateDamageMultiplier(3, isBoss: true, isElite: false, staggered: false, out bool tele4, out bool unl4);
+        bool defendSeesHit2 = ct.IsUnleashing(3);
+        Check(t3Hit1 == NightmareReworkRules.ChargedAttackMultiplier && unl3 && t3Hit2 == NightmareReworkRules.ChargedAttackMultiplier && !unl4 && defendSeesHit1 && defendSeesHit2, "Turn 3 AoE unleashes uniformly across all targets and Defend sees charged state on every target");
+        double t4Hit = ct.EvaluateDamageMultiplier(4, isBoss: true, isElite: false, staggered: false, out _, out _);
+        Check(t4Hit == 1.0 && !ct.IsUnleashing(4), "Charge retires cleanly on Turn 4");
+        ct.EvaluateDamageMultiplier(5, isBoss: true, isElite: false, staggered: false, out bool tele5, out _);
+        ct.Interrupt();
+        double t6AfterInterrupt = ct.EvaluateDamageMultiplier(6, isBoss: true, isElite: false, staggered: false, out _, out bool unl6);
+        Check(tele5 && t6AfterInterrupt == 1.0 && !unl6, "Stagger interrupt cancels armed charge before next turn");
+
+        Console.WriteLine($"PASS: Reforged 9.0 stabilization suite {checks} checks.");
     }
 }

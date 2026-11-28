@@ -8,7 +8,9 @@ internal static class TowerOfDunanRuntime
     static readonly System.Random rng = new();
 
     internal static bool RunActive { get; private set; }
-    internal static bool BattleInProgress { get; private set; }
+    static OptionalEncounterLease? activeLease;
+    static bool activeLeaseStartedNewRun;
+    internal static bool BattleInProgress => activeLease is { BattleActive: true };
     internal static bool BloodOathActive { get; private set; }
     internal static int CurrentFloor { get; private set; }
     internal static int FloorsCleared { get; private set; }
@@ -58,11 +60,13 @@ internal static class TowerOfDunanRuntime
             DraftChoices = Array.Empty<TowerRelicSpec>();
         }
         CurrentFloor = targetFloor;
-        BattleInProgress = true;
-        if (!HallFirstContact.Request(trialIndex, nightmare))
+        var lease = new OptionalEncounterLease(OptionalEncounterKind.TowerOfDunan, "tower-f" + targetFloor);
+        activeLease = lease;
+        activeLeaseStartedNewRun = startingNew;
+        if (!HallFirstContact.Request(trialIndex, nightmare, lease))
         {
+            activeLease = null;
             if (startingNew) ResetRun();
-            else BattleInProgress = false;
             feedback = "Tower floor could not launch right now.";
             return false;
         }
@@ -70,17 +74,31 @@ internal static class TowerOfDunanRuntime
         return true;
     }
 
-    internal static void OnHallBattleFinished(bool won)
+    internal static void OnLeaseCancelled(long token)
     {
-        if (!BattleInProgress) return;
-        BattleInProgress = false;
-        if (!won)
-        {
-            int lostFloor = CurrentFloor;
-            ResetRun();
-            CastleGuildRuntime.TrainingFeedback($"Tower Run Ended on Floor {lostFloor}. Better luck next ascent!");
-            return;
-        }
+        if (activeLease?.Token != token) return;
+        bool wasNew = activeLeaseStartedNewRun;
+        activeLease = null;
+        activeLeaseStartedNewRun = false;
+        if (wasNew && FloorsCleared == 0) ResetRun();
+        else CurrentFloor = FloorsCleared;
+    }
+
+    internal static void OnAuthoritativeNonVictory(long token)
+    {
+        if (activeLease?.Token != token) return;
+        activeLease = null;
+        activeLeaseStartedNewRun = false;
+        int lostFloor = CurrentFloor;
+        ResetRun();
+        CastleGuildRuntime.TrainingFeedback($"Tower Run Ended on Floor {lostFloor}. Better luck next ascent!");
+    }
+
+    internal static void OnAuthoritativeVictory(long token)
+    {
+        if (activeLease?.Token != token) return;
+        activeLease = null;
+        activeLeaseStartedNewRun = false;
 
         FloorsCleared++;
         ArmyProgressionRuntime.RecordTowerFloor(FloorsCleared);
@@ -136,7 +154,9 @@ internal static class TowerOfDunanRuntime
     internal static void ResetRun()
     {
         RunActive = false;
-        BattleInProgress = false;
+        activeLease?.CancelOrTeardown();
+        activeLease = null;
+        activeLeaseStartedNewRun = false;
         CurrentFloor = 0;
         FloorsCleared = 0;
         ActiveRelics.Clear();

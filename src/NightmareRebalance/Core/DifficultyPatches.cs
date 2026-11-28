@@ -6,7 +6,7 @@ internal static class DamageScope
 {
     internal static bool Enter() => DamageScaling.Enter();
     internal static Exception? Exit(Exception? exception) => DamageScaling.Exit(exception);
-    internal static void Apply(bool outer, bool eligible, BATTLE_WORK? work, int attacker, int target, ref int result)
+    internal static void Apply(bool outer, bool eligible, BATTLE_WORK? work, int attacker, int target, bool isMagic, ref int result)
     {
         if (outer && eligible && result > 0)
         {
@@ -19,7 +19,8 @@ internal static class DamageScope
             {
                 factor=CombatReforgedRuntime.Factor(state,acting,factor,false);
                 if (Reforged2Runtime.IsBossEnraged(acting)) factor *= Reforged2Rules.BossEnrageDamageMultiplier;
-                if (NightmareReworkRuntime.Enabled) factor *= NightmareReworkRuntime.EnemyDamageScalingFor(work, acting, isMagic: false);
+                if (NightmareReworkRuntime.Enabled || NightmareReworkRuntime.AntiOverlevelEnabled)
+                    factor *= NightmareReworkRuntime.EnemyDamageScalingFor(work, acting, isMagic);
             }
             if (Reforged2Runtime.ApexBattleActive)
                 factor *= Reforged2Rules.ApexDamageMultiplier * Reforged2Rules.ApexAffixDamageMultiplier(Reforged2Runtime.ActiveApexAffix);
@@ -57,7 +58,10 @@ internal static class EnemyDamagePatch
         Combat.Observe(__originalMethod.Name, w);
         MaintenanceRuntime.Raw(__instance.chara_no,mokuhyo,__result,__originalMethod.Name);
         bool eligible=w!=null&&Combat.EnemyToPlayer(w,__instance.chara_no,mokuhyo);
-        DamageScope.Apply(__state,eligible,w,__instance.chara_no,mokuhyo,ref __result);
+        bool isMagic = __instance.monster_data?.attack_data is {} classMoves &&
+            attack_mode >= 0 && attack_mode < classMoves.Length &&
+            classMoves[attack_mode] is { attack_type: 2 };
+        DamageScope.Apply(__state,eligible,w,__instance.chara_no,mokuhyo,isMagic,ref __result);
         if (__state && eligible && __result > 1 && __instance.monster_data?.attack_data is {} perkMoves &&
             attack_mode >= 0 && attack_mode < perkMoves.Length && perkMoves[attack_mode] is { attack_type: 1 })
             __result = Reforged2Runtime.ApplyDefenderWeaponPerk(w, mokuhyo, __result);
@@ -95,7 +99,13 @@ internal static class FinalBossDamagePatch
     [HarmonyPostfix] static void Postfix(BATTLE_WORK battle_work, int chara_no, int mokuhyo, bool __state, ref int __result)
     {
         Combat.Observe(nameof(boss_las.CalcMonsterDamageLast), battle_work);
-        DamageScope.Apply(__state, Combat.EnemyToPlayer(battle_work, chara_no, mokuhyo), battle_work, chara_no, mokuhyo, ref __result);
+        bool eligible = Combat.EnemyToPlayer(battle_work, chara_no, mokuhyo);
+        DamageScope.Apply(__state, eligible, battle_work, chara_no, mokuhyo, isMagic: true, ref __result);
+        if (__state && eligible && __result > 0 && battle_work?.pm_data is {} units && chara_no >= 0 && chara_no < units.Length)
+        {
+            __result = Reforged2Runtime.ApplyOverdriveDefense(battle_work, mokuhyo, __result);
+            __result = NightmareReworkRuntime.ApplyDefendAndEnemyTraits(battle_work, units[chara_no], mokuhyo, __result);
+        }
     }
     [HarmonyFinalizer] internal static Exception? Finalizer(Exception? __exception) => DamageScope.Exit(__exception);
 }

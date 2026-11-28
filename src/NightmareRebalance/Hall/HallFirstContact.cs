@@ -18,7 +18,7 @@ internal static class HallFirstContact
     internal static bool Available => EnabledAtStartup && HallFirstContactDriver.Instance != null &&
         !faulted && trial == null;
 
-    internal static bool Request(int selection = 0, bool nightmare = false)
+    internal static bool Request(int selection = 0, bool nightmare = false, OptionalEncounterLease? optionalLease = null)
     {
         if(HallLucaSession.Active){CastleGuildRuntime.Status="Finish or cancel gauntlet preparation first.";return false;}
         if(selection>=0&&selection<HallTrialCatalogue.Entries.Length&&HallTrialCatalogue.Entries[selection].Id=="luca-gauntlet")
@@ -27,11 +27,11 @@ internal static class HallFirstContact
             if(HallLucaSession.Begin(nightmare))CastleGuildRuntime.Menu.BeginLuca(HallLucaSession.ChoiceCount);
             return false;
         }
-        return RequestCore(selection>=0&&selection<HallTrialCatalogue.Entries.Length?HallTrialCatalogue.Entries[selection]:null,nightmare);
+        return RequestCore(selection>=0&&selection<HallTrialCatalogue.Entries.Length?HallTrialCatalogue.Entries[selection]:null,nightmare,false,optionalLease);
     }
-    internal static bool RequestStage(HallTrialDefinition definition,bool nightmare)=>HallLucaSession.Active&&RequestCore(definition,nightmare,false);
-    internal static bool RequestSuperboss(HallTrialDefinition definition)=>RequestCore(definition,false,true);
-    static bool RequestCore(HallTrialDefinition? definition,bool nightmare,bool superboss=false)
+    internal static bool RequestStage(HallTrialDefinition definition,bool nightmare)=>HallLucaSession.Active&&RequestCore(definition,nightmare,false,null);
+    internal static bool RequestSuperboss(HallTrialDefinition definition, OptionalEncounterLease? optionalLease = null)=>RequestCore(definition,false,true,optionalLease);
+    static bool RequestCore(HallTrialDefinition? definition,bool nightmare,bool superboss=false,OptionalEncounterLease? optionalLease=null)
     {
         int selection=definition==null?-1:Array.FindIndex(HallTrialCatalogue.Entries,d=>d.Id==(HallLucaSession.IsStage(definition.Id)?"luca-gauntlet":definition.Id));
         bool allowedSelection = superboss
@@ -45,14 +45,16 @@ internal static class HallFirstContact
         bool roomContext = CastleGuildRuntime.Context;
         if (superboss && (!roomContext || field == null || events == null || map == null))
         {
-            if (WalkableDungeonRuntime.Context && WalkableDungeonRuntime.Owner != null && WalkableDungeonRuntime.Field != null && WalkableDungeonRuntime.Copy != null)
+            if (Plugin.Options?.EnableExperimentalSindarDungeonWarp.Value == true &&
+                WalkableDungeonRuntime.Context && WalkableDungeonRuntime.Owner != null && WalkableDungeonRuntime.Field != null && WalkableDungeonRuntime.Copy != null)
             {
                 field = WalkableDungeonRuntime.Owner;
                 events = WalkableDungeonRuntime.Field;
                 map = WalkableDungeonRuntime.Copy;
                 roomContext = true;
             }
-            else if (CastleRoomNpcRuntime.Context && CastleRoomNpcRuntime.Owner != null && CastleRoomNpcRuntime.Field != null && CastleRoomNpcRuntime.Copy != null)
+            else if (Plugin.Options?.EnableExperimentalCastleRoomNpcs.Value == true &&
+                CastleRoomNpcRuntime.Context && CastleRoomNpcRuntime.Owner != null && CastleRoomNpcRuntime.Field != null && CastleRoomNpcRuntime.Copy != null)
             {
                 field = CastleRoomNpcRuntime.Owner;
                 events = CastleRoomNpcRuntime.Field;
@@ -60,9 +62,10 @@ internal static class HallFirstContact
                 roomContext = true;
             }
         }
-        bool locationOk = superboss
-            ? (field != null && field._mstep == 20 && events != null && map != null)
-            : (field is { ano: 10, vno: 6, mno: 3, _mstep: 20 } && events != null && map != null && MachiLoader.GetMachiID(field.ano, field.vno) == "vk07");
+        bool locationOk = (field is { ano: 10, vno: 6, mno: 3, _mstep: 20 } && events != null && map != null && MachiLoader.GetMachiID(field.ano, field.vno) == "vk07") ||
+            (superboss && field != null && field._mstep == 20 && events != null && map != null &&
+             ((Plugin.Options?.EnableExperimentalSindarDungeonWarp.Value == true && WalkableDungeonRuntime.Owner?.Pointer == field.Pointer) ||
+              (Plugin.Options?.EnableExperimentalCastleRoomNpcs.Value == true && CastleRoomNpcRuntime.Owner?.Pointer == field.Pointer)));
 
         if (!allowedSelection ||
             !Available || (!roomContext&&!HallLucaSession.OwnsIdleRequest(definition)) || !Plugin.CheckCompatibility() ||
@@ -89,7 +92,8 @@ internal static class HallFirstContact
             return false;
         }
 
-        trial = new Trial(definition!, nightmare, superboss, game, sys, field!, events!, map!);
+        trial = new Trial(definition!, nightmare, superboss, optionalLease, game, sys, field!, events!, map!);
+        optionalLease?.MarkAccepted(definition!.Id);
         Plugin.Logger.LogInfo($"HallFirstContact: Guild confirmed {trial.Definition.Name}.");
         return true;
     }
@@ -99,6 +103,7 @@ internal static class HallFirstContact
         internal readonly HallTrialDefinition Definition;
         internal readonly bool Nightmare;
         internal readonly bool IsSuperboss;
+        internal readonly OptionalEncounterLease? OptionalLease;
         internal readonly HallStoneReward Stone=new();
         internal readonly List<MONSTER_DATA> OwnedMonsters=new();
         internal string? PackId;
@@ -134,9 +139,9 @@ internal static class HallFirstContact
         internal uint Potch;
         internal byte[] RewardIds = Array.Empty<byte>();
         internal int[] RewardCounts = Array.Empty<int>();
-        internal Trial(HallTrialDefinition definition, bool nightmare, bool superboss, GAME_WORK game, SYS_WORK sys, MACHICON field, EVENTCON events, MACHIDAT map)
+        internal Trial(HallTrialDefinition definition, bool nightmare, bool superboss, OptionalEncounterLease? optionalLease, GAME_WORK game, SYS_WORK sys, MACHICON field, EVENTCON events, MACHIDAT map)
         {
-            Definition = definition; Nightmare=nightmare; IsSuperboss=superboss;
+            Definition = definition; Nightmare=nightmare; IsSuperboss=superboss; OptionalLease=optionalLease;
             Game = game; Sys = sys; Field = field; Events = events; Map = map;
             Party = game.party_data.Pointer;
             X = events.ehuman[0].x.ss.inte; Y = events.ehuman[0].y.ss.inte;
@@ -168,10 +173,12 @@ internal static class HallFirstContact
         t.Game.party_data?.Pointer == t.Party && t.Game.sys_work?.Pointer == t.Sys.Pointer;
 
     static bool SafeField(Trial t) => SameCampaign(t) &&
-        (t.IsSuperboss
-            ? (t.Field._mstep == 20 && t.Sys.mcon?.Pointer == t.Field.Pointer)
-            : (CastleGuildRuntime.Idle && CastleGuildRuntime.Near && CastleGuildRuntime.Owner?.Pointer == t.Field.Pointer &&
-               CastleGuildRuntime.Field?.Pointer == t.Events.Pointer && t.Field._mstep == 20)) &&
+        ((CastleGuildRuntime.Idle && CastleGuildRuntime.Near && CastleGuildRuntime.Owner?.Pointer == t.Field.Pointer &&
+          CastleGuildRuntime.Field?.Pointer == t.Events.Pointer) ||
+         (t.IsSuperboss &&
+          ((Plugin.Options?.EnableExperimentalSindarDungeonWarp.Value == true && WalkableDungeonRuntime.Idle && WalkableDungeonRuntime.Near && WalkableDungeonRuntime.Owner?.Pointer == t.Field.Pointer && WalkableDungeonRuntime.Field?.Pointer == t.Events.Pointer) ||
+           (Plugin.Options?.EnableExperimentalCastleRoomNpcs.Value == true && CastleRoomNpcRuntime.Idle && CastleRoomNpcRuntime.Near && CastleRoomNpcRuntime.Owner?.Pointer == t.Field.Pointer && CastleRoomNpcRuntime.Field?.Pointer == t.Events.Pointer)))) &&
+        t.Field._mstep == 20 &&
         t.Field.econ?.Pointer == t.Events.Pointer && t.Events.mdat?.Pointer == t.Map.Pointer &&
         t.Field.mdat?.Pointer == t.Map.Pointer && t.Sys.game_mode == 1 &&
         t.Sys.now_save == 0 && t.Sys.filter_timer == 0 && t.Sys.battle_data == null &&
@@ -351,7 +358,40 @@ internal static class HallFirstContact
         if (t.Table != null) UnityEngine.Object.Destroy(t.Table);
         if (t.Handle.IsValid()) Addressables.Release(t.Handle);
         Plugin.Logger.LogInfo($"HallFirstContact: complete; committed={t.Committed} packBorrowed={borrowed}.");
+        if (t.OptionalLease is {} lease && lease.CancelOrTeardown())
+            DispatchOptionalCancelled(lease);
         trial = null;
+    }
+
+    static void DispatchOptionalCancelled(OptionalEncounterLease lease)
+    {
+        if (lease.Kind == OptionalEncounterKind.TowerOfDunan) TowerOfDunanRuntime.OnLeaseCancelled(lease.Token);
+        else if (lease.Kind == OptionalEncounterKind.SecretSuperboss) SuperbossRuntime.OnLeaseCancelled(lease.Token);
+        else if (lease.Kind == OptionalEncounterKind.CirculatingPaths) CirculatingPathsRuntime.OnLeaseCancelled(lease.Token);
+    }
+
+    internal static void CompleteOptionalVictory(BATTLE_WORK? work)
+    {
+        if (work == null || trial is not { Committed: true, Setup: true, Win: true, Loss: false, OptionalLease: {} lease } t) return;
+        if (!Owns(work) || !lease.TryClaimVictory(work.Pointer)) return;
+        if (lease.Kind == OptionalEncounterKind.TowerOfDunan) TowerOfDunanRuntime.OnAuthoritativeVictory(lease.Token);
+        else if (lease.Kind == OptionalEncounterKind.SecretSuperboss) SuperbossRuntime.OnAuthoritativeVictory(lease.Token);
+        else if (lease.Kind == OptionalEncounterKind.CirculatingPaths) CirculatingPathsRuntime.OnAuthoritativeVictory(lease.Token);
+    }
+
+    internal static void CompleteOptionalNonVictory(BATTLE_WORK? work)
+    {
+        if (work == null || trial is not { Committed: true, Setup: true, OptionalLease: {} lease } t) return;
+        if (!Owns(work) || !lease.TryClaimNonVictory(work.Pointer)) return;
+        if (lease.Kind == OptionalEncounterKind.TowerOfDunan) TowerOfDunanRuntime.OnAuthoritativeNonVictory(lease.Token);
+        else if (lease.Kind == OptionalEncounterKind.SecretSuperboss) SuperbossRuntime.OnAuthoritativeNonVictory(lease.Token);
+        else if (lease.Kind == OptionalEncounterKind.CirculatingPaths) CirculatingPathsRuntime.OnAuthoritativeNonVictory(lease.Token);
+    }
+
+    internal static void RetireAbandonedOptionalLease()
+    {
+        if (trial is { OptionalLease: {} lease } && lease.BattleActive && lease.CancelOrTeardown())
+            DispatchOptionalCancelled(lease);
     }
 
     static bool IsSceneOwned(Trial t) =>
@@ -477,6 +517,7 @@ internal static class HallFirstContact
         t.Setup = work.monster_party_data?.Pointer == t.Formation?.Pointer && work.monster_party_index == 1 &&
             t.Sys.battle_no == -1;
         if (t.Setup && t.Sys.yobi[0] == 1) t.Sys.yobi[0] = 0;
+        if (t.Setup) t.OptionalLease?.BindBattleWork(work.Pointer);
         Plugin.Logger.LogInfo($"HallFirstContact: original setup identity matched={t.Setup}.");
     }
 

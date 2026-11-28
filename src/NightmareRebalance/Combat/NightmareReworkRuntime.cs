@@ -5,19 +5,21 @@ internal sealed class EnemyTacticalState
     internal int MaxShields;
     internal int Shields;
     internal int StaggeredUntilTurn = -1;
-    internal bool Charging;
-    internal int LastChargeTurn = -1;
+    internal readonly EnemyChargeTracker Charge = new();
+    internal bool Charging => Charge.IsChargingForUi(Framework.Singleton<BATTLE_WORK>.instance?.battle_kaisuu ?? 0);
     internal bool IsBoss;
     internal bool IsElite;
 }
 
 // Reforged 7.0: True Nightmare Combat Rework runtime.
-// Manages Octopath-style Guard Shields & Stagger, Boss/Elite Charge & Interrupt,
-// 50% Dungeon Pack Traits, Live Zone Hazards, Anti-Overleveling, Defend-Heal,
+// Manages Octopath-style Guard Shields & Stagger, turn-scoped Boss/Elite Charge & Interrupt,
+// 50% Dungeon Pack Traits, Live Zone Hazards, optional Anti-Overleveling, Defend-Heal,
 // and Battle Fatigue.
 internal static class NightmareReworkRuntime
 {
     static readonly Dictionary<IntPtr, EnemyTacticalState> states = new();
+    static readonly HashSet<(int Turn, IntPtr Actor, IntPtr Target, bool IsMagic)> committedPlayerHits = new();
+    static readonly HashSet<(int Turn, IntPtr Attacker, int DefenderSlot)> committedEnemyHits = new();
     static readonly System.Random rng = new();
     internal static PackTrait ActivePackTrait { get; private set; }
     internal static ZoneHazard ActiveZoneHazard { get; private set; }
@@ -25,10 +27,13 @@ internal static class NightmareReworkRuntime
     static int lastFatigueAnnouncedTurn = -1;
 
     internal static bool Enabled => Plugin.Options?.EnableTrueNightmareRework.Value == true;
+    internal static bool AntiOverlevelEnabled => Plugin.Options?.EnableAntiOverlevelScaling.Value == true;
 
     internal static void ClearBattle()
     {
         states.Clear();
+        committedPlayerHits.Clear();
+        committedEnemyHits.Clear();
         ActivePackTrait = PackTrait.None;
         ActiveZoneHazard = ZoneHazard.Calm;
         PartyAvgLevel = 0;
@@ -100,19 +105,23 @@ internal static class NightmareReworkRuntime
 
     internal static double EnemyHpScalingFor(PM_DATA unit)
     {
-        if (!Enabled) return 1.0;
         double mult = 1.0;
-        int enemyLv = unit.monster_data?.level ?? 0;
-        mult *= NightmareReworkRules.AntiOverlevelHpMultiplier(PartyAvgLevel, enemyLv);
-        if (ActiveZoneHazard == ZoneHazard.HighlandAlert) mult *= 1.15;
+        if (AntiOverlevelEnabled)
+        {
+            int enemyLv = unit.monster_data?.level ?? 0;
+            mult *= NightmareReworkRules.AntiOverlevelHpMultiplier(PartyAvgLevel, enemyLv);
+        }
+        if (Enabled && ActiveZoneHazard == ZoneHazard.HighlandAlert) mult *= 1.15;
         return mult;
     }
 
     internal static double EnemyDamageScalingFor(BATTLE_WORK? w, PM_DATA attacker, bool isMagic)
     {
-        if (!Enabled) return 1.0;
         int turn = w?.battle_kaisuu ?? 0;
-        double mult = NightmareReworkRules.AntiOverlevelDamageMultiplier(PartyAvgLevel, attacker.monster_data?.level ?? 0);
+        double mult = AntiOverlevelEnabled
+            ? NightmareReworkRules.AntiOverlevelDamageMultiplier(PartyAvgLevel, attacker.monster_data?.level ?? 0)
+            : 1.0;
+        if (!Enabled) return mult;
         if (ActivePackTrait == PackTrait.Berserk) mult *= 1.35;
         if (ActiveZoneHazard == ZoneHazard.HighlandAlert || ActiveZoneHazard == ZoneHazard.BloodMist) mult *= 1.15;
         if (isMagic && ActiveZoneHazard == ZoneHazard.ArcaneStorm) mult *= 1.30;
@@ -127,20 +136,14 @@ internal static class NightmareReworkRuntime
 
         if (StateFor(attacker) is {} st)
         {
-            if (IsStaggered(st, turn))
-                mult *= NightmareReworkRules.StaggeredDamageDealtMultiplier;
-            else if (st.Charging)
-            {
-                st.Charging = false;
-                mult *= NightmareReworkRules.ChargedAttackMultiplier;
+            bool staggered = IsStaggered(st, turn);
+            mult *= st.Charge.EvaluateDamageMultiplier(turn, st.IsBoss, st.IsElite, staggered, out bool beganTelegraph, out bool beganUnleash);
+            if (beganUnleash)
                 Reforged2Runtime.FlashBanner("☠ CHARGED DEVASTATION UNLEASHED!", 2800, "alert");
-            }
-            else if (NightmareReworkRules.ShouldChargeThisTurn(turn, st.IsBoss, st.IsElite, false) && st.LastChargeTurn != turn)
+            else if (beganTelegraph)
             {
-                st.LastChargeTurn = turn;
-                st.Charging = true;
                 string name = Reforged2Runtime.ResolveEnemyDisplayName(attacker, out _);
-                Reforged2Runtime.FlashBanner($"⚠ {name} CHARGING DEVASTATION — BREAK SHIELD OR DEFEND!", 3800, "alert");
+                Reforged2Runtime.FlashBanner($"⚠ {name} CHARGING DEVASTATION — BREAK SHIELD OR DEFEND NEXT TURN!", 3800, "alert");
             }
         }
         return mult;
@@ -155,13 +158,15 @@ internal static class NightmareReworkRuntime
         if (ActivePackTrait == PackTrait.Berserk)
             result = Math.Max(result + 1, (int)Math.Round(result * 1.15, MidpointRounding.AwayFromZero));
 
+        int turn = w.battle_kaisuu;
+        bool firstCommit = enemy != null && committedPlayerHits.Add((turn, actor.Pointer, enemy.Pointer, isMagic));
+
         if (enemy != null && StateFor(enemy) is {} st)
         {
-            int turn = w.battle_kaisuu;
             bool staggered = IsStaggered(st, turn);
             result = NightmareReworkRules.ApplyShieldAndStaggerDamage(result, st.Shields, staggered);
 
-            if (!staggered && st.Shields > 0)
+            if (firstCommit && !staggered && st.Shields > 0)
             {
                 string weak = enemy.calc_para is { Length: > 3 } ? Reforged2Rules.TacticalWeaknessHint(enemy.calc_para[2], enemy.calc_para[3]) : "Balanced";
                 bool hitWeak = (isMagic && weak == "Weak: Magic") || (!isMagic && weak == "Weak: Phys");
@@ -171,8 +176,8 @@ internal static class NightmareReworkRuntime
                 if (st.Shields == 0)
                 {
                     st.StaggeredUntilTurn = turn + 1;
-                    bool interrupted = st.Charging;
-                    st.Charging = false;
+                    bool interrupted = st.Charge.IsChargingForUi(turn);
+                    st.Charge.Interrupt();
                     string eName = Reforged2Runtime.ResolveEnemyDisplayName(enemy, out _);
                     Reforged2Runtime.FlashBanner(
                         interrupted ? $"★ {eName} STAGGERED & CHARGE INTERRUPTED! (+50% DMG Taken)" : $"💥 {eName} SHIELD BROKEN — STAGGERED! (+50% DMG Taken)",
@@ -182,7 +187,7 @@ internal static class NightmareReworkRuntime
             }
         }
 
-        if (!isMagic && ActivePackTrait == PackTrait.Thorned && actor.hp > 1)
+        if (firstCommit && !isMagic && ActivePackTrait == PackTrait.Thorned && actor.hp > 1)
         {
             int reflect = NightmareReworkRules.ComputeThornedReflect(result, actor.hp);
             if (reflect > 0)
@@ -206,18 +211,23 @@ internal static class NightmareReworkRuntime
         if (defender == null || !defender.IsPlayer || defender.IsDead) return incomingDamage;
 
         int result = incomingDamage;
+        int turn = w.battle_kaisuu;
         bool guarding = (defender.status & b_game_h.STATUS_GUARD) != 0 && (defender.status & b_game_h.STATUS_NO_GUARD) == 0;
+        bool firstCommit = attacker != null && committedEnemyHits.Add((turn, attacker.Pointer, defenderSlot));
         if (guarding)
         {
-            if (StateFor(attacker) is { Charging: true })
+            if (StateFor(attacker) is {} st && st.Charge.IsUnleashing(turn))
                 result = Math.Max(1, (int)Math.Round(result * NightmareReworkRules.DefendVsChargedMultiplier, MidpointRounding.AwayFromZero));
-            int heal = NightmareReworkRules.ComputeDefendHeal(defender.max_hp);
-            if (heal > 0 && defender.hp > 0 && defender.hp < defender.max_hp)
-                defender.hp = (short)Math.Min(defender.max_hp, defender.hp + heal);
-            Reforged2Runtime.GrantBonusMomentum(20, w);
+            if (firstCommit)
+            {
+                int heal = NightmareReworkRules.ComputeDefendHeal(defender.max_hp);
+                if (heal > 0 && defender.hp > 0 && defender.hp < defender.max_hp)
+                    defender.hp = (short)Math.Min(defender.max_hp, defender.hp + heal);
+                Reforged2Runtime.GrantBonusMomentum(20, w);
+            }
         }
 
-        if (ActivePackTrait == PackTrait.Vampiric && attacker != null && attacker.hp > 0 && attacker.hp < attacker.max_hp)
+        if (firstCommit && ActivePackTrait == PackTrait.Vampiric && attacker != null && attacker.hp > 0 && attacker.hp < attacker.max_hp)
         {
             int leech = NightmareReworkRules.ComputeVampiricHeal(result);
             if (leech > 0)

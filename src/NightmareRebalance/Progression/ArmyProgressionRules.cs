@@ -106,6 +106,7 @@ internal sealed class ArmyLedgerState
     public int MoraleBonusCharges { get; set; }
     public int Commendations { get; set; }
     public int HuntsCompleted { get; set; }
+    public string LastSaveSlot { get; set; } = "";
     public long UpdatedUtcTicks { get; set; }
 
     internal ArmyLedgerState Clone()
@@ -133,6 +134,7 @@ internal sealed class ArmyLedgerState
             MoraleBonusCharges = MoraleBonusCharges,
             Commendations = Commendations,
             HuntsCompleted = HuntsCompleted,
+            LastSaveSlot = LastSaveSlot,
             UpdatedUtcTicks = UpdatedUtcTicks
         };
         foreach (var kv in Commanders)
@@ -171,7 +173,7 @@ internal readonly record struct XpAwardSummary(int CommandersUpdated, int RanksG
 
 internal static class ArmyProgressionRules
 {
-    internal const int MaxLedgerEntries = 512;
+    internal const int MaxLedgerEntries = 4096;
     internal const int MaxLedgerJsonBytes = 32 * 1024 * 1024;
     internal const int ForcedMarchMaxTurns = 6;
     internal static readonly int[] RankThresholds = { 0, 100, 250, 500, 900 };
@@ -281,21 +283,37 @@ internal static class ArmyProgressionRules
         return Convert.ToHexString(sha.GetHashAndReset());
     }
 
-    internal static void BindSnapshot(ArmyLedgerIndex index, string saveHash, ArmyLedgerState state, long utcTicks)
+    internal static void BindSnapshot(ArmyLedgerIndex index, string saveHash, ArmyLedgerState state, long utcTicks, string? saveSlot = null)
     {
         if (string.IsNullOrWhiteSpace(saveHash)) return;
         var clone = state.Clone();
         clone.UpdatedUtcTicks = utcTicks;
+        if (!string.IsNullOrWhiteSpace(saveSlot)) clone.LastSaveSlot = saveSlot.Trim();
         index.Snapshots[saveHash] = clone;
-        if (index.Snapshots.Count > MaxLedgerEntries)
+        PruneExcessUnpinned(index, MaxLedgerEntries);
+    }
+
+    internal static void PruneExcessUnpinned(ArmyLedgerIndex index, int maxEntries)
+    {
+        if (index.Snapshots.Count <= maxEntries) return;
+        // Protect the latest snapshot of every distinct save slot so existing older save files
+        // are never evicted by repeated saves in another slot.
+        var pinned = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var grp in index.Snapshots
+            .Where(kv => !string.IsNullOrWhiteSpace(kv.Value?.LastSaveSlot))
+            .GroupBy(kv => kv.Value.LastSaveSlot, StringComparer.OrdinalIgnoreCase))
         {
-            var oldest = index.Snapshots
-                .OrderBy(kv => kv.Value.UpdatedUtcTicks)
-                .Take(index.Snapshots.Count - MaxLedgerEntries)
-                .Select(kv => kv.Key)
-                .ToArray();
-            foreach (var key in oldest) index.Snapshots.Remove(key);
+            var latest = grp.OrderByDescending(kv => kv.Value.UpdatedUtcTicks).First();
+            pinned.Add(latest.Key);
         }
+        int excess = index.Snapshots.Count - maxEntries;
+        var removable = index.Snapshots
+            .Where(kv => !pinned.Contains(kv.Key))
+            .OrderBy(kv => kv.Value.UpdatedUtcTicks)
+            .Take(excess)
+            .Select(kv => kv.Key)
+            .ToArray();
+        foreach (var key in removable) index.Snapshots.Remove(key);
     }
 
     internal static ArmyLedgerState ResolveSnapshot(ArmyLedgerIndex index, string? saveHash)
@@ -305,18 +323,146 @@ internal static class ArmyProgressionRules
         return new ArmyLedgerState();
     }
 
-    internal static ArmyLedgerIndex ParseIndex(string json)
+    internal enum LedgerParseStatus { Ok, Empty, Oversized, Corrupt }
+
+    internal static bool TryParseIndex(string? json, out ArmyLedgerIndex index, out LedgerParseStatus status)
     {
-        if (string.IsNullOrWhiteSpace(json) || json.Length > MaxLedgerJsonBytes)
-            return new ArmyLedgerIndex();
-        var parsed = JsonSerializer.Deserialize<ArmyLedgerIndex>(json);
-        if (parsed == null || parsed.SchemaVersion != 1 || parsed.Snapshots == null)
-            return new ArmyLedgerIndex();
-        return parsed;
+        index = new ArmyLedgerIndex();
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            status = LedgerParseStatus.Empty;
+            return true;
+        }
+        if (Encoding.UTF8.GetByteCount(json) > MaxLedgerJsonBytes)
+        {
+            status = LedgerParseStatus.Oversized;
+            return false;
+        }
+        try
+        {
+            var parsed = JsonSerializer.Deserialize<ArmyLedgerIndex>(json);
+            if (parsed == null || parsed.SchemaVersion != 1 || parsed.Snapshots == null)
+            {
+                status = LedgerParseStatus.Corrupt;
+                return false;
+            }
+            index = parsed;
+            status = LedgerParseStatus.Ok;
+            return true;
+        }
+        catch
+        {
+            status = LedgerParseStatus.Corrupt;
+            return false;
+        }
     }
+
+    internal static ArmyLedgerIndex ParseIndex(string json) =>
+        TryParseIndex(json, out var idx, out _) ? idx : new ArmyLedgerIndex();
 
     internal static string SerializeIndex(ArmyLedgerIndex index) =>
         JsonSerializer.Serialize(index, new JsonSerializerOptions { WriteIndented = false });
+
+    internal static bool TrySerializeIndex(ArmyLedgerIndex index, out string json, out string? error)
+    {
+        json = SerializeIndex(index);
+        int bytes = Encoding.UTF8.GetByteCount(json);
+        if (bytes > MaxLedgerJsonBytes)
+        {
+            error = $"Ledger payload ({bytes} bytes) exceeds MaxLedgerJsonBytes ({MaxLedgerJsonBytes}).";
+            json = "";
+            return false;
+        }
+        error = null;
+        return true;
+    }
+
+    internal static string ExtractSaveSlot(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return "";
+        try { return Path.GetFileNameWithoutExtension(path.Replace('\\', '/')) ?? ""; }
+        catch { return ""; }
+    }
+
+    internal readonly record struct LedgerDiskLoadResult(ArmyLedgerIndex Index, LedgerParseStatus Status, bool RecoveredFromBackup, bool WriteBlocked, string Note);
+
+    internal static LedgerDiskLoadResult LoadIndexFromDisk(string ledgerPath)
+    {
+        string backupPath = ledgerPath + ".bak";
+        if (!File.Exists(ledgerPath))
+            return new(new ArmyLedgerIndex(), LedgerParseStatus.Empty, false, false, "No existing ledger; starting fresh.");
+        try
+        {
+            string raw = File.ReadAllText(ledgerPath, Encoding.UTF8);
+            if (TryParseIndex(raw, out var parsed, out var status))
+                return new(parsed, status, false, false, $"Loaded {parsed.Snapshots.Count} snapshot(s).");
+
+            // Preserve unreadable primary file without clobbering any prior backup.
+            try
+            {
+                string quarantine = $"{ledgerPath}.corrupt.{DateTime.UtcNow.Ticks}.bak";
+                File.Copy(ledgerPath, quarantine, overwrite: false);
+            }
+            catch { }
+
+            if (File.Exists(backupPath))
+            {
+                try
+                {
+                    string bakRaw = File.ReadAllText(backupPath, Encoding.UTF8);
+                    if (TryParseIndex(bakRaw, out var bakParsed, out var bakStatus) && bakStatus == LedgerParseStatus.Ok)
+                        return new(bakParsed, LedgerParseStatus.Ok, true, false, $"Recovered {bakParsed.Snapshots.Count} snapshot(s) from backup after {status} primary.");
+                }
+                catch { }
+            }
+            return new(new ArmyLedgerIndex(), status, false, true, $"Primary ledger {status} and backup unavailable; writes blocked to prevent overwriting progression.");
+        }
+        catch (Exception ex)
+        {
+            if (File.Exists(backupPath))
+            {
+                try
+                {
+                    string bakRaw = File.ReadAllText(backupPath, Encoding.UTF8);
+                    if (TryParseIndex(bakRaw, out var bakParsed, out var bakStatus) && bakStatus == LedgerParseStatus.Ok)
+                        return new(bakParsed, LedgerParseStatus.Ok, true, false, $"Recovered {bakParsed.Snapshots.Count} snapshot(s) from backup after read error.");
+                }
+                catch { }
+            }
+            return new(new ArmyLedgerIndex(), LedgerParseStatus.Corrupt, false, true, $"Ledger read failed ({ex.GetType().Name}); writes blocked.");
+        }
+    }
+
+    internal static bool SaveIndexToDisk(string ledgerPath, ArmyLedgerIndex index, bool writeBlocked, out string? error)
+    {
+        if (writeBlocked)
+        {
+            error = "Ledger writes are blocked because the on-disk ledger failed validation; refusing to overwrite.";
+            return false;
+        }
+        if (!TrySerializeIndex(index, out string payload, out error))
+            return false;
+        try
+        {
+            string dir = Path.GetDirectoryName(ledgerPath)!;
+            if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+            string tmp = ledgerPath + ".tmp";
+            string bak = ledgerPath + ".bak";
+            File.WriteAllText(tmp, payload, Encoding.UTF8);
+            if (File.Exists(ledgerPath))
+            {
+                try { File.Copy(ledgerPath, bak, overwrite: true); } catch { }
+            }
+            File.Move(tmp, ledgerPath, overwrite: true);
+            error = null;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+            return false;
+        }
+    }
 
     internal static XpAwardSummary AwardTrainingXp(
         ArmyLedgerState state,

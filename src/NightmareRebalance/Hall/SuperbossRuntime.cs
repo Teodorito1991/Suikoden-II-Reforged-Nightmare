@@ -3,8 +3,9 @@ namespace NightmareRebalance;
 // Runtime controller for Secret Superboss launches, multi-phase choreography, and permanent Trophy passives.
 internal static class SuperbossRuntime
 {
+    static OptionalEncounterLease? activeLease;
     internal static SuperbossSpec? Active { get; private set; }
-    internal static bool BattleInProgress { get; private set; }
+    internal static bool BattleInProgress => activeLease is { BattleActive: true } && Active != null;
     internal static int CurrentPhase { get; private set; } = 1;
 
     internal static bool HasTrophy(string id) =>
@@ -40,9 +41,10 @@ internal static class SuperbossRuntime
             return false;
         }
         Active = spec;
-        BattleInProgress = true;
         CurrentPhase = 1;
-        if (!HallFirstContact.RequestSuperboss(spec.ToTrialDefinition()))
+        var lease = new OptionalEncounterLease(OptionalEncounterKind.SecretSuperboss, spec.Id);
+        activeLease = lease;
+        if (!HallFirstContact.RequestSuperboss(spec.ToTrialDefinition(), lease))
         {
             ClearBattle();
             feedback = $"{spec.Name} could not be summoned right now.";
@@ -137,16 +139,25 @@ internal static class SuperbossRuntime
         attacker.hp = (short)Math.Min(attacker.max_hp, attacker.hp + heal);
     }
 
-    internal static void OnHallBattleFinished(bool won)
+    internal static void OnLeaseCancelled(long token)
     {
-        if (!BattleInProgress || Active == null) return;
+        if (activeLease?.Token != token) return;
+        ClearBattle();
+    }
+
+    internal static void OnAuthoritativeNonVictory(long token)
+    {
+        if (activeLease?.Token != token || Active == null) return;
         var spec = Active;
         ClearBattle();
-        if (!won)
-        {
-            CastleGuildRuntime.TrainingFeedback($"Defeated by {spec.Name}. Regroup, refine your Talents, and break the seal again!");
-            return;
-        }
+        CastleGuildRuntime.TrainingFeedback($"Defeated by {spec.Name}. Regroup, refine your Talents, and break the seal again!");
+    }
+
+    internal static void OnAuthoritativeVictory(long token)
+    {
+        if (activeLease?.Token != token || Active == null) return;
+        var spec = Active;
+        ClearBattle();
 
         bool firstClear = ArmyProgressionRuntime.RecordSuperbossVictory(spec.Id, out bool allFourCleared);
         if (firstClear)
@@ -167,8 +178,9 @@ internal static class SuperbossRuntime
 
     internal static void ClearBattle()
     {
+        activeLease?.CancelOrTeardown();
+        activeLease = null;
         Active = null;
-        BattleInProgress = false;
         CurrentPhase = 1;
     }
 }

@@ -10,6 +10,7 @@ internal static class ArmyProgressionRuntime
     static readonly object Sync = new();
     static ArmyLedgerIndex index = new();
     static IntPtr boundCampaignOwner = IntPtr.Zero;
+    static bool ledgerWriteBlocked;
     internal static ArmyLedgerState Current { get; private set; } = new();
     internal static DrillDirective ActiveDirective { get; set; } = DrillDirective.None;
     internal static HuntRiskModifier ActiveHuntModifier { get; set; } = HuntRiskModifier.None;
@@ -31,28 +32,11 @@ internal static class ArmyProgressionRuntime
             boundCampaignOwner = IntPtr.Zero;
             ActiveDirective = DrillDirective.None;
             LastAwardNotice = "";
-            try
-            {
-                if (File.Exists(LedgerPath))
-                {
-                    string raw = File.ReadAllText(LedgerPath);
-                    var parsed = ArmyProgressionRules.ParseIndex(raw);
-                    if (raw.Length > 64 && parsed.Snapshots.Count == 0)
-                    {
-                        File.Copy(LedgerPath, LedgerPath + ".bak", overwrite: true);
-                        Plugin.Logger.LogWarning("Army progression ledger could not be parsed cleanly; original backed up to army-ledger.json.bak.");
-                    }
-                    index = parsed;
-                }
-                else
-                    index = new ArmyLedgerIndex();
-            }
-            catch (Exception ex)
-            {
-                try { if (File.Exists(LedgerPath)) File.Copy(LedgerPath, LedgerPath + ".bak", overwrite: true); } catch { }
-                index = new ArmyLedgerIndex();
-                Plugin.Logger.LogWarning("Army progression ledger could not be read (backup saved); starting empty: " + ex.Message);
-            }
+            var load = ArmyProgressionRules.LoadIndexFromDisk(LedgerPath);
+            index = load.Index;
+            ledgerWriteBlocked = load.WriteBlocked;
+            if (load.WriteBlocked || load.RecoveredFromBackup)
+                Plugin.Logger.LogWarning("Army progression ledger: " + load.Note);
         }
     }
 
@@ -90,37 +74,45 @@ internal static class ArmyProgressionRuntime
 
     static void PersistIndexLocked()
     {
-        try
+        if (!ArmyProgressionRules.SaveIndexToDisk(LedgerPath, index, ledgerWriteBlocked, out string? error))
+            Plugin.Logger.LogWarning("Army progression ledger write skipped/failed: " + (error ?? "unknown error"));
+    }
+
+    internal static bool CapturePendingSave(string path, out string? hash, out IntPtr owner)
+    {
+        hash = null;
+        owner = IntPtr.Zero;
+        if (!Enabled && !SynergyEnabled) return false;
+        if (!TrainingPersistenceRules.IsCampaignPath(path)) return false;
+        var game = Framework.Singleton<GAME_WORK>.instance;
+        hash = ComputeLiveFingerprint(game);
+        if (hash == null || game?.game_data == null) return false;
+        owner = game.game_data.Pointer;
+        return true;
+    }
+
+    internal static void CommitObservedCampaignSave(string path, string? hash, IntPtr owner, bool succeeded)
+    {
+        if (!succeeded || string.IsNullOrWhiteSpace(hash) || owner == IntPtr.Zero) return;
+        if (!Enabled && !SynergyEnabled) return;
+        if (!TrainingPersistenceRules.IsCampaignPath(path)) return;
+        string slot = ArmyProgressionRules.ExtractSaveSlot(path);
+        lock (Sync)
         {
-            string dir = Path.GetDirectoryName(LedgerPath)!;
-            Directory.CreateDirectory(dir);
-            string tmp = LedgerPath + ".tmp";
-            File.WriteAllText(tmp, ArmyProgressionRules.SerializeIndex(index));
-            File.Move(tmp, LedgerPath, overwrite: true);
+            if (boundCampaignOwner != IntPtr.Zero && owner != boundCampaignOwner)
+                return;
+            boundCampaignOwner = owner;
+            ArmyProgressionRules.BindSnapshot(index, hash, Current, DateTime.UtcNow.Ticks, slot);
+            PersistIndexLocked();
+            ExportChronicleLocked();
         }
-        catch (Exception ex)
-        {
-            Plugin.Logger.LogWarning("Army progression ledger write failed: " + ex.Message);
-        }
+        Plugin.Debug($"Army progression ledger bound to save fingerprint {hash[..12]}... (slot={slot})");
     }
 
     internal static void ObserveCampaignSave(string path)
     {
-        if (!Enabled && !SynergyEnabled) return;
-        if (!TrainingPersistenceRules.IsCampaignPath(path)) return;
-        var game = Framework.Singleton<GAME_WORK>.instance;
-        string? hash = ComputeLiveFingerprint(game);
-        if (hash == null) return;
-        lock (Sync)
-        {
-            if (boundCampaignOwner != IntPtr.Zero && game!.game_data.Pointer != boundCampaignOwner)
-                return;
-            boundCampaignOwner = game!.game_data.Pointer;
-            ArmyProgressionRules.BindSnapshot(index, hash, Current, DateTime.UtcNow.Ticks);
-            PersistIndexLocked();
-            ExportChronicleLocked();
-        }
-        Plugin.Debug($"Army progression ledger bound to save fingerprint {hash[..12]}...");
+        if (CapturePendingSave(path, out string? hash, out IntPtr owner))
+            CommitObservedCampaignSave(path, hash, owner, succeeded: true);
     }
 
     internal static string ExportChronicle()
@@ -156,6 +148,9 @@ internal static class ArmyProgressionRuntime
             LastAwardNotice = "";
         }
         TowerOfDunanRuntime.ResetRun();
+        SuperbossRuntime.ClearBattle();
+        CirculatingPathsRuntime.ResetRun();
+        WalkableDungeonRuntime.ClearOnCampaignLoad();
         if (hash != null && (Enabled || SynergyEnabled))
             Plugin.Debug($"Army progression loaded for {hash[..12]}...: {Current.Commanders.Count} commanders, {Current.TotalDrillsWon} drills won.");
     }

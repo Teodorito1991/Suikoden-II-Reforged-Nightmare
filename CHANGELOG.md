@@ -1,5 +1,27 @@
 # Development history
 
+## 9.0.0-stabilization.1 — Stabilization & Ownership Repair Pass
+
+- **Priority 1 — Persistence Retention, Corruption Safety & Save Ordering (`ArmyProgressionRules.cs`, `ArmyProgressionRuntime.cs`, `TrainingNativeSave.cs`):**
+  - Replaced blind 512-entry FIFO eviction with save-slot-pinned retention (`MaxLedgerEntries = 4096`) so the latest snapshot of every distinct save slot (`Data01`, `Data02`, etc.) is protected from eviction by repeated saves in other slots.
+  - Enforced consistent UTF-8 byte limits (`MaxLedgerJsonBytes = 32 MiB`) across both `TrySerializeIndex` and `TryParseIndex`.
+  - Added `LoadIndexFromDisk` / `SaveIndexToDisk` with pre-overwrite `.bak` backups, non-destructive `.corrupt.<ticks>.bak` quarantine, automatic `.bak` recovery, and **fail-closed write blocking** when both primary and backup are unreadable (preventing an empty in-memory ledger from overwriting on-disk progression).
+  - Bound `SystemSave.Save` campaign fingerprints on async callback completion (`cb(true)`) rather than speculative request-start when a callback is present; cleared all optional-encounter runtimes on `GSD2SaveData.LoadDataCore`.
+- **Priority 2 — Owned Optional Encounters (`OptionalEncounterLease.cs`, `HallFirstContact.cs`, `Combat.cs`, `TowerOfDunanRuntime.cs`, `SuperbossRuntime.cs`, `CirculatingPathsRuntime.cs`):**
+  - Tied Tower of Dunan, Secret Superbosses, and Sindar Spire Guardian runs to explicit `OptionalEncounterLease` tokens bound to the accepted Hall `Trial` and native `BATTLE_WORK` pointer.
+  - Removed unconditional optional completion callbacks from `WinEnd` / `NotWinEnd` so unrelated battles can never complete or abort optional activities.
+  - Wired authoritative exact-once victory completion in `Combat.Complete` (`battle_exit99`) **after** `Reforged2Runtime.OnBattleVictory` so Tower post-victory healing works legitimately during reward completion while remaining unavailable in unrelated battles.
+  - Wired cancellation/teardown rollback in `HallFirstContact.Finish` and `Combat.Clear` for async asset/scene failures, admission rejections, and aborts.
+- **Priority 3 — Action Accounting & Fair Combat (`NightmareReworkRules.cs`, `NightmareReworkRuntime.cs`, `DifficultyPatches.cs`, `Combat.cs`, `Settings.cs`):**
+  - Replaced per-target charge toggling with turn-scoped `EnemyChargeTracker`: AoEs telegraph once on the charge turn (never unleashing on target 2 of the same AoE), unleash uniformly across all targets on the next turn so Defend sees `IsUnleashing(turn)` on every target, and retire cleanly on the following turn or when Stagger-interrupted.
+  - Passed actual attack classification (`isMagic` from `attack_type == 2`) through `DamageScope.Apply` and `FinalBossDamagePatch`.
+  - Added per-`(turn, actor, target)` commit deduplication for shield breaks, Thorned reflect, Defend-heal/Momentum, and Vampiric leech.
+  - Decoupled `EnableRuneRegeneration` in `Combat.Complete` so disabling rune recovery no longer suppresses `Reforged2Runtime.OnBattleVictory` or optional-encounter completion.
+  - Separated `EnableAntiOverlevelScaling` (default `false`) into its own independent config toggle.
+- **Priority 4 — Field/Dungeon Safety & Truthful Framing (`HallFirstContact.cs`, `CastleRoomNpcRuntime.cs`, `WalkableDungeonRuntime.cs`, `CastleDialogue.cs`):**
+  - Restored strict `vk07` Hall invariants by default; gated multi-room Castle NPCs behind `EnableExperimentalCastleRoomNpcs = false` (with native `BGCON.EventMapAtariCheckF1` & `tokusyu_atari` trigger-clearance checks) and gated `vc12` map warping behind `EnableExperimentalSindarDungeonWarp = false` (with full idle/save/script/war preconditions).
+  - Clarified all UI and documentation: the 6-stage Sindar Spire is a mod-authored gauntlet inspired by Sajah cut-dungeon lore using logical floor state (optionally reusing native `vc12` when the experimental warp gate is enabled), not recovered original cut maps.
+
 ## Unreleased (v1.56 development) — Army Progression, Drill Directives, Synergy & Optimizations
 
 - Added opt-in **Permanent Army Progression** (`EnableArmyProgression = false`):

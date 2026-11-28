@@ -126,3 +126,52 @@ internal static class NightmareReworkRules
         return turn >= 2 && (turn - 2) % cadence == 0;
     }
 }
+
+// Turn-scoped charge state machine: prevents an AoE from charging on target 1 and
+// unleashing on target 2, and keeps the unleashing state readable for Defend across all targets.
+internal sealed class EnemyChargeTracker
+{
+    internal int ChargedOnTurn { get; private set; } = -1;
+    internal int UnleashingOnTurn { get; private set; } = -1;
+
+    internal bool IsChargingForUi(int currentTurn) =>
+        (ChargedOnTurn >= 0 && currentTurn >= ChargedOnTurn && UnleashingOnTurn < 0) || UnleashingOnTurn == currentTurn;
+
+    internal bool IsUnleashing(int currentTurn) => UnleashingOnTurn == currentTurn;
+
+    internal void Interrupt()
+    {
+        ChargedOnTurn = -1;
+        UnleashingOnTurn = -1;
+    }
+
+    internal double EvaluateDamageMultiplier(int currentTurn, bool isBoss, bool isElite, bool staggered, out bool beganTelegraph, out bool beganUnleash)
+    {
+        beganTelegraph = false;
+        beganUnleash = false;
+        if (staggered)
+        {
+            Interrupt();
+            return NightmareReworkRules.StaggeredDamageDealtMultiplier;
+        }
+        if (UnleashingOnTurn >= 0 && currentTurn > UnleashingOnTurn)
+            UnleashingOnTurn = -1;
+        if (UnleashingOnTurn == currentTurn)
+            return NightmareReworkRules.ChargedAttackMultiplier;
+        if (ChargedOnTurn >= 0 && currentTurn > ChargedOnTurn)
+        {
+            ChargedOnTurn = -1;
+            UnleashingOnTurn = currentTurn;
+            beganUnleash = true;
+            return NightmareReworkRules.ChargedAttackMultiplier;
+        }
+        if (ChargedOnTurn == currentTurn)
+            return 1.0;
+        if (NightmareReworkRules.ShouldChargeThisTurn(currentTurn, isBoss, isElite, false))
+        {
+            ChargedOnTurn = currentTurn;
+            beganTelegraph = true;
+        }
+        return 1.0;
+    }
+}

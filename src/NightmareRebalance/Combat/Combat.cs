@@ -130,7 +130,8 @@ internal static class Combat
         if (TowerOfDunanRuntime.BattleInProgress) factor *= TowerOfDunanRuntime.ActiveHpMultiplier;
         if (SuperbossRuntime.BattleInProgress) factor *= SuperbossRuntime.ActiveHpMultiplier;
         if (CirculatingPathsRuntime.BattleInProgress) factor *= CirculatingPathsRuntime.ActiveHpMultiplier;
-        if (NightmareReworkRuntime.Enabled) factor *= NightmareReworkRuntime.EnemyHpScalingFor(unit);
+        if (NightmareReworkRuntime.Enabled || NightmareReworkRuntime.AntiOverlevelEnabled)
+            factor *= NightmareReworkRuntime.EnemyHpScalingFor(unit);
         unit.max_hp = (ushort)Math.Max(1, Rules.Scale(unit.max_hp, factor, short.MaxValue));
         unit.hp = (short)Math.Clamp(Rules.Scale(unit.hp, factor, short.MaxValue), 1, unit.max_hp);
         s.Report?.Applied("EnemyMaxHp", unit.chara_no, beforeMax, unit.max_hp, factor);
@@ -178,6 +179,7 @@ internal static class Combat
         s.Teamwork=null;
         s.Bonds=false;
         s.Victory.MarkNonVictory();
+        HallFirstContact.CompleteOptionalNonVictory(manager.battle_work);
         Reforged2Runtime.OnBattleNonVictory(manager.battle_work);
         CombatReforgedDiagnostics.Outcome="NonVictorySignal";
         var report=Observe(nameof(BattleManager.NotWinEnd),manager.battle_work);
@@ -190,33 +192,39 @@ internal static class Combat
         var report = Observe(nameof(BattleManager.battle_exit99), manager.battle_work);
         bool publish = report is { RewardCompletionObserved: false };
         if (publish) report!.RewardCompletionObserved = true;
-        if (!Matches(manager) || State == null || !State.Victory.TryConsume() || !Plugin.Options.EnableRuneRegeneration.Value)
+        if (!Matches(manager) || State == null || !State.Victory.TryConsume())
         {
             if (publish) CoverageRuntime.Emit(report, "reward-pipeline-completed");
             return;
         }
-        MaintenanceRuntime.Charges("BeforeRegeneration",manager.battle_work);
-        int chargeBudget = Plugin.Options.RuneChargesPerVictory.Value
-            + (ArmyProgressionRuntime.ConsumeMoraleBonus() ? 1 : 0)
-            + Reforged2Runtime.ExtraRuneChargesForVictory(manager.battle_work);
         int totalRestored = 0;
-        Span<byte> values = stackalloc byte[4];
-        foreach (var data in State.Eligible)
+        if (Plugin.Options.EnableRuneRegeneration.Value)
         {
-            var mp = data.mp;
-            if (mp == null || mp.Length != 4) continue;
-            for (int i = 0; i < 4; i++) values[i] = mp[i];
-            int restored = Rules.Recover(values, chargeBudget, Plugin.Options.RuneRecoveryPriority.Value, Plugin.Options.RuneRecoveryMaxLevel.Value);
-            if (restored == 0) continue;
-            totalRestored += restored;
-            CombatReforgedDiagnostics.RuneRestored+=restored;
-            CombatRealityRuntime.Event("RuneRegeneration","Applied","victory",new{Restored=restored,Priority=Plugin.Options.RuneRecoveryPriority.Value.ToString(),MaximumLevel=Plugin.Options.RuneRecoveryMaxLevel.Value});
-            for (int i = 0; i < 4; i++) mp[i] = values[i];
-            State.Report?.Applied("RuneChargesRestored", -1, 0, restored, 1);
-            Plugin.Debug($"Victory charge recovery: character={data.Pointer}, restored={restored}");
+            MaintenanceRuntime.Charges("BeforeRegeneration",manager.battle_work);
+            int chargeBudget = Plugin.Options.RuneChargesPerVictory.Value
+                + (ArmyProgressionRuntime.ConsumeMoraleBonus() ? 1 : 0)
+                + Reforged2Runtime.ExtraRuneChargesForVictory(manager.battle_work);
+            Span<byte> values = stackalloc byte[4];
+            foreach (var data in State.Eligible)
+            {
+                var mp = data.mp;
+                if (mp == null || mp.Length != 4) continue;
+                for (int i = 0; i < 4; i++) values[i] = mp[i];
+                int restored = Rules.Recover(values, chargeBudget, Plugin.Options.RuneRecoveryPriority.Value, Plugin.Options.RuneRecoveryMaxLevel.Value);
+                if (restored == 0) continue;
+                totalRestored += restored;
+                CombatReforgedDiagnostics.RuneRestored+=restored;
+                CombatRealityRuntime.Event("RuneRegeneration","Applied","victory",new{Restored=restored,Priority=Plugin.Options.RuneRecoveryPriority.Value.ToString(),MaximumLevel=Plugin.Options.RuneRecoveryMaxLevel.Value});
+                for (int i = 0; i < 4; i++) mp[i] = values[i];
+                State.Report?.Applied("RuneChargesRestored", -1, 0, restored, 1);
+                Plugin.Debug($"Victory charge recovery: character={data.Pointer}, restored={restored}");
+            }
+            MaintenanceRuntime.Charges("AfterRegeneration",manager.battle_work);
         }
+        // Tower post-victory healing runs here while the owned optional lease is still active,
+        // then CompleteOptionalVictory awards mod-owned completion spoils once and retires the lease.
         Reforged2Runtime.OnBattleVictory(manager.battle_work, totalRestored);
-        MaintenanceRuntime.Charges("AfterRegeneration",manager.battle_work);
+        HallFirstContact.CompleteOptionalVictory(manager.battle_work);
         if (publish) CoverageRuntime.Emit(report, "reward-pipeline-completed");
     }
 
@@ -270,9 +278,6 @@ internal static class VictoryPatch
     {
         Combat.Win(__instance);
         HallFirstContact.Outcome(__instance.battle_work, true);
-        TowerOfDunanRuntime.OnHallBattleFinished(true);
-        SuperbossRuntime.OnHallBattleFinished(true);
-        CirculatingPathsRuntime.OnHallBattleFinished(true);
     }
 }
 
@@ -283,9 +288,6 @@ internal static class NonVictoryPatch
     {
         Combat.NonVictory(__instance);
         HallFirstContact.Outcome(__instance.battle_work, false);
-        TowerOfDunanRuntime.OnHallBattleFinished(false);
-        SuperbossRuntime.OnHallBattleFinished(false);
-        CirculatingPathsRuntime.OnHallBattleFinished(false);
     }
 }
 
@@ -302,4 +304,4 @@ internal static class CompletedRewardPatch
 }
 
 [HarmonyPatch(typeof(BattleManager), nameof(BattleManager.BattleEndWait))]
-internal static class CleanupPatch { [HarmonyPrefix] static void Prefix() => Combat.Clear(); }
+internal static class CleanupPatch { [HarmonyPrefix] static void Prefix() { HallFirstContact.RetireAbandonedOptionalLease(); Combat.Clear(); } }

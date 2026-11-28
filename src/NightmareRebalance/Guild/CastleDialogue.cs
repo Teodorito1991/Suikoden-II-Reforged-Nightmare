@@ -130,8 +130,8 @@ internal static class CastleDialogueScripts
         }
 
         var choices = new List<DialogueChoiceSpec>(7);
-        string sajahTag = ledger.CirculatingCycleRank > 0 ? $" [Cycle {ledger.CirculatingCycleRank}]" : " [Walkable Sindar Ruins]";
-        choices.Add(new DialogueChoiceSpec($"Enter Tower of Circulating Paths{sajahTag}", "warp-sajah"));
+        string sajahTag = ledger.CirculatingCycleRank > 0 ? $" [Cycle {ledger.CirculatingCycleRank}]" : " [6-Stage Spire]";
+        choices.Add(new DialogueChoiceSpec($"Sindar Spire Gauntlet{sajahTag}", "open-sajah"));
         foreach (var s in SuperbossRules.All)
         {
             string tag = defeated.Contains(s.Id) ? " [CLEARED]" : " [SEALED]";
@@ -148,8 +148,8 @@ internal static class CastleDialogueScripts
         {
             return new("Rune of Circulating Paths", $"Sajah Summit · Cycle {cycleRank}", new[]
             {
-                "A radiant violet crystal floats above the Sanctum altar, humming with the power of the cut Sajah spire.",
-                "\"You who have walked the six halls and gathered the eight crimson orbs... Do you seek a new path? Embrace the Cycle to permanently empower your army (+5% Party DMG & +15% Potch per Cycle, +100,000 Potch, +25 Commendations).\""
+                "A radiant violet crystal floats above the Sanctum altar, inspired by the legends of Sajah's sealed spire.",
+                "\"You who have endured the six stages and gathered the eight crimson orbs... Do you seek a new path? Embrace the Cycle to permanently empower your army (+5% Party DMG & +15% Potch per Cycle, +100,000 Potch, +25 Commendations).\""
             }, new[]
             {
                 new DialogueChoiceSpec("Embrace the New Cycle (Cycle +1 Blessing)", "sajah-cycle-yes"),

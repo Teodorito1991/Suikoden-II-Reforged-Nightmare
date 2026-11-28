@@ -53,6 +53,7 @@
     <Compile Include="../src/NightmareRebalance/Guild/CastleDialogue.cs" Link="CastleDialogue.cs" />
     <Compile Include="../src/NightmareRebalance/Hall/SuperbossRules.cs" Link="SuperbossRules.cs" />
     <Compile Include="../src/NightmareRebalance/Hall/CirculatingPathsRules.cs" Link="CirculatingPathsRules.cs" />
+    <Compile Include="../src/NightmareRebalance/Hall/OptionalEncounterLease.cs" Link="OptionalEncounterLease.cs" />
     <EmbeddedResource Include="../src/NightmareRebalance/Content/*.json" LogicalName="ReforgedContent.%(Filename)%(Extension)" />
     <EmbeddedResource Include="../archive/embedded-arena-v0.5/last-bridge.json" LogicalName="ReforgedContent.last-bridge.json" />
   </ItemGroup>

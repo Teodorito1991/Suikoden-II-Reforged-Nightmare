@@ -5,8 +5,9 @@ namespace NightmareRebalance;
 // active Spire Blessings, unique Stairwell Guardian combat mechanics, and the Rune of Circulating Paths summit.
 internal static class CirculatingPathsRuntime
 {
+    static OptionalEncounterLease? activeLease;
     internal static bool RunActive { get; private set; }
-    internal static bool BattleInProgress { get; private set; }
+    internal static bool BattleInProgress => activeLease is { BattleActive: true };
     internal static int CurrentFloor { get; private set; } = 1;
     internal static int RedOrbsCollected { get; private set; }
     internal static bool AlcoveSearchedThisFloor { get; private set; }
@@ -241,11 +242,12 @@ internal static class CirculatingPathsRuntime
             feedback = $"The Sanctum Door requires all {CirculatingPathsRules.TotalRedOrbs} Red Orbs (you have {RedOrbsCollected}).";
             return false;
         }
-        BattleInProgress = true;
         GuardianPhase2Triggered = false;
-        if (!HallFirstContact.RequestSuperboss(spec.ToGuardianTrial()))
+        var lease = new OptionalEncounterLease(OptionalEncounterKind.CirculatingPaths, "sajah-f" + CurrentFloor);
+        activeLease = lease;
+        if (!HallFirstContact.RequestSuperboss(spec.ToGuardianTrial(), lease))
         {
-            BattleInProgress = false;
+            activeLease = null;
             feedback = $"{spec.GuardianName} could not be engaged right now.";
             return false;
         }
@@ -298,34 +300,46 @@ internal static class CirculatingPathsRuntime
         Reforged2Runtime.FlashBanner($"🏛 SAJAH FLOOR {CurrentFloor}/6: {spec.GuardianName} [{spec.GuardianMechanicName}]!", 4200, "gold");
     }
 
-    internal static void OnHallBattleFinished(bool won)
+    internal static void OnLeaseCancelled(long token)
     {
-        if (!BattleInProgress) return;
-        BattleInProgress = false;
+        if (activeLease?.Token != token) return;
+        activeLease = null;
+        GuardianPhase2Triggered = false;
+    }
+
+    internal static void OnAuthoritativeNonVictory(long token)
+    {
+        if (activeLease?.Token != token) return;
+        activeLease = null;
         GuardianPhase2Triggered = false;
         var spec = CirculatingPathsRules.Floor(CurrentFloor);
-        if (!won)
-        {
-            CastleGuildRuntime.TrainingFeedback($"Forced back on {spec.Name}. Your Red Orbs ({RedOrbsCollected}/{CirculatingPathsRules.TotalRedOrbs}) & Spire Blessings remain intact!");
-            return;
-        }
+        CastleGuildRuntime.TrainingFeedback($"Forced back on {spec.Name}. Your Red Orbs ({RedOrbsCollected}/{CirculatingPathsRules.TotalRedOrbs}) & Spire Blessings remain intact!");
+    }
+
+    internal static void OnAuthoritativeVictory(long token)
+    {
+        if (activeLease?.Token != token) return;
+        activeLease = null;
+        GuardianPhase2Triggered = false;
+        var spec = CirculatingPathsRules.Floor(CurrentFloor);
         GuardianDefeatedThisFloor = true;
         WalkableDungeonRuntime.RefreshActorVisibility();
         if (CurrentFloor >= CirculatingPathsRules.TotalFloors)
         {
             SummitCrystalReady = true;
-            CastleGuildRuntime.TrainingFeedback($"★ {spec.GuardianName} VANQUISHED! Speak with the Hooded Stranger to touch the Rune of Circulating Paths!");
+            CastleGuildRuntime.TrainingFeedback($"★ {spec.GuardianName} VANQUISHED! Approach the Violet Crystal (or Hooded Stranger) for the Rune of Circulating Paths!");
         }
         else
         {
-            CastleGuildRuntime.TrainingFeedback($"★ {spec.GuardianName} defeated! Speak with the Hooded Stranger to ascend to Floor {CurrentFloor + 1}/6.");
+            CastleGuildRuntime.TrainingFeedback($"★ {spec.GuardianName} defeated! Ascend to Floor {CurrentFloor + 1}/6.");
         }
     }
 
     internal static void ResetRun()
     {
         RunActive = false;
-        BattleInProgress = false;
+        activeLease?.CancelOrTeardown();
+        activeLease = null;
         CurrentFloor = 1;
         RedOrbsCollected = 0;
         AlcoveSearchedThisFloor = false;
