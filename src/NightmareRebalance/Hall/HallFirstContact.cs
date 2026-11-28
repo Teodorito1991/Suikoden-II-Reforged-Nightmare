@@ -38,26 +38,50 @@ internal static class HallFirstContact
             ? definition != null
             : (selection >= 0 && selection < HallTrialCatalogue.Entries.Length &&
                HallAvailability.CanSelect(selection) && (!nightmare || HallNightmareRuntime.CanSelect(selection)));
+
+        MACHICON? field = CastleGuildRuntime.Owner;
+        EVENTCON? events = CastleGuildRuntime.Field;
+        MACHIDAT? map = CastleGuildRuntime.Copy;
+        bool roomContext = CastleGuildRuntime.Context;
+        if (superboss && (!roomContext || field == null || events == null || map == null))
+        {
+            if (WalkableDungeonRuntime.Context && WalkableDungeonRuntime.Owner != null && WalkableDungeonRuntime.Field != null && WalkableDungeonRuntime.Copy != null)
+            {
+                field = WalkableDungeonRuntime.Owner;
+                events = WalkableDungeonRuntime.Field;
+                map = WalkableDungeonRuntime.Copy;
+                roomContext = true;
+            }
+            else if (CastleRoomNpcRuntime.Context && CastleRoomNpcRuntime.Owner != null && CastleRoomNpcRuntime.Field != null && CastleRoomNpcRuntime.Copy != null)
+            {
+                field = CastleRoomNpcRuntime.Owner;
+                events = CastleRoomNpcRuntime.Field;
+                map = CastleRoomNpcRuntime.Copy;
+                roomContext = true;
+            }
+        }
+        bool locationOk = superboss
+            ? (field != null && field._mstep == 20 && events != null && map != null)
+            : (field is { ano: 10, vno: 6, mno: 3, _mstep: 20 } && events != null && map != null && MachiLoader.GetMachiID(field.ano, field.vno) == "vk07");
+
         if (!allowedSelection ||
-            !Available || (!CastleGuildRuntime.Context&&!HallLucaSession.OwnsIdleRequest(definition)) || !Plugin.CheckCompatibility() ||
-            CastleGuildRuntime.Owner is not { ano: 10, vno: 6, mno: 3, _mstep: 20 } field ||
-            CastleGuildRuntime.Field is not {} events ||
-            CastleGuildRuntime.Copy is not {} map || MachiLoader.GetMachiID(field.ano, field.vno) != "vk07" ||
+            !Available || (!roomContext&&!HallLucaSession.OwnsIdleRequest(definition)) || !Plugin.CheckCompatibility() ||
+            !locationOk ||
             Framework.Singleton<GAME_WORK>.instance is not {} game ||
             game.sys_work is not {} sys || !DifficultyProvenance.AllowedForFeature(out _, out _) ||
-            sys.mcon?.Pointer != field.Pointer || sys.game_mode != 1 || sys.now_save != 0 ||
+            sys.mcon?.Pointer != field!.Pointer || sys.game_mode != 1 || sys.now_save != 0 ||
             HuntAccess.Ticket.Armed || HuntLaunchProof.PendingWalkingRequest || TrainingWar.Active)
         {
             var live=Framework.Singleton<GAME_WORK>.instance;
             Plugin.Logger.LogWarning("HallFirstContact: request admission refused: "+System.Text.Json.JsonSerializer.Serialize(new {
                 Definition=definition?.Id,Selection=selection,Configured=superboss||HallAvailability.CanSelect(selection),
                 Available,EnabledAtStartup,Faulted=faulted,TrialPresent=trial!=null,Driver=HallFirstContactDriver.Instance!=null,
-                ModalContext=CastleGuildRuntime.Context,GauntletContext=HallLucaSession.OwnsIdleRequest(definition),
+                ModalContext=roomContext,GauntletContext=HallLucaSession.OwnsIdleRequest(definition),
                 Idle=CastleGuildRuntime.Idle,Near=CastleGuildRuntime.Near,Modal=CastleGuildRuntime.Modal,
-                RenderFault=HuntGuildRuntime.RenderFaulted,MapStep=CastleGuildRuntime.Owner?._mstep,
-                EventStep=CastleGuildRuntime.Field?.mstep,Area=CastleGuildRuntime.Owner?.ano,Town=CastleGuildRuntime.Owner?.vno,Variant=CastleGuildRuntime.Owner?.mno,
-                CopyPresent=CastleGuildRuntime.Copy!=null,EventsPresent=CastleGuildRuntime.Field!=null,
-                SystemOwner=live?.sys_work?.mcon?.Pointer==CastleGuildRuntime.Owner?.Pointer,
+                RenderFault=HuntGuildRuntime.RenderFaulted,MapStep=field?._mstep,
+                EventStep=events?.mstep,Area=field?.ano,Town=field?.vno,Variant=field?.mno,
+                CopyPresent=map!=null,EventsPresent=events!=null,
+                SystemOwner=live?.sys_work?.mcon?.Pointer==field?.Pointer,
                 Mode=live?.sys_work?.game_mode,Difficulty=live?.game_data?.difficulty,NowSave=live?.sys_work?.now_save,
                 HuntArmed=HuntAccess.Ticket.Armed,PendingWalking=HuntLaunchProof.PendingWalkingRequest,Training=TrainingWar.Active,
                 Gauntlet=HallLucaSession.AdmissionStatus
@@ -65,7 +89,7 @@ internal static class HallFirstContact
             return false;
         }
 
-        trial = new Trial(definition!, nightmare, superboss, game, sys, field, events, map);
+        trial = new Trial(definition!, nightmare, superboss, game, sys, field!, events!, map!);
         Plugin.Logger.LogInfo($"HallFirstContact: Guild confirmed {trial.Definition.Name}.");
         return true;
     }
@@ -143,9 +167,11 @@ internal static class HallFirstContact
         Framework.Singleton<GAME_WORK>.instance?.Pointer == t.Game.Pointer &&
         t.Game.party_data?.Pointer == t.Party && t.Game.sys_work?.Pointer == t.Sys.Pointer;
 
-    static bool SafeField(Trial t) => SameCampaign(t) && CastleGuildRuntime.Idle &&
-        CastleGuildRuntime.Near && CastleGuildRuntime.Owner?.Pointer == t.Field.Pointer &&
-        CastleGuildRuntime.Field?.Pointer == t.Events.Pointer && t.Field._mstep == 20 &&
+    static bool SafeField(Trial t) => SameCampaign(t) &&
+        (t.IsSuperboss
+            ? (t.Field._mstep == 20 && t.Sys.mcon?.Pointer == t.Field.Pointer)
+            : (CastleGuildRuntime.Idle && CastleGuildRuntime.Near && CastleGuildRuntime.Owner?.Pointer == t.Field.Pointer &&
+               CastleGuildRuntime.Field?.Pointer == t.Events.Pointer && t.Field._mstep == 20)) &&
         t.Field.econ?.Pointer == t.Events.Pointer && t.Events.mdat?.Pointer == t.Map.Pointer &&
         t.Field.mdat?.Pointer == t.Map.Pointer && t.Sys.game_mode == 1 &&
         t.Sys.now_save == 0 && t.Sys.filter_timer == 0 && t.Sys.battle_data == null &&
@@ -244,8 +270,8 @@ internal static class HallFirstContact
         {
             if (!t.Committed)
             {
-                t.Abort |= !SafeField(t) || !HallAvailability.CanSelect(
-                    Array.FindIndex(HallTrialCatalogue.Entries,d=>d.Id==(HallLucaSession.IsStage(t.Definition.Id)?"luca-gauntlet":t.Definition.Id)));
+                t.Abort |= !SafeField(t) || (!t.IsSuperboss && !HallAvailability.CanSelect(
+                    Array.FindIndex(HallTrialCatalogue.Entries,d=>d.Id==(HallLucaSession.IsStage(t.Definition.Id)?"luca-gauntlet":t.Definition.Id))));
                 if (!t.Handle.IsDone) return;
                 if (t.Abort && !t.SourcePrepared) { Finish(t); return; }
                 if (t.Handle.Status != AsyncOperationStatus.Succeeded)
@@ -262,7 +288,10 @@ internal static class HallFirstContact
                     if (!StepScene(t)) return;
                 }
                 if (t.Abort) { Finish(t); return; }
-                if (!CastleGuildRuntime.Modal && !CastleGuildRuntime.ReleaseFence) RequestNative(t);
+                bool modalFree = t.IsSuperboss
+                    ? (!CastleGuildRuntime.Modal && !CastleGuildRuntime.ReleaseFence && !WalkableDungeonRuntime.Modal && !CastleRoomNpcRuntime.Modal)
+                    : (!CastleGuildRuntime.Modal && !CastleGuildRuntime.ReleaseFence);
+                if (modalFree) RequestNative(t);
                 return;
             }
 

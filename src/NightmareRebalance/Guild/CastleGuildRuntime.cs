@@ -33,16 +33,37 @@ internal static class CastleGuildRuntime
  internal static MemoryInfo.MemoryData? FindRuntimeInfo(MACHICON m,IEnumerable<MemoryInfo.MemoryData?> candidates){var matches=candidates.Where(x=>RuntimeMatches(m,x)).ToArray();return matches.Length==1?matches[0]:null;}
  internal static MACHIDAT PrepareRuntime(MACHICON m,MemoryInfo.MemoryData? info)=>PrepareCore(m.mdat,m.mno,RuntimeMatches(m,info));
  internal static MACHIDAT Prepare(MACHIDAT source,int index)=>PrepareCore(source,index,Matches(source));
- static ushort PickAuditedSprite(MACHIDAT source, ushort preferred)
+ static ushort PickStandingGenericSprite(MACHIDAT source, ushort fallback, HashSet<ushort>? exclude = null)
  {
   if(source.epersondat!=null)
+  {
    for(int i=0;i<source.epersondat.Length;i++)
    {
     var p=source.epersondat[i];
-    if(p!=null&&p.fp_no==preferred&&p.hito_opd_table!=null&&p.hito_opd_table.anime_kazu>=4&&p.hito_opd_table.pattern_kazu>=12)
-     return preferred;
+    if(p?.hito_opd_table is not {} opd)continue;
+    if(exclude!=null&&exclude.Contains(p.fp_no))continue;
+    // STRICT standing generic town/castle NPC filter:
+    // path == "person", exactly 4 directions x 12 walking frames, and generic v* town sprite ID.
+    // Never picks main-hero cutscene poses (like dead Riou or half Shu)!
+    if(opd.path=="person"&&opd.anime_kazu==4&&opd.pattern_kazu==12&&
+       !string.IsNullOrEmpty(opd.id)&&opd.id.StartsWith("v",StringComparison.OrdinalIgnoreCase))
+     return p.fp_no;
    }
-  return (ushort)Audit.Sprite;
+  }
+  return fallback;
+ }
+ static bool loggedVk07Sprites;
+ static void LogRoomSpritesOnce(MACHIDAT source, string mapId)
+ {
+  if(loggedVk07Sprites||source.epersondat==null)return;
+  loggedVk07Sprites=true;
+  var list=new List<string>();
+  for(int i=0;i<source.epersondat.Length;i++)
+  {
+   var p=source.epersondat[i];
+   if(p?.hito_opd_table is {} o)list.Add($"{p.fp_no}:{o.id}({o.path},{o.anime_kazu}x{o.pattern_kazu})");
+  }
+  Plugin.Logger.LogInfo($"Room {mapId} sprites: "+string.Join(", ",list));
  }
  static void PlayGuildAudio(int id)
  {
@@ -70,33 +91,31 @@ internal static class CastleGuildRuntime
   var copy=UnityEngine.Object.Instantiate(source);copy.name=source.name;
   SergeantIndex=-1;ArchivistIndex=-1;QuartermasterIndex=-1;TowerKeeperIndex=-1;FieldScoutIndex=-1;WarChroniclerIndex=-1;SuperbossSeerIndex=-1;
   bool expanded=Plugin.Options?.EnableExpandedCastleNpcs.Value==true;
+  LogRoomSpritesOnce(source, Audit.MapId);
   try{
    var events=new EVENTDAT();events.sce_msg=source.eventdata.sce_msg;events.mapeventdat=new Il2CppSystem.Collections.Generic.List<MAPEVDAT>();
    for(int i=0;i<source.eventdata.mapeventdat.Count;i++){
     var old=source.eventdata.mapeventdat[i];bool add=i==index;
     var placed=new List<(int X,int Y)>();
     if(add)placed.Add((Audit.ObjectX,Audit.ObjectY));
-    var sgPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(-2,0),(-3,0),(-2,3)}):null;
-    var arPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(2,0),(3,0),(2,3)}):null;
-    var qmPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(-4,0),(-5,0),(-4,3),(-2,4)}):null;
-    var tkPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(4,0),(5,0),(4,3),(2,4)}):null;
-    var fsPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(-6,0),(-3,4),(0,4),(-6,3)}):null;
-    var wcPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(6,0),(3,4),(5,4),(6,3)}):null;
-    var sbPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(0,3),(0,4),(-8,0),(8,0),(-4,4),(4,4)}):null;
-    int extra=(add?1:0)+(sgPos!=null?1:0)+(arPos!=null?1:0)+(qmPos!=null?1:0)+(tkPos!=null?1:0)+(fsPos!=null?1:0)+(wcPos!=null?1:0)+(sbPos!=null?1:0);
+    // Keep vk07 uncluttered & authentic: ONLY Guild Attendant (29,28) + Hooded Stranger (33,28).
+    // All other specialist NPCs (Lyra, Kaelen, Orin, Sergeant, Quartermaster, Archivist) are spread
+    // across their own Castle rooms via CastleRoomNpcRuntime!
+    var sbPos=add&&expanded?FindClearSlot(old.eventobj,placed,new[]{(4,0),(5,0),(3,0),(-4,0)}):null;
+    int extra=(add?1:0)+(sbPos!=null?1:0);
     var map=new MAPEVDAT{mapno=old.mapno,batlno=old.batlno,batltim=old.batltim,batlpro=old.batlpro,mapst=old.mapst,okaz=checked((byte)(old.okaz+extra)),evkaz=old.evkaz,hkaz=old.hkaz};
     var objects=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_OBJ>(old.eventobj.Length+extra);
     for(int j=0;j<old.eventobj.Length;j++){var o=old.eventobj[j];objects[j]=new EVENT_OBJ{otyp=o.otyp,disp=o.disp,spd=o.spd,wt=o.wt,ano=o.ano,ityp=o.ityp,fpno=o.fpno,ozok=o.ozok,pri=o.pri,x=o.x,y=o.y,w=o.w,h=o.h};}
     int slot=old.eventobj.Length;
     if(add)objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=(ushort)Audit.Sprite,ozok=0,pri=0,x=Audit.ObjectX,y=Audit.ObjectY,w=0,h=0};
-    if(sgPos is {} sg){SergeantIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65059),ozok=0,pri=0,x=sg.X,y=sg.Y,w=0,h=0};}
-    if(arPos is {} ar){ArchivistIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65086),ozok=0,pri=0,x=ar.X,y=ar.Y,w=0,h=0};}
-    if(qmPos is {} qm){QuartermasterIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65074),ozok=0,pri=0,x=qm.X,y=qm.Y,w=0,h=0};}
-    if(tkPos is {} tk){TowerKeeperIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,65153),ozok=0,pri=0,x=tk.X,y=tk.Y,w=0,h=0};}
-    if(fsPos is {} fs){FieldScoutIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,42241),ozok=0,pri=0,x=fs.X,y=fs.Y,w=0,h=0};}
-    if(wcPos is {} wc){WarChroniclerIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,33109),ozok=0,pri=0,x=wc.X,y=wc.Y,w=0,h=0};}
-    if(sbPos is {} sb){SuperbossSeerIndex=slot;objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=PickAuditedSprite(source,53337),ozok=0,pri=0,x=sb.X,y=sb.Y,w=0,h=0};}
-    if(add)Plugin.Logger.LogInfo($"Castle Hub NPCs placed ({extra} total): Attendant=({Audit.ObjectX},{Audit.ObjectY}), Sergeant={sgPos}, Archivist={arPos}, Quartermaster={qmPos}, Kaelen={tkPos}, Lyra={fsPos}, Orin={wcPos}, HoodedStranger={sbPos}.");
+    if(sbPos is {} sb)
+    {
+     var used=new HashSet<ushort>{(ushort)Audit.Sprite};
+     ushort sbSprite=PickStandingGenericSprite(source,(ushort)Audit.Sprite,used);
+     SuperbossSeerIndex=slot;
+     objects[slot++]=new EVENT_OBJ{otyp=1,disp=1,spd=4,wt=255,ano=0,ityp=0,fpno=sbSprite,ozok=0,pri=0,x=sb.X,y=sb.Y,w=0,h=0};
+    }
+    if(add)Plugin.Logger.LogInfo($"Castle vk07 NPCs placed ({extra} total): Attendant=({Audit.ObjectX},{Audit.ObjectY}), HoodedStranger={sbPos} (specialists spread across other Castle rooms).");
     var scripts=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<EVENT_WK>(old.eventdat.Length);for(int j=0;j<old.eventdat.Length;j++){var e=old.eventdat[j];scripts[j]=new EVENT_WK{etyp=e.etyp,eventForm=e.eventForm.ToArray(),eventCom=e.eventCom.ToArray()};}
     map.eventobj=objects;map.eventdat=scripts;events.mapeventdat.Add(map);
    }
@@ -249,37 +268,12 @@ internal static class CastleGuildRuntime
   bool decide=Press(GRInputManager.Type.Decide),cancel=Press(GRInputManager.Type.Cancel);
   if(ReleaseFence){if(++releaseFrames>120||(!Held(GRInputManager.Type.Decide)&&!Held(GRInputManager.Type.Cancel))){ReleaseFence=false;return true;}e.EventPlayerDisp(false);return false;}
   if(!Modal)return true;
-  if(Dialogue.Active)
-  {
-   bool dUp=repeatUp.Step(Press(GRInputManager.Type.Up),Held(GRInputManager.Type.Up));
-   bool dDown=repeatDown.Step(Press(GRInputManager.Type.Down),Held(GRInputManager.Type.Down));
-   Dialogue.Move(dUp,dDown);
-   if(cancel){PlayGuildAudio(Plugin.Options.GuildAudioCancelId.Value);Dialogue.Close();Close(true);e.EventPlayerDisp(false);return false;}
-   string? act=Dialogue.StepConfirm(decide,Held(GRInputManager.Type.Decide));
-   if(act!=null)
+   if(Dialogue.Active)
    {
-    PlayGuildAudio(Plugin.Options.GuildAudioConfirmId.Value);
-    if(act=="close"){Dialogue.Close();Close(true);}
-    else if(act.StartsWith("lore-"))Dialogue.Open(CastleDialogueScripts.LoreScript(act));
-    else if(act=="export-chronicle"){Dialogue.Close();Close(true);TrainingFeedback(ArmyProgressionRuntime.ExportChronicle());}
-    else if(act=="open-tower"){Dialogue.Close();Menu.OpenDirect(GuildPage.TowerOfDunan,HuntRuntime.BrowseOrder.Length);HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;}
-    else if(act=="open-talents"){Dialogue.Close();Menu.OpenDirect(GuildPage.PartyTalents,HuntRuntime.BrowseOrder.Length);HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;}
-    else if(act=="open-warsquads"){Dialogue.Close();Menu.OpenDirect(GuildPage.WarSquads,HuntRuntime.BrowseOrder.Length);HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;}
-    else if(act=="back-superboss"){Dialogue.Open(CastleDialogueScripts.Build(CastleNpcRole.SuperbossSeer,ArmyProgressionRuntime.Current,TowerOfDunanRuntime.PendingRelicDraft,TowerOfDunanRuntime.FloorsCleared));}
-    else if(act.StartsWith("confirm-superboss:")){Dialogue.Open(CastleDialogueScripts.SuperbossConfirmScript(act["confirm-superboss:".Length..],ArmyProgressionRuntime.Current));}
-    else if(act.StartsWith("launch-superboss:")){string sid=act["launch-superboss:".Length..];bool ok=SuperbossRuntime.Launch(sid,out string msg);Dialogue.Close();Close(true);TrainingFeedback(msg);}
-    else if(act=="open-sajah"){CirculatingPathsRuntime.EnterOrResume();Dialogue.Open(CastleDialogueScripts.CirculatingPathsScript(CirculatingPathsRuntime.CurrentFloor,CirculatingPathsRuntime.RedOrbsCollected,CirculatingPathsRuntime.AlcoveSearchedThisFloor,CirculatingPathsRuntime.ShrineVisitedThisFloor,CirculatingPathsRuntime.GuardianDefeatedThisFloor,CirculatingPathsRuntime.SummitCrystalReady,CirculatingPathsRuntime.CycleRank));}
-    else if(act=="sajah-puzzle"){Dialogue.Open(CastleDialogueScripts.CirculatingPuzzleScript(CirculatingPathsRuntime.CurrentFloor));}
-    else if(act=="sajah-puzzle-safe"||act=="sajah-puzzle-risky"){string note=CirculatingPathsRuntime.ResolvePuzzle(act=="sajah-puzzle-safe");Dialogue.Open(CastleDialogueScripts.CirculatingPathsScript(CirculatingPathsRuntime.CurrentFloor,CirculatingPathsRuntime.RedOrbsCollected,CirculatingPathsRuntime.AlcoveSearchedThisFloor,CirculatingPathsRuntime.ShrineVisitedThisFloor,CirculatingPathsRuntime.GuardianDefeatedThisFloor,CirculatingPathsRuntime.SummitCrystalReady,CirculatingPathsRuntime.CycleRank,note));}
-    else if(act=="sajah-shrine"){string note=CirculatingPathsRuntime.ActivateFloorShrine();Dialogue.Open(CastleDialogueScripts.CirculatingPathsScript(CirculatingPathsRuntime.CurrentFloor,CirculatingPathsRuntime.RedOrbsCollected,CirculatingPathsRuntime.AlcoveSearchedThisFloor,CirculatingPathsRuntime.ShrineVisitedThisFloor,CirculatingPathsRuntime.GuardianDefeatedThisFloor,CirculatingPathsRuntime.SummitCrystalReady,CirculatingPathsRuntime.CycleRank,note));}
-    else if(act=="sajah-lore"){string lore=CirculatingPathsRules.Floor(CirculatingPathsRuntime.CurrentFloor).InscriptionLore;Dialogue.Open(CastleDialogueScripts.CirculatingPathsScript(CirculatingPathsRuntime.CurrentFloor,CirculatingPathsRuntime.RedOrbsCollected,CirculatingPathsRuntime.AlcoveSearchedThisFloor,CirculatingPathsRuntime.ShrineVisitedThisFloor,CirculatingPathsRuntime.GuardianDefeatedThisFloor,CirculatingPathsRuntime.SummitCrystalReady,CirculatingPathsRuntime.CycleRank,lore));}
-    else if(act=="sajah-ascend"){string note=CirculatingPathsRuntime.AscendToNextFloor();Dialogue.Open(CastleDialogueScripts.CirculatingPathsScript(CirculatingPathsRuntime.CurrentFloor,CirculatingPathsRuntime.RedOrbsCollected,CirculatingPathsRuntime.AlcoveSearchedThisFloor,CirculatingPathsRuntime.ShrineVisitedThisFloor,CirculatingPathsRuntime.GuardianDefeatedThisFloor,CirculatingPathsRuntime.SummitCrystalReady,CirculatingPathsRuntime.CycleRank,note));}
-    else if(act=="sajah-guardian"){CirculatingPathsRuntime.LaunchFloorGuardian(out string msg);Dialogue.Close();Close(true);TrainingFeedback(msg);}
-    else if(act=="sajah-cycle-yes"){string msg=CirculatingPathsRuntime.ClaimCycleBlessing(true);Dialogue.Close();Close(true);TrainingFeedback(msg);}
-    else if(act=="sajah-cycle-vault"){string msg=CirculatingPathsRuntime.ClaimCycleBlessing(false);Dialogue.Close();Close(true);TrainingFeedback(msg);}
+    bool handled=TickSharedDialogue(e);
+    if(!Dialogue.Active&&!HuntGuildRuntime.Visible)Close(true);
+    return handled;
    }
-   e.EventPlayerDisp(false);return false;
-  }
   if(!HuntGuildRuntime.Visible||HuntGuildRuntime.RenderFaulted){Close(false);return true;}
   if(!HuntGuildRuntime.RenderReady)return true;
   bool moveUp=repeatUp.Step(Press(GRInputManager.Type.Up),Held(GRInputManager.Type.Up));
@@ -426,6 +420,48 @@ internal static class CastleGuildRuntime
   Status=msg;
   return false;
  }
+ internal static bool TickSharedDialogue(EVENTCON e)
+ {
+  bool decide=Press(GRInputManager.Type.Decide),cancel=Press(GRInputManager.Type.Cancel);
+  bool dUp=repeatUp.Step(Press(GRInputManager.Type.Up),Held(GRInputManager.Type.Up));
+  bool dDown=repeatDown.Step(Press(GRInputManager.Type.Down),Held(GRInputManager.Type.Down));
+  Dialogue.Move(dUp,dDown);
+  if(cancel){PlayGuildAudio(Plugin.Options.GuildAudioCancelId.Value);Dialogue.Close();e.EventPlayerDisp(false);return false;}
+  string? act=Dialogue.StepConfirm(decide,Held(GRInputManager.Type.Decide));
+  if(act!=null)
+  {
+   PlayGuildAudio(Plugin.Options.GuildAudioConfirmId.Value);
+   if(act=="close"){Dialogue.Close();}
+   else if(act.StartsWith("lore-"))Dialogue.Open(CastleDialogueScripts.LoreScript(act));
+   else if(act=="export-chronicle"){Dialogue.Close();TrainingFeedback(ArmyProgressionRuntime.ExportChronicle());}
+   else if(act=="open-tower"){Dialogue.Close();Menu.OpenDirect(GuildPage.TowerOfDunan,HuntRuntime.BrowseOrder.Length);HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;}
+   else if(act=="open-talents"){Dialogue.Close();Menu.OpenDirect(GuildPage.PartyTalents,HuntRuntime.BrowseOrder.Length);HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;}
+   else if(act=="open-warsquads"){Dialogue.Close();Menu.OpenDirect(GuildPage.WarSquads,HuntRuntime.BrowseOrder.Length);HuntGuildRuntime.Visible=true;HuntGuildRuntime.LastRenderFrame=-1;}
+   else if(act=="back-superboss"){Dialogue.Open(CastleDialogueScripts.Build(CastleNpcRole.SuperbossSeer,ArmyProgressionRuntime.Current,TowerOfDunanRuntime.PendingRelicDraft,TowerOfDunanRuntime.FloorsCleared));}
+   else if(act.StartsWith("confirm-superboss:")){Dialogue.Open(CastleDialogueScripts.SuperbossConfirmScript(act["confirm-superboss:".Length..],ArmyProgressionRuntime.Current));}
+   else if(act.StartsWith("launch-superboss:")){string sid=act["launch-superboss:".Length..];SuperbossRuntime.Launch(sid,out string msg);Dialogue.Close();TrainingFeedback(msg);}
+   else if(act=="warp-sajah"){WalkableDungeonRuntime.WarpIntoSindarDungeon(out string msg);Dialogue.Close();TrainingFeedback(msg);}
+   else if(act=="sajah-return-castle"){WalkableDungeonRuntime.WarpBackToCastle(out string msg);Dialogue.Close();TrainingFeedback(msg);}
+   else if(act=="sajah-walk-shrine"){string note=CirculatingPathsRuntime.ActivateFloorShrine();Dialogue.Close();WalkableDungeonRuntime.RefreshActorVisibility();TrainingFeedback(note);}
+   else if(act=="sajah-walk-ascend"){string note=CirculatingPathsRuntime.AscendToNextFloor();Dialogue.Close();WalkableDungeonRuntime.RefreshActorVisibility();TrainingFeedback(note);}
+   else if(act=="sajah-walk-lore"){string lore=CirculatingPathsRules.Floor(CirculatingPathsRuntime.CurrentFloor).InscriptionLore;Dialogue.Open(new("Ancient Sindar Inscription",$"Sindar Ruins · Floor {CirculatingPathsRuntime.CurrentFloor}/6",new[]{lore},new[]{new DialogueChoiceSpec("Close","close")}));}
+   else if(act=="open-sajah"){CirculatingPathsRuntime.EnterOrResume();Dialogue.Open(CastleDialogueScripts.CirculatingPathsScript(CirculatingPathsRuntime.CurrentFloor,CirculatingPathsRuntime.RedOrbsCollected,CirculatingPathsRuntime.AlcoveSearchedThisFloor,CirculatingPathsRuntime.ShrineVisitedThisFloor,CirculatingPathsRuntime.GuardianDefeatedThisFloor,CirculatingPathsRuntime.SummitCrystalReady,CirculatingPathsRuntime.CycleRank));}
+   else if(act=="sajah-puzzle"){Dialogue.Open(CastleDialogueScripts.CirculatingPuzzleScript(CirculatingPathsRuntime.CurrentFloor));}
+   else if(act=="sajah-puzzle-safe"||act=="sajah-puzzle-risky")
+   {
+    string note=CirculatingPathsRuntime.ResolvePuzzle(act=="sajah-puzzle-safe");
+    if(WalkableDungeonRuntime.InDungeon){Dialogue.Close();WalkableDungeonRuntime.RefreshActorVisibility();TrainingFeedback(note);}
+    else Dialogue.Open(CastleDialogueScripts.CirculatingPathsScript(CirculatingPathsRuntime.CurrentFloor,CirculatingPathsRuntime.RedOrbsCollected,CirculatingPathsRuntime.AlcoveSearchedThisFloor,CirculatingPathsRuntime.ShrineVisitedThisFloor,CirculatingPathsRuntime.GuardianDefeatedThisFloor,CirculatingPathsRuntime.SummitCrystalReady,CirculatingPathsRuntime.CycleRank,note));
+   }
+   else if(act=="sajah-shrine"){string note=CirculatingPathsRuntime.ActivateFloorShrine();Dialogue.Open(CastleDialogueScripts.CirculatingPathsScript(CirculatingPathsRuntime.CurrentFloor,CirculatingPathsRuntime.RedOrbsCollected,CirculatingPathsRuntime.AlcoveSearchedThisFloor,CirculatingPathsRuntime.ShrineVisitedThisFloor,CirculatingPathsRuntime.GuardianDefeatedThisFloor,CirculatingPathsRuntime.SummitCrystalReady,CirculatingPathsRuntime.CycleRank,note));}
+   else if(act=="sajah-lore"){string lore=CirculatingPathsRules.Floor(CirculatingPathsRuntime.CurrentFloor).InscriptionLore;Dialogue.Open(CastleDialogueScripts.CirculatingPathsScript(CirculatingPathsRuntime.CurrentFloor,CirculatingPathsRuntime.RedOrbsCollected,CirculatingPathsRuntime.AlcoveSearchedThisFloor,CirculatingPathsRuntime.ShrineVisitedThisFloor,CirculatingPathsRuntime.GuardianDefeatedThisFloor,CirculatingPathsRuntime.SummitCrystalReady,CirculatingPathsRuntime.CycleRank,lore));}
+   else if(act=="sajah-ascend"){string note=CirculatingPathsRuntime.AscendToNextFloor();Dialogue.Open(CastleDialogueScripts.CirculatingPathsScript(CirculatingPathsRuntime.CurrentFloor,CirculatingPathsRuntime.RedOrbsCollected,CirculatingPathsRuntime.AlcoveSearchedThisFloor,CirculatingPathsRuntime.ShrineVisitedThisFloor,CirculatingPathsRuntime.GuardianDefeatedThisFloor,CirculatingPathsRuntime.SummitCrystalReady,CirculatingPathsRuntime.CycleRank,note));}
+   else if(act=="sajah-guardian"){CirculatingPathsRuntime.LaunchFloorGuardian(out string msg);Dialogue.Close();TrainingFeedback(msg);}
+   else if(act=="sajah-cycle-yes"){string msg=CirculatingPathsRuntime.ClaimCycleBlessing(true);Dialogue.Close();TrainingFeedback(msg);if(WalkableDungeonRuntime.InDungeon)WalkableDungeonRuntime.WarpBackToCastle(out _);}
+   else if(act=="sajah-cycle-vault"){string msg=CirculatingPathsRuntime.ClaimCycleBlessing(false);Dialogue.Close();TrainingFeedback(msg);if(WalkableDungeonRuntime.InDungeon)WalkableDungeonRuntime.WarpBackToCastle(out _);}
+  }
+  e.EventPlayerDisp(false);return false;
+ }
  internal static void Close(bool fence){Dialogue.Close();repeatUp.Reset();repeatDown.Reset();if(HallLucaSession.Selecting)HallLucaSession.Cancel();if(Modal){Closes++;HuntGuildRuntime.Visible=false;HuntGuildRuntime.LastRenderFrame=-1;}Modal=false;ReleaseFence=fence;releaseFrames=0;}
  internal static void Detach(){Close(false);if(Owner!=null&&Copy!=null&&Owner.mdat?.Pointer==Copy.Pointer)Owner.mdat=Source;if(Copy!=null)UnityEngine.Object.Destroy(Copy);Owner=null;Source=null;Copy=null;Field=null;Clerk=null;DrillSergeant=null;EchoArchivist=null;Quartermaster=null;TowerKeeper=null;FieldScout=null;WarChronicler=null;SuperbossSeer=null;ActiveNpc=CastleNpcRole.GuildAttendant;Party=IntPtr.Zero;ObjectIndex=-1;SergeantIndex=-1;ArchivistIndex=-1;QuartermasterIndex=-1;TowerKeeperIndex=-1;FieldScoutIndex=-1;WarChroniclerIndex=-1;SuperbossSeerIndex=-1;}
  internal static string FeedbackText="";static long feedbackUntil;
@@ -537,28 +573,55 @@ internal static class CastleGuildRuntime
 [HarmonyPatch(typeof(MACHICON),nameof(MACHICON.EventInit))]
 internal static class CastleGuildInit
 {
- [HarmonyPrefix]static void Prefix(MACHICON __instance){try{CastleGuildRuntime.BeforeInit(__instance);}catch(Exception e){CastleGuildRuntime.Detach();Plugin.Logger.LogWarning("Castle Guild preparation skipped: "+e);}}
- [HarmonyPostfix]static void Postfix(MACHICON __instance,EVENTCON __result){try{CastleGuildRuntime.AfterInit(__instance,__result);}catch(Exception e){CastleGuildRuntime.Field=__result;CastleGuildRuntime.Clerk=null;CastleGuildRuntime.Close(false);Plugin.Logger.LogWarning("Castle Guild actor rejected; source clone retained until native end: "+e);}}
- [HarmonyFinalizer]static Exception? Finalizer(Exception? __exception){if(__exception!=null)CastleGuildRuntime.Detach();return __exception;}
+ [HarmonyPrefix]static void Prefix(MACHICON __instance)
+ {
+  try{CastleGuildRuntime.BeforeInit(__instance);}catch(Exception e){CastleGuildRuntime.Detach();Plugin.Logger.LogWarning("Castle Guild preparation skipped: "+e);}
+  try{CastleRoomNpcRuntime.BeforeInit(__instance);}catch(Exception e){CastleRoomNpcRuntime.Detach();Plugin.Logger.LogWarning("Castle Room NPC skipped: "+e);}
+  try{WalkableDungeonRuntime.BeforeInit(__instance);}catch(Exception e){WalkableDungeonRuntime.Detach();Plugin.Logger.LogWarning("Walkable Dungeon skipped: "+e);}
+ }
+ [HarmonyPostfix]static void Postfix(MACHICON __instance,EVENTCON __result)
+ {
+  try{CastleGuildRuntime.AfterInit(__instance,__result);}catch(Exception e){CastleGuildRuntime.Field=__result;CastleGuildRuntime.Clerk=null;CastleGuildRuntime.Close(false);Plugin.Logger.LogWarning("Castle Guild actor rejected; source clone retained until native end: "+e);}
+  try{CastleRoomNpcRuntime.AfterInit(__instance,__result);}catch(Exception e){CastleRoomNpcRuntime.Detach();Plugin.Logger.LogWarning("Castle Room NPC init skipped: "+e);}
+  try{WalkableDungeonRuntime.AfterInit(__instance,__result);}catch(Exception e){WalkableDungeonRuntime.Detach();Plugin.Logger.LogWarning("Walkable Dungeon init skipped: "+e);}
+ }
+ [HarmonyFinalizer]static Exception? Finalizer(Exception? __exception){if(__exception!=null){CastleGuildRuntime.Detach();CastleRoomNpcRuntime.Detach();WalkableDungeonRuntime.Detach();}return __exception;}
 }
 [HarmonyPatch(typeof(EVENTCON),nameof(EVENTCON.EventMain))]
 internal static class CastleGuildFieldInput
 {
- [HarmonyPrefix]static bool Prefix(EVENTCON __instance,out bool __state)
+ [HarmonyPrefix]static bool Prefix(EVENTCON __instance,out int __state)
  {
-  __state=false;
-  try{__state=CastleGuildRuntime.CanTalk(__instance);return CastleGuildRuntime.Tick(__instance);}
-  catch(Exception e){__state=false;CastleGuildRuntime.Close(false);Plugin.Logger.LogWarning("Castle Guild released field input: "+e);return true;}
+  __state=0;
+  try
+  {
+   if(CastleGuildRuntime.CanTalk(__instance))__state=1;
+   else if(CastleRoomNpcRuntime.CanTalk(__instance))__state=2;
+   else if(WalkableDungeonRuntime.CanTalk(__instance))__state=3;
+   if(!CastleGuildRuntime.Tick(__instance))return false;
+   if(!CastleRoomNpcRuntime.Tick(__instance))return false;
+   if(!WalkableDungeonRuntime.Tick(__instance))return false;
+   return true;
+  }
+  catch(Exception e){__state=0;CastleGuildRuntime.Close(false);CastleRoomNpcRuntime.Close(false);WalkableDungeonRuntime.Close(false);Plugin.Logger.LogWarning("Castle Guild released field input: "+e);return true;}
  }
- [HarmonyPostfix]static void Postfix(EVENTCON __instance,bool __state)
+ [HarmonyPostfix]static void Postfix(EVENTCON __instance,int __state)
  {
-  if(!__state)return;
-  try{CastleGuildRuntime.OpenAfterNative(__instance);}
-  catch(Exception e){CastleGuildRuntime.Close(false);Plugin.Logger.LogWarning("Castle Guild interaction skipped: "+e.Message);}
+  if(__state==1){try{CastleGuildRuntime.OpenAfterNative(__instance);}catch(Exception e){CastleGuildRuntime.Close(false);Plugin.Logger.LogWarning("Castle Guild interaction skipped: "+e.Message);}}
+  else if(__state==2){try{CastleRoomNpcRuntime.OpenAfterNative(__instance);}catch(Exception e){CastleRoomNpcRuntime.Close(false);Plugin.Logger.LogWarning("Castle Room NPC skipped: "+e.Message);}}
+  else if(__state==3){try{WalkableDungeonRuntime.OpenAfterNative(__instance);}catch(Exception e){WalkableDungeonRuntime.Close(false);Plugin.Logger.LogWarning("Walkable Dungeon interaction skipped: "+e.Message);}}
  }
 }
 [HarmonyPatch(typeof(EVENTCON),nameof(EVENTCON.EventEnd))]
-internal static class CastleGuildFieldEnd{[HarmonyPostfix]static void Postfix(EVENTCON __instance){if(CastleGuildRuntime.Field?.Pointer==__instance.Pointer)CastleGuildRuntime.Detach();}}
+internal static class CastleGuildFieldEnd
+{
+ [HarmonyPostfix]static void Postfix(EVENTCON __instance)
+ {
+  if(CastleGuildRuntime.Field?.Pointer==__instance.Pointer)CastleGuildRuntime.Detach();
+  if(CastleRoomNpcRuntime.Field?.Pointer==__instance.Pointer)CastleRoomNpcRuntime.Detach();
+  if(WalkableDungeonRuntime.Field?.Pointer==__instance.Pointer)WalkableDungeonRuntime.Detach();
+ }
+}
 
 [HarmonyPatch(typeof(GSD2SaveData),nameof(GSD2SaveData.LoadDataCore))]
 internal static class CastleGuildOriginalLoad{[HarmonyPrefix]static void Prefix(){CastleGuildRuntime.Close(false);CastleGuildRuntime.ClearContract();}}

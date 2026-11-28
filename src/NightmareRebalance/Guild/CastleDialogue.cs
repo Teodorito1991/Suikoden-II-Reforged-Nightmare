@@ -130,8 +130,8 @@ internal static class CastleDialogueScripts
         }
 
         var choices = new List<DialogueChoiceSpec>(7);
-        string sajahTag = ledger.CirculatingCycleRank > 0 ? $" [Cycle {ledger.CirculatingCycleRank}]" : " [6 Floors · 8 Orbs]";
-        choices.Add(new DialogueChoiceSpec($"Tower of Circulating Paths (Sajah Cut Dungeon){sajahTag}", "open-sajah"));
+        string sajahTag = ledger.CirculatingCycleRank > 0 ? $" [Cycle {ledger.CirculatingCycleRank}]" : " [Walkable Sindar Ruins]";
+        choices.Add(new DialogueChoiceSpec($"Enter Tower of Circulating Paths{sajahTag}", "warp-sajah"));
         foreach (var s in SuperbossRules.All)
         {
             string tag = defeated.Contains(s.Id) ? " [CLEARED]" : " [SEALED]";

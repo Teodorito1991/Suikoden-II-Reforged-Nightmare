@@ -406,7 +406,7 @@ internal static class ArmyProgressionTests
         var necSpec = SuperbossRules.Find("eternal-neclord")!;
         Check(SuperbossRules.EvaluatePhase(necSpec, 6000, 10000) == 1 && SuperbossRules.EvaluatePhase(necSpec, 4500, 10000) == 2, "Sindar 2-phase threshold (50%)");
         var strangerScript = CastleDialogueScripts.Build(CastleNpcRole.SuperbossSeer, ledger, false, 0);
-        Check(strangerScript.Speaker == "Hooded Stranger" && strangerScript.Choices.Length == 7 && strangerScript.Choices[0].ActionId == "open-sajah" && strangerScript.Choices[1].ActionId == "confirm-superboss:true-luca", "Hooded Stranger offers Sajah Cut Dungeon + all 4 Secret Superbosses + lore");
+        Check(strangerScript.Speaker == "Hooded Stranger" && strangerScript.Choices.Length == 7 && strangerScript.Choices[0].ActionId == "warp-sajah" && strangerScript.Choices[1].ActionId == "confirm-superboss:true-luca", "Hooded Stranger offers walkable Sajah Cut Dungeon + all 4 Secret Superbosses + lore");
         var confirmScript = CastleDialogueScripts.SuperbossConfirmScript("omega-beast", ledger);
         Check(confirmScript.Choices[0].ActionId == "launch-superboss:omega-beast", "Superboss seal confirmation launches exact encounter");
         foreach (var bossSpec in SuperbossRules.All) ledger.DefeatedSuperbosses.Add(bossSpec.Id);

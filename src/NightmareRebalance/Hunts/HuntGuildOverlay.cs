@@ -697,13 +697,16 @@ public sealed class HuntGuildOverlay:MonoBehaviour
   var offer=previewSmoke&&SmokeScreens[smokeScreen].FieldOffer
       ? HuntRuntime.BrowseOrder.FirstOrDefault() :fieldOffer;
   bool dialogue=!previewSmoke&&CastleGuildRuntime.Dialogue.Active;
-  bool prompt=!previewSmoke&&!dialogue&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.Idle&&CastleGuildRuntime.Near;
+  bool roomPrompt=!previewSmoke&&!dialogue&&!HuntGuildRuntime.Visible&&CastleRoomNpcRuntime.PromptVisible;
+  bool dungeonPrompt=!previewSmoke&&!dialogue&&!HuntGuildRuntime.Visible&&WalkableDungeonRuntime.PromptVisible;
+  bool dungeonHud=!previewSmoke&&!dialogue&&!HuntGuildRuntime.Visible&&WalkableDungeonRuntime.InDungeon;
+  bool prompt=!previewSmoke&&!dialogue&&!HuntGuildRuntime.Visible&&((CastleGuildRuntime.Idle&&CastleGuildRuntime.Near)||roomPrompt||dungeonPrompt);
   bool feedback=!previewSmoke&&!dialogue&&!HuntGuildRuntime.Visible&&CastleGuildRuntime.FeedbackVisible;
   bool battleHud=!previewSmoke&&Combat.State is {Ready:true}&&((!Reforged2Runtime.CleanHudMode&&(Plugin.Options?.EnableBattleTacticalHud.Value==true||NightmareReworkRuntime.HasAnyActiveMechanics))||Reforged2Runtime.BannerVisible||Reforged2Runtime.ScannerVisible);
   bool warHud=!previewSmoke&&WarRuntime.Active&&!Reforged2Runtime.CleanHudMode&&Plugin.Options?.EnableBattleTacticalHud.Value==true;
   bool helpCard=!previewSmoke&&Reforged2Runtime.HelpCardVisible;
   bool bestiaryCard=!previewSmoke&&Reforged2Runtime.BestiaryVisible;
-  if(smokeExitRequested||faulted||(!previewSmoke&&!dialogue&&!helpCard&&!bestiaryCard&&!warHud&&!battleHud&&!prompt&&!feedback&&offer==null&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
+  if(smokeExitRequested||faulted||(!previewSmoke&&!dialogue&&!dungeonHud&&!helpCard&&!bestiaryCard&&!warHud&&!battleHud&&!prompt&&!feedback&&offer==null&&(!HuntGuildRuntime.Visible||(!HuntGuildRuntime.Context&&!HuntGuildRuntime.Preview))))return;
   try
   {
    var matrix=GUI.matrix;var color=GUI.color;
@@ -712,6 +715,18 @@ public sealed class HuntGuildOverlay:MonoBehaviour
     float uiScale=Math.Max(1f,Math.Min(Screen.width/1280f,Screen.height/720f));
     float vw=Screen.width/uiScale,vh=Screen.height/uiScale;
     GUI.matrix=Matrix4x4.Scale(new Vector3(uiScale,uiScale,1f));GUI.color=Color.white;
+    if(dungeonHud)
+    {
+     var fspec=CirculatingPathsRules.Floor(CirculatingPathsRuntime.CurrentFloor);
+     string obj=CirculatingPathsRuntime.SummitCrystalReady?"Touch the Violet Crystal!"
+         :CirculatingPathsRuntime.GuardianDefeatedThisFloor?$"Portal Unlocked -> Floor {CirculatingPathsRuntime.CurrentFloor+1}/6"
+         :$"Guardian: {fspec.GuardianName}";
+     string dText=$"SAJAH SPIRE  ·  {fspec.ShortTag}  ·  Orbs {CirculatingPathsRules.OrbProgressBar(CirculatingPathsRuntime.RedOrbsCollected)} ({CirculatingPathsRuntime.RedOrbsCollected}/8)  ·  {obj}";
+     float dw=Math.Min(780,Math.Max(420,dText.Length*9.2f+48));
+     var dbox=new Rect(18,16,dw,42);
+     Window(dbox);
+     Label(new(new(24,10,dw-48,24),dText,15,"gold"),dbox.x,dbox.y,1);
+    }
     if(warHud)
     {
      string warText=$"WAR COMMAND  ·  {Reforged2Rules.StanceTitle(ArmyProgressionRuntime.ActiveStance)}  ·  {Reforged2Rules.MutatorTitle(ArmyProgressionRuntime.ActiveMutator)}"+(ArmyProgressionRuntime.ActiveDirective!=DrillDirective.None?$"  ·  {ArmyProgressionRules.DirectiveTitle(ArmyProgressionRuntime.ActiveDirective)}":"");
@@ -1035,9 +1050,11 @@ public sealed class HuntGuildOverlay:MonoBehaviour
       Label(new(new(32,26,width-64,84),CastleGuildRuntime.FeedbackText,22),box.x,box.y,1);
      else
      {
-      var (header,greeting)=GuildPresentation.NpcBanner(CastleGuildRuntime.Quest.State,CastleGuildRuntime.Contract,
-          ArmyProgressionRuntime.Current.MoraleBonusCharges,ArmyProgressionRuntime.Current.Commanders.Count,
-          ArmyProgressionRuntime.Enabled,CastleGuildRuntime.ActiveNpc);
+      var (header,greeting)=dungeonPrompt
+          ? WalkableDungeonRuntime.ActivePromptBanner()
+          : GuildPresentation.NpcBanner(CastleGuildRuntime.Quest.State,CastleGuildRuntime.Contract,
+              ArmyProgressionRuntime.Current.MoraleBonusCharges,ArmyProgressionRuntime.Current.Commanders.Count,
+              ArmyProgressionRuntime.Enabled,roomPrompt?CastleRoomNpcRuntime.ActiveRole:CastleGuildRuntime.ActiveNpc);
       // Classic Suikoden II floating Speaker Nameplate perched on top-left of dialogue box
       float plateW=Math.Min(500,Math.Max(240,header.Length*12+80));
       var plate=new Rect(box.x+20,box.y-38,plateW,46);

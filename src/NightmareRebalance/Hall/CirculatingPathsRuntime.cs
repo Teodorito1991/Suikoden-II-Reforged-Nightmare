@@ -310,6 +310,7 @@ internal static class CirculatingPathsRuntime
             return;
         }
         GuardianDefeatedThisFloor = true;
+        WalkableDungeonRuntime.RefreshActorVisibility();
         if (CurrentFloor >= CirculatingPathsRules.TotalFloors)
         {
             SummitCrystalReady = true;
