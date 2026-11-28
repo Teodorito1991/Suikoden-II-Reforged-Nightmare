@@ -84,6 +84,7 @@ internal sealed class ArmyLedgerState
     public Dictionary<string, HallBossRecord> HallRecords { get; set; } = new(StringComparer.Ordinal);
     public HashSet<string> CastleUpgrades { get; set; } = new(StringComparer.Ordinal);
     public HashSet<string> UnlockedHonors { get; set; } = new(StringComparer.Ordinal);
+    public HashSet<string> DefeatedSuperbosses { get; set; } = new(StringComparer.Ordinal);
     public Dictionary<string, BestiaryEntry> Bestiary { get; set; } = new(StringComparer.Ordinal);
     public NemesisRecord? ActiveNemesis { get; set; }
     public int NemesesSlain { get; set; }
@@ -144,6 +145,9 @@ internal sealed class ArmyLedgerState
         if (UnlockedHonors != null)
             foreach (var id in UnlockedHonors)
                 copy.UnlockedHonors.Add(id);
+        if (DefeatedSuperbosses != null)
+            foreach (var id in DefeatedSuperbosses)
+                copy.DefeatedSuperbosses.Add(id);
         if (Bestiary != null)
             foreach (var kv in Bestiary)
                 copy.Bestiary[kv.Key] = kv.Value.Clone();

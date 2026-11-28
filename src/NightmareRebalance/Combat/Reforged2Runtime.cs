@@ -187,6 +187,8 @@ internal static class Reforged2Runtime
     {
         if (!MomentumEnabled || delta <= 0 || OverdriveActive(w)) return;
         int scaled = Reforged5Rules.MomentumBonusForTalent(delta, actorTalent);
+        if (SuperbossRuntime.HasTrophy("true-luca"))
+            scaled = Math.Max(scaled + 1, (int)Math.Round(scaled * 1.15, MidpointRounding.AwayFromZero));
         Momentum = Reforged2Rules.AddMomentum(Momentum, scaled, out bool triggered);
         if (triggered)
         {
@@ -571,6 +573,15 @@ internal static class Reforged2Runtime
             result = Math.Max(result + 1, (int)Math.Round(result * 1.25, MidpointRounding.AwayFromZero));
         if (TowerOfDunanRuntime.HasRelic("black-sword-echo"))
             result = Math.Max(result + 1, (int)Math.Round(result * 1.30, MidpointRounding.AwayFromZero));
+        if (SuperbossRuntime.HasTrophy("true-luca"))
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.10, MidpointRounding.AwayFromZero));
+        if (SuperbossRuntime.HasTrophy("awakened-dragon"))
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.12, MidpointRounding.AwayFromZero));
+        if (SuperbossRuntime.HasTrophy("eternal-neclord") && attacker.hp > 0 && attacker.hp < attacker.max_hp)
+        {
+            int trophyHeal = Math.Max(1, (int)Math.Round(result * 0.08, MidpointRounding.AwayFromZero));
+            attacker.hp = (short)Math.Min(attacker.max_hp, attacker.hp + trophyHeal);
+        }
 
         if (attacker.chara_no is >= 3 and < 6 && (CombosEnabled || PerksEnabled))
         {
@@ -693,6 +704,15 @@ internal static class Reforged2Runtime
             result = Math.Max(result + 1, (int)Math.Round(result * 1.25, MidpointRounding.AwayFromZero));
         if (TowerOfDunanRuntime.HasRelic("black-sword-echo"))
             result = Math.Max(result + 1, (int)Math.Round(result * 1.30, MidpointRounding.AwayFromZero));
+        if (SuperbossRuntime.HasTrophy("omega-beast"))
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.12, MidpointRounding.AwayFromZero));
+        if (SuperbossRuntime.HasTrophy("awakened-dragon"))
+            result = Math.Max(result + 1, (int)Math.Round(result * 1.12, MidpointRounding.AwayFromZero));
+        if (SuperbossRuntime.HasTrophy("eternal-neclord") && caster.hp > 0 && caster.hp < caster.max_hp)
+        {
+            int trophyHeal = Math.Max(1, (int)Math.Round(result * 0.08, MidpointRounding.AwayFromZero));
+            caster.hp = (short)Math.Min(caster.max_hp, caster.hp + trophyHeal);
+        }
         if (caster.chara_no is >= 3 and < 6 && (CombosEnabled || PerksEnabled))
         {
             var (_, backAlive) = FormationCounts(w);

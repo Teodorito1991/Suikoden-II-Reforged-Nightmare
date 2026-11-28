@@ -29,12 +29,16 @@ internal static class HallFirstContact
         }
         return RequestCore(selection>=0&&selection<HallTrialCatalogue.Entries.Length?HallTrialCatalogue.Entries[selection]:null,nightmare);
     }
-    internal static bool RequestStage(HallTrialDefinition definition,bool nightmare)=>HallLucaSession.Active&&RequestCore(definition,nightmare);
-    static bool RequestCore(HallTrialDefinition? definition,bool nightmare)
+    internal static bool RequestStage(HallTrialDefinition definition,bool nightmare)=>HallLucaSession.Active&&RequestCore(definition,nightmare,false);
+    internal static bool RequestSuperboss(HallTrialDefinition definition)=>RequestCore(definition,false,true);
+    static bool RequestCore(HallTrialDefinition? definition,bool nightmare,bool superboss=false)
     {
         int selection=definition==null?-1:Array.FindIndex(HallTrialCatalogue.Entries,d=>d.Id==(HallLucaSession.IsStage(definition.Id)?"luca-gauntlet":definition.Id));
-        if (selection < 0 || selection >= HallTrialCatalogue.Entries.Length ||
-            !HallAvailability.CanSelect(selection) || (nightmare && !HallNightmareRuntime.CanSelect(selection)) ||
+        bool allowedSelection = superboss
+            ? definition != null
+            : (selection >= 0 && selection < HallTrialCatalogue.Entries.Length &&
+               HallAvailability.CanSelect(selection) && (!nightmare || HallNightmareRuntime.CanSelect(selection)));
+        if (!allowedSelection ||
             !Available || (!CastleGuildRuntime.Context&&!HallLucaSession.OwnsIdleRequest(definition)) || !Plugin.CheckCompatibility() ||
             CastleGuildRuntime.Owner is not { ano: 10, vno: 6, mno: 3, _mstep: 20 } field ||
             CastleGuildRuntime.Field is not {} events ||
@@ -46,7 +50,7 @@ internal static class HallFirstContact
         {
             var live=Framework.Singleton<GAME_WORK>.instance;
             Plugin.Logger.LogWarning("HallFirstContact: request admission refused: "+System.Text.Json.JsonSerializer.Serialize(new {
-                Definition=definition?.Id,Selection=selection,Configured=HallAvailability.CanSelect(selection),
+                Definition=definition?.Id,Selection=selection,Configured=superboss||HallAvailability.CanSelect(selection),
                 Available,EnabledAtStartup,Faulted=faulted,TrialPresent=trial!=null,Driver=HallFirstContactDriver.Instance!=null,
                 ModalContext=CastleGuildRuntime.Context,GauntletContext=HallLucaSession.OwnsIdleRequest(definition),
                 Idle=CastleGuildRuntime.Idle,Near=CastleGuildRuntime.Near,Modal=CastleGuildRuntime.Modal,
@@ -61,7 +65,7 @@ internal static class HallFirstContact
             return false;
         }
 
-        trial = new Trial(definition!, nightmare, game, sys, field, events, map);
+        trial = new Trial(definition!, nightmare, superboss, game, sys, field, events, map);
         Plugin.Logger.LogInfo($"HallFirstContact: Guild confirmed {trial.Definition.Name}.");
         return true;
     }
@@ -70,6 +74,7 @@ internal static class HallFirstContact
     {
         internal readonly HallTrialDefinition Definition;
         internal readonly bool Nightmare;
+        internal readonly bool IsSuperboss;
         internal readonly HallStoneReward Stone=new();
         internal readonly List<MONSTER_DATA> OwnedMonsters=new();
         internal string? PackId;
@@ -105,9 +110,9 @@ internal static class HallFirstContact
         internal uint Potch;
         internal byte[] RewardIds = Array.Empty<byte>();
         internal int[] RewardCounts = Array.Empty<int>();
-        internal Trial(HallTrialDefinition definition, bool nightmare, GAME_WORK game, SYS_WORK sys, MACHICON field, EVENTCON events, MACHIDAT map)
+        internal Trial(HallTrialDefinition definition, bool nightmare, bool superboss, GAME_WORK game, SYS_WORK sys, MACHICON field, EVENTCON events, MACHIDAT map)
         {
-            Definition = definition; Nightmare=nightmare;
+            Definition = definition; Nightmare=nightmare; IsSuperboss=superboss;
             Game = game; Sys = sys; Field = field; Events = events; Map = map;
             Party = game.party_data.Pointer;
             X = events.ehuman[0].x.ss.inte; Y = events.ehuman[0].y.ss.inte;
@@ -195,8 +200,9 @@ internal static class HallFirstContact
         index = Math.Max(index, 1);
         if (index >= 0xF0 || t.Sys.yobi == null || t.Sys.yobi.Length == 0 || t.Sys.yobi[0] != 0 ||
             !CastleGuildRuntime.HuntEntryCompatible || !Plugin.CheckCompatibility() ||
-            !HallAvailability.CanSelect(Array.FindIndex(HallTrialCatalogue.Entries,d=>d.Id==(HallLucaSession.IsStage(t.Definition.Id)?"luca-gauntlet":t.Definition.Id))) ||
-            (t.Nightmare&&!HallNightmareRuntime.CanSelect(Array.FindIndex(HallTrialCatalogue.Entries,d=>d.Id==(HallLucaSession.IsStage(t.Definition.Id)?"luca-gauntlet":t.Definition.Id)))))
+            (!t.IsSuperboss && (
+                !HallAvailability.CanSelect(Array.FindIndex(HallTrialCatalogue.Entries,d=>d.Id==(HallLucaSession.IsStage(t.Definition.Id)?"luca-gauntlet":t.Definition.Id))) ||
+                (t.Nightmare&&!HallNightmareRuntime.CanSelect(Array.FindIndex(HallTrialCatalogue.Entries,d=>d.Id==(HallLucaSession.IsStage(t.Definition.Id)?"luca-gauntlet":t.Definition.Id)))))))
             throw new InvalidOperationException("Ordinary request preconditions rejected.");
         var extended = new Il2CppReferenceArray<BATTLE_DATA>(index + 1);
         if (tables != null)
@@ -418,7 +424,7 @@ internal static class HallFirstContact
     }
 
     internal static bool NeedsOriginalExtraTexture(BATTLE_WORK? work)=>
-        trial is {Committed:true,Setup:true,Released:false} t&&t.Definition.Id=="beast-rune"&&
+        trial is {Committed:true,Setup:true,Released:false} t&&t.Definition.TableId=="boss_las"&&
         Owns(work)&&SameCampaign(t)&&t.Sys.battle_no==-1;
 
     internal static bool TryBossSprite(int index, out OPD_DATA? sprite)

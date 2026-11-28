@@ -467,6 +467,20 @@ internal static class ArmyProgressionRuntime
         }
     }
 
+    internal static bool RecordSuperbossVictory(string superbossId, out bool allFourCleared)
+    {
+        lock (Sync)
+        {
+            Current.DefeatedSuperbosses ??= new HashSet<string>(StringComparer.Ordinal);
+            Current.UnlockedHonors ??= new HashSet<string>(StringComparer.Ordinal);
+            bool firstClear = Current.DefeatedSuperbosses.Add(superbossId);
+            Current.UnlockedHonors.Add("superboss-" + superbossId);
+            allFourCleared = SuperbossRules.AllCleared(Current.DefeatedSuperbosses) &&
+                             Current.UnlockedHonors.Add("superboss-all");
+            return firstClear;
+        }
+    }
+
     internal static DrillDirective CycleDirective()
     {
         ActiveDirective = (DrillDirective)(((int)ActiveDirective + 1) % 4);

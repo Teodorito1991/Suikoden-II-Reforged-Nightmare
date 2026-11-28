@@ -103,9 +103,62 @@ internal static class CastleDialogueScripts
         CastleNpcRole.TowerKeeper => BuildKaelen(ledger, towerPendingDraft, towerFloor),
         CastleNpcRole.FieldScout => BuildLyra(ledger),
         CastleNpcRole.WarChronicler => BuildOrin(ledger),
+        CastleNpcRole.SuperbossSeer => BuildHoodedStranger(ledger),
         _ => new("Guild Attendant", "Dunan Castle Guild", new[] { "Welcome to the Castle Guild. How may I assist you?" },
             new[] { new DialogueChoiceSpec("Leave", "close") })
     };
+
+    static DialogueScript BuildHoodedStranger(ArmyLedgerState ledger)
+    {
+        var defeated = ledger.DefeatedSuperbosses ?? new HashSet<string>(StringComparer.Ordinal);
+        int cleared = SuperbossRules.All.Count(s => defeated.Contains(s.Id));
+        var pages = new List<string>(2);
+        if (cleared >= SuperbossRules.All.Length)
+        {
+            pages.Add("Impossible... You have broken all four forbidden seals and stand as the Sovereign of Dunan!");
+            pages.Add("Even True Luca, the Omega Beast Rune, and the Sindar Lords fell before you. Yet their echoes remain should you wish to test your steel again.");
+        }
+        else if (cleared > 0)
+        {
+            pages.Add($"So... you survived. {cleared}/{SuperbossRules.All.Length} forbidden seals have already yielded to your blade.");
+            pages.Add("Each vanquished Secret Superboss leaves behind a permanent Trophy that empowers your entire party. Which seal will you break next?");
+        }
+        else
+        {
+            pages.Add("...You have the eyes of someone who finds ordinary battles too tame. Good.");
+            pages.Add("Hidden beyond the Hall of Echoes lie four forbidden seals—True Luca Blight, the Omega Beast Rune, Eternal Neclord, and the Awakened Bone Dragon. Break a seal, and claim their permanent Trophy.");
+        }
+
+        var choices = new List<DialogueChoiceSpec>(6);
+        foreach (var s in SuperbossRules.All)
+        {
+            string tag = defeated.Contains(s.Id) ? " [CLEARED]" : " [SEALED]";
+            choices.Add(new DialogueChoiceSpec($"{s.Name}{tag}", "confirm-superboss:" + s.Id));
+        }
+        choices.Add(new DialogueChoiceSpec("Inspect Superboss Trophies", "lore-superboss"));
+        choices.Add(new DialogueChoiceSpec("Step Back", "close"));
+        return new("Hooded Stranger", "Keeper of Forbidden Seals", pages.ToArray(), choices.ToArray());
+    }
+
+    internal static DialogueScript SuperbossConfirmScript(string id, ArmyLedgerState ledger)
+    {
+        var spec = SuperbossRules.Find(id);
+        if (spec == null) return BuildHoodedStranger(ledger);
+        bool done = ledger.DefeatedSuperbosses != null && ledger.DefeatedSuperbosses.Contains(spec.Id);
+        string rewardLine = done
+            ? $"Trophy already claimed ({spec.TrophyName}: {spec.TrophySummary}). Rematch awards +3 Bonus Commendations."
+            : $"First-Clear Reward: {spec.TrophyName} ({spec.TrophySummary}), +{spec.FirstClearPotch:N0} Potch & +{spec.FirstClearCommendations} Commendations.";
+        return new("Hooded Stranger", spec.Subtitle, new[]
+        {
+            spec.SealWarning,
+            rewardLine
+        }, new[]
+        {
+            new DialogueChoiceSpec($"Break the Seal — Challenge {spec.Name}", "launch-superboss:" + spec.Id),
+            new DialogueChoiceSpec("Choose Another Seal", "back-superboss"),
+            new DialogueChoiceSpec("Leave", "close")
+        });
+    }
 
     static DialogueScript BuildKaelen(ArmyLedgerState ledger, bool pendingDraft, int activeFloor)
     {
@@ -177,6 +230,11 @@ internal static class CastleDialogueScripts
             pages.Add("I chronicle the rise of the Dunan Army—every skirmish won, every beast catalogued, every honor earned.");
         }
         pages.Add($"Our records show {honors}/{Reforged2Rules.Honors.Length} Dunan Honors unlocked and {species} species logged in the Bestiary.");
+        int sbCleared = ledger.DefeatedSuperbosses?.Count ?? 0;
+        if (sbCleared >= SuperbossRules.All.Length)
+            pages.Add("The bards will sing of this for a thousand years—you broke all four Forbidden Seals and claimed the title Sovereign of Dunan!");
+        else if (sbCleared > 0)
+            pages.Add($"Whispers spread through the keep! You have vanquished {sbCleared}/{SuperbossRules.All.Length} of the Hooded Stranger's Secret Superbosses.");
         return new("War Chronicler Orin", "Castle Historian", pages.ToArray(), new[]
         {
             new DialogueChoiceSpec("Open War Squads Builder", "open-warsquads"),
@@ -201,6 +259,13 @@ internal static class CastleDialogueScripts
             "Once broken, a STAGGERED foe takes +50% damage, deals -40% damage, and loses any Charged Devastation attack.",
             "Never ignore Defend! Guarding an incoming hit heals 10% max HP, grants +20 Momentum, and cuts Charged attacks by 65%."
         }, new[] { new DialogueChoiceSpec("Open Party Talents", "open-talents"), new DialogueChoiceSpec("Leave", "close") }),
+
+        "lore-superboss" => new("Hooded Stranger", "Forbidden Seal Trophies", new[]
+        {
+            "Crown of the Mad Prince (True Luca): Permanent +10% Party Phys & Combo DMG, +15% Momentum Gain.",
+            "Echo of the 27th Rune (Omega Beast): Permanent +12% Party Magic/Rune DMG & -10% All DMG Taken.",
+            "Chalice of Eternal Night (Neclord): +8% Party Lifesteal.  Fang of the Sindar (Bone Dragon): +12% All Party DMG & +1 Combo Shield Break."
+        }, new[] { new DialogueChoiceSpec("Return to the Seals", "back-superboss"), new DialogueChoiceSpec("Leave", "close") }),
 
         _ => new("War Chronicler Orin", "Castle Historian", new[]
         {

@@ -52,16 +52,17 @@ internal static class NightmareReworkRuntime
         ActiveZoneHazard = NightmareReworkRules.RollZoneHazard(w.battle_data?.id);
         bool hasBoss = w.pm_data.Any(u => u != null && !u.IsPlayer && u.max_hp >= 1200);
         bool isEliteBattle = Reforged2Runtime.ApexBattleActive || Reforged2Runtime.NemesisBattleActive ||
-            HuntRuntime.Active != null || TowerOfDunanRuntime.BattleInProgress;
+            HuntRuntime.Active != null || TowerOfDunanRuntime.BattleInProgress || SuperbossRuntime.BattleInProgress;
 
         if (!hasBoss && !isEliteBattle && s.Allowed && s.StatsAllowed)
             ActivePackTrait = NightmareReworkRules.RollPackTrait(rng.Next(100));
 
+        int superbossShields = SuperbossRuntime.InitialShieldsForSuperboss();
         foreach (var unit in w.pm_data)
         {
             if (unit == null || unit.IsPlayer || unit.hp <= 0 || unit.IsDead) continue;
-            bool isBoss = unit.max_hp >= 1200;
-            int shields = NightmareReworkRules.InitialShields(isBoss, isEliteBattle, ActivePackTrait);
+            bool isBoss = unit.max_hp >= 1200 || SuperbossRuntime.BattleInProgress;
+            int shields = superbossShields > 0 ? superbossShields : NightmareReworkRules.InitialShields(isBoss, isEliteBattle, ActivePackTrait);
             states[unit.Pointer] = new EnemyTacticalState
             {
                 MaxShields = shields,
@@ -164,6 +165,7 @@ internal static class NightmareReworkRuntime
                 string weak = enemy.calc_para is { Length: > 3 } ? Reforged2Rules.TacticalWeaknessHint(enemy.calc_para[2], enemy.calc_para[3]) : "Balanced";
                 bool hitWeak = (isMagic && weak == "Weak: Magic") || (!isMagic && weak == "Weak: Phys");
                 int breakAmt = NightmareReworkRules.ShieldBreakAmount(hitWeak, comboProcced);
+                if (comboProcced && SuperbossRuntime.HasTrophy("awakened-dragon")) breakAmt++;
                 st.Shields = Math.Max(0, st.Shields - breakAmt);
                 if (st.Shields == 0)
                 {
@@ -188,6 +190,8 @@ internal static class NightmareReworkRuntime
                 Reforged2Runtime.FlashBanner($"🌵 Thorned Reflect! (-{reflect} HP)", 1800, "alert");
             }
         }
+        if (SuperbossRuntime.BattleInProgress)
+            result = SuperbossRuntime.ApplySuperbossIncomingModifiers(w, actor, enemy, result, isMagic);
         return result;
     }
 

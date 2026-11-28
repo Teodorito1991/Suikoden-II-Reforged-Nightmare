@@ -2,7 +2,7 @@ namespace NightmareRebalance;
 
 internal enum GuildPage { Services, Hunts, Training, Difficulty, Status, Strategy, Echoes, EchoDifficulty, SpoilerWarning, LucaParties, ArmyRoster, Codex, Quartermaster, PartyTalents, TowerOfDunan, WarSquads }
 internal enum GuildChoice { None, Accept, Start, Report, Withdraw, Leave, StartEcho, SetSpoilers, RestoreStory, ChooseLuca, CycleDoctrine, CycleDirective, CycleHuntModifier, BuyQuartermaster, CycleStance, CycleMutator, CycleTalent, CycleBranch, TowerAction, ExportChronicle }
-internal enum CastleNpcRole { GuildAttendant, DrillSergeant, EchoArchivist, Quartermaster, TowerKeeper, FieldScout, WarChronicler }
+internal enum CastleNpcRole { GuildAttendant, DrillSergeant, EchoArchivist, Quartermaster, TowerKeeper, FieldScout, WarChronicler, SuperbossSeer }
 
 internal static class GuildApproach
 {

@@ -51,6 +51,7 @@
     <Compile Include="../src/NightmareRebalance/Progression/Reforged5Rules.cs" Link="Reforged5Rules.cs" />
     <Compile Include="../src/NightmareRebalance/Combat/NightmareReworkRules.cs" Link="NightmareReworkRules.cs" />
     <Compile Include="../src/NightmareRebalance/Guild/CastleDialogue.cs" Link="CastleDialogue.cs" />
+    <Compile Include="../src/NightmareRebalance/Hall/SuperbossRules.cs" Link="SuperbossRules.cs" />
     <EmbeddedResource Include="../src/NightmareRebalance/Content/*.json" LogicalName="ReforgedContent.%(Filename)%(Extension)" />
     <EmbeddedResource Include="../archive/embedded-arena-v0.5/last-bridge.json" LogicalName="ReforgedContent.last-bridge.json" />
   </ItemGroup>

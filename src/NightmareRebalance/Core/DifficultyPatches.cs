@@ -27,6 +27,10 @@ internal static class DamageScope
                 factor *= Reforged2Runtime.ActiveNemesisDamageMultiplier;
             if (TowerOfDunanRuntime.BattleInProgress)
                 factor *= TowerOfDunanRuntime.ActiveDamageMultiplier;
+            if (SuperbossRuntime.BattleInProgress)
+                factor *= SuperbossRuntime.ActiveDamageMultiplier(work);
+            if (SuperbossRuntime.HasTrophy("omega-beast"))
+                factor *= 0.90;
             if (DamageScaling.Apply(outer, eligible, ref result, factor))
             {
                 CombatReforgedDiagnostics.Calculated(attacker,target,before,result,factor);
@@ -71,6 +75,7 @@ internal static class EnemyDamagePatch
         {
             __result = Reforged2Runtime.ApplyOverdriveDefense(w, mokuhyo, __result);
             __result = NightmareReworkRuntime.ApplyDefendAndEnemyTraits(w, __instance, mokuhyo, __result);
+            SuperbossRuntime.OnSuperbossDealtDamage(__instance, __result);
             Reforged2Runtime.ObservePlayerHit(w, __instance.chara_no, mokuhyo, __result);
         }
     }

@@ -70,6 +70,10 @@ internal static class GuildPresentation
         {
             return ("War Chronicler Orin", "Every skirmish and Honor is chronicled here. Speak with me for War Squads, lore, or chronicle.md.");
         }
+        if (role == CastleNpcRole.SuperbossSeer)
+        {
+            return ("Hooded Stranger  [★]", "Four forbidden seals hum in the dark... Speak with me if you dare challenge a Secret Superboss.");
+        }
         if (state == GuildQuestState.AwaitingReport)
         {
             string name = string.IsNullOrEmpty(contractId) ? "your quarry" : GuildScreenRules.Card(contractId).Name;

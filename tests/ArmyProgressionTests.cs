@@ -395,6 +395,25 @@ internal static class ArmyProgressionTests
         Check(dlg.ChoiceFocus == 1, "Down moves choice cursor");
         Check(dlg.StepConfirm(false, false) == null && dlg.StepConfirm(true, true) == "lore-tower", "Confirm selects highlighted dialogue choice");
 
-        Console.WriteLine($"PASS: Reforged 7.5 full suite {checks} checks.");
+        // 21. Reforged 8.0: Secret Superbosses (True Luca, Omega Beast Rune, Eternal Neclord, Awakened Bone Dragon)
+        Check(SuperbossRules.All.Length == 4 && SuperbossRules.Find("true-luca") != null && SuperbossRules.Find("omega-beast") != null &&
+              SuperbossRules.Find("eternal-neclord") != null && SuperbossRules.Find("awakened-dragon") != null, "All 4 Secret Superbosses registered");
+        var lucaSpec = SuperbossRules.Find("true-luca")!;
+        Check(SuperbossRules.EvaluatePhase(lucaSpec, 10000, 10000) == 1 && SuperbossRules.EvaluatePhase(lucaSpec, 6000, 10000) == 2 &&
+              SuperbossRules.EvaluatePhase(lucaSpec, 2500, 10000) == 3, "True Luca 3-phase HP thresholds (100/65/30%)");
+        Check(SuperbossRules.PhaseDamageMultiplier(lucaSpec, 3, 3) > SuperbossRules.PhaseDamageMultiplier(lucaSpec, 3, 2) &&
+              SuperbossRules.PhaseDamageMultiplier(lucaSpec, 2, 1) > SuperbossRules.PhaseDamageMultiplier(lucaSpec, 1, 1), "Phase & ultimate turn damage escalation");
+        var necSpec = SuperbossRules.Find("eternal-neclord")!;
+        Check(SuperbossRules.EvaluatePhase(necSpec, 6000, 10000) == 1 && SuperbossRules.EvaluatePhase(necSpec, 4500, 10000) == 2, "Sindar 2-phase threshold (50%)");
+        var strangerScript = CastleDialogueScripts.Build(CastleNpcRole.SuperbossSeer, ledger, false, 0);
+        Check(strangerScript.Speaker == "Hooded Stranger" && strangerScript.Choices.Length == 6 && strangerScript.Choices[0].ActionId == "confirm-superboss:true-luca", "Hooded Stranger offers all 4 Secret Superbosses + lore");
+        var confirmScript = CastleDialogueScripts.SuperbossConfirmScript("omega-beast", ledger);
+        Check(confirmScript.Choices[0].ActionId == "launch-superboss:omega-beast", "Superboss seal confirmation launches exact encounter");
+        foreach (var bossSpec in SuperbossRules.All) ledger.DefeatedSuperbosses.Add(bossSpec.Id);
+        Check(SuperbossRules.AllCleared(ledger.DefeatedSuperbosses) && ledger.Clone().DefeatedSuperbosses.Count == 4, "Superboss victories persist and clone cleanly");
+        var clearedStranger = CastleDialogueScripts.Build(CastleNpcRole.SuperbossSeer, ledger, false, 0);
+        Check(clearedStranger.Pages[0].Contains("Sovereign of Dunan"), "Hooded Stranger reacts when all 4 Secret Superbosses are vanquished");
+
+        Console.WriteLine($"PASS: Reforged 8.0 full suite {checks} checks.");
     }
 }
